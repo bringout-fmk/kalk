@@ -786,38 +786,49 @@ closeret
  *  \brief Povrat kalkulacije iz "smeca" u pripremu
  */
 
-function Povrat9()
+function Povrat9(cIdFirma, cIdVd, cBrDok)
 *{
 local nRec
 
 if Klevel<>"0"
-    Beep(2)
-    Msg("Nemate pristupa ovoj opciji !",4)
-    closeret
+	Beep(2)
+    	Msg("Nemate pristupa ovoj opciji !",4)
+    	CLOSERET
 endif
+
+lSilent := .t.
 
 O_PRIPR9
 O_PRIPR
 
-SELECT PRIPR9; set order to 1  // idFirma+IdVD+BrDok+RBr
-cidfirma:=gfirma
-cIdVD:=space(2)
-cBrDok:=space(8)
+SELECT PRIPR9
+set order to 1  // idFirma+IdVD+BrDok+RBr
 
-Box("",1,35)
- @ m_x+1,m_y+2 SAY "Dokument:"
- if gNW $ "DX"
-   @ m_x+1,col()+1 SAY cIdFirma
- else
-   @ m_x+1,col()+1 GET cIdFirma
- endif
- @ m_x+1,col()+1 SAY "-" GET cIdVD
- @ m_x+1,col()+1 SAY "-" GET cBrDok
- read
- ESC_BCR
-BoxC()
+if ((cIdFirma == nil) .and. (cIdVd == nil) .and. (cBrDok == nil))
+	lSilent := .f.
+endif
 
-if cBrDok="."
+if !lSilent
+	cIdFirma:=gFirma
+	cIdVD:=SPACE(2)
+	cBrDok:=SPACE(8)
+endif
+
+if !lSilent
+	Box("",1,35)
+ 		@ m_x+1,m_y+2 SAY "Dokument:"
+ 		if gNW $ "DX"
+   			@ m_x+1,col()+1 SAY cIdFirma
+ 		else
+   			@ m_x+1,col()+1 GET cIdFirma
+ 		endif
+ 		@ m_x+1,col()+1 SAY "-" GET cIdVD
+ 		@ m_x+1,col()+1 SAY "-" GET cBrDok
+ 		read
+ 		ESC_BCR
+	BoxC()
+
+  if cBrDok="."
   private qqBrDok:=qqDatDok:=qqIdvD:=space(80)
   qqIdVD:=padr(cidvd+";",80)
   Box(,3,60)
@@ -835,7 +846,7 @@ if cBrDok="."
    enddo
   Boxc()
 
-  if Pitanje(,"Povuci u pripremu dokumente sa ovim kriterijom ?","N")=="D"
+ if Pitanje(,"Povuci u pripremu dokumente sa ovim kriterijom ?","N")=="D"
     select pripr9
     if !flock(); Msg("PRIPR9 - SMECE je zauzeta ",3); closeret; endif
     PRIVATE cFilt1:=""
@@ -860,13 +871,19 @@ if cBrDok="."
   closeret
 endif
 
+endif // lSilent
+
 if Pitanje("","Iz smeca "+cIdFirma+"-"+cIdVD+"-"+cBrDok+" povuci u pripremu (D/N) ?","D")=="N"
-   closeret
+	if !lSilent
+		CLOSERET
+	else
+		return
+	endif
 endif
 
 select PRIPR9
 
-hseek cidfirma+cidvd+cBrDok
+hseek cIdFirma+cIdVd+cBrDok
 EOF CRET
 
 MsgO("PRIPREMA")
@@ -888,7 +905,14 @@ enddo
 use
 MsgC()
 
-closeret
+if !lSilent
+	closeret
+endif
+
+O_PRIPR9
+select pripr9
+
+return
 *}
 
 
@@ -1049,5 +1073,19 @@ enddo // bof()
 MsgC()
 
 closeret
+*}
+
+
+function ErPripr9(cIdF, cIdVd, cBrDok)
+*{
+
+return
+*}
+
+function ErP9All()
+*{
+
+
+return
 *}
 

@@ -75,21 +75,29 @@ else
 endif
 
 IF IsPlanika()
-AADD(opc,"2. generacija tabele prodnc")
-if (ImaPravoPristupa(goModul:oDataBase:cName,"DOK","GENPRODNC"))
-	AADD(opcexe, {|| GenProdNc()})
+	AADD(opc,"2. generacija tabele prodnc")
+	if (ImaPravoPristupa(goModul:oDataBase:cName,"DOK","GENPRODNC"))
+		AADD(opcexe, {|| GenProdNc()})
+	else
+		AADD(opcexe, {|| MsgBeep(cZabrana)})
+	endif
+
+	AADD(opc,"3. Set roba.idPartner")
+	if (ImaPravoPristupa(goModul:oDataBase:cName,"DOK","SETIDPARTN"))
+		AADD(opcexe, {|| SetIdPartnerRoba()})
+	else
+		AADD(opcexe, {|| MsgBeep(cZabrana)})
+	endif
+endif
+
+AADD(opc,"4. pregled smeca ")
+if (ImaPravoPristupa(goModul:oDataBase:cName,"DOK","SMECEPREGLED"))
+	AADD(opcexe, {|| Pripr9View()})
 else
 	AADD(opcexe, {|| MsgBeep(cZabrana)})
 endif
 
-AADD(opc,"3. Set roba.idPartner")
-if (ImaPravoPristupa(goModul:oDataBase:cName,"DOK","SETIDPARTN"))
-	AADD(opcexe, {|| SetIdPartnerRoba()})
-else
-	AADD(opcexe, {|| MsgBeep(cZabrana)})
-endif
 
-endif
 
 private Izbor:=1
 Menu_SC("mazd")

@@ -98,6 +98,10 @@ endif
 
 if IsDomZdr()
 	private cKalkTip:=SPACE(1)
+	if IsRobaGroup()
+		private qqRGroup:=SPACE(40)
+		private qqRGroup2:=SPACE(40)
+	endif
 endif
 
 if IsVindija()
@@ -184,7 +188,12 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		
 		if IsDomZdr()
  			@ m_x+15,m_y+2 SAY "Prikaz po tipu sredstva:" GET cKalkTip PICT "@!"
- 		endif
+ 			if IsRobaGroup()
+				
+ 				@ m_x+16,m_y+2 SAY "Grupa artikla:" GET qqRGroup PICT "@S20"
+ 				@ m_x+17,m_y+2 SAY "Podgrupa artikla:" GET qqRGroup2 PICT "@S20"
+			endif
+		endif
 
  		@ m_x+18,m_y+2 SAY "Naziv artikla sadrzi"  GET cArtikalNaz
 
@@ -300,7 +309,16 @@ select kalk
 EOF CRET
 
 nLen:=1
+
+private lSignZalihe := .f.
+if IsDomZdr()
+	if IzFmkIni("KALK", "SignZalihe", "N", KUMPATH) == "D"
+		lSignZalihe := .t.
+	endif
+endif
+
 m:="----- ---------- -------------------- ---"+IF(lPoNarudzbi.and.cPKN=="D"," ------","")+" ---------- ---------- ---------- ---------- ---------- ----------"
+
 if gVarEv=="2"
 	m:="----- ---------- -------------------- --- ---------- ---------- ----------"
 elseif koncij->naz<>"N1"
@@ -371,6 +389,24 @@ if (IsPlanika() .and. !EMPTY(cK9) .and. roba->k9 <> cK9)
 	select kalk
 	skip
 	loop
+endif
+// roba grupacija
+if IsDomZdr() .and. IsRobaGroup()
+	if !Empty(qqRGroup)
+		if ALLTRIM(IzSifK("ROBA", "GR01", roba->id, .f.)) $ qqRGroup 
+			if !Empty(qqRGroup2) .and. ALLTRIM(IzSifK("ROBA", "GR02", roba->id, .f.)) $ qqRGroup2
+			// idi dalje
+			else
+				select kalk
+				skip
+				loop
+			endif
+		else
+			select kalk
+			skip
+			loop
+		endif
+	endif
 endif
 
 // Vindija - uslov po opcinama
@@ -496,7 +532,7 @@ endif
 
 aNaz:=Sjecistr(roba->naz,20)
 NovaStrana(bZagl)
-? str(++nrbr,4)+".",cidroba
+? str(++nrbr,4)+".", cIdRoba
 nCr:=pcol()+1
 @ prow(),pcol()+1 SAY aNaz[1]
 
@@ -516,6 +552,7 @@ IF lPoNarudzbi .and. cPKN=="D"
 ENDIF
 
 nCol0:=pcol()+1
+
 
 @ prow(),pcol()+1 SAY nKJMJ*nUlaz          pict gpickol
 @ prow(),pcol()+1 SAY nKJMJ*nIzlaz         pict gpickol
@@ -666,6 +703,12 @@ endif
 if lKoristitiBK
 	? SPACE(6) + roba->barkod
 endif
+
+if lSignZalihe
+	? "p.kol: " + STR(IzSifK("ROBA", "PKOL", roba->id, .f.))
+	?? ", p.cij: " + STR(IzSifK("ROBA", "PCIJ", roba->id, .f.))
+endif
+
 
 enddo
 

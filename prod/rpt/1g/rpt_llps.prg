@@ -38,11 +38,24 @@
 
 function LLPS()
 *{
+
+private PicCDem:=gPicCDem
+private PicDem:=gPicDem
+
+if IsPlNS()
+	if LEN(gPicCDem)==10
+		PicCDem := "999" + gPicCDem
+	endif
+	if LEN(gPicDEM)==10
+		PicDem := "999" + gPicDem
+	endif
+endif
+
 cIdFirma:=gFirma
 qqKonto:=padr("132;",60)
 if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK
-   O_SIFV
+	O_SIFK
+   	O_SIFV
 endif
 O_ROBA
 O_KONTO
@@ -50,57 +63,63 @@ O_PARTN
 
 dDatOd:=ctod("")
 dDatDo:=date()
-qqRoba:=space(60)
-qqTarifa:=qqidvd:=space(60)
+qqRoba:=SPACE(60)
+qqTarifa:=SPACE(60)
+qqidvd:=SPACE(60)
 private cERR:="D"
 private cPNab:="N"
-private cNula:="D",cTU:="N"
+private cNula:="D"
+private cTU:="N"
 private cPredhStanje:="N"
+
 Box(,12,66)
-cGrupacija:=space(4)
-do while .t.
- if gNW $ "DX"
-   @ m_x+1,m_y+2 SAY "Firma "; ?? gFirma,"-",gNFirma
- else
-  @ m_x+1,m_y+2 SAY "Firma  " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
- endif
- @ m_x+2,m_y+2 SAY "Prodavnice" GET qqKonto  pict "@!S50"
- @ m_x+3,m_y+2 SAY "Artikli   " GET qqRoba pict "@!S50"
- @ m_x+4,m_y+2 SAY "Tarife    " GET qqTarifa pict "@!S50"
- @ m_x+5,m_y+2 SAY "Vrste dokumenata  " GET qqIDVD pict "@!S30"
- @ m_x+6,m_y+2 SAY "Prikaz Nab.vrijednosti D/N" GET cPNab  valid cpnab $ "DN" pict "@!"
- @ m_x+7,m_y+2 SAY "Prikaz stavki kojima je MPV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
- @ m_x+8,m_y+2 SAY "Prikaz ERR D/N" GET cERR  valid cERR $ "DN" pict "@!"
- @ m_x+9,m_y+2 SAY "Datum od " GET dDatOd
- @ m_x+9,col()+2 SAY "do" GET dDatDo
- @ m_x+10,m_y+2 SAY "Prikaz robe tipa T/U  (D/N)" GET cTU valid cTU $ "DN" pict "@!"
- @ m_x+12,m_y+2 SAY "Odabir grupacije (prazno-svi) GET" GET cGrupacija pict "@!"
- read; ESC_BCR
- private aUsl1:=Parsiraj(qqRoba,"IdRoba")
- private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
- private aUsl3:=Parsiraj(qqIDVD,"idvd")
- private aUsl4:=Parsiraj(qqkonto,"pkonto")
- if aUsl1<>NIL
- 	exit
- endif
- if aUsl2<>NIL
- 	exit
- endif
- if aUsl3<>NIL
- 	exit
- endif
-enddo
+	cGrupacija:=space(4)
+	do while .t.
+ 		if gNW $ "DX"
+   			@ m_x+1,m_y+2 SAY "Firma "
+			?? gFirma,"-",gNFirma
+ 		else
+  			@ m_x+1,m_y+2 SAY "Firma  " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
+ 		endif
+ 		@ m_x+2,m_y+2 SAY "Prodavnice" GET qqKonto  pict "@!S50"
+ 		@ m_x+3,m_y+2 SAY "Artikli   " GET qqRoba pict "@!S50"
+ 		@ m_x+4,m_y+2 SAY "Tarife    " GET qqTarifa pict "@!S50"
+ 		@ m_x+5,m_y+2 SAY "Vrste dokumenata  " GET qqIDVD pict "@!S30"
+ 		@ m_x+6,m_y+2 SAY "Prikaz Nab.vrijednosti D/N" GET cPNab  valid cpnab $ "DN" pict "@!"
+ 		@ m_x+7,m_y+2 SAY "Prikaz stavki kojima je MPV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
+ 		@ m_x+8,m_y+2 SAY "Prikaz ERR D/N" GET cERR  valid cERR $ "DN" pict "@!"
+ 		@ m_x+9,m_y+2 SAY "Datum od " GET dDatOd
+ 		@ m_x+9,col()+2 SAY "do" GET dDatDo
+ 		@ m_x+10,m_y+2 SAY "Prikaz robe tipa T/U  (D/N)" GET cTU valid cTU $ "DN" pict "@!"
+ 		@ m_x+12,m_y+2 SAY "Odabir grupacije (prazno-svi) GET" GET cGrupacija pict "@!"
+ 		read
+		ESC_BCR
+ 
+ 		private aUsl1:=Parsiraj(qqRoba,"IdRoba")
+ 		private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
+ 		private aUsl3:=Parsiraj(qqIDVD,"idvd")
+ 		private aUsl4:=Parsiraj(qqkonto,"pkonto")
+ 		if aUsl1<>NIL
+ 			exit
+ 		endif
+ 		if aUsl2<>NIL
+ 			exit
+ 		endif
+ 		if aUsl3<>NIL
+ 			exit
+ 		endif
+	enddo
 BoxC()
 
 O_KONCIJ
 O_KALKREP
 
-PRIVATE cFilt1:=""
-cFilt1 := "!EMPTY(pu_i).and."+aUsl1+".and."+aUsl4
-cFilt1 := STRTRAN(cFilt1,".t..and.","")
-IF !(cFilt1==".t.")
-  SET FILTER TO &cFilt1
-ENDIF
+private cFilt1:=""
+cFilt1:="!EMPTY(pu_i).and."+aUsl1+".and."+aUsl4
+cFilt1:=STRTRAN(cFilt1,".t..and.","")
+if !(cFilt1==".t.")
+	set filter to &cFilt1
+endif
 
 select kalk
 set order to 6
@@ -109,7 +128,33 @@ hseek cidfirma
 EOF CRET
 
 nLen:=1
-m:="----- ---------- -------------------- --- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+
+aRptText:={}
+AADD(aRptText, {5, "R.", "br."})
+AADD(aRptText, {10, " Artikal"," 1 "})
+AADD(aRptText, {20, " Naziv", " 2 "})
+AADD(aRptText, {3, "jmj", " 3 "})
+if lPoNarudzbi .and. cPKN=="D"
+	AADD(aRptText, {10, " naru-", " cilac "})
+endif
+if cPredhStanje=="D"
+	AADD(aRptText, {10, " Predh.st", " kol/MPV "})
+endif
+AADD(aRptText, {LEN(gPicKol), " ulaz", " 4 "})
+AADD(aRptText, {LEN(gPicKol), " izlaz", " 5 "})
+AADD(aRptText, {LEN(gPicKol), " STANJE", " 4-5 "})
+AADD(aRptText, {LEN(PicDem), " MPV.Dug", " 6 "})
+AADD(aRptText, {LEN(PicDem), " MPV.Pot", " 7 "})
+AADD(aRptText, {LEN(PicDem), " MPV", " 6-7 "})
+AADD(aRptText, {LEN(PicDem), " MPCSAPP", " 8 "})
+if (lPoNarudzbi .and. cSredCij=="D")
+	AADD(aRptText, {LEN(PicDem), " Sred.cij", " 9 "})
+endif
+
+private cLine:=SetRptLineAndText(aRptText, 0)
+private cText1:=SetRptLineAndText(aRptText, 1, "*")
+private cText2:=SetRptLineAndText(aRptText, 2, "*")
+
 
 start print cret
 
@@ -117,7 +162,8 @@ select kalk
 
 private nTStrana:=0
 
-private bZagl:={|| ZaglLLP(.t.)}
+// koristilo se ZaglLLP(.t.)
+private bZagl:={|| ZaglLLPS(.t.)}
 
 nTUlaz:=nTIzlaz:=0
 nTMPVU:=nTMPVI:=nTNVU:=nTNVI:=0
@@ -243,10 +289,10 @@ nCol0:=pcol()+1
 @ prow(),pcol()+1 SAY nUlaz-nIzlaz pict gpickol
 
 nCol1:=pcol()+1
-@ prow(),pcol()+1 SAY nMPVU pict gpicdem
-@ prow(),pcol()+1 SAY nMPVI pict gpicdem
+@ prow(),pcol()+1 SAY nMPVU pict picdem
+@ prow(),pcol()+1 SAY nMPVI pict picdem
 
-@ prow(),pcol()+1 SAY nMPVU-NMPVI pict gpicdem
+@ prow(),pcol()+1 SAY nMPVU-NMPVI pict picdem
 
 select roba
 hseek cidroba
@@ -254,14 +300,14 @@ _mpc:=UzmiMPCSif()
 select kalk
 
 if round(nUlaz-nIzlaz,4)<>0
-	@ prow(),pcol()+1 SAY (nMPVU-nMPVI)/(nUlaz-nIzlaz) pict gpiccdem
+	@ prow(),pcol()+1 SAY (nMPVU-nMPVI)/(nUlaz-nIzlaz) pict piccdem
  	if round((nMPVU-nMPVI)/(nUlaz-nIzlaz),4)<>round(_mpc,4)
    		if (cERR=="D")
 			?? " ERR"
 		endif
  	endif
 else
-	@ prow(),pcol()+1 SAY 0 pict gpicdem
+	@ prow(),pcol()+1 SAY 0 pict picdem
  	if round((nMPVU-nMPVI),4)<>0
    		?? " ERR"
  	endif
@@ -276,13 +322,13 @@ if cPnab=="D"
  @ prow(),ncol0    SAY space(len(gpickol))
  @ prow(),pcol()+1 SAY space(len(gpickol))
  if round(nulaz-nizlaz,4)<>0
-  @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
+  @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict picdem
  endif
- @ prow(),nCol1 SAY nNVU pict gpicdem
+ @ prow(),nCol1 SAY nNVU pict picdem
 // @ prow(),pcol()+1 SAY space(len(gpicdem))
- @ prow(),pcol()+1 SAY nNVI pict gpicdem
- @ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
- @ prow(),pcol()+1 SAY _MPC pict gpiccdem
+ @ prow(),pcol()+1 SAY nNVI pict picdem
+ @ prow(),pcol()+1 SAY nNVU-nNVI pict picdem
+ @ prow(),pcol()+1 SAY _MPC pict piccdem
 endif
 nTULaz+=nUlaz
 nTIzlaz+=nIzlaz
@@ -294,22 +340,27 @@ nTRabat+=nRabat
 enddo
 
 NovaStrana(bZagl, 3)
-? m
+
+// ? m
+? cLine
+
 ? "UKUPNO:"
 @ prow(),nCol0 SAY ntUlaz pict gpickol
 @ prow(),pcol()+1 SAY ntIzlaz pict gpickol
 @ prow(),pcol()+1 SAY ntUlaz-ntIzlaz pict gpickol
 nCol1:=pcol()+1
-@ prow(),pcol()+1 SAY ntMPVU pict gpicdem
-@ prow(),pcol()+1 SAY ntMPVI pict gpicdem
-@ prow(),pcol()+1 SAY ntMPVU-NtMPVI pict gpicdem
+@ prow(),pcol()+1 SAY ntMPVU pict picdem
+@ prow(),pcol()+1 SAY ntMPVI pict picdem
+@ prow(),pcol()+1 SAY ntMPVU-NtMPVI pict picdem
 
 if cpnab=="D"
-@ prow()+1,nCol1 SAY ntNVU pict gpicdem
-@ prow(),pcol()+1 SAY ntNVI pict gpicdem
-@ prow(),pcol()+1 SAY ntNVU-ntNVI pict gpicdem
+@ prow()+1,nCol1 SAY ntNVU pict picdem
+@ prow(),pcol()+1 SAY ntNVI pict picdem
+@ prow(),pcol()+1 SAY ntNVU-ntNVI pict picdem
 endif
-? m
+// ? m
+? cLine
+
 FF
 end print
 
@@ -323,3 +374,51 @@ closeret
 return
 *}
 
+
+
+function ZaglLLPS(fSint)
+*{
+if fsint==NIL
+	fSint:=.f.
+endif
+
+Preduzece()
+
+if IsPlNS()
+	P_COND2
+else
+	P_COND
+endif
+
+?? "KALK: SINTETICKA LAGER LISTA PRODAVNICA ZA PERIOD",dDatOd,"-",dDatDo," NA DAN "
+?? date(), space(12),"Str:",str(++nTStrana,3)
+
+if lPoNarudzbi .and. !EMPTY(qqIdNar)
+	?
+  	? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
+  	?
+endif
+if !fSint .and. !EMPTY(qqIdPartn)
+	? "Obugvaceni sljedeci partneri:", TRIM(qqIdPartn)
+endif
+
+if fsint
+	? "Kriterij za prodavnice:",qqKonto
+else
+ 	select konto
+	hseek cidkonto
+ 	? "Prodavnica:", cIdKonto, "-", konto->naz
+endif
+
+if IsDomZdr() .and. !Empty(cKalkTip)
+	PrikTipSredstva(cKalkTip)
+endif
+
+? cLine
+? cText1
+? cText2
+? cLine
+
+
+return
+*}

@@ -1,5 +1,9 @@
 KALK 
 ======
+30.11.2004. 1.w.1.1.36, mersed.ahmetbegovic@sigma-com.net
+---------------------------------------------
+* BugFix
+  http://trac.sigma-com.net/cs-PlanikaNS_IS/ticket/79
 
 08.11.2004. 1.w.1.1.34, mersed.ahmetbegovic@sigma-com.net
 ---------------------------------------------

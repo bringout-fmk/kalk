@@ -62,6 +62,10 @@ local nOpseg
 local nKorekcija:=1
 local cLegenda
 
+// aMersed
+local nRekaRecCount
+
+
 private  nCol1:=0
 
 private PicCDem := REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
@@ -211,6 +215,9 @@ ZagOPomF()
 nCol1:=10
 
 SELECT reka22
+
+nRekaRecCount=reccount()
+
 GO TOP
 
 nT1:=0
@@ -238,8 +245,7 @@ lIzdvojiGrupe:=.f.
 
 do while !eof()
 
-   cG1:=g1
-   
+   cG1:=g1   
    if (!EMPTY(cGrupeK1) .and. AT(cG1, cGrupeK1)<>0)
    	skip
 	loop
@@ -282,7 +288,6 @@ do while !eof()
    // koef obrta na dan
    @ prow(),pcol()+1 SAY KOBrDan*nKorekcija pict picdem
 
-
    if ckolDN=="D"
     
      if prow()>PREDOVA2
@@ -312,7 +317,11 @@ do while !eof()
      IF proszalk>0
        @ prow(),pcol()+1 SAY prodkumk/proszalk*nKorekcija pict picdem  // koef.kol.obrta
      ELSE
-       @ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
+       if nRekaRecCount==1 // jedini u grupi
+		@ prow(),pcol()+1 SAY 0 pict picdem  // koef.kol.obrta
+	else
+		@ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
+     	endif
      ENDIF
      ?
    endif
@@ -350,6 +359,11 @@ endif
 
 ? m
 ? "UKUPNO"
+
+// nije sigurno da ce proci kroz gornji if
+// postaviti ispravno poravananje
+nCol1:=26
+
 @ PROW(),nCol1 SAY  nT1 pict picdem
 @ PROW(),pcol()+1 SAY  nT2 pict picdem
 @ PROW(),pcol()+1 SAY  nT2a pict picdem
@@ -398,6 +412,7 @@ IF nK6>0
 ELSE
   @ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
 ENDIF
+
 ? m
 ?
 if !EMPTY(cGrupeK1)
@@ -549,7 +564,15 @@ if !EMPTY(cGrupeK1)
 	endif
 	@ PROW(),pcol()+1 SAY  nK6+nProsZalK pict StrTran(picdem,".","9")	
 	if (nProsZalK>0)
-  		@ prow(),pcol()+1 SAY (nK3/nK6*nKorekcija)+(nProdKumK/nProsZalK*nKorekcija) pict picdem
+        	if nRekaRecCount==1 // jedini u grupi
+  			@ prow(),pcol()+1 SAY (nProdKumK/nProsZalK*nKorekcija) pict picdem
+		else
+			if (nK6>0)
+  				@ prow(),pcol()+1 SAY (nK3/nK6*nKorekcija)+(nProdKumK/nProsZalK*nKorekcija) pict picdem
+			else
+				@ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
+			endif
+     		endif
 	else
   		@ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
 	endif

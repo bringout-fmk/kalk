@@ -52,7 +52,7 @@ Box(,10, 60)
 	@ 3+m_x, 2+m_y SAY "Firma (prazno-sve)" GET aUslFirma PICT "@S40"
 	@ 4+m_x, 2+m_y SAY "Vrste dokumenta (prazno-sve)" GET aUslDok PICT "@S20"
 	@ 5+m_x, 2+m_y SAY "Datum od" GET dDat1 
-	@ 5+m_x, 25+m_y SAY "do" GET dDat2 
+	@ 5+m_x, 20+m_y SAY "do" GET dDat2 
 	read
 BoxC()
 

@@ -56,7 +56,7 @@ AADD(opcexe, {|| ProbDob()})
 
 AADD(Opc,"----------------------------------")
 AADD(opcexe, nil)
-AADD(Opc,"7. porezi")
+AADD(Opc,"8. porezi")
 AADD(opcexe,{|| MPoreziMag()})
 AADD(Opc,"----------------------------------")
 AADD(opcexe, nil)

@@ -568,6 +568,9 @@ closeret
 function Povrat()
 *{
 local nRec
+local gEraseKum
+
+gEraseKum:=.f.
 
 if Klevel<>"0"
   Beep(2)
@@ -576,9 +579,9 @@ if Klevel<>"0"
 endif
 
 if gcijene=="2" .and. Pitanje(,"Zadati broj (D) / Povrat po hronologiji obrade (N) ?","D")="N"
-  Beep(1)
-  PNajn()
-  closeret
+	Beep(1)
+  	PNajn()
+  	closeret
 endif
 
 O_DOKS
@@ -596,158 +599,176 @@ O_PRIPR
 SELECT KALK
 set order to 1  // idFirma+IdVD+BrDok+RBr
 
-cidfirma:=gfirma
+cIdFirma:=gfirma
 cIdVD:=space(2)
 cBrDok:=space(8)
 
 Box("",1,35)
- @ m_x+1,m_y+2 SAY "Dokument:"
- if gNW $ "DX"
-   @ m_x+1,col()+1 SAY cIdFirma
- else
-   @ m_x+1,col()+1 GET cIdFirma
- endif
- @ m_x+1,col()+1 SAY "-" GET cIdVD pict "@!"
- @ m_x+1,col()+1 SAY "-" GET cBrDok
- read
- ESC_BCR
+	@ m_x+1,m_y+2 SAY "Dokument:"
+ 	if gNW $ "DX"
+   		@ m_x+1,col()+1 SAY cIdFirma
+ 	else
+   		@ m_x+1,col()+1 GET cIdFirma
+ 	endif
+ 	@ m_x+1,col()+1 SAY "-" GET cIdVD pict "@!"
+ 	@ m_x+1,col()+1 SAY "-" GET cBrDok
+ 	read
+ 	ESC_BCR
 BoxC()
 
-
 if cBrDok="."
+	if !SigmaSif()
+     		closeret
+  	endif
+	private qqBrDok:=qqDatDok:=qqIdvD:=space(80)
+  	qqIdVD:=padr(cidvd+";",80)
+  	Box(,3,60)
+   		do while .t.
+    		@ m_x+1,m_y+2 SAY "Vrste kalk.    "  GEt qqIdVD pict "@S40"
+    		@ m_x+2,m_y+2 SAY "Broj dokumenata"  GEt qqBrDok pict "@S40"
+    		@ m_x+3,m_y+2 SAY "Datumi         " GET  qqDatDok pict "@S40"
+    		read
+    		private aUsl1:=Parsiraj(qqBrDok,"BrDok","C")
+    		private aUsl2:=Parsiraj(qqDatDok,"DatDok","D")
+    		private aUsl3:=Parsiraj(qqIdVD,"IdVD","C")
+    		if aUsl1<>NIL .and. aUsl2<>NIL .and. ausl3<>NIL
+      			exit
+    		endif
+   		enddo
+  	Boxc()
 
-  if !SigmaSif()
-     closeret
-  endif
-
-  private qqBrDok:=qqDatDok:=qqIdvD:=space(80)
-  qqIdVD:=padr(cidvd+";",80)
-  Box(,3,60)
-   do while .t.
-    @ m_x+1,m_y+2 SAY "Vrste kalk.    "  GEt qqIdVD pict "@S40"
-    @ m_x+2,m_y+2 SAY "Broj dokumenata"  GEt qqBrDok pict "@S40"
-    @ m_x+3,m_y+2 SAY "Datumi         " GET  qqDatDok pict "@S40"
-    read
-    private aUsl1:=Parsiraj(qqBrDok,"BrDok","C")
-    private aUsl2:=Parsiraj(qqDatDok,"DatDok","D")
-    private aUsl3:=Parsiraj(qqIdVD,"IdVD","C")
-    if aUsl1<>NIL .and. aUsl2<>NIL .and. ausl3<>NIL
-      exit
-    endif
-   enddo
-  Boxc()
-
-  if Pitanje(,"Povuci u pripremu kalk sa ovim kriterijom ?","N")=="D"
-    if gKalks
-      select kalks
-      if !flock(); Msg("KALKS je zauzeta ",3); closeret; endif
-    endif
-    select kalk
-    if !flock(); Msg("KALK je zauzeta ",3); closeret; endif
-    PRIVATE cFilt1:=""
-    cFilt1 := "IDFIRMA=="+cm2str(cIdFirma)+".and."+aUsl1+".and."+aUsl2+".and."+aUsl3
-    cFilt1 := STRTRAN(cFilt1,".t..and.","")
-    IF !(cFilt1==".t.")
-      SET FILTER TO &cFilt1
-    ENDIF
-    select kalk;go top
-    MsgO("Prolaz kroz kumulativnu datoteku KALK...")
-    do while !eof()
-      select KALK; Scatter()
-
-
-      select PRIPR
-      IF ! ( _idvd $ "97" .and. _tbanktr=="X" )
-        append ncnl; _ERROR:="";  Gather2()
-      ENDIF
-
-      select doks; seek kalk->(idfirma+idvd+brdok)   // izbrisi u doks
-      if found(); delete; endif
-
-      select kalk
-      skip; nRec:=recno(); skip -1
-      dbdelete2()
-      go nRec
-    enddo
-    if gKalks
-       select kalks
-       IF !(cFilt1==".t.")
-         SET FILTER TO &cFilt1
-       ENDIF
-       go top
-       MsgO("Prolaz kroz kumulativnu datoteku KALKS...")
-       do while !eof()
-         select kalks
-         skip; nRec:=recno(); skip -1
-         dbdelete2()
-         go nRec
-       enddo
-       select kalks
-    endif
-    select kalk
-
-    MsgC()
-  endif
-  closeret
+  	if Pitanje(,"Povuci u pripremu kalk sa ovim kriterijom ?","N")=="D"
+    		gEraseKum:=Pitanje(,"Izbrisati dokument iz kumulativne tabele ?", "D")=="D"
+		if gKalks
+      			select kalks
+      			if !flock()
+				Msg("KALKS je zauzeta ",3)
+				closeret
+			endif
+    		endif
+    		select kalk
+    		if !flock()
+			Msg("KALK je zauzeta ",3)
+			closeret
+		endif
+    		PRIVATE cFilt1:=""
+    		cFilt1 := "IDFIRMA=="+cm2str(cIdFirma)+".and."+aUsl1+".and."+aUsl2+".and."+aUsl3
+    		cFilt1 := STRTRAN(cFilt1,".t..and.","")
+    		IF !(cFilt1==".t.")
+      			SET FILTER TO &cFilt1
+    		ENDIF
+    		select kalk
+		go top
+    		MsgO("Prolaz kroz kumulativnu datoteku KALK...")
+    		do while !eof()
+      			select KALK
+			Scatter()
+			select PRIPR
+      			IF ! ( _idvd $ "97" .and. _tbanktr=="X" )
+        			append ncnl; _ERROR:="";  Gather2()
+      			ENDIF
+			if gEraseKum
+      				select doks
+				seek kalk->(idfirma+idvd+brdok)   // izbrisi u doks
+      				if Found() 
+					delete
+				endif
+				select kalk
+      				skip
+				nRec:=recno()
+				skip -1
+      				dbdelete2()
+      				go nRec
+			endif
+    		enddo
+    		if gKalks .and. gEraseKum
+       			select kalks
+       			IF !(cFilt1==".t.")
+         			SET FILTER TO &cFilt1
+       			ENDIF
+       			go top
+       			MsgO("Prolaz kroz kumulativnu datoteku KALKS...")
+       			do while !eof()
+         			select kalks
+         			skip; nRec:=recno(); skip -1
+         			dbdelete2()
+         			go nRec
+       			enddo
+       			select kalks
+    		endif
+    		select kalk
+		MsgC()
+  	endif
+  	closeret
 endif
 
 if Pitanje("","Kalk. "+cIdFirma+"-"+cIdVD+"-"+cBrDok+" povuci u pripremu (D/N) ?","D")=="N"
-   closeret
+	closeret
 endif
 
+gEraseKum:=Pitanje(,"Izbrisati dokument iz kumulativne tabele ?", "D")=="D"
+
 if gKalks
- select kalks
- if !flock(); Msg("KALKS je zauzeta ",3); closeret; endif
+	select kalks
+ 	if !flock()
+		Msg("KALKS je zauzeta ",3)
+		closeret
+	endif
 endif
 
 select KALK
-if !flock(); Msg("KALK je zauzeta ",3); closeret; endif
+if !flock()
+	Msg("KALK je zauzeta ",3)
+	closeret
+endif
 
-hseek cidfirma+cidvd+cBrDok
+hseek cIdFirma+cIdVd+cBrDok
 EOF CRET
 
 MsgO("Prebacujem u pripremu...")
 do while !eof() .and. cIdFirma==IdFirma .and. cIdVD==IdVD .and. cBrDok==BrDok
-   select KALK; Scatter()
-   select PRIPR
-   IF ! ( _idvd $ "97" .and. _tbanktr=="X" )
-     append ncnl;_ERROR:="";  Gather2()
-   ENDIF
-   select KALK
-   skip
+	select KALK
+	Scatter()
+   	select PRIPR
+   	IF ! ( _idvd $ "97" .and. _tbanktr=="X" )
+     		append ncnl;_ERROR:="";  Gather2()
+   	ENDIF
+   	select KALK
+   	skip
 enddo
 MsgC()
 
-MsgO("Brisem dokument iz KALK-a")
-select KALK
-seek cidfirma+cidvd+cBrDok
-do while !eof() .and. cIdFirma==IdFirma .and. cIdVD==IdVD .and. cBrDok==BrDok
-
-   select doks; seek kalk->(idfirma+idvd+brdok)   // izbrisi u doks
-   if found(); delete; endif
-
-   select kalk
-   skip 1; nRec:=recno(); skip -1
-   dbdelete2()
-   go nRec
-enddo
-if Logirati(goModul:oDataBase:cName,"DOK","POVRATDOK")
-	EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+"-"+idVd+"-"+cBrDok,Date(),Date(),"","KALK - Povrat dokumenta u pripremu")
-endif
-
-if gKalks
-	select KALKS
-	seek cidfirma+cidvd+cBrDok
+if gEraseKum
+	MsgO("Brisem dokument iz KALK-a")
+	select KALK
+	seek cIdFirma+cIdVd+cBrDok
 	do while !eof() .and. cIdFirma==IdFirma .and. cIdVD==IdVD .and. cBrDok==BrDok
-   		select kalks
+
+   		select doks; seek kalk->(idfirma+idvd+brdok)   // izbrisi u doks
+   		if found(); delete; endif
+		select kalk
    		skip 1; nRec:=recno(); skip -1
    		dbdelete2()
    		go nRec
 	enddo
 	if Logirati(goModul:oDataBase:cName,"DOK","POVRATDOK")
-		EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+idvd+cBrDok,"KALKS - Povrat dokumenta u pripremu")
+		EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+"-"+idVd+"-"+cBrDok,Date(),Date(),"","KALK - Povrat dokumenta u pripremu")
 	endif
-endif  // gkalks
+
+	if gKalks
+		select KALKS
+		seek cidfirma+cidvd+cBrDok
+		do while !eof() .and. cIdFirma==IdFirma .and. cIdVD==IdVD .and. cBrDok==BrDok
+   			select kalks
+   			skip 1; nRec:=recno(); skip -1
+   			dbdelete2()
+   			go nRec
+		enddo
+		if Logirati(goModul:oDataBase:cName,"DOK","POVRATDOK")
+			EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+idvd+cBrDok,"KALKS - Povrat dokumenta u pripremu")
+		endif
+	endif  // gkalks
+endif
 
 select doks; use
 select kalk; use

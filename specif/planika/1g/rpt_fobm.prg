@@ -408,9 +408,13 @@ if cCijena=="P"
 endif
 @ PROW(),pcol()+1 SAY  nK6 pict strtran(picdem,".","9")
 IF nK6>0
-  @ prow(),pcol()+1 SAY nK3/nK6*nKorekcija pict picdem  // koef.kol.obrta
+	@ prow(),pcol()+1 SAY nK3/nK6*nKorekcija pict picdem  // koef.kol.obrta
 ELSE
-  @ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
+       if nRekaRecCount==1 // jedini u grupi
+		@ prow(),pcol()+1 SAY 0 pict picdem  // koef.kol.obrta
+	else
+		@ prow(),pcol()+1 SAY PADC("?",LEN(picdem))  // koef.kol.obrta
+     	endif
 ENDIF
 
 ? m

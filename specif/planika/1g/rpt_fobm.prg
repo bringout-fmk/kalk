@@ -72,6 +72,8 @@ private PicCDem := REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
 private PicProc := gPicProc
 private PicDEM  := REPLICATE("9", VAL(gFPicDem)) + gPicDEM
 private Pickol:= "@ 999999"
+// sirina kolone "+povecanje -snizenje" je za 3 karaktera veca od ostalih, tj. ima vise cifara
+private PicPSDEM := REPLICATE("9", 3) + PicDEM
 
 private dDatOd:=date()
 private dDatDo:=date()
@@ -186,7 +188,7 @@ endif
 AADD(aLineArgs, {LEN(PicDem), "ZALIHA", "REK.ROBE"})
 AADD(aLineArgs, {LEN(PicDem), "ZALIHA", "NA DAN"})
 if cCijena == "P"
- 	AADD(aLineArgs, {LEN(PicDem), "+POVECANJE", "-SNIZENJE"})
+ 	AADD(aLineArgs, {LEN(PicPSDEM), "+POVECANJE", "-SNIZENJE"})
 endif
 AADD(aLineArgs, {LEN(PicDem), "PROSJECNA", "ZALIHA"})
 AADD(aLineArgs, {LEN(PicDem), "GOD.KEOF", "OBRTA"})
@@ -279,7 +281,7 @@ do while !eof()
    @ prow(),pcol()+1 SAY stanjef  pict picdem
    if cCijena=="P"
 	// povisenje
-	@ prow(),pcol()+1 SAY povecanje-snizenje  pict picdem
+	@ prow(),pcol()+1 SAY povecanje-snizenje  pict PicPSDEM
    endif
    
    //  prosjecna zaliha  
@@ -311,7 +313,7 @@ do while !eof()
      @ prow(),pcol()+1 SAY stanjrk  pict strtran(picdem,".","9")
      @ prow(),pcol()+1 SAY stanjek  pict strtran(picdem,".","9")
      if cCijena=="P"
-       @ prow(),pcol()+1 SAY 0  pict strtran(picdem,".","9")  // povisenje
+       @ prow(),pcol()+1 SAY 0  pict strtran(PicPSDEM,".","9")  // povisenje
      endif
      @ prow(),pcol()+1 SAY proszalk pict strtran(picdem,".","9")  //  prosjeŸna zaliha
      IF proszalk>0
@@ -377,7 +379,7 @@ endif
 @ PROW(),pcol()+1 SAY  nT4R pict picdem
 @ PROW(),pcol()+1 SAY  nT4 pict picdem
 if cCijena=="P"
-  @ PROW(),pcol()+1 SAY  nT5 pict picdem
+  @ PROW(),pcol()+1 SAY  nT5 pict PicPSDEM // povecanje/snizenje
 endif
 @ PROW(),pcol()+1 SAY  nT6 pict picdem
 
@@ -404,7 +406,7 @@ endif
 @ PROW(),pcol()+1 SAY  nK4R pict strtran(picdem,".","9")
 @ PROW(),pcol()+1 SAY  nK4 pict strtran(picdem,".","9")
 if cCijena=="P"
-  @ PROW(),pcol()+1 SAY  nK5 pict strtran(picdem,".","9")
+  @ PROW(),pcol()+1 SAY  nK5 pict strtran(PicPSDEM,".","9")
 endif
 @ PROW(),pcol()+1 SAY  nK6 pict strtran(picdem,".","9")
 IF nK6>0
@@ -464,7 +466,7 @@ if !EMPTY(cGrupeK1)
 			nStanjeF+=stanjef
 			nStanjeK+=stanjek
 			if cCijena=="P"
-				@ prow(),pcol()+1 SAY povecanje-snizenje  pict picdem
+				@ prow(),pcol()+1 SAY povecanje-snizenje  pict PicPSDEM
    				nPovSni+=povecanje-snizenje
 			endif
    			@ prow(),pcol()+1 SAY proszalf pict picdem 
@@ -493,7 +495,7 @@ if !EMPTY(cGrupeK1)
 	@ PROW(),pcol()+1 SAY nStanjeRF pict picdem
 	@ PROW(),pcol()+1 SAY nStanjeF pict picdem
 	if cCijena=="P"
-  		@ PROW(),pcol()+1 SAY nPovSni pict picdem
+  		@ PROW(),pcol()+1 SAY nPovSni pict PicPSDEM
 	endif
 	@ PROW(),pcol()+1 SAY nProsZalF pict picdem
 	nOpseg:=int((dDatDo-dDatOd+2)/30)
@@ -515,7 +517,7 @@ if !EMPTY(cGrupeK1)
 	@ PROW(),pcol()+1 SAY nStanjeRK pict StrTran(picdem,".","9")	
 	@ PROW(),pcol()+1 SAY nStanjeK pict StrTran(picdem,".","9")
 	if cCijena=="P"
-		@ PROW(),pcol()+1 SAY 0 pict picdem
+		@ PROW(),pcol()+1 SAY 0 pict PicPSDEM
 	endif
 	@ PROW(),pcol()+1 SAY nProsZalK pict StrTran(picdem,".","9")
 	if nProsZalK>0
@@ -542,7 +544,7 @@ if !EMPTY(cGrupeK1)
 	@ PROW(),pcol()+1 SAY  nT4R+nStanjeRF pict picdem
 	@ PROW(),pcol()+1 SAY  nT4+nStanjeF pict picdem
 	if cCijena=="P"
-  		@ PROW(),pcol()+1 SAY  nT5+nPovSni pict picdem
+  		@ PROW(),pcol()+1 SAY  nT5+nPovSni pict PicPSDEM
 	endif
 	@ PROW(),pcol()+1 SAY  nT6+nProsZalF pict picdem
 	nOpseg:=int((dDatDo-dDatOd+2)/30)
@@ -564,7 +566,7 @@ if !EMPTY(cGrupeK1)
 	@ PROW(),pcol()+1 SAY  nK4R+nStanjeRK pict StrTran(picdem,".","9")
 	@ PROW(),pcol()+1 SAY  nK4+nStanjeK pict StrTran(picdem,".","9")
 	if cCijena=="P"
-		@ PROW(),pcol()+1 SAY 0 pict picdem
+		@ PROW(),pcol()+1 SAY 0 pict PicPSDEM
 	endif
 	@ PROW(),pcol()+1 SAY  nK6+nProsZalK pict StrTran(picdem,".","9")	
 	if (nProsZalK>0)

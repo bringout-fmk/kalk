@@ -1,5 +1,10 @@
 KALK 
 ======
+28.01.2005. 1.w.1.1.38, ahmed.vila@sigma-com.net
+---------------------------------------------
+* BugFix
+  Povecanje kolone pov/sni na izvjestaju finansijskog obrta za period
+
 30.11.2004. 1.w.1.1.36, mersed.ahmetbegovic@sigma-com.net
 ---------------------------------------------
 * BugFix

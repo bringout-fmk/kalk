@@ -4,8 +4,11 @@
  * ----------------------------------------------------------------
  * $Source: c:/cvsroot/cl/sigma/fmk/kalk/kalk.ch,v $
  * $Author: sasavranic $ 
- * $Revision: 1.120 $
+ * $Revision: 1.121 $
  * $Log: kalk.ch,v $
+ *
+ * Revision 1.121  2005/01/28 avila
+ * BugFix, Na izvjestaju "finansijski obrt za period" povecana kolona pov/sni
  *
  * Revision 1.120  2004/09/23 amersed
  * Brojaè dokumenata za robu u tranzitu http://trac.sigma-com.net/dev-Vindija_IS/ticket/5
@@ -412,8 +415,8 @@
 	#include "sc.ch"
 #endif
 
-#define D_KA_VERZIJA "1.w.1.1.37"
-#define D_KA_PERIOD  '11.94-06.01.05'
+#define D_KA_VERZIJA "1.w.1.1.38"
+#define D_KA_PERIOD  '11.94-28.01.05'
 
 
 #ifndef FMK_DEFINED

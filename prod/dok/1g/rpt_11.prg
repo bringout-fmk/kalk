@@ -136,8 +136,8 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     Marza2()
     nMarza:=_marza   // izracunaj nMarza,nMarza2
     VTPorezi()
-    
-    Tarifa(field->pkonto, field->idRoba, @aPorezi)
+        
+    Tarifa(field->pkonto, field->idRoba, @aPorezi, field->idtarifa)
     aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
 
     nPor1:=aIPor[1]

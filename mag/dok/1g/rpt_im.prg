@@ -97,6 +97,8 @@ nTota:=0
 nTotb:=0
 nTotc:=0
 nTotd:=0
+nTotKol:=0
+nTotGKol:=0
 
 private cIdd:=idPartner+brFaktP+idKonto+idKonto2
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVd
@@ -150,6 +152,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVd
     nTotc+=kolicina*nCijena
     nU4 := nCijena*(Kolicina-gKolicina)
     nTot4 += nU4
+    nTotKol += kolicina
+    nTotGKol += gkolicina
+    
     if cSamoObraz=="D"
 	      @ prow(),pcol()+1 SAY nU4  pict replicate(" ",len(PicDEM))
     else
@@ -170,14 +175,17 @@ endif
 
 ? m
 @ prow()+1,0 SAY "Ukupno:"
-@ prow(),nc1 SAY nTotb  pict gPicDem
-@ prow(),pcol()+1 SAY nTotc  pict gPicDem
-@ prow(),pcol()+1 SAY 0      pict gPicDem
-@ prow(),pcol()+1 SAY 0      pict gPicDem
-@ prow(),pcol()+1 SAY nTot4  pict IF(nTot4>0, gPicDem, REPLICATE(" ", LEN(PicDEM)))
+@ prow(),(pcol()*6)+2 SAY nTotKol pict gPicKol
+@ prow(),pcol()+1 SAY nTotGKol pict gPicKol
+@ prow(),pcol()+1 SAY nTotb pict gPicDem
+@ prow(),pcol()+1 SAY nTotc pict gPicDem
+@ prow(),pcol()+1 SAY 0 pict gPicDem
+@ prow(),pcol()+1 SAY 0 pict gPicDem
+@ prow(),pcol()+1 SAY nTot4 pict IF(nTot4>0, gPicDem, REPLICATE(" ", LEN(PicDEM)))
 @ prow(),pcol()+1 SAY IF(nTot4<0,-nTot4,nTot4)  pict IF(nTot4<0,gPicDem,replicate(" ",len(gPicDem)))
 
 ? m
+
 return
 *}
 

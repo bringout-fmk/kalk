@@ -99,6 +99,8 @@ endif
 
 ? m
 nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=nTotc:=nTotd:=0
+nTotKol:=nTotGKol:=0
+
 
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
 
@@ -146,15 +148,18 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 		@ prow()+1,4 SAY IdTarifa+space(4)
 	endif
 
+
+
 	if cSamoObraz=="D"
 		@ prow(),pcol()+nPosKol SAY Kolicina  PICTURE replicate("_",len(PicKol))
 		@ prow(),pcol()+1 SAY GKolicina  PICTURE replicate(" ",len(PicKol))
+
 	else
 		@ prow(),pcol()+nPosKol SAY Kolicina  PICTURE PicKol
 		@ prow(),pcol()+1 SAY GKolicina  PICTURE PicKol
 	endif
 
-	nC1:=pcol()+1
+	nC1:=pcol()
 
 	if cSamoObraz=="D"
 		@ prow(),pcol()+1 SAY fcj           PICTURE replicate(" ",len(PicDEM))
@@ -171,7 +176,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 	nTotb+=fcj
 	nTotc+=kolicina*mpcsapp
 	nTot4+=  (nU4:= MPCSAPP*Kolicina-fcj)
-
+	nTotKol+=kolicina
+	nTotGKol+=gkolicina
+	
 	if cSamoObraz=="D"
 		@ prow(),pcol()+1 SAY nU4  pict replicate(" ",len(PicDEM))
 	else
@@ -199,12 +206,14 @@ if cSamoObraz=="D"
 endif
 
 ? m
-@ prow()+1,0        SAY "Ukupno:"
-@ prow(),nc1      SAY nTotb  pict picdem
-@ prow(),pcol()+1 SAY nTotc  pict picdem
-@ prow(),pcol()+1 SAY 0      pict picdem
-@ prow(),pcol()+1 SAY 0      pict picdem
-@ prow(),pcol()+1  SAY nTot4  pict picdem
+@ prow()+1, 0 SAY "Ukupno:"
+@ prow(),(pcol()*6)+2 SAY nTotKol pict pickol
+@ prow(),pcol()+1 SAY nTotGKol pict pickol
+@ prow(),pcol()+1 SAY nTotb pict picdem
+@ prow(),pcol()+1 SAY nTotc pict picdem
+@ prow(),pcol()+1 SAY 0 pict picdem
+@ prow(),pcol()+1 SAY 0 pict picdem
+@ prow(),pcol()+1 SAY nTot4  pict picdem
 ? m
 
 RekTarife()

@@ -4,8 +4,12 @@
  * ----------------------------------------------------------------
  * $Source: c:/cvsroot/cl/sigma/fmk/kalk/kalk.ch,v $
  * $Author: sasavranic $ 
- * $Revision: 1.119 $
+ * $Revision: 1.120 $
  * $Log: kalk.ch,v $
+ *
+ * Revision 1.120  2004/09/23 amersed
+ * Brojaè dokumenata za robu u tranzitu http://trac.sigma-com.net/dev-Vindija_IS/ticket/5
+ *
  * Revision 1.119  2004/06/01 10:40:37  sasavranic
  * BugFix, generacija nivelacije za prod. na osnovu polja N2
  *
@@ -408,8 +412,8 @@
 	#include "sc.ch"
 #endif
 
-#define D_KA_VERZIJA "1.w.1.1.30"
-#define D_KA_PERIOD  '11.94-17.08.04'
+#define D_KA_VERZIJA "1.w.1.1.31"
+#define D_KA_PERIOD  '11.94-23.09.04'
 
 
 #ifndef FMK_DEFINED

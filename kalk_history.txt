@@ -1,6 +1,11 @@
 KALK 
 ======
 
+01.07.2004. 1.w.1.1.31, mersed.ahmetbegovic@sigma-com.net
+---------------------------------------------
+* BugFix
+  Brojaè dokumenata za robu u tranzitu http://trac.sigma-com.net/dev-Vindija_IS/ticket/5
+
 01.07.2004. 1.w.1.1.25, sasa@sigma-com.net
 ---------------------------------------------
 * Programske dorade

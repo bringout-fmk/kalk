@@ -233,9 +233,11 @@ do while !eof()    // datoteka finmat
  endif
  private dDatVal:=ctod("")  // inicijalizuj datum valute
  private cIdVrsteP:="  "    // i vrstu placanja
+ private lDatFakt:=.f.
 
  do while cIdVD==IdVD .and. cBrDok==BrDok .and. !eof()
 
+     
      if finmat->idvd $ "14#94#96#95"
           select koncij; hseek finmat->idkonto2
      else
@@ -246,8 +248,8 @@ do while !eof()    // datoteka finmat
          select trfp
          seek cIdVD+koncij->shema
          do while !empty(cBrNalF) .and. idvd==cIDVD  .and. shema=koncij->shema .and. !eof()
-
-          cStavka:=Id
+     	  lDatFakt:=.f.
+	  cStavka:=Id
           select finmat
           nIz:=&cStavka
           select trfp
@@ -259,8 +261,8 @@ do while !eof()    // datoteka finmat
             // roba tipa u,t
             nIz:=0
           endif
-
-          // iskoristeno u slucaju RN, gdje se za kontiranje stavke
+	 
+	  // iskoristeno u slucaju RN, gdje se za kontiranje stavke
           // 901-999 koriste sa tarifom XXXXXX
           if finmat->idtarifa=="XXXXXX" .and. trfp->idtarifa<>finmat->idtarifa
             nIz:=0
@@ -281,15 +283,26 @@ do while !eof()    // datoteka finmat
             select fpripr
 
             if trfp->znak=="-"
-              nIz:=-nIz
+            	nIz:=-nIz
             endif
+	     
+	    if "#DF#" $ (trfp->naz)
+	  		lDatFakt:=.t.
+	    endif
+          
+	    if lDatFakt
+	    	dDatD:=FINMAT->DatFaktP
+	    else
+	    	dDatD:=FINMAT->DatKurs
+	    endif
+	  
             if gBaznaV=="P"
-               nIz:=round7(nIz,RIGHT(TRFP->naz,2))  //DEM - pomocna valuta
-               nIz2:=round7(nIz*Kurs(FINMAT->DatKurs,"P","D"),RIGHT(TRFP->naz,2))
-            else
+               nIz:=Round7(nIz,RIGHT(TRFP->naz,2))  //DEM - pomocna valuta
+               nIz2:=Round7(nIz*Kurs(dDatD,"P","D"),RIGHT(TRFP->naz,2))
+	    else
                nIz2:=round7(nIz,RIGHT(TRFP->naz,2))  //DEM - pomocna valuta
-               nIz:=round7(nIz2*Kurs(FINMAT->DatKurs,"D","P"),RIGHT(TRFP->naz,2))
-            endif
+               nIz:=round7(nIz2*Kurs(dDatD,"D","P"),RIGHT(TRFP->naz,2))
+	    endif
 
 
             if "IDKONTO"==padr(trfp->IdKonto,7)

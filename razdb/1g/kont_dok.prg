@@ -233,10 +233,9 @@ do while !eof()    // datoteka finmat
  endif
  private dDatVal:=ctod("")  // inicijalizuj datum valute
  private cIdVrsteP:="  "    // i vrstu placanja
- private lDatFakt:=.f.
 
  do while cIdVD==IdVD .and. cBrDok==BrDok .and. !eof()
-
+    lDatFakt:=.f.	
      
      if finmat->idvd $ "14#94#96#95"
           select koncij; hseek finmat->idkonto2
@@ -248,7 +247,8 @@ do while !eof()    // datoteka finmat
          select trfp
          seek cIdVD+koncij->shema
          do while !empty(cBrNalF) .and. idvd==cIDVD  .and. shema=koncij->shema .and. !eof()
-     	  lDatFakt:=.f.
+     	  
+	  lDatFakt:=.f.
 	  cStavka:=Id
           select finmat
           nIz:=&cStavka
@@ -287,21 +287,21 @@ do while !eof()    // datoteka finmat
             endif
 	     
 	    if "#DF#" $ (trfp->naz)
-	  		lDatFakt:=.t.
+	  	lDatFakt:=.t.
 	    endif
           
 	    if lDatFakt
-	    	dDatD:=FINMAT->DatFaktP
+	    	dDFDok:=FINMAT->DatFaktP
 	    else
-	    	dDatD:=FINMAT->DatKurs
+		dDFDok:=FINMAT->DatKurs
 	    endif
 	  
             if gBaznaV=="P"
                nIz:=Round7(nIz,RIGHT(TRFP->naz,2))  //DEM - pomocna valuta
-               nIz2:=Round7(nIz*Kurs(dDatD,"P","D"),RIGHT(TRFP->naz,2))
+               nIz2:=Round7(nIz*Kurs(dDFDok,"P","D"),RIGHT(TRFP->naz,2))
 	    else
                nIz2:=round7(nIz,RIGHT(TRFP->naz,2))  //DEM - pomocna valuta
-               nIz:=round7(nIz2*Kurs(dDatD,"D","P"),RIGHT(TRFP->naz,2))
+               nIz:=round7(nIz2*Kurs(dDFDok,"D","P"),RIGHT(TRFP->naz,2))
 	    endif
 
 

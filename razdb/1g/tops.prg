@@ -206,49 +206,57 @@ return
 *}
 
 
-
-
-
 /*! \fn SifKalkTops()
  *  \brief Prenos sifrarnika iz KALK u TOPS
  */
 
 function SifKalkTops()
 *{
-private cDirZip:="Q:\TOPSUPG\"
+private cDirZip:="C:\SIGMA\PREN\"
 
- O_PARAMS
- Private cSection:="T",cHistory:=" ",aHistory:={}
- Params1()
+O_PARAMS
+
+private cSection:="T"
+private cHistory:=" "
+private aHistory:={}
+
+Params1()
  
- cDirZip:=Padr(cDirZip,30)
+cDirZip:=Padr(cDirZip,30)
  
- Box(,5,70)
-   @ m_x+1,m_y+2 SAY "Destinacija arhive sifrarnika:"
-   @ m_x+2,m_y+2 GET  cDirZip
-   read
- BoxC()
+Box(,5,70)
+	@ m_x+1,m_y+2 SAY "Destinacija arhive sifrarnika:"
+   	@ m_x+2,m_y+2 GET  cDirZip
+   	read
+BoxC()
 
- cDirzip:=trim(cDirZip)
+cDirzip:=trim(cDirZip)
  
- if Params2()
-  WPar("Dz",cDirZip)
- endif
- select params; use
+if Params2()
+	WPar("Dz",cDirZip)
+endif
 
- save screen to cScr
- cls
+select params
+use
+
+save screen to cScr
+cls
  
- select (F_ROBA); use
- private ckomlin:="zip "+cDirZip+"ROBKNJ.ZIP "+SIFPATH+"Roba.DBF" +" "+SIFPATH+"Roba.FPT"
+select (F_ROBA)
+use
 
- run &ckomlin
- cKomlin:="dir "+cDirzip+"robknj.zip"
- run &ckomlin
+private cKomLin:="zip " + cDirZip + "ROBKNJ.ZIP " + SIFPATH + "Roba.DBF" + " " + SIFPATH + "Roba.FPT"
 
- cKomlin:="pause"
- run &ckomlin
- restore screen from cScr
+run &cKomLin
+cKomlin:="dir " + cDirzip + "robknj.zip"
+
+run &cKomLin
+
+cKomlin:="pause"
+run &cKomLin
+ 
+restore screen from cScr
+
 return
 *}
 

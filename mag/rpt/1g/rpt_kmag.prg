@@ -271,6 +271,57 @@ ELSE
 	endif
 ENDIF
 
+/*
+aLineArgs := {}
+AADD(aLineArgs, {8," Datum",""})
+AADD(aLineArgs, {11," Dokument",""})
+AADD(aLineArgs, {6," Tar.",""})
+
+if (lPoNarudzbi .and. cPKN == "D")
+	AADD(aLineArgs, {6,"Naru-",""})
+	AADD(aLineArgs, {10,"cilac","Narudzbe"})
+endif
+
+AADD(aLineArgs, {6,"Partn.",""})
+AADD(aLineArgs, {13,"Ulaz",""})
+AADD(aLineArgs, {13,"Izlaz",""})
+AADD(aLineArgs, {13,"Stanje",""})
+
+if gVarEv <> "2"
+	AADD(aLineArgs, {13,"NC","FCJ"})
+ 	if cPVSS=="N".and.koncij->naz="N1"
+		AADD(aLineArgs, {13,"NV Dug",""})
+		AADD(aLineArgs, {13,"NV Pot",""})
+	endif
+	AADD(aLineArgs, {13,"NV",""})
+	if koncij->naz <> "N1"
+		AADD(aLineArgs, {13,"RABAT",""})
+		if koncij->naz == "P2"
+			AADD(aLineArgs, {13,"Plan C.",""})
+			if cPVSS == "N"
+				AADD(aLineArgs, {13,"PlVr dug",""})
+				AADD(aLineArgs, {13,"PlVr pot",""})
+			endif
+			AADD(aLineArgs, {13,"Plan Vr",""})
+		else
+			AADD(aLineArgs, {13,"VPC",""})
+			if cPVSS == "N"
+				AADD(aLineArgs, {13,"VPV dug",""})
+				AADD(aLineArgs, {13,"VPV pot",""})
+			endif
+			AADD(aLineArgs, {13,"VPV",""})
+		endif
+		AADD(aLineArgs, {13,"MPCSAPP",""})
+	endif
+	if gRokTr=="D"
+		AADD(aLineArgs, {8,"Rok Tr."})
+	endif
+
+endif
+m := SetRptLineAndText(aLineArgs, 0)
+private cZText1 := SetRptLineAndText(aLineArgs, 1, "*")
+private cZText2 := SetRptLineAndText(aLineArgs, 2, "*")
+*/
 
 private nTStrana:=0
 
@@ -762,6 +813,8 @@ else
   	ENDIF
 endif
 ? m
+
+
 IF gVarEv=="2"
 	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   "
  	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          "
@@ -782,6 +835,11 @@ ELSE
   		?? "          *          *"+IF(cPVSS=="N","          *          *","")+"         *          *"
 	endif
 ENDIF
+
+/*
+? cZText1
+? cZText2
+*/
 
 ? m
 

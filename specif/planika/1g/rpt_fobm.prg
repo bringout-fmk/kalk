@@ -64,16 +64,18 @@ local cLegenda
 
 private  nCol1:=0
 
+private PicCDem := gPicCDem
+private PicProc := gPicProc
+private PicDEM  := gPicDEM
+private Pickol:= "@ 999999"
+
 if IsPlNS()
-	private PicCDEM:="9999999999"
-	private PicProc:="999999.99%"
-	private PicDEM:= "9999999999"
-	private Pickol:= "@ 999999"
-else
-	private PicCDEM:="999999.999"
-	private PicProc:="999999.99%"
-	private PicDEM:= "9999999.99"
-	private Pickol:= "@ 999999"
+	if LEN(PicCDem)==10
+		PicCDem := "999" + PicCDem
+	endif
+	if LEN(PicDEM)==10
+		PicDem := "999" + PicDem
+	endif
 endif
 
 private dDatOd:=date()
@@ -173,15 +175,43 @@ O_OBJEKTI
 
 GenRekap2(.t., cCijena , fSMark )
 
-if cCijena=="P"
- private m:="------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-else
- private m:="------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+// setuj liniju za izvjestaj
+aLineArgs:={}
+private m := ""
+private cZText1 := ""
+private cZText2 := ""
+
+AADD(aLineArgs, {25, "GRUPACIJA", ""})
+AADD(aLineArgs, {LEN(PicDem), "POCETNA", "ZALIHA"})
+AADD(aLineArgs, {LEN(PicDem), "NABAVKA", "MAGACIN"})
+AADD(aLineArgs, {LEN(PicDem), "ZADUZENJE", "PROD."})
+
+if cCijena == "P"
+	AADD(aLineArgs, {LEN(PicDem), "MALOPROD.", "RUC"})
 endif
+
+AADD(aLineArgs, {LEN(PicDem), "KUMULAT.", "PRODAJA"})
+
+if cCijena == "P"
+	AADD(aLineArgs, {LEN(PicDem), "OSTVARENI", "RUC"})
+endif
+
+AADD(aLineArgs, {LEN(PicDem), "ZALIHA", "REK.ROBE"})
+AADD(aLineArgs, {LEN(PicDem), "ZALIHA", "NA DAN"})
+
+if cCijena == "P"
+ 	AADD(aLineArgs, {LEN(PicDem), "+POVECANJE", "-SNIZENJE"})
+endif
+
+AADD(aLineArgs, {LEN(PicDem), "PROSJECNA", "ZALIHA"})
+AADD(aLineArgs, {LEN(PicDem), "GOD.KEOF", "OBRTA"})
+
+m := SetRptLineAndText(aLineArgs, 0)
+cZText1 := SetRptLineAndText(aLineArgs, 1)
+cZText2 := SetRptLineAndText(aLineArgs, 2)
 
 SELECT reka22
 set order to 1
-//g1+idtarifa
 
 go top
 
@@ -617,13 +647,18 @@ else
 endif
 ? m
 
+? cZText1
+? cZText2
+
+/*
 if (cCijena=="P")
- ? "    GRUPACIJA               POCETNA    NABAVKA    ZADUZ.    MALOPROD.  KUMULAT.  OSTVARENI    ZALIHA     ZALIHA   +POVECANJE  PROSJECNA GOD. KOEF."
- ? "                            ZALIHA     MAGACIN  PRODAVNICE     RUC     PRODAJA      RUC       REKL.R     NA DAN   -SNIZENJE    ZALIHA      OBRTA  "
+ ? "    GRUPACIJA               POCETNA      NABAVKA        ZADUZ.          MALOPROD.          KUMULAT.       OSTVARENI          ZALIHA           ZALIHA         +POVECANJE       PROSJECNA      GOD. KOEF."
+ ? "                            ZALIHA       MAGACIN      PRODAVNICE           RUC             PRODAJA          RUC              REKL.R           NA DAN         -SNIZENJE          ZALIHA         OBRTA  "
 else
- ? "    GRUPACIJA               POCETNA    NABAVKA    ZADUZ.    KUMULAT.    ZALIHA     ZALIHA    PROSJECNA GOD. KOEF."
- ? "                            ZALIHA     MAGACIN  PRODAVNICA  PRODAJA     REKL.R     NA DAN     ZALIHA      OBRTA  "
+ ? "    GRUPACIJA               POCETNA      NABAVKA        ZADUZ.          KUMULAT.          ZALIHA          ZALIHA          PROSJECNA      GOD. KOEF."
+ ? "                            ZALIHA       MAGACIN      PRODAVNICA        PRODAJA           REKL.R          NA DAN            ZALIHA         OBRTA  "
 endif
+*/
 
 ? m
 return

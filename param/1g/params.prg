@@ -260,24 +260,24 @@ function SetPICT()
 *{
 private  GetList:={}
 
- Box(,6,60,.f.,"PARAMETRI PRIKAZA - PICTURE KODOVI")
-  @ m_x+1,m_y+2 SAY "Prikaz Cijene  " GET gpiccdem
-  @ m_x+2,m_y+2 SAY "Prikaz procenta" GET gpicproc
-  @ m_x+3,m_y+2 SAY "Prikaz iznosa  " GET gpicdem
-  @ m_x+4,m_y+2 SAY "Prikaz kolicine" GET gpickol
-  @ m_x+5,m_y+2 SAY "Ispravka NC    " GET gpicNC
-  @ m_x+6,m_y+2 SAY "Decimale za kolicine" GET gDecKol pict "9"
-  read
- BoxC()
+Box(,6,60,.f.,"PARAMETRI PRIKAZA - PICTURE KODOVI")
+	@ m_x+1,m_y+2 SAY "Prikaz Cijene  " GET gPicCDem
+  	@ m_x+2,m_y+2 SAY "Prikaz procenta" GET gPicProc
+  	@ m_x+3,m_y+2 SAY "Prikaz iznosa  " GET gPicDem
+ 	@ m_x+4,m_y+2 SAY "Prikaz kolicine" GET gPicKol
+  	@ m_x+5,m_y+2 SAY "Ispravka NC    " GET gPicNC
+  	@ m_x+6,m_y+2 SAY "Decimale za kolicine" GET gDecKol pict "9"
+  	read
+BoxC()
 
- if lastkey()<>K_ESC
-  Wpar("p1",gPicCDEM)
-  Wpar("p2",gPicProc)
-  Wpar("p3",gPicDEM)
-  Wpar("p4",gPicKol)
-  Wpar("p5",gPicNC )
-  Wpar("dk",gDecKol)
- endif
+if lastkey()<>K_ESC
+	Wpar("p1",gPicCDEM)
+  	Wpar("p2",gPicProc)
+  	Wpar("p3",gPicDEM)
+  	Wpar("p4",gPicKol)
+  	Wpar("p5",gPicNC )
+  	Wpar("dk",gDecKol)
+endif
 
 return .t.
 *}

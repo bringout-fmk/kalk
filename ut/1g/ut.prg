@@ -60,6 +60,7 @@ if LastKey()==K_ESC
 	return
 endif
 
+// postavi filter
 P9SetFilter(aUslFirma, aUslDok, dDat1, dDat2)
 
 private gVarijanta:="2"
@@ -83,8 +84,8 @@ for i:=1 to LEN(ImeKol)
 next
 
 Box(,20,77)
-@ m_x+17,m_y+2 SAY "<c-T>  Brisi Stavku                              "
-@ m_x+18,m_y+2 SAY "     "
+@ m_x+17,m_y+2 SAY "<c-T>  Brisi stavku                              "
+@ m_x+18,m_y+2 SAY "<c-F9> Brisi sve     "
 @ m_x+19,m_y+2 SAY "<P> Povrat dokumenta u pripremu "
 @ m_x+20,m_y+2 SAY "               "
 
@@ -125,6 +126,7 @@ return DE_CONT
 return
 *}
 
+
 /*! \fn PovPr9()
  *  \brief povrat dokumenta iz PRIPR9
  */
@@ -141,7 +143,10 @@ return DE_CONT
 *}
 
 
-function P9SetFilter(aUslFirma, aUslDok, dDat1, dDat2)
+/*! \fn P9SetFilter(aUslFirma, aUslDok, dDat1, dDat2)
+ *  \brief Postavlja filter na tabeli PRIPR9
+ */
+static function P9SetFilter(aUslFirma, aUslDok, dDat1, dDat2)
 *{
 O_PRIPR9
 set order to tag "1"

@@ -102,6 +102,8 @@ AADD(opc, "3. dnevni promet za sve objekte")
 AADD(opcexe, {|| DnevProm()})
 AADD(opc, "4. pregled prometa prodavnica za period")
 AADD(opcexe, {|| PPProd()})
+AADD(opc, "5. (vise)dnevni promet za sve objekte")
+AADD(opcexe, {|| PromPeriod()})
 
 Izbor:=1
 Menu_SC("prsi")

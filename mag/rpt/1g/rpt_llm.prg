@@ -98,7 +98,11 @@ endif
 
 if IsDomZdr()
 	private cKalkTip:=SPACE(1)
+	private cSzDN:="N"
 endif
+
+// signalne zalihe
+private lSignZal:=.f.
 
 if IsRobaGroup()
 	private qqRGroup:=SPACE(40)
@@ -189,13 +193,14 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		
 		if IsDomZdr()
  			@ m_x+15,m_y+2 SAY "Prikaz po tipu sredstva:" GET cKalkTip PICT "@!"
+ 			@ m_x+16,m_y+2 SAY "Prikaz sign.zaliha (D/N):" GET cSzDN PICT "@!" VALID cSzDn$"DN"
  			
 		endif
 		// ako je roba - grupacija
 		if IsRobaGroup()
 				
- 				@ m_x+16,m_y+2 SAY "Grupa artikla:" GET qqRGroup PICT "@S20"
- 				@ m_x+17,m_y+2 SAY "Podgrupa artikla:" GET qqRGroup2 PICT "@S20"
+ 				@ m_x+17,m_y+2 SAY "Grupa artikla:" GET qqRGroup PICT "@S10"
+ 				@ m_x+17,m_y+30 SAY "Podgrupa artikla:" GET qqRGroup2 PICT "@S10"
 		endif
 
  		@ m_x+18,m_y+2 SAY "Naziv artikla sadrzi"  GET cArtikalNaz
@@ -219,6 +224,10 @@ BoxC()
 
 lSvodi:=.f.
 
+if IsDomZdr() .and. cSzDN == "D"
+	lSignZal := .t.
+endif
+
 if IzFMKIni("KALK_LLM","SvodiNaJMJ","N",KUMPATH)=="D"
 	lSvodi := ( Pitanje(,"Svesti kolicine na osnovne jedinice mjere? (D/N)","N")=="D" )
 endif
@@ -226,19 +235,6 @@ endif
 // sinteticki konto
 fSint:=.f.
 cSintK:=cIdKonto
-
-// ovaj dio je zamijenjen jer nije potrebna sintetika <=3 kada se to moze
-// zadati pomocu .
-// ----------------------------------------------------------------------
-// if len(trim(cidkonto))<=3 .or. "." $ cidkonto
-//  if "." $ cidkonto
-//     cidkonto:=strtran(cidkonto,".","")
-//  endif
-//  cIdkonto:=trim(cidkonto)
-//  cSintK:=cIdkonto
-//  fSint:=.t.
-// endif
-// ----------------------------------------------------------------------
 
 if "." $ cIdKonto
   	cIdkonto:=StrTran(cIdKonto,".","")
@@ -312,13 +308,6 @@ select kalk
 EOF CRET
 
 nLen:=1
-
-private lSignZalihe := .f.
-if IsDomZdr()
-	if IzFmkIni("KALK", "SignZalihe", "N", KUMPATH) == "D"
-		lSignZalihe := .t.
-	endif
-endif
 
 m:="----- ---------- -------------------- ---"+IF(lPoNarudzbi.and.cPKN=="D"," ------","")+" ---------- ---------- ---------- ---------- ---------- ----------"
 
@@ -709,8 +698,8 @@ if lKoristitiBK
 	? SPACE(6) + roba->barkod
 endif
 
-if lSignZalihe
-	? "p.kol: " + STR(IzSifK("ROBA", "PKOL", roba->id, .f.))
+if lSignZal
+	?? SPACE(6) + "p.kol: " + STR(IzSifK("ROBA", "PKOL", roba->id, .f.))
 	?? ", p.cij: " + STR(IzSifK("ROBA", "PCIJ", roba->id, .f.))
 endif
 

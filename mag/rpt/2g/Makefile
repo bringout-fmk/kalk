@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_m2rpt
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\mag\\rpt\\2g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\mag\\rpt\\2g\\
 
 PRGS=rpt_lag.prg
 

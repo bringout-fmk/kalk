@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1sql
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\sql\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\sql\\1g\\
 
 PRGS=sql.prg
 

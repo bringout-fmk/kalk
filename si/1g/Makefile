@@ -2,9 +2,9 @@ VERZIJA=CDX
 MODUL=ka_1si
 #include "\cl\sigma\fmk\kalk\kalk.ch"
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\si\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\si\\1g\\
 
 PRGS=gen_dok.prg
 

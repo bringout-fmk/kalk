@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1rpt
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\rpt\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\rpt\\1g\\
 
 PRGS=mnu_rpt.prg proizv.prg rpt_all.prg rpt_spo.prg
 

@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_s1tv
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\specif\\tvin\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\tvin\\1g\\
 
 PRGS=tvin.prg
 

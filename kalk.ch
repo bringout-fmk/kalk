@@ -1,4 +1,3 @@
-
 /*
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
@@ -414,13 +413,13 @@
 
 
 #ifndef FMK_DEFINED
-	#include "\cl\sigma\fmk\fmk.ch"
+	#include "\dev\fmk\af\cl-af\fmk.ch"
 #endif
 
 #ifdef CDX
-	#include "\cl\sigma\fmk\kalk\cdx\kalk.ch"
+	#include "\dev\fmk\kalk\cdx\kalk.ch"
 #else
-	#include "\cl\sigma\fmk\kalk\ax\kalk.ch"
+	#include "\dev\fmk\kalk\ax\kalk.ch"
 #endif
 
 #xcommand CLREZRET   =>  IspitajRezim(); CLOSERET

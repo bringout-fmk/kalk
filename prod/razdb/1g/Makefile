@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_p1rdb
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\prod\\razdb\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\prod\\razdb\\1g\\
 
 PRGS=fak_kal.prg
 

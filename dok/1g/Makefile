@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1dok
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\dok\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\dok\\1g\\
 
 PRGS=mnu_dok.prg frm_ldok.prg knjiz.prg rpt_ldok.prg rpt_prip.prg
 

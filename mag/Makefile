@@ -2,17 +2,17 @@ VERZIJA=CDX
 
 
 LIBEXE=/cygdrive/p/l/lib.exe
-CLIPPERCOMP=/cl/SC_CLIB/clip52.sh
+CLIPPERCOMP=/sclib/clip52.sh
 CLIPPERFLAGS0=/n /DEXT /D$(VERZIJA) /DC52 /u$(VERZIJA)\\STD.CH
 CLIPPERROOT=/CLIPPER
-LINKEREXE=/cl/SC_CLIB/blink.sh
+LINKEREXE=/sclib/blink.sh
 ASMCOMP=./ASM52.bat
 ASMFLAGS=
 EXEDEST=/cygdrive/c/SIGMA
 
 CFLAGS=/n /w /c /AL /FPa /Gs /Zl
 
-SRCDOSROOT=h:\\CL\\FMK\\KALK\\MAG\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\mag\\
 	
 ROBODOC=robodoc
 
@@ -28,7 +28,7 @@ endif
 
 ifeq "${DEBUG}" "1"
 	CLIPPERFLAGS=$(CLIPPERFLAGS0) /b /DPROBA 
-	DEBUGLINK=file p:\\CLIPPER\\LIB\\CLD.LIB
+	DEBUGLINK=file h:\\CLIPPER\\LIB\\CLD.LIB
 	DEBUGDIR=\\DEBUG
 else
 	CLIPPERFLAGS=$(CLIPPERFLAGS0)
@@ -38,7 +38,7 @@ endif
 
 
 ifeq "${VERZIJA}" "CDX"
-	CCOMP=/cl/elib/c52.bat 
+	CCOMP=/sclib/c52.bat 
 else
 	F1 = /y
 endif
@@ -76,7 +76,7 @@ DIR_PRGS=$(addprefix $(PREFDIR), $(PRGS))
 all: mod 
 mod: $(OBJS)
 	echo "MAG_SOURCES=\\" > makefile_doc
-	/cl/SC_CLIB/form_makefile_doc.sh $(DIR_PRGS)
+	/sclib/form_makefile_doc.sh $(DIR_PRGS)
 	rm $(MODUL).lib
 	$(LIBEXE) $(MODUL).lib $(LIBCMD) ,,
 

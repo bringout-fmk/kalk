@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1bk
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\barkod\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\barkod\\1g\\
 
 PRGS=barkod.prg
 

@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_s1oz
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\specif\\opze\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\opze\\1g\\
 
 PRGS=mnu_ekon.prg
 

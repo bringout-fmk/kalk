@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_2ma
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\main\\2g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\main\\2g\\
 
 PRGS=app.prg
 

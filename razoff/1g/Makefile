@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1rof
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\razoff\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\razoff\\1g\\
 
 PRGS=pren_dok.prg
 

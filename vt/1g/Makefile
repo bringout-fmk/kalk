@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1vt
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\vt\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\vt\\1g\\
 
 PRGS=ut.prg
 

@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=ka_1prp
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\kalk\\primpak\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\kalk\\primpak\\1g\\
 
 PRGS=primpak.prg
 

@@ -81,6 +81,7 @@ private dDatOd:=DATE()
 private dDatDo:=DATE()
 private qqKonto:=PADR("13;",60)
 private qqRoba:=SPACE(60)
+private qqSezona:=SPACE(60)
 private cIdKPovrata:=SPACE(7)
 private cK7:="N"
 private cK9:=SPACE(3)
@@ -102,6 +103,7 @@ private cKesiraj:="N"
 private aUsl1
 private aUsl2
 private aUslR
+private aUslSez
 private cPlVrsta:=" "
 private cPapir:="A4 "
 
@@ -111,13 +113,14 @@ O_ROBA
 O_K1
 O_OBJEKTI
 
-if (GetVars(@cNObjekat, @dDatOd, @dDatDo, @cIdKPovrata, @cRekPoRobama, @cRekPoDobavljacima, @cRekPoGrupamaRobe, @cK7, @cK9, @cPlVrsta, @cPapir, @cPrikazDob, @aUsl1, @aUsl2, @aUslR )==0)
+if (GetVars(@cNObjekat, @dDatOd, @dDatDo, @cIdKPovrata, @cRekPoRobama, @cRekPoDobavljacima, @cRekPoGrupamaRobe, @cK7, @cK9, @cPlVrsta, @cPapir, @cPrikazDob, @aUsl1, @aUsl2, @aUslR, @aUslSez )==0)
 	return
 endif
 
 private fSMark:=.f.
-if right(trim(qqRoba),1)="*"
-  fSMark:=.t.
+
+if right(trim(qqSezona),1)="*"
+	fSMark:=.t.
 endif
 
 CreTblPobjekti()
@@ -132,9 +135,8 @@ O_K1
 O_OBJEKTI
 O_KALK
 O_REKAP1
-GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "1", cKesiraj, fSMark, cK7, cK9, cIdKPovrata)
 
-altd()
+GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "1", cKesiraj, fSMark, cK7, cK9, cIdKPovrata, aUslSez)
 
 SetLinija(@cLinija, @nUkObj)
 
@@ -770,7 +772,7 @@ enddo
 return nil
 *}
 
-static function GetVars(cNObjekat, dDatOd, dDatDo, cIdKPovrata, cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, cK7, cK9, cPlVrsta, cPapir, cPrikazDob,  aUsl1, aUsl2, aUslR )
+static function GetVars(cNObjekat, dDatOd, dDatDo, cIdKPovrata, cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, cK7, cK9, cPlVrsta, cPapir, cPrikazDob,  aUsl1, aUsl2, aUslR, aUslSez)
 *{
 
 O_PARAMS
@@ -782,6 +784,7 @@ RPar("c3",@cPrSort)
 RPar("d1",@dDatOd)
 RPar("d2",@dDatDo)
 RPar("cR",@qqRoba)
+RPar("cS",@qqSezona)
 RPar("cP",@cPrikazDob)
 RPar("Ke",@cKesiraj)
 RPar("fP",@cPapir)
@@ -799,6 +802,7 @@ Box(,18,70)
   @ m_x+3,m_y+2 SAY "tekuci promet je period:" GET dDatOd
   @ m_x+3,col()+2 SAY "do" GET dDatDo
   @ m_x+4,m_y+2 SAY "Kriterij za robu :" GET qqRoba pict "@!S50"
+  @ m_x+5,m_y+2 SAY "Kriterij za sezonu :" GET qqSezona pict "@!S50"
   @ m_x+6,m_y+2 SAY "Magacin u koji se vrsi povrat rekl. robe:" GET cIdKPovrata pict "@!"
   @ m_x+ 9,m_Y+2 SAY "Pregled po robama?              (D/N)" GET cRekPoRobama pict "@!" valid cRekPoRobama $ "DN"
   @ m_x+10,m_Y+2 SAY "Rekapitulacija po dobavljacima? (D/N)" GET cRekPoDobavljacima pict "@!" valid cRekPoDobavljacima $ "DN"
@@ -816,7 +820,9 @@ Box(,18,70)
   endif
   aUsl1:=Parsiraj(qqKonto,"PKonto")
   aUsl2:=Parsiraj(qqKonto,"MKonto")
+  altd()
   aUslR:=Parsiraj(qqRoba,"IdRoba")
+  aUslSez:=Parsiraj(qqSezona, "IdRoba")
   if aUsl1<>nil .and. aUslR<>nil
   	exit
   endif
@@ -834,8 +840,10 @@ if Params2()
 	WPar("c1",cidKPovrata)
 	WPar("c2",qqKonto)
 	WPar("c3",cPrSort)
-	WPar("d1",dDatOd); WPar("d2",dDatDo)
+	WPar("d1",dDatOd)
+	WPar("d2",dDatDo)
 	WPar("cR",@qqRoba)
+	WPar("cS",@qqSezona)
 	WPar("Ke",@cKesiraj)
 	WPar("fP",@cPapir)
 endif

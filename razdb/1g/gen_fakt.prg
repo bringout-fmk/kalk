@@ -9,6 +9,9 @@
  * $Author: mirsad $ 
  * $Revision: 1.6 $
  * $Log: gen_fakt.prg,v $
+ * Revision 1.7  2004/09/23 amersed
+ * umjesto cBrFakt:=cidtipdok+"-"+right(alltrim(cBrDok),5) => cBrFakt:=right(alltrim(cBrDok),6), line 149
+ *
  * Revision 1.6  2003/07/24 14:24:19  mirsad
  * ipak za izlaz vrsim prenos KALK97->FAKT19 a za ulaz KALK97->FAKT01
  *
@@ -146,7 +149,10 @@ do while .t.
 
   elseif pripr->idvd $ "10#16#PR#RN"
     cIdFakt:="01"
-    cBrFakt:=cidtipdok+"-"+right(alltrim(cBrDok),5)
+    
+    //cBrFakt:=cidtipdok+"-"+right(alltrim(cBrDok),5)
+    cBrFakt:=right(alltrim(cBrDok),6)
+    
     seek cFaktFirma+cidfakt+cBrFakt
   else
     if pripr->idvd $ "11#12#13"

@@ -85,19 +85,22 @@ nStr:=1
 Header(dDan, @nStr)
 
 nUk:=0
+nUkKol:=0
 for i:=1 TO LEN(aR)
 	? STR(i,4)+"."
-	?? "", PADR(aR[i,1],10)
-	?? "", PADR(aR[i,2],40)
-	?? "", PADR(aR[i,3], 3)
-	?? "", TRANS(aR[i,4],"999999999")
-	?? "", TRANS(aR[i,5],"9999999999.99")
+	?? "", PADR(aR[i, 1], 10)
+	?? "", PADR(aR[i, 2], 40)
+	?? "", PADR(aR[i, 3], 3)
+	?? "", TRANS(aR[i, 4], "999999999")
+	?? "", TRANS(aR[i, 5], "9999999999.99")
 	if (cPodvuci=="D")
 		?  cLinija
 	endif
-	nUk+=aR[i,6]
+	
+	nUkKol+=aR[i, 4]
+	nUk+=aR[i, 6]
 next
-Footer(cPodvuci, nUk)
+Footer(cPodvuci, nUk, nUkKol)
 EndPrint()
   
 gPINI:=cOldIni
@@ -108,7 +111,9 @@ return
 *}
 
 
-
+/*! \fn PromPeriod()
+ *  \brief (Vise)dnevni promet za period
+ */
 function PromPeriod()
 *{
 local i
@@ -154,20 +159,22 @@ StartPrint(.t.)
 nStr:=1
 Header(dDan, @nStr)
 
+nUkKol:=0
 nUk:=0
 for i:=1 TO LEN(aR)
 	? STR(i,4)+"."
-	?? "", PADR(aR[i,1],10)
-	?? "", PADR(aR[i,2],40)
-	?? "", PADR(aR[i,3], 3)
-	?? "", TRANS(aR[i,4],"999999999")
-	?? "", TRANS(aR[i,5],"9999999999.99")
+	?? "", PADR(aR[i, 1], 10)
+	?? "", PADR(aR[i, 2], 40)
+	?? "", PADR(aR[i, 3], 3)
+	?? "", TRANS(aR[i, 4], "999999999")
+	?? "", TRANS(aR[i, 5], "9999999999.99")
 	if (cPodvuci=="D")
 		?  cLinija
 	endif
-	nUk+=aR[i,6]
+	nUkKol+=aR[i, 4]
+	nUk+=aR[i, 6]
 next
-Footer(cPodvuci, nUk)
+Footer(cPodvuci, nUk, nUkKol)
 EndPrint()
   
 gPINI:=cOldIni
@@ -408,10 +415,10 @@ EVAL(b3)
 return
 *}
 
-static function Footer(cPodvuci, nUk)
+static function Footer(cPodvuci, nUk, nUkKol)
 *{
 ? cLinija
-? PADR("UKUPNO:",72), TRANS(nUk,"999999999.99")
+? PADR("UKUPNO:",60), TRANS(nUkKol, "9999999999"), SPACE(1), TRANS(nUk,"999999999.99")
 ? cLinija
 
 return

@@ -609,9 +609,10 @@ if lPoNarudzbi .and. !EMPTY(qqIdNar)
   	? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
   	?
 endif
-if !EMPTY(qqIdPartn)
+if !fSint .and. !EMPTY(qqIdPartn)
 	? "Obugvaceni sljedeci partneri:", TRIM(qqIdPartn)
 endif
+
 if fsint
 	? "Kriterij za prodavnice:",qqKonto
 else

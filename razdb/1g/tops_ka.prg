@@ -201,7 +201,7 @@ if (l42u11)
 	endif
 endif
 
-IF cIdVD=="42" .and. l42u11
+IF (cIdVD=="42" .and. l42u11) .or. (cIdVD=="12")
 	O_KONTO
   	cIdKonto2:=PADR("1310",7)
   	Box(,3,60)
@@ -309,7 +309,7 @@ do while !eof()
 		endif
   	endif
 	
-	IF cIdVd=="42" .and. l42u11
+	IF (cIdVd=="42" .and. l42u11) .or. (cIdVd=="12")
 		// formiraj 11-ku umjesto 42-ke
 		if (topska->kolicina<>0)
 			SELECT pripr

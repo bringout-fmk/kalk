@@ -63,10 +63,18 @@ local nKorekcija:=1
 local cLegenda
 
 private  nCol1:=0
-private   PicCDEM:="999999.999"
-private   PicProc:="999999.99%"
-private   PicDEM:= "9999999.99"
-private   Pickol:= "@ 999999"
+
+if IsPlNS()
+	private PicCDEM:="9999999999"
+	private PicProc:="999999.99%"
+	private PicDEM:= "9999999999"
+	private Pickol:= "@ 999999"
+else
+	private PicCDEM:="999999.999"
+	private PicProc:="999999.99%"
+	private PicDEM:= "9999999.99"
+	private Pickol:= "@ 999999"
+endif
 
 private dDatOd:=date()
 private dDatDo:=date()

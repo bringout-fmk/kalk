@@ -27,14 +27,14 @@
 
 function RekPorMag()
 *{
-local  nT1:=nT4:=nT5:=nT6:=nT7:=0
-local  nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
-local  n1:=n4:=n5:=n6:=n7:=0
-local  nCol1:=0
-local   PicCDEM:=gPicCDEM       // "999999.999"
-local   PicProc:=gPicProc       // "999999.99%"
-local   PicDEM:=gPicDEM         // "9999999.99"
-local   Pickol:=gPicKol         // "999999.999"
+local nT1:=nT4:=nT5:=nT6:=nT7:=0
+local nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
+local n1:=n4:=n5:=n6:=n7:=0
+local nCol1:=0
+local PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+local PicProc:=gPicProc   
+local PicDEM:=REPLICATE("9", VAL(gFPicDem)) + gPicDem    
+local Pickol:=gPicKol
 
 dDat1:=dDat2:=ctod("")
 qqKonto:=padr("1310;",60)
@@ -81,10 +81,34 @@ ENDIF
 
 go top   // samo  zaduz prod. i povrat iz prod.
 
-M:="------------ ------------- ------------- ------------- ---------- ---------- ---------- ----------"
+//M:="------------ ------------- ------------- ------------- ---------- ---------- ---------- ----------"
+// if gVarVP=="1"
+//"*     TARIF *      NV     *   VPV - RAB *  VPV - NV   *  POREZ   *  POREZ   *RUC-PRUC *   VPV    *"
+//"*     BROJ  *             *             *    (RUC)    *     %    *  (PRUC)  *         *  SA POR  *"
+//  else
+//"*     TARIF *      NV     *   VPV - RAB *  POREZ      *   RUC    *  POREZ   *RUC+PRUC *   VPV    *"
+//"*     BROJ  *             *             *     %       *          *  (PRUC)  *(VPV-NV) *          *"
+ // endif
+ 
+aMRUP:={}
+AADD(aMRUP, {15, " TARIF", " BROJ"})
+AADD(aMRUP, {LEN(PicDem), " NV", ""})
+AADD(aMRUP, {LEN(PicDem), " VPV - RAB", ""})
+if gVarVP == "1"
+	AADD(aMRUP, {LEN(PicDem), " VPV - NV", " (RUC)"})
+endif
+AADD(aMRUP, {LEN(PicProc), " POREZ", " %"})
+if gVarVP <> "1"
+	AADD(aMRUP, {LEN(PicDem), " RUC", ""})
+endif
+AADD(aMRUP, {LEN(PicDem), " POREZ", " (PRUC)"})
+AADD(aMRUP, {LEN(PicDem), if(gVarVP=="1", " RUC-PRUC", " RUC + PRUC"), ""})
+AADD(aMRUP, {LEN(PicDem), " VPV", if(gVarVP=="1"," SA Por.", "")})
+cLine:=SetRptLineAndText(aMRUP, 0)
+cText1:=SetRptLineAndText(aMRUP, 1, "*")
+cText2:=SetRptLineAndText(aMRUP, 2, "*")
 
 START PRINT CRET
-
 
 n1:=n2:=n3:=n5:=n5b:=n6:=0
 
@@ -107,15 +131,11 @@ DO WHILE !EOF() .and. IspitajPrekid()
   endif
 
   ?
-  ? m
-  if gVarVP=="1"
-   ? "*     TARIF *      NV     *   VPV - RAB *  VPV - NV   *  POREZ   *  POREZ   *RUC-PRUC *   VPV    *"
-   ? "*     BROJ  *             *             *    (RUC)    *     %    *  (PRUC)  *         *  SA POR  *"
-  else
-   ? "*     TARIF *      NV     *   VPV - RAB *  POREZ      *   RUC    *  POREZ   *RUC+PRUC *   VPV    *"
-   ? "*     BROJ  *             *             *     %       *          *  (PRUC)  *(VPV-NV) *          *"
-  endif
-  ? m
+  ? cLine
+  ? cText1
+  ? cText2
+  ? cLine
+  
   nT1:=nT2:=nT3:=nT5:=nT5B:=nT6:=0
   DO WHILE !EOF() .AND. cIdFirma==KALK->IdFirma .and. IspitajPrekid()
      cIdKonto:=IdKonto
@@ -126,24 +146,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
      nVPV:=nNV:=0
      nVPVN:=nNVN:=0
      DO WHILE !EOF() .AND. cIdFirma==IdFirma .and. cIdtarifa==IdTarifa .and. IspitajPrekid()
-
         select KALK
-
-        
-        
-        *FUNKCIJA VTPOREZI()
-        *if roba->tip=="V"
-        *  public _OPP:=0,_PPP:=tarifa->ppp/100
-        *  public _PORVT:=tarifa->opp/100
-        *elseif roba->tip=="K"
-        *  public _OPP:=tarifa->opp/100,_PPP:=tarifa->ppp/100
-        *  public _PORVT:=tarifa->opp/100
-        *else
-        *  public _OPP:=tarifa->opp/100,_PPP:=tarifa->ppp/100
-        *  public _PORVT:=0
-        *endif
-        *RETURN
-
         select roba; hseek kalk->idroba; select kalk
         VtPorezi()
         if _PORVT<>0
@@ -174,16 +177,16 @@ DO WHILE !EOF() .and. IspitajPrekid()
      endif
      @ prow()+1,0        SAY space(6)+cIdTarifa
      nCol1:=pcol()+4
-      @ prow(),pcol()+4   SAY n1:=nNV         PICT   PicDEM
-      @ prow(),pcol()+4   SAY n2:=nVPV        PICT   PicDEM
+      @ prow(),pcol()+4 SAY n1:=nNV PICT PicDEM
+      @ prow(),pcol()+1 SAY n2:=nVPV PICT PicDEM
      if gVarVP=="1"
-      @ prow(),pcol()+4   SAY n3:=nVPV-nNV    PICT   PicDEM
+      @ prow(),pcol()+1   SAY n3:=nVPV-nNV    PICT   PicDEM
       @ prow(),pcol()+1   SAY nVPP            PICT   PicProc
       @ prow(),pcol()+1   SAY n5:=nPorez      PICT   PicDEM
       @ prow(),pcol()+1   SAY n5b:=nVPV-nNV-nPorez      PICT   PicDEM
       @ prow(),pcol()+1   SAY n6:=nVPV+nPorez PICTURE   PicDEM
      else
-      @ prow(),pcol()+4   SAY nVPP            PICT   PicProc
+      @ prow(),pcol()+1   SAY nVPP            PICT   PicProc
       @ prow(),pcol()+1   SAY n5b:=nVPV-nNV-nPorez    PICT   PicDEM
       @ prow(),pcol()+1   SAY n5:=nPorez      PICT   PicDEM
       @ prow(),pcol()+1   SAY n3:=nVPV-nNV    PICT   PicDEM
@@ -194,24 +197,24 @@ DO WHILE !EOF() .and. IspitajPrekid()
   ENDDO // konto
 
   if prow()>60+gPStranica; FF; endif
-  ? m
+  ? cLine
   ? "UKUPNO:"
   @ prow(),nCol1     SAY  nT1     pict picdem
-  @ prow(),pcol()+4  SAY  nT2     pict picdem
+  @ prow(),pcol()+1  SAY  nT2     pict picdem
   if gVarVP=="1"
-    @ prow(),pcol()+4  SAY  nT3     pict picdem
+    @ prow(),pcol()+1  SAY  nT3     pict picdem
     @ prow(),pcol()+1  SAY  SPACE(LEN(PICPROC))
     @ prow(),pcol()+1  SAY  nT5     pict picdem
     @ prow(),pcol()+1  SAY  nT5b    pict picdem
     @ prow(),pcol()+1  SAY  nT6     pict picdem
   else
-    @ prow(),pcol()+4  SAY  SPACE(LEN(PICPROC))
+    @ prow(),pcol()+1  SAY  SPACE(LEN(PICPROC))
     @ prow(),pcol()+1  SAY  nT5b    pict picdem
     @ prow(),pcol()+1  SAY  nT5     pict picdem
     @ prow(),pcol()+1  SAY  nT3     pict picdem
     @ prow(),pcol()+1  SAY  nT2     pict picdem
   endif
-  ? m
+  ? cLine
 
 ENDDO // eof
 

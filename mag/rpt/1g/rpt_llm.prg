@@ -212,8 +212,10 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
  		private aUsl3:=Parsiraj(qqIDVD,"idvd")
  		private aUsl4:=Parsiraj(qqIDPartner,"idpartner")
- 		qqRGr := ALLTRIM(qqRGr)	
- 		qqRGr2 := ALLTRIM(qqRGr2)	
+ 		if IsRobaGroup()
+			qqRGr := ALLTRIM(qqRGr)	
+ 			qqRGr2 := ALLTRIM(qqRGr2)	
+		endif
 		if lPoNarudzbi
    			aUslN:=Parsiraj(qqIdNar,"idnar")
  		endif

@@ -91,12 +91,12 @@
  *  \sa PreglKret, ObrazInv 
  */
  
-function GenRekap1(aUsl1, aUsl2, aUslR, cKartica, cVarijanta, cKesiraj, fSMark, cK7, cK9, cIdKPovrata)
+function GenRekap1(aUsl1, aUsl2, aUslR, cKartica, cVarijanta, cKesiraj, fSMark, cK7, cK9, cIdKPovrata, aUslSez)
 *{
 local nSec
 
 if (cKesiraj=nil)
-  cKesiraj:="N"
+	cKesiraj:="N"
 endif
 
 if (fSMark==nil)
@@ -107,12 +107,16 @@ if (cK7==nil)
 	cK7:="N"
 endif
 
-if (cK9)==nil
+if (cK9==nil)
 	cK9:="999"
 endif
 
 if (cIdKPovrata==nil)
 	cIdKPovrata:="XXXXXXXX"
+endif
+
+if (aUslSez==nil)
+	aUslSez:=".t."
 endif
 
 nSec:=SECONDS()
@@ -123,15 +127,20 @@ set order to 0
 PRIVATE cFilt1:=""
 
 cFilt1 := "DatDok<="+cm2str(dDatDo)+".and.("+aUsl1+".or."+aUsl2+")"
-if aUslr<>".t."
-  cFilt1+=".and."+aUslR
+
+if aUslr <> ".t."
+	cFilt1 += ".and." + aUslR
+endif
+
+if aUslSez <> ".t."
+	cFilt1 += ".and." + aUslSez
 endif
 
 SELECT kalk
 set filter to &cFilt1
 
 #ifndef CAX
-  showkorner(rloptlevel()+100,1,66)
+	showkorner(rloptlevel()+100,1,66)
 #endif
 
 go top

@@ -486,6 +486,8 @@ Rpar("p2",@gPicProc)
 Rpar("p3",@gPicDEM)
 Rpar("p4",@gPicKol)
 Rpar("p5",@gPicNC)
+Rpar("p6",@gFPicCDem)
+Rpar("p7",@gFPicDem)
 RPar("po",@gPotpis)
 Rpar("rt",@gRokTr)
 

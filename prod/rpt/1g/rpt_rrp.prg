@@ -53,10 +53,10 @@ local nT1:=nT4:=nT5:=nT6:=nT7:=0
 local nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
 local n1:=n4:=n5:=n6:=n7:=0
 local nCol1:=0
-local PicCDEM := gPicCDEM       // "999999.999"
-local PicProc := gPicProc       // "999999.99%"
-local PicDEM  := gPicDEM        // "9999999.99"
-local Pickol  := gPicKol        // "999999.999"
+local PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
+local PicProc:=gPicProc      
+local PicDEM:=REPLICATE("9", VAL(gFPicDem)) + gPicDEM 
+local Pickol:=gPicKol  
 local i:=0
 
 private aPorezi
@@ -133,7 +133,22 @@ SET FILTER TO &cFilt1
 go top   // samo  zaduz prod. i povrat iz prod.
 EOF CRET
 
-M:="------------ ------------- ---------- ---------- ---------- ----------- --------- ---------- ---------- ---------- ----------"
+aRRP:={}
+AADD(aRRP, {15, " TARIF", " BROJ"})
+AADD(aRRP, {LEN(PicDem), " MPV", ""})
+AADD(aRRP, {LEN(gPicProc), " PPP", " %"})
+AADD(aRRP, {LEN(gPicProc), " PPU", " %"})
+AADD(aRRP, {LEN(gPicProc), " PP", " %"})
+AADD(aRRP, {LEN(PicDem), " PPP", ""})
+AADD(aRRP, {LEN(PicDem), " PPU", ""})
+AADD(aRRP, {LEN(PicDem), " PP", ""})
+AADD(aRRP, {LEN(PicDem), " UKUPNO", " POREZ"})
+AADD(aRRP, {LEN(PicDem), " Popust", ""})
+AADD(aRRP, {LEN(PicDem), " MPV", " SA Por"})
+cLine:=SetRptLineAndText(aRRP, 0)
+cText1:=SetRptLineAndText(aRRP, 1, "*")
+cText2:=SetRptLineAndText(aRRP, 2, "*")
+
 
 START PRINT CRET
 
@@ -158,12 +173,19 @@ DO WHILE !EOF() .and. IspitajPrekid()
       ? "Kriterij za tarife:",trim(qqTarifa)
       ?
     endif
-    P_COND
+    
+    if VAL(gFPicDem) > 0
+    	P_COND2
+    else
+   	P_COND
+    endif
+    
     ?
-    ? m
-    ? "*     TARIF *      MPV    *    PPP   *    PPU   *     PP   *   PPP    *   PPU    *   PP     * UKUPNO   *  Popust  *   MPV    *"
-    ? "*     BROJ  *             *     %    *     %    *     %    *          *          *          * POREZ    *          *  SA Por  *"
-    ? m
+    ? cLine
+    ? cText1
+    ? cText2
+    ? cLine
+  
   ENDIF
 
   nT1:=nT4:=nT5:=nT6:=nT7:=nT8:=0
@@ -349,23 +371,23 @@ DO WHILE !EOF() .and. IspitajPrekid()
     if prow()>60+gPStranica
     	FF
     endif
-    ? m
+    ? cLine
     ? "UKUPNO:"
     @ prow(),nCol1     SAY  nT1     pict picdem
-    @ prow(),pcol()+1  SAY  0        pict "@Z "+picdem
-    @ prow(),pcol()+1  SAY  0        pict "@Z "+picdem
-    @ prow(),pcol()+1  SAY  0        pict "@Z "+picdem
+    @ prow(),pcol()+1  SAY  0        pict "@Z "+gpicproc
+    @ prow(),pcol()+1  SAY  0        pict "@Z "+gpicproc
+    @ prow(),pcol()+1  SAY  0        pict "@Z "+gpicproc
     @ prow(),pcol()+1  SAY  nT4     pict picdem
     @ prow(),pcol()+1  SAY  nT5     pict picdem
     @ prow(),pcol()+1  SAY  nT6     pict picdem
     @ prow(),pcol()+1  SAY  nT7     pict picdem
     @ prow(),pcol()+1  SAY  nTP     pict picdem
     @ prow(),pcol()+1  SAY  nT8     pict picdem
-    ? m
+    ? cLine
     if fSaberikol
       ? "UKUPNO (KOLICINE):"
       @ prow(), ncol1 + (len(gPicDEM)+1)*9 SAY nKI pict gpickol
-      ? m
+      ? cLine
     endif
   ENDIF
 

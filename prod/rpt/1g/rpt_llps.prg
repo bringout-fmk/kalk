@@ -39,17 +39,8 @@
 function LLPS()
 *{
 
-private PicCDem:=gPicCDem
-private PicDem:=gPicDem
-
-if IsPlNS()
-	if LEN(gPicCDem)==10
-		PicCDem := "999" + gPicCDem
-	endif
-	if LEN(gPicDEM)==10
-		PicDem := "999" + gPicDem
-	endif
-endif
+PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
 
 cIdFirma:=gFirma
 qqKonto:=padr("132;",60)

@@ -39,6 +39,10 @@
 
 function FLLM()
 *{
+
+PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
+PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+
 cIdKonto:=padr("1310",gDuzKonto)
 
 if IzFMKIni("Svi","Sifk")=="D"
@@ -136,11 +140,45 @@ EOF CRET
 
 nLen:=1
 
-IF cpapir="2"
-	m:="----- -------- ----------- "+REPLICATE("-",32)+" ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-ELSE
-	m:="----- -------- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-ENDIF
+//IF cpapir="2"
+//	m:="----- -------- ----------- "+REPLICATE("-",32)+" ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+//ELSE
+//	m:="----- -------- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+//ENDIF
+
+//IF cpapir=="2"
+//	? "R.br * Datum  * Brdok     *"+PADC("Sifra i naziv partnera",32)+"*fakt./otp.*  NV.Dug. *"+PADC(ALLTRIM(c10T1),10)+"*"+PADC(ALLTRIM(c10T2),10)+"*"+PADC(ALLTRIM(c10T3),10)+"*"+PADC(ALLTRIM(c10T4),10)+"*"+PADC(ALLTRIM(c10T5),10)+"*   marza  *  VPV Dug.*"
+//ELSE
+//	? "R.br * Datum  * Brdok     *  NV.Dug. *  NV.Pot  *    NV    *  VPV Dug.*  VPV Pot *   VPV    *  Rabat  *"
+//ENDIF
+
+
+aFLLM:={}
+AADD(aFLLM, {5, " R.br"})
+AADD(aFLLM, {8, " Datum"})
+AADD(aFLLM, {11, " Broj dok."})
+if cPapir=="2"
+	AADD(aFLLM, {32, " Sifra i naziv partnera"})
+	AADD(aFLLM, {13, "fakt./otp"})
+	AADD(aFLLM, {10, " NV Dug."})
+	AADD(aFLLM, {LEN(PicDem), c10T1})
+	AADD(aFLLM, {LEN(PicDem), c10T2})
+	AADD(aFLLM, {LEN(PicDem), c10T3})
+	AADD(aFLLM, {LEN(PicDem), c10T4})
+	AADD(aFLLM, {LEN(PicDem), c10T5})
+	AADD(aFLLM, {LEN(PicDem), " marza"})
+	AADD(aFLLM, {LEN(PicDem), " VPV Dug."})
+else
+	AADD(aFLLM, {LEN(PicDem), " NV.Dug."})
+	AADD(aFLLM, {LEN(PicDem), " NV.Pot."})
+	AADD(aFLLM, {LEN(PicDem), " NV"})
+	AADD(aFLLM, {LEN(PicDem), " VPV Dug."})
+	AADD(aFLLM, {LEN(PicDem), " VPV Pot."})
+	AADD(aFLLM, {LEN(PicDem), " VPV"})
+	AADD(aFLLM, {LEN(PicDem), " Rabat"})
+endif
+private cLine:=SetRptLineAndText(aFLLM, 0)
+private cText1:=SetRptLineAndText(aFLLM, 1, "*")
 
 start print cret
 
@@ -265,48 +303,48 @@ do while !eof() .and. cidfirma==idfirma .and.  IspitajPrekid()
 
 	if cPapir="2"
 		@ prow(),pcol()+1 SAY cidpartner+" "+Ocitaj(F_PARTN,cidpartner,"naz")+" "+cbrfaktp
-		@ prow(),pcol()+1 SAY nNVU pict gpicdem
-		@ prow(),pcol()+1 SAY nDod3 pict gpicdem
-		@ prow(),pcol()+1 SAY nDod5 pict gpicdem
-		@ prow(),pcol()+1 SAY nDod6 pict gpicdem
-		@ prow(),pcol()+1 SAY nDod7 pict gpicdem
-		@ prow(),pcol()+1 SAY nDod8 pict gpicdem
-		@ prow(),pcol()+1 SAY nDod1 pict gpicdem
-		@ prow(),pcol()+1 SAY nVPVU pict gpicdem
+		@ prow(),pcol()+1 SAY nNVU pict picdem
+		@ prow(),pcol()+1 SAY nDod3 pict picdem
+		@ prow(),pcol()+1 SAY nDod5 pict picdem
+		@ prow(),pcol()+1 SAY nDod6 pict picdem
+		@ prow(),pcol()+1 SAY nDod7 pict picdem
+		@ prow(),pcol()+1 SAY nDod8 pict picdem
+		@ prow(),pcol()+1 SAY nDod1 pict picdem
+		@ prow(),pcol()+1 SAY nVPVU pict picdem
 	else
-		@ prow(),pcol()+1 SAY nNVU pict gpicdem
-		@ prow(),pcol()+1 SAY nNVI pict gpicdem
-		@ prow(),pcol()+1 SAY nTNVU-nTNVI pict gpicdem
-		@ prow(),pcol()+1 SAY nVPVU pict gpicdem
-		@ prow(),pcol()+1 SAY nVPVI pict gpicdem
-		@ prow(),pcol()+1 SAY nTVPVU-NTVPVI pict gpicdem
-		@ prow(),pcol()+1 SAY nRabat pict gpicdem
+		@ prow(),pcol()+1 SAY nNVU pict picdem
+		@ prow(),pcol()+1 SAY nNVI pict picdem
+		@ prow(),pcol()+1 SAY nTNVU-nTNVI pict picdem
+		@ prow(),pcol()+1 SAY nVPVU pict picdem
+		@ prow(),pcol()+1 SAY nVPVI pict picdem
+		@ prow(),pcol()+1 SAY nTVPVU-NTVPVI pict picdem
+		@ prow(),pcol()+1 SAY nRabat pict picdem
 	endif
 enddo
 
-? m
+? cLine
 ? "UKUPNO:"
 
 if cPapir=="2"
-	@ prow(),pcol()+64 SAY ntNVU pict gpicdem
-	@ prow(),pcol()+1 SAY ntDod3 pict gpicdem
-	@ prow(),pcol()+1 SAY ntDod5 pict gpicdem
-	@ prow(),pcol()+1 SAY ntDod6 pict gpicdem
-	@ prow(),pcol()+1 SAY ntDod7 pict gpicdem
-	@ prow(),pcol()+1 SAY ntDod8 pict gpicdem
-	@ prow(),pcol()+1 SAY ntDod1 pict gpicdem
-	@ prow(),pcol()+1 SAY ntVPVU pict gpicdem
+	@ prow(),pcol()+64 SAY ntNVU pict picdem
+	@ prow(),pcol()+1 SAY ntDod3 pict picdem
+	@ prow(),pcol()+1 SAY ntDod5 pict picdem
+	@ prow(),pcol()+1 SAY ntDod6 pict picdem
+	@ prow(),pcol()+1 SAY ntDod7 pict picdem
+	@ prow(),pcol()+1 SAY ntDod8 pict picdem
+	@ prow(),pcol()+1 SAY ntDod1 pict picdem
+	@ prow(),pcol()+1 SAY ntVPVU pict picdem
 else
-	@ prow(),nCol1    SAY ntNVU pict gpicdem
-	@ prow(),pcol()+1 SAY ntNVI pict gpicdem
-	@ prow(),pcol()+1 SAY ntNVU-NtNVI pict gpicdem
-	@ prow(),pcol()+1 SAY ntVPVU pict gpicdem
-	@ prow(),pcol()+1 SAY ntVPVI pict gpicdem
-	@ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict gpicdem
-	@ prow(),pcol()+1 SAY ntRabat pict gpicdem
+	@ prow(),nCol1    SAY ntNVU pict picdem
+	@ prow(),pcol()+1 SAY ntNVI pict picdem
+	@ prow(),pcol()+1 SAY ntNVU-NtNVI pict picdem
+	@ prow(),pcol()+1 SAY ntVPVU pict picdem
+	@ prow(),pcol()+1 SAY ntVPVI pict picdem
+	@ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict picdem
+	@ prow(),pcol()+1 SAY ntRabat pict picdem
 endif
 
-? m
+? cLine
 FF
 end print
 #ifdef CAX
@@ -320,8 +358,6 @@ return
 *}
 
 
-
-
 /*! \fn ZaglFLLM()
  *  \brief Ispis zaglavlja izvjestaja "finansijsko stanje magacina"
  */
@@ -329,7 +365,7 @@ return
 function ZaglFLLM()
 *{
 Preduzece()
-if cpapir=="2"
+if cPapir=="2"
 	P_COND2
 else
   	P_COND
@@ -351,13 +387,11 @@ if IsDomZdr() .and. !Empty(cKalkTip)
 endif
 
 select kalk
-? m
-IF cpapir=="2"
-	? "R.br * Datum  * Brdok     *"+PADC("Sifra i naziv partnera",32)+"*fakt./otp.*  NV.Dug. *"+PADC(ALLTRIM(c10T1),10)+"*"+PADC(ALLTRIM(c10T2),10)+"*"+PADC(ALLTRIM(c10T3),10)+"*"+PADC(ALLTRIM(c10T4),10)+"*"+PADC(ALLTRIM(c10T5),10)+"*   marza  *  VPV Dug.*"
-ELSE
-	? "R.br * Datum  * Brdok     *  NV.Dug. *  NV.Pot  *    NV    *  VPV Dug.*  VPV Pot *   VPV    *  Rabat  *"
-ENDIF
-? m
+
+? cLine
+? cText1
+? cLine
+
 return
 *}
 

@@ -54,6 +54,10 @@ local nKolIzlaz
 private aPorezi
 aPorezi:={}
 
+PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
+PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+
+
 cIdFirma:=gFirma
 cidKonto:=padr("132.",gDuzKonto)
 if IzFMKIni("Svi","Sifk")=="D"
@@ -148,8 +152,21 @@ select kalk
 EOF CRET
 
 nLen:=1
-// m:="----- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-m:="----- ----------- ---------- ---------- ---------- ---------- ---------- ----------"
+
+aZaglTxt:={}
+AADD(aZaglTxt, {5, "R.br",""})
+AADD(aZaglTxt, {11, " Konto",""})
+AADD(aZaglTxt, {LEN(PicDem), " MPV.Dug",""})
+AADD(aZaglTxt, {LEN(PicDem), " MPV.Pot",""})
+AADD(aZaglTxt, {LEN(PicDem), " MPV",""})
+AADD(aZaglTxt, {LEN(PicDem), " MPV sa PP","  Dug"})
+AADD(aZaglTxt, {LEN(PicDem), " MPV sa PP","  Pot"})
+AADD(aZaglTxt, {LEN(PicDem), " MPV sa PP",""})
+
+private cLine:=SetRptLineAndText(aZaglTxt, 0)
+private cText1:=SetRptLineAndText(aZaglTxt, 1, "*")
+private cText2:=SetRptLineAndText(aZaglTxt, 2, "*")
+
 
 start print cret
 
@@ -300,39 +317,58 @@ nTMPVU+=nMPVU; nTMPVI+=nMPVI
 nTMPVBU+=nMPVBU; nTMPVBI+=nMPVBI
 nTNVU+=nNVU; nTNVI+=nNVI
 
- @ prow(),pcol()+1 SAY nMPVBU pict gpicdem
- @ prow(),pcol()+1 SAY nMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY nMPVBU-nMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY nMPVU pict gpicdem
- @ prow(),pcol()+1 SAY nMPVI pict gpicdem
- @ prow(),pcol()+1 SAY nMPVU-nMPVI pict gpicdem
+ @ prow(),pcol()+1 SAY nMPVBU pict picdem
+ @ prow(),pcol()+1 SAY nMPVBI pict picdem
+ @ prow(),pcol()+1 SAY nMPVBU-nMPVBI pict picdem
+ @ prow(),pcol()+1 SAY nMPVU pict picdem
+ @ prow(),pcol()+1 SAY nMPVI pict picdem
+ @ prow(),pcol()+1 SAY nMPVU-nMPVI pict picdem
 
 enddo
 
-? m
+? cLine
 ? "UKUPNO:"
 
- @ prow(),nCol1    SAY ntMPVBU pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVU pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict gpicdem
+ @ prow(),nCol1    SAY ntMPVBU pict picdem
+ @ prow(),pcol()+1 SAY ntMPVBI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVU pict picdem
+ @ prow(),pcol()+1 SAY ntMPVI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict picdem
 
-? m
+? cLine
 
-M:="------------ ------------- ---------- ----------- ----------- --------- ---------- ---------- ---------- ----------"
+aRptRTar:={}
+AADD(aRptRTar, {15, " TARIF", " BROJ"})
+AADD(aRptRTar, {LEN(PicDem), " MPV", " "})
+AADD(aRptRTar, {LEN(gPicProc), " PPP", "  %"})
+AADD(aRptRTar, {LEN(gPicProc), " PPU", "  %"})
+AADD(aRptRTar, {LEN(gPicProc), " PP", "  %"})
+AADD(aRptRTar, {LEN(PicDem), " PPP", ""})
+AADD(aRptRTar, {LEN(PicDem), " PPU", ""})
+AADD(aRptRTar, {LEN(PicDem), " PP", ""})
+AADD(aRptRTar, {LEN(PicDem), " UKUPNO", " POREZ"})
+AADD(aRptRTar, {LEN(PicDem), " MPV", " sa Por"})
 
-P_COND
+cRTLine:=SetRptLineAndText(aRptRTar, 0)
+cRTTxt1:=SetRptLineAndText(aRptRTar, 1, "*")
+cRTTxt2:=SetRptLineAndText(aRptRTar, 2, "*")
+
+if VAL(gFPicDem) > 0
+	P_COND2
+else
+	P_COND
+endif
+
 ?
 ?
 ?
 ? "REKAPITULACIJA PO TARIFAMA"
 ? "--------------------------"
-? m
-? "*     TARIF *      MPV    *    PPP   *    PPU   *    PP    *   PPP    *   PPU    *   PP     * UKUPNO   * MPV     *"
-? "*     BROJ  *             *     %    *     %    *     %    *          *          *          * POREZ    * SA Por  *"
-? m
+? cRTLine
+? cRTTxt1
+? cRTTxt2
+? cRTLine
 
 ASORT( aRTar ,,, { |x,y|  x[1] < y[1] } )
 
@@ -343,34 +379,38 @@ FOR i:=1 TO LEN(aRTar)
   endif
   @ prow()+1,0        SAY space(6)+aRTar[i,1]
   nCol1:=pcol()+4
-  @ prow(),pcol()+4   SAY aRTar[i, 2]  PICT  gPicDEM
+  @ prow(),pcol()+4   SAY aRTar[i, 2]  PICT  PicDEM
   @ prow(),pcol()+1   SAY aRTar[i, 3]  PICT  gPicProc
   @ prow(),pcol()+1   SAY aRTar[i, 4]  PICT  gPicProc
   @ prow(),pcol()+1   SAY aRTar[i, 5]  PICT  gPicProc
-  @ prow(),pcol()+1   SAY aRTar[i, 6]  PICT  gPicDEM
-  @ prow(),pcol()+1   SAY aRTar[i, 7]  PICT  gPicDEM
-  @ prow(),pcol()+1   SAY aRTar[i, 8]  PICT  gPicDEM
-  @ prow(),pcol()+1   SAY aRTar[i, 9]  PICT  gPicDEM
-  @ prow(),pcol()+1   SAY aRTar[i,10]  PICT  gPicDEM
-  nT1+=aRTar[i,2];  nT4+=aRTar[i,6];  nT5+=aRTar[i,7] ;  nT5a+=aRTar[i,8]
-  nT6+=aRTar[i,9];  nT7+=aRTar[i,10]
+  @ prow(),pcol()+1   SAY aRTar[i, 6]  PICT  PicDEM
+  @ prow(),pcol()+1   SAY aRTar[i, 7]  PICT  PicDEM
+  @ prow(),pcol()+1   SAY aRTar[i, 8]  PICT  PicDEM
+  @ prow(),pcol()+1   SAY aRTar[i, 9]  PICT  PicDEM
+  @ prow(),pcol()+1   SAY aRTar[i,10]  PICT  PicDEM
+  nT1+=aRTar[i,2]
+  nT4+=aRTar[i,6]
+  nT5+=aRTar[i,7]
+  nT5a+=aRTar[i,8]
+  nT6+=aRTar[i,9]
+  nT7+=aRTar[i,10]
 NEXT
 
 if prow()>60+gPStranica
 	FF
 endif
-? m
+? cRTLine
 ? "UKUPNO:"
-@ prow(),nCol1     SAY  nT1  pict gpicdem
-@ prow(),pcol()+1  SAY  0    pict "@Z "+gpicdem
-@ prow(),pcol()+1  SAY  0    pict "@Z "+gpicdem
-@ prow(),pcol()+1  SAY  0    pict "@Z "+gpicdem
-@ prow(),pcol()+1  SAY  nT4  pict gpicdem
-@ prow(),pcol()+1  SAY  nT5  pict gpicdem
-@ prow(),pcol()+1  SAY  nT5a pict gpicdem
-@ prow(),pcol()+1  SAY  nT6  pict gpicdem
-@ prow(),pcol()+1  SAY  nT7  pict gpicdem
-? m
+@ prow(),nCol1     SAY  nT1  pict picdem
+@ prow(),pcol()+1  SAY  0    pict "@Z "+gPicProc
+@ prow(),pcol()+1  SAY  0    pict "@Z "+gPicProc
+@ prow(),pcol()+1  SAY  0    pict "@Z "+gPicProc
+@ prow(),pcol()+1  SAY  nT4  pict picdem
+@ prow(),pcol()+1  SAY  nT5  pict picdem
+@ prow(),pcol()+1  SAY  nT5a pict picdem
+@ prow(),pcol()+1  SAY  nT6  pict picdem
+@ prow(),pcol()+1  SAY  nT7  pict picdem
+? cRTLine
 
 if IsPlanika()
 	if (prow()>55+gPStranica)
@@ -423,12 +463,19 @@ if IsPlanika() .and. !EMPTY(cK9)
 endif
 
 select kalk
-P_COND
+
+if VAL(gFPicDem) > 0
+	P_COND2
+else
+	P_COND
+endif
+
 ?
-? m
-? "R.br * Konto     * MPV.Dug. * MPV.Pot  *   MPV    * MPV sa PP* MPV sa PP*MPV sa PP*"
-? "     *           *          *          *          *   Dug    *    Pot   *         *"
-? m
+? cLine
+? cText1
+? cText2
+? cLine
+
 
 return
 *}

@@ -38,8 +38,11 @@ function FLLP()
 local nKolUlaz
 local nKolIzlaz
 
+PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
+PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+
 cIdFirma:=gFirma
-cidKonto:=padr("1320",gDuzKonto)
+cIdKonto:=padr("1320",gDuzKonto)
 
 ODbKalk()
 
@@ -113,7 +116,27 @@ select KALK
 EOF CRET
 
 nLen:=1
-m:="------ -------- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- -----------"
+ 
+//? "*Redni*        * Broj      *    NV    *    NV    *    NV    *   MPV    *   MPV    *   MPV    *MPV sa PP *MPV sa PP *MPV sa PP *"
+//? "*broj * Datum  * dokumenta *  duguje  *  potraz. *  ukupno  *  duguje  *  potraz. *  ukupno  *  duguje  *  potraz. *  ukupno  *"
+
+aRFLLP:={}
+AADD(aRFLLP, {6, "Redni", " broj"})
+AADD(aRFLLP, {8, "", " Datum"})
+AADD(aRFLLP, {11, " Broj", "dokumenta"})
+AADD(aRFLLP, {LEN(PicDem), "  NV", " duguje"})
+AADD(aRFLLP, {LEN(PicDem), "  NV", " potraz."})
+AADD(aRFLLP, {LEN(PicDem), "  NV", " ukupno"})
+AADD(aRFLLP, {LEN(PicDem), "  MPV", " duguje"})
+AADD(aRFLLP, {LEN(PicDem), "  MPV", " potraz."})
+AADD(aRFLLP, {LEN(PicDem), "  MPV", " ukupno"})
+AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " duguje"})
+AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " potraz."})
+AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " ukupno"})
+
+private cLine:=SetRptLineAndText(aRFLLP, 0)
+private cText1:=SetRptLineAndText(aRFLLP, 1, "*")
+private cText2:=SetRptLineAndText(aRFLLP, 2, "*")
 
 start print cret
 
@@ -233,32 +256,32 @@ ntNVU+=nNVU; ntNVI+=nNVI
 ntMPVBU+=nMPVBU; ntMPVBI+=nMPVBI
 ntMPVU+=nMPVU; ntMPVI+=nMPVI
 
- @ prow(),pcol()+1 SAY nNVU pict gpicdem
- @ prow(),pcol()+1 SAY nNVI pict gpicdem
- @ prow(),pcol()+1 SAY ntNVU-ntNVI pict gpicdem
- @ prow(),pcol()+1 SAY nMPVBU pict gpicdem
- @ prow(),pcol()+1 SAY nMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY nMPVU pict gpicdem
- @ prow(),pcol()+1 SAY nMPVI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict gpicdem
+ @ prow(),pcol()+1 SAY nNVU pict picdem
+ @ prow(),pcol()+1 SAY nNVI pict picdem
+ @ prow(),pcol()+1 SAY ntNVU-ntNVI pict picdem
+ @ prow(),pcol()+1 SAY nMPVBU pict picdem
+ @ prow(),pcol()+1 SAY nMPVBI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict picdem
+ @ prow(),pcol()+1 SAY nMPVU pict picdem
+ @ prow(),pcol()+1 SAY nMPVI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict picdem
 
 enddo
 
-? m
+? cLine
 ? "UKUPNO:"
 
- @ prow(),nCol1    SAY ntNVU pict gpicdem
- @ prow(),pcol()+1 SAY ntNVI pict gpicdem
- @ prow(),pcol()+1 SAY ntNVU-ntNVI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVBU pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVU pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVI pict gpicdem
- @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict gpicdem
+ @ prow(),nCol1    SAY ntNVU pict picdem
+ @ prow(),pcol()+1 SAY ntNVI pict picdem
+ @ prow(),pcol()+1 SAY ntNVU-ntNVI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVBU pict picdem
+ @ prow(),pcol()+1 SAY ntMPVBI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVU pict picdem
+ @ prow(),pcol()+1 SAY ntMPVI pict picdem
+ @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict picdem
 
-? m
+? cLine
 
 if IsPlanika()
 	if (prow()>55+gPStranica)
@@ -280,26 +303,33 @@ return
 *}
 
 
-
-
-
 /*! \fn ZaglFLLP()
  *  \brief Zaglavlje izvjestaja "finansijsko stanje prodavnice"
  */
 
 function ZaglFLLP()
 *{
-select konto; hseek cidkonto
+select konto
+hseek cIdKonto
 Preduzece()
-P_COND
-?? "KALK: Finansijsko stanje za period",dDatOd,"-",dDatDo," NA DAN "; ?? date(), space(10),"Str:",str(++nTStrana,3)
-? "Prodavnica:",cidkonto,"-",konto->naz
+
+if VAL(gFPicDem) > 0
+	P_COND2
+else
+	P_COND
+endif
+
+?? "KALK: Finansijsko stanje za period",dDatOd,"-",dDatDo," NA DAN "
+?? date(), space(10),"Str:",str(++nTStrana,3)
+? "Prodavnica:", cIdKonto, "-", konto->naz
+
 select KALK
-m:="------ -------- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- -----------"
- ? m
- ? "*Redni*        * Broj      *    NV    *    NV    *    NV    *   MPV    *   MPV    *   MPV    *MPV sa PP *MPV sa PP *MPV sa PP *"
- ? "*broj * Datum  * dokumenta *  duguje  *  potraz. *  ukupno  *  duguje  *  potraz. *  ukupno  *  duguje  *  potraz. *  ukupno  *"
- ? m
+ 
+? cLine
+? cText1
+? cText2
+? cLine
+
 return
 *}
 

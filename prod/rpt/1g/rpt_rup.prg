@@ -71,13 +71,9 @@ local n5a:=0
 local n6:=0
 local n7:=0
 local nCol1:=0
-// "999999.999"
-local PicCDEM:=gPicCDEM   
-// "999999.99%"
+local PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM   
 local PicProc:=gPicProc      
-// "9999999.99"
-local PicDEM:=gPicDEM         
-// "999999.999"
+local PicDEM:=REPLICATE("9", VAL(gFPicDem)) + gPicDEM         
 local Pickol:=gPicKol         
 local aPorezi
 
@@ -136,10 +132,24 @@ SET FILTER TO &cFilt1
 go top   // samo  zaduz prod. i povrat iz prod.
 EOF CRET
 
-M:="------------ ------------- ---------- ----------- ----------- --------- --------- ---------- ---------- ----------"
+
+aRUP:={}
+AADD(aRUP, {15, " TARIF", " BROJ"})
+AADD(aRUP, {LEN(PicDem), " MPV", ""})
+AADD(aRUP, {LEN(PicProc), " PPP", " %"})
+AADD(aRUP, {LEN(PicProc), " PPU", " %"})
+AADD(aRUP, {LEN(PicProc), " PP", " %"})
+AADD(aRUP, {LEN(PicDem), " PPP", ""})
+AADD(aRUP, {LEN(PicDem), " PPU", ""})
+AADD(aRUP, {LEN(PicDem), " PP", ""})
+AADD(aRUP, {LEN(PicDem), " UKUPNO", " POREZ"})
+AADD(aRUP, {LEN(PicDem), " MPV", " SA Por"})
+
+cLine:=SetRptLineAndText(aRUP, 0)
+cText1:=SetRptLineAndText(aRUP, 1, "*")
+cText2:=SetRptLineAndText(aRUP, 2, "*")
 
 START PRINT CRET
-
 
 n1:=0
 n4:=0
@@ -153,7 +163,13 @@ DO WHILE !EOF() .and. IspitajPrekid()
   B:=0
   cIdFirma:=KALK->IdFirma
   Preduzece()
-  P_COND
+  
+  if VAL(gFPicDem) > 0
+  	P_COND2
+  else
+  	P_COND
+  endif
+  
   ? "KALK: PREGLED UKALKULISANIH POREZA (PRODAVNICE) ZA PERIOD OD",dDat1,"DO",dDAt2,"      NA DAN:",DATE()
   ?
   ? "Prodavnica: "
@@ -168,11 +184,13 @@ DO WHILE !EOF() .and. IspitajPrekid()
     ENDIF
     SKIP
   ENDDO
+  
   ?
-  ? m
-  ? "*     TARIF *      MPV    *    PPP   *    PPU   *    PP    *   PPP    *   PPU    *   PP     * UKUPNO   * MPV     *"
-  ? "*     BROJ  *             *     %    *     %    *     %    *          *          *          * POREZ    * SA Por  *"
-  ? m
+  ? cLine
+  ? cText1
+  ? cText2
+  ? cLine
+  
   nT1:=0
   nT4:=0
   nT5:=0
@@ -267,23 +285,23 @@ DO WHILE !EOF() .and. IspitajPrekid()
   if prow()>60+gPStranica
   	FF
   endif
-  ? m
+  ? cLine
   ? "UKUPNO:"
   @ prow(),nCol1     SAY  nT1     pict picdem
-  @ prow(),pcol()+1  SAY  0        pict "@Z "+picdem
-  @ prow(),pcol()+1  SAY  0        pict "@Z "+picdem
-  @ prow(),pcol()+1  SAY  0        pict "@Z "+picdem
+  @ prow(),pcol()+1  SAY  0       pict "@Z "+picproc
+  @ prow(),pcol()+1  SAY  0       pict "@Z "+picproc
+  @ prow(),pcol()+1  SAY  0       pict "@Z "+picproc
   @ prow(),pcol()+1  SAY  nT4     pict picdem
   @ prow(),pcol()+1  SAY  nT5     pict picdem
   @ prow(),pcol()+1  SAY  nT5a    pict picdem
   @ prow(),pcol()+1  SAY  nT6     pict picdem
   @ prow(),pcol()+1  SAY  nT7     pict picdem
-  ? m
+  ? cLine
 
   if cStope=="D"
     ?
     ? "Prikaz ucesca pojedinih tarifa:"
-    ? m
+    ? cLine
     for ii:=1 to len(aTarife)
        ? aTarife[ii,1]
        @ prow(),pcol()+1 SAY aTarife[ii,2]/nT7*100 pict "99.999%"
@@ -292,7 +310,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
        ?? " = "
        @ prow(),pcol()+1 SAY nReal*aTarife[ii,2]/nT7 pict picdem
     next
-    ? m
+    ? cLine
   endif
 
 ENDDO // eof

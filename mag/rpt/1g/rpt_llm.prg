@@ -173,7 +173,14 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		@ m_x+10,col()+2 SAY "do" GET dDatDo
  		@ m_x+12,m_y+2 SAY "Postaviti srednju NC u sifrarnik" GET cNCSif pict "@!" valid ((cpnab=="D" .and. cncsif=="D") .or. cNCSif=="N")
  		@ m_x+14,m_y+2 SAY "Prikaz samo kriticnih zaliha (D/N/O) ?" GET cMinK pict "@!" valid cMink$"DNO"
- 		if lPoNarudzbi
+ 		if IsVindija()
+			cGr:=SPACE(10)
+			cPSPDN := "N"
+ 			@ m_x+15,m_y+2 SAY "Grupa:" GET cGr
+			@ m_x+16,m_y+2 SAY "Pregled samo prodaje (D/N)" GET cPSPDN VALID cPSPDN $ "DN" PICT "@!"
+		endif
+		
+		if lPoNarudzbi
    			qqIdNar := SPACE(60)
    			cPKN    := "N"
    			@ row()+1,m_y+2 SAY "Uslov po sifri narucioca:" GET qqIdNar pict "@!S30"
@@ -190,7 +197,6 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		if IsVindija()
  			@ m_x+17,m_y+2 SAY "Uslov po opcinama:" GET cOpcine PICT "@!S40"
  		endif
-		
 		if IsDomZdr()
  			@ m_x+15,m_y+2 SAY "Prikaz po tipu sredstva:" GET cKalkTip PICT "@!"
  			@ m_x+16,m_y+2 SAY "Prikaz sign.zaliha (D/N):" GET cSzDN PICT "@!" VALID cSzDn$"DN"
@@ -395,7 +401,6 @@ if IsRobaGroup()
 		loop
 	endif
 endif
-
 // Vindija - uslov po opcinama
 if (IsVindija() .and. !EMPTY(cOpcine))
 	select partn
@@ -410,6 +415,31 @@ if (IsVindija() .and. !EMPTY(cOpcine))
 	endif
 	select roba
 endif
+// po vindija GRUPA
+if IsVindija()
+	if !Empty(cGr)
+		if ALLTRIM(cGr) <> IzSifK("ROBA", "GR1", cIdRoba, .f.)
+			select kalk
+			skip
+			loop
+		else
+			if Empty(IzSifK("ROBA", "GR2", cIdRoba, .f.))
+				select kalk
+				skip
+				loop
+			endif
+		endif
+	endif
+	if (cPSPDN == "D")
+		select kalk
+		if (kalk->mu_i <> "5") .and. (kalk->mkonto <> cIdKonto)
+			skip
+			loop
+		endif
+		select roba
+	endif
+endif
+
 
 if (fieldpos("MINK"))<>0
    nMink:=roba->mink

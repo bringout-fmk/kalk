@@ -519,7 +519,7 @@ if (nArea==-1 .or. nArea==(F_KALK))
 
 	CREATE_INDEX("6","idFirma+IdTarifa+idroba",KUMPATH+"KALK")
 	
-	CREATE_INDEX("7","idroba",KUMPATH+"KALK")
+	CREATE_INDEX("7","idroba+idvd",KUMPATH+"KALK")
 	CREATE_INDEX("8","mkonto",KUMPATH+"KALK")
 	CREATE_INDEX("9","pkonto",KUMPATH+"KALK")
         if IsTrgom()

@@ -195,6 +195,13 @@ do while .t.
 	if IsDomZdr()	
  		@ m_x+15,m_y+2 SAY "Prikaz po tipu sredstva " GET cKalkTip PICT "@!"
 	endif
+  	
+	if IsVindija()	
+		cGr := SPACE(10)
+		cPSPDN := "N"
+ 		@ m_x+16,m_y+2 SAY "Grupa " GET cGr
+ 		@ m_x+17,m_y+2 SAY "Pregled samo prodaje (D/N) " GET cPSPDN VALID !Empty(cPSPDN) .and. cPSPDN$"DN"  pict "@!"
+	endif
   
 	read
  	ESC_BCR
@@ -317,6 +324,25 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 	endif
 	select roba
 	hseek cIdRoba
+	
+	if IsVindija()
+		if !EMPTY(cGr)
+			if ALLTRIM(cGr) <> ALLTRIM(IzSifK("ROBA", "GR1", cIdRoba, .f.))
+				select kalk
+				skip
+				loop
+			endif
+		endif
+		
+		if (cPSPDN == "D")
+			select kalk
+			if !(kalk->idvd $ "41#42#43") .and. !(kalk->pu_i == "5")
+				skip
+				loop
+			endif
+			select roba
+		endif
+	endif
 	
 	// uslov po K9
 	if (IsPlanika() .and. !EMPTY(cK9) .and. roba->k9 <> cK9)

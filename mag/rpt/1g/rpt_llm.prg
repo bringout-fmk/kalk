@@ -98,10 +98,11 @@ endif
 
 if IsDomZdr()
 	private cKalkTip:=SPACE(1)
-	if IsRobaGroup()
-		private qqRGroup:=SPACE(40)
-		private qqRGroup2:=SPACE(40)
-	endif
+endif
+
+if IsRobaGroup()
+	private qqRGroup:=SPACE(40)
+	private qqRGroup2:=SPACE(40)
 endif
 
 if IsVindija()
@@ -188,11 +189,13 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		
 		if IsDomZdr()
  			@ m_x+15,m_y+2 SAY "Prikaz po tipu sredstva:" GET cKalkTip PICT "@!"
- 			if IsRobaGroup()
+ 			
+		endif
+		// ako je roba - grupacija
+		if IsRobaGroup()
 				
  				@ m_x+16,m_y+2 SAY "Grupa artikla:" GET qqRGroup PICT "@S20"
  				@ m_x+17,m_y+2 SAY "Podgrupa artikla:" GET qqRGroup2 PICT "@S20"
-			endif
 		endif
 
  		@ m_x+18,m_y+2 SAY "Naziv artikla sadrzi"  GET cArtikalNaz
@@ -390,22 +393,24 @@ if (IsPlanika() .and. !EMPTY(cK9) .and. roba->k9 <> cK9)
 	skip
 	loop
 endif
-// roba grupacija
-if IsDomZdr() .and. IsRobaGroup()
+
+// uslov za roba - grupacija
+if IsRobaGroup()
+	lDalje := .f.
 	if !Empty(qqRGroup)
-		if ALLTRIM(IzSifK("ROBA", "GR01", roba->id, .f.)) $ qqRGroup 
-			if !Empty(qqRGroup2) .and. ALLTRIM(IzSifK("ROBA", "GR02", roba->id, .f.)) $ qqRGroup2
-			// idi dalje
-			else
-				select kalk
-				skip
-				loop
+		if ALLTRIM(IzSifK("ROBA", "GR1", roba->id, .f.)) $ qqRGroup 
+			lDalje := .t.
+			if !Empty(qqRGroup2) .and. ALLTRIM(IzSifK("ROBA","GR2", roba->id, .f.)) $ qqRGroup2
+				lDalje := .t.
+			else	
+				lDalje := .f.
 			endif
-		else
-			select kalk
-			skip
-			loop
 		endif
+	endif
+	if lDalje := .f.
+		select kalk
+		skip
+		loop
 	endif
 endif
 

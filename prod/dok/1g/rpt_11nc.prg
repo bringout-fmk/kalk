@@ -97,6 +97,10 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     select PRIPR
     Tarifa(field->pkonto,field->idroba,@aPorezi)
+
+    // inicijalizuj poreze za odreðenu robu
+    VTPorezi()
+
     aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
 
     nPor1:=aIPor[1]

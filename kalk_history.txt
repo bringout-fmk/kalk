@@ -1,6 +1,11 @@
 KALK 
 ======
 
+08.11.2004. 1.w.1.1.34, mersed.ahmetbegovic@sigma-com.net
+---------------------------------------------
+* BugFix
+  Nepostojeca varijabla pri stampi dokumenta tipa "11" http://trac.sigma-com.net/cs-PlanikaNS_IS/ticket/67
+
 01.07.2004. 1.w.1.1.31, mersed.ahmetbegovic@sigma-com.net
 ---------------------------------------------
 * BugFix

@@ -29,6 +29,7 @@
 function VTPOREZI()
 *{
 public _ZPP:=0
+
 if roba->tip $ "VX"
 	public _OPP:=0,_PPP:=tarifa->ppp/100
 	public _PORVT:=tarifa->opp/100

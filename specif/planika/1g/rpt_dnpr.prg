@@ -108,7 +108,80 @@ return
 *}
 
 
-static function ScanTops(dDan, aR)
+
+function PromPeriod()
+*{
+local i
+local cOldIni
+local dDan
+local dDatDo
+local aUslPKto
+local cTops
+local cPodvuci
+local aR
+
+private cFilter
+
+gPINI:=""
+dDan:=DATE()
+cTops:="D"
+cPodvuci:="N"
+cFilterDn:="D"
+aUslPKto:=SPACE(100)
+dDatDo:=DATE()
+
+cLinija:="----- ---------- ---------------------------------------- --- ---------- -------------"
+
+cFilter:=IzFmkIni("KALK","UslovPoRobiZaDnevniPromet","(IDROBA=01)", KUMPATH)
+
+if GetVars(@dDan, @cTops, @cPodvuci, @cFilterDn, @cFilter, @dDatDo, @aUslPKto)==0
+	return
+endif
+
+aR:={}
+if (cTops=="D")
+	if ScanTops(dDan, @aR, dDatDo, aUslPKto)==0
+		return
+	endif
+else
+	if ScanKalk(dDan, @aR, dDatDo, aUslPKto)==0
+		return
+	endif
+endif
+
+cOldIni:=gPINI
+StartPrint(.t.)
+nStr:=1
+Header(dDan, @nStr)
+
+nUk:=0
+for i:=1 TO LEN(aR)
+	? STR(i,4)+"."
+	?? "", PADR(aR[i,1],10)
+	?? "", PADR(aR[i,2],40)
+	?? "", PADR(aR[i,3], 3)
+	?? "", TRANS(aR[i,4],"999999999")
+	?? "", TRANS(aR[i,5],"9999999999.99")
+	if (cPodvuci=="D")
+		?  cLinija
+	endif
+	nUk+=aR[i,6]
+next
+Footer(cPodvuci, nUk)
+EndPrint()
+  
+gPINI:=cOldIni
+CopyZaSlanje(dDan)
+
+CLOSERET
+return
+*}
+
+
+/*! \fn ScanTops(dDan, aR, dDatDo, cPKto)
+ *  \brief Skenira tabele kasa i kupi promet
+ */
+static function ScanTops(dDan, aR, dDatDo, cPKto)
 *{
 local cTSifP
 local nSifP
@@ -132,6 +205,14 @@ do while (!EOF())
 		SKIP 1
 		loop
 	endif
+	
+	if (cPKto <> nil) .and. !Empty(cPKto)
+		if !(ALLTRIM(field->id) $ ALLTRIM(cPKto))
+			SKIP 1
+			loop
+		endif
+	endif
+	
 	AddBs(@cTKumP)
 	AddBs(@cTKumP)
 	AddBs(@cTSifP)
@@ -156,7 +237,14 @@ do while (!EOF())
 	SET ORDER TO TAG "4" 
 
 	SEEK dtos(dDan)
-	do while !EOF() .and. dtos(datum)==dtos(dDan)
+
+	if (dDatDo <> nil)
+		bDatCond := {|| DToS(datum)>=DToS(dDan) .and. DToS(datum)<=DToS(dDatDo)} 
+	else
+		bDatCond := {|| DToS(datum)==DToS(dDan)} 
+	endif
+	
+	do while !EOF() .and. EVAL(bDatCond)
 		if field->idvd<>"42"
 			skip
 			loop
@@ -198,7 +286,11 @@ ASORT(aR,,,{|x,y|x[1]<y[1]})
 return 1
 *}
 
-static function ScanKalk()
+
+/*! \fn ScanKalk(dDan, aR, dDatDo, cPKto)
+ *  \brief Skenira tabelu kalk i kupi promet prodavnica
+ */
+static function ScanKalk(dDan, aR, dDatDo, cPKto)
 *{
 
 O_ROBA
@@ -207,11 +299,28 @@ O_KALK
 SET ORDER TO TAG "5"      
 
 SEEK gFirma+dtos(dDan)
-do while !EOF() .and. dtos(datdok)==dtos(dDan)
-	if !(field->pkonto="132" .and. LEFT(field->idVd,1)=="4")
-		SKIP 1
-		loop
+
+if (dDatDo <> nil)
+	bDatCond := {|| DToS(datdok) >= DToS(dDan) .and. DToS(datdok) <= DToS(dDatDo)}
+else
+	bDatCond := {|| DToS(datdok) == DToS(dDan)}
+endif
+
+do while !EOF() .and. EVAL(bDatCond)
+	if (cPKto <> nil)
+		if !Empty(cPKto)
+			if !(ALLTRIM(field->pkonto) $ ALLTRIM(cPKto))
+				SKIP 1
+				loop
+			endif
+		endif
+	else
+		if !(field->pkonto="132" .and. LEFT(field->idVd,1)=="4")
+			SKIP 1
+			loop
+		endif
 	endif
+	
 	if !LEN(aR)>0 .or. !((nPom:=ASCAN(aR,{|x| x[1]==idroba}))>0)
 		AADD(aR,{ field->idRoba,"","", field->kolicina, field->mpc , field->mpc* field->kolicina})
 	else
@@ -232,7 +341,7 @@ next
 return 1
 *}
 
-static function GetVars(dDan, cTops, cPodvuci, cFilterDn, cFilter)
+static function GetVars(dDan, cTops, cPodvuci, cFilterDn, cFilter, dDatDo, aUslPKto)
 *{
 local cIspraviFilter
 
@@ -240,10 +349,18 @@ cIspraviFilter:="N"
 cFilterDn:="N"
 Box("#DNEVNI PROMET", 9, 60)
 
-@ m_x+2, m_y+2 SAY "Za dan" GET dDan
+@ m_x+2, m_y+2 SAY "Za datum od" GET dDan
+if (dDatDo <> nil)
+	@ m_x+2, m_y+27 SAY "do" GET dDatDo
+endif
 @ m_x+3, m_y+2 SAY "Izvor podataka su kase tj. TOPS (D/N) ?" GET cTops VALID cTops $ "DN" PICT "@!"
 @ m_x+4, m_y+2 SAY "Linija ispod svakog reda (D/N) ?" GET cPodvuci VALID cPodvuci $ "DN" PICT "@!"
 @ m_x+5, m_y+2 SAY "Uzeti u obzir filter (D/N) ?" GET cFilterDn VALID cFilterDn $ "DN" PICT "@!"
+
+if (aUslPKto <> nil)
+	@ m_x+7, m_y+2 SAY "Prodavnicka konta" GET aUslPKto PICT "@S40"
+endif
+
 READ
 
 if (cFilterDn=="D")

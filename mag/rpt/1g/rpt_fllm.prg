@@ -140,19 +140,6 @@ EOF CRET
 
 nLen:=1
 
-//IF cpapir="2"
-//	m:="----- -------- ----------- "+REPLICATE("-",32)+" ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-//ELSE
-//	m:="----- -------- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-//ENDIF
-
-//IF cpapir=="2"
-//	? "R.br * Datum  * Brdok     *"+PADC("Sifra i naziv partnera",32)+"*fakt./otp.*  NV.Dug. *"+PADC(ALLTRIM(c10T1),10)+"*"+PADC(ALLTRIM(c10T2),10)+"*"+PADC(ALLTRIM(c10T3),10)+"*"+PADC(ALLTRIM(c10T4),10)+"*"+PADC(ALLTRIM(c10T5),10)+"*   marza  *  VPV Dug.*"
-//ELSE
-//	? "R.br * Datum  * Brdok     *  NV.Dug. *  NV.Pot  *    NV    *  VPV Dug.*  VPV Pot *   VPV    *  Rabat  *"
-//ENDIF
-
-
 aFLLM:={}
 AADD(aFLLM, {5, " R.br"})
 AADD(aFLLM, {8, " Datum"})

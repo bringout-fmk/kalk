@@ -45,6 +45,9 @@ function RFLLM()
 local nKolUlaz
 local nKolIzlaz
 
+PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
+PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+
 cIdFirma:=gFirma
 cidKonto:=padr("13.",gDuzKonto)
 ODbKalk()
@@ -103,7 +106,22 @@ select kalk
 EOF CRET
 
 nLen:=1
-m:="----- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+//m:="----- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+
+//? "R.br *    Konto    *  NV.Dug. *  NV.Pot  *    NV    *  VPV Dug.*  VPV Pot *   VPV    *  Rabat  *"
+
+aRFLLM:={}
+AADD(aRFLLM, {5, " R.br"})
+AADD(aRFLLM, {11, " Konto"})
+AADD(aRFLLM, {LEN(PicDem), " NV.Dug."})
+AADD(aRFLLM, {LEN(PicDem), " NV.Pot."})
+AADD(aRFLLM, {LEN(PicDem), " NV"})
+AADD(aRFLLM, {LEN(PicDem), " VPV Dug."})
+AADD(aRFLLM, {LEN(PicDem), " VPV Pot."})
+AADD(aRFLLM, {LEN(PicDem), " VPV"})
+AADD(aRFLLM, {LEN(PicDem), " Rabat"})
+private cLine:=SetRptLineAndText(aRFLLM, 0)
+private cText1:=SetRptLineAndText(aRFLLM, 1, "*")
 
 start print cret
 
@@ -212,29 +230,29 @@ nTVPVU+=nVPVU; nTVPVI+=nVPVI
 nTNVU+=nNVU; nTNVI+=nNVI
 nTRabat+=nRabat
 
- @ prow(),pcol()+1 SAY nNVU pict gpicdem
- @ prow(),pcol()+1 SAY nNVI pict gpicdem
- @ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
- @ prow(),pcol()+1 SAY nVPVU pict gpicdem
- @ prow(),pcol()+1 SAY nVPVI pict gpicdem
- @ prow(),pcol()+1 SAY nVPVU-NVPVI pict gpicdem
- @ prow(),pcol()+1 SAY nRabat pict gpicdem
+ @ prow(),pcol()+1 SAY nNVU pict picdem
+ @ prow(),pcol()+1 SAY nNVI pict picdem
+ @ prow(),pcol()+1 SAY nNVU-nNVI pict picdem
+ @ prow(),pcol()+1 SAY nVPVU pict picdem
+ @ prow(),pcol()+1 SAY nVPVI pict picdem
+ @ prow(),pcol()+1 SAY nVPVU-NVPVI pict picdem
+ @ prow(),pcol()+1 SAY nRabat pict picdem
  @ prow()+1,6 SAY cNaz
 
 enddo
 
-? m
+? cLine
 ? "UKUPNO:"
 
- @ prow(),nCol1    SAY ntNVU pict gpicdem
- @ prow(),pcol()+1 SAY ntNVI pict gpicdem
- @ prow(),pcol()+1 SAY ntNVU-NtNVI pict gpicdem
- @ prow(),pcol()+1 SAY ntVPVU pict gpicdem
- @ prow(),pcol()+1 SAY ntVPVI pict gpicdem
- @ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict gpicdem
- @ prow(),pcol()+1 SAY ntRabat pict gpicdem
+ @ prow(),nCol1    SAY ntNVU pict picdem
+ @ prow(),pcol()+1 SAY ntNVI pict picdem
+ @ prow(),pcol()+1 SAY ntNVU-NtNVI pict picdem
+ @ prow(),pcol()+1 SAY ntVPVU pict picdem
+ @ prow(),pcol()+1 SAY ntVPVI pict picdem
+ @ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict picdem
+ @ prow(),pcol()+1 SAY ntRabat pict picdem
 
-? m
+? cLine
 
 if IsPlanika()
 	if (prow()>55+gPStranica)
@@ -266,7 +284,8 @@ function ZaglRFLLM()
 *{
 Preduzece()
 P_12CPI
-select konto; hseek cidkonto
+select konto
+hseek cidkonto
 ?? space(60)," DATUM "; ?? date(), space(5),"Str:",str(++nTStrana,3)
 ?
 ?
@@ -284,9 +303,9 @@ endif
 select kalk
 P_COND
 ?
-? m
-? "R.br *    Konto    *  NV.Dug. *  NV.Pot  *    NV    *  VPV Dug.*  VPV Pot *   VPV    *  Rabat  *"
-? m
+? cLine
+? cText1
+? cLine
 return
 *}
 

@@ -27,14 +27,14 @@
 
 function RekMagTar()
 *{
-local  nT1:=nT4:=nT5:=nT6:=nT7:=0
-local  nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
-local  n1:=n4:=n5:=n6:=n7:=0
-local  nCol1:=0
-local   PicCDEM:=gPicCDEM       // "999999.999"
-local   PicProc:=gPicProc       // "999999.99%"
-local   PicDEM:=gPicDEM         // "9999999.99"
-local   Pickol:=gPicKol         // "999999.999"
+local nT1:=nT4:=nT5:=nT6:=nT7:=0
+local nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
+local n1:=n4:=n5:=n6:=n7:=0
+local nCol1:=0
+local PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
+local PicProc:=gPicProc 
+local PicDEM:=REPLICATE("9", VAL(gFPicDem)) + gPicDem   
+local Pickol:=gPicKol   
 
 dDat1:=dDat2:=ctod("")
 qqKonto:=padr("1310;",60)
@@ -79,10 +79,21 @@ ENDIF
 
 go top   // samo  zaduz prod. i povrat iz prod.
 
-M:="------------ ----------- ----------- ----------- ----------- ----------- ----------- ----------- -----------"
+aRpt:={}
+AADD(aRpt, {12, " TARIF", " BROJ"})
+AADD(aRpt, {LEN(PicDem), " NV DUG", ""})
+AADD(aRpt, {LEN(PicDem), " NV POT", ""})
+AADD(aRpt, {LEN(PicDem), " NABAVNA", " VR."})
+AADD(aRpt, {LEN(PicDem), " VPV DUG", ""})
+AADD(aRpt, {LEN(PicDem), " VPV POT", ""})
+AADD(aRpt, {LEN(PicDem), " RABAT", ""})
+AADD(aRpt, {LEN(PicDem), " VPV POT", " - RABAT"})
+AADD(aRpt, {LEN(PicDem), " VPV", " SALDO"})
+cLine:=SetRptLineAndText(aRpt, 0)
+cText1:=SetRptLineAndText(aRpt, 1, "*")
+cText2:=SetRptLineAndText(aRpt, 2, "*")
 
 START PRINT CRET
-
 
 n1:=n2:=n3:=n5:=n5b:=n6:=0
 
@@ -105,10 +116,11 @@ DO WHILE !EOF() .and. IspitajPrekid()
   endif
 
   ?
-  ? m
-  ? "*  TARIF   *  NV DUG    *  NV POT   *   NABAV.  *  VPV DUG  *  VPV POT  *  RABAT    *  VPV POT  *   VPV    *"
-  ? "*   BROJ   *            *           *     VR    *           *           *           *  - RABAT  *  SALDO   *"
-  ? m
+  ? cLine
+  ? cText1
+  ? cText2
+  ? cLine
+  
   nT1:=nT2:=nT3:=nT4:=nT5:=nT6:=nT7:=nT8:=0
   DO WHILE !EOF() .AND. cIdFirma==KALK->IdFirma .and. IspitajPrekid()
      cIdKonto:=IdKonto
@@ -144,15 +156,15 @@ DO WHILE !EOF() .and. IspitajPrekid()
 
      if prow()>61+gPStranica; FF; endif
      @ prow()+1,0        SAY space(6)+cIdTarifa
-     nCol1:=pcol()+2
+     nCol1:=pcol()+1
      @ prow(),nCol1      SAY n1:=nNVD         PICT   PicDEM
-     @ prow(),pcol()+2   SAY n2:=nNVP         PICT   PicDEM
-     @ prow(),pcol()+2   SAY n3:=nNVD-nNVP    PICT   PicDEM
-     @ prow(),pcol()+2   SAY n4:=nVPVD        PICT   PicDEM
-     @ prow(),pcol()+2   SAY n5:=nVPVP        PICT   PicDEM
-     @ prow(),pcol()+2   SAY n6:=nRabatV       PICT   PicDEM
-     @ prow(),pcol()+2   SAY n7:=nVPVP-nRabatV PICT   PicDEM
-     @ prow(),pcol()+2   SAY n8:=nVPVD-nVPVP  PICT   PicDEM
+     @ prow(),pcol()+1   SAY n2:=nNVP         PICT   PicDEM
+     @ prow(),pcol()+1   SAY n3:=nNVD-nNVP    PICT   PicDEM
+     @ prow(),pcol()+1   SAY n4:=nVPVD        PICT   PicDEM
+     @ prow(),pcol()+1   SAY n5:=nVPVP        PICT   PicDEM
+     @ prow(),pcol()+1   SAY n6:=nRabatV       PICT   PicDEM
+     @ prow(),pcol()+1   SAY n7:=nVPVP-nRabatV PICT   PicDEM
+     @ prow(),pcol()+1   SAY n8:=nVPVD-nVPVP  PICT   PicDEM
      nT1+=n1;  nT2+=n2;  nT3+=n3; nT4+=n4;  nT5+=n5
      nT6+=n6;  nT7+=n7
      nT8+=n8
@@ -160,17 +172,17 @@ DO WHILE !EOF() .and. IspitajPrekid()
   ENDDO // konto
 
   if prow()>60+gPStranica; FF; endif
-  ? m
+  ? cLine
   ? "UKUPNO:"
   @ prow(),nCol1     SAY  nT1     pict picdem
-  @ prow(),pcol()+2  SAY  nT2     pict picdem
-  @ prow(),pcol()+2  SAY  nT3     pict picdem
-  @ prow(),pcol()+2  SAY  nT4     pict picdem
-  @ prow(),pcol()+2  SAY  nT5     pict picdem
-  @ prow(),pcol()+2  SAY  nT6     pict picdem
-  @ prow(),pcol()+2  SAY  nT7     pict picdem
-  @ prow(),pcol()+2  SAY  nT8     pict picdem
-  ? m
+  @ prow(),pcol()+1  SAY  nT2     pict picdem
+  @ prow(),pcol()+1  SAY  nT3     pict picdem
+  @ prow(),pcol()+1  SAY  nT4     pict picdem
+  @ prow(),pcol()+1  SAY  nT5     pict picdem
+  @ prow(),pcol()+1  SAY  nT6     pict picdem
+  @ prow(),pcol()+1  SAY  nT7     pict picdem
+  @ prow(),pcol()+1  SAY  nT8     pict picdem
+  ? cLine
 
 ENDDO // eof
 

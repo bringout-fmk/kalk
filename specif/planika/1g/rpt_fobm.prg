@@ -64,19 +64,10 @@ local cLegenda
 
 private  nCol1:=0
 
-private PicCDem := gPicCDem
+private PicCDem := REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
 private PicProc := gPicProc
-private PicDEM  := gPicDEM
+private PicDEM  := REPLICATE("9", VAL(gFPicDem)) + gPicDEM
 private Pickol:= "@ 999999"
-
-if IsPlNS()
-	if LEN(PicCDem)==10
-		PicCDem := "999" + PicCDem
-	endif
-	if LEN(PicDEM)==10
-		PicDem := "999" + PicDem
-	endif
-endif
 
 private dDatOd:=date()
 private dDatDo:=date()
@@ -177,38 +168,28 @@ GenRekap2(.t., cCijena , fSMark )
 
 // setuj liniju za izvjestaj
 aLineArgs:={}
-private m := ""
-private cZText1 := ""
-private cZText2 := ""
-
 AADD(aLineArgs, {25, "GRUPACIJA", ""})
 AADD(aLineArgs, {LEN(PicDem), "POCETNA", "ZALIHA"})
 AADD(aLineArgs, {LEN(PicDem), "NABAVKA", "MAGACIN"})
 AADD(aLineArgs, {LEN(PicDem), "ZADUZENJE", "PROD."})
-
 if cCijena == "P"
 	AADD(aLineArgs, {LEN(PicDem), "MALOPROD.", "RUC"})
 endif
-
 AADD(aLineArgs, {LEN(PicDem), "KUMULAT.", "PRODAJA"})
-
 if cCijena == "P"
 	AADD(aLineArgs, {LEN(PicDem), "OSTVARENI", "RUC"})
 endif
-
 AADD(aLineArgs, {LEN(PicDem), "ZALIHA", "REK.ROBE"})
 AADD(aLineArgs, {LEN(PicDem), "ZALIHA", "NA DAN"})
-
 if cCijena == "P"
  	AADD(aLineArgs, {LEN(PicDem), "+POVECANJE", "-SNIZENJE"})
 endif
-
 AADD(aLineArgs, {LEN(PicDem), "PROSJECNA", "ZALIHA"})
 AADD(aLineArgs, {LEN(PicDem), "GOD.KEOF", "OBRTA"})
 
-m := SetRptLineAndText(aLineArgs, 0)
-cZText1 := SetRptLineAndText(aLineArgs, 1)
-cZText2 := SetRptLineAndText(aLineArgs, 2)
+private m := SetRptLineAndText(aLineArgs, 0)
+private cZText1 := SetRptLineAndText(aLineArgs, 1)
+private cZText2 := SetRptLineAndText(aLineArgs, 2)
 
 SELECT reka22
 set order to 1

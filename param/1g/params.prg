@@ -267,6 +267,7 @@ Box(,9,60,.f.,"PARAMETRI PRIKAZA - PICTURE KODOVI")
  	@ m_x+4,m_y+2 SAY "Prikaz kolicine" GET gPicKol
   	@ m_x+5,m_y+2 SAY "Ispravka NC    " GET gPicNC
   	@ m_x+6,m_y+2 SAY "Decimale za kolicine" GET gDecKol pict "9"
+  	@ m_x+7,m_y+2 SAY REPLICATE("-", 30) 
   	@ m_x+8,m_y+2 SAY "Dodatno prosirenje cijene" GET gFPicCDem
   	@ m_x+9,m_y+2 SAY "Dodatno prosirenje iznosa" GET gFPicDem
   	read

@@ -131,7 +131,7 @@ O_OBJEKTI
 O_KALK
 O_REKAP1
 
-GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "2", nil, nil, nil, cIdKPovrata)
+GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "2", nil, nil, nil, nil, cIdKPovrata)
 
 select rekap1
 //g1+idtarifa+idroba+objekat

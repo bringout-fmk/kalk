@@ -816,6 +816,8 @@ AADD(opc, "3. pretvori maloprodajni popust u smanjenje MPC")
 AADD(opcexe, {|| PopustKaoNivelacijaMP()})
 AADD(opc, "4. obracun poreza pri uvozu")
 AADD(opcexe, {|| ObracunPorezaUvoz()})
+AADD(opc, "5. pregled smeca")
+AADD(opcexe, {|| Pripr9View()})
 
 close all
 private am_x:=m_x,am_y:=m_y

@@ -105,8 +105,8 @@ endif
 private lSignZal:=.f.
 
 if IsRobaGroup()
-	private qqRGroup:=SPACE(40)
-	private qqRGroup2:=SPACE(40)
+	private qqRGr:=SPACE(40)
+	private qqRGr2:=SPACE(40)
 endif
 
 if IsVindija()
@@ -199,8 +199,8 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		// ako je roba - grupacija
 		if IsRobaGroup()
 				
- 				@ m_x+17,m_y+2 SAY "Grupa artikla:" GET qqRGroup PICT "@S10"
- 				@ m_x+17,m_y+30 SAY "Podgrupa artikla:" GET qqRGroup2 PICT "@S10"
+ 				@ m_x+17,m_y+2 SAY "Grupa artikla:" GET qqRGr PICT "@S10"
+ 				@ m_x+17,m_y+30 SAY "Podgrupa artikla:" GET qqRGr2 PICT "@S10"
 		endif
 
  		@ m_x+18,m_y+2 SAY "Naziv artikla sadrzi"  GET cArtikalNaz
@@ -212,7 +212,8 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
  		private aUsl3:=Parsiraj(qqIDVD,"idvd")
  		private aUsl4:=Parsiraj(qqIDPartner,"idpartner")
- 		
+ 		qqRGr := ALLTRIM(qqRGr)	
+ 		qqRGr2 := ALLTRIM(qqRGr2)	
 		if lPoNarudzbi
    			aUslN:=Parsiraj(qqIdNar,"idnar")
  		endif
@@ -385,18 +386,8 @@ endif
 
 // uslov za roba - grupacija
 if IsRobaGroup()
-	lDalje := .f.
-	if !Empty(qqRGroup)
-		if ALLTRIM(IzSifK("ROBA", "GR1", roba->id, .f.)) $ qqRGroup 
-			lDalje := .t.
-			if !Empty(qqRGroup2) .and. ALLTRIM(IzSifK("ROBA","GR2", roba->id, .f.)) $ qqRGroup2
-				lDalje := .t.
-			else	
-				lDalje := .f.
-			endif
-		endif
-	endif
-	if lDalje := .f.
+	altd()
+	if !IsInGroup(qqRGr, qqRGr2, roba->id)
 		select kalk
 		skip
 		loop
@@ -875,3 +866,41 @@ LLM(.t.)
         close all
 return
 *}
+
+
+/*! \fn IsInGroup(cGr, cPodGr, cIdRoba)
+ *  \brief Provjerava da li artikal pripada odredjenoj grupi i podgrupi
+ *  \param cGr - grupa
+ *  \param cPodGr - podgrupa
+ *  \param cIdRoba - id roba
+ */
+function IsInGroup(cGr, cPodGr, cIdRoba)
+*{
+bRet := .f.
+
+if Empty(cGr)
+	return .t.
+endif
+
+if ALLTRIM(IzSifK("ROBA", "GR1", cIdRoba, .f.)) $ ALLTRIM(cGr)
+	bRet := .t.
+else
+	bRet := .f.
+endif
+
+if bRet
+	if !Empty(cPodGr) 
+		if ALLTRIM(IzSifK("ROBA", "GR2", cIdRoba, .f.)) $ ALLTRIM(cPodGr)
+			bRet := .t.
+		else
+			bRet := .f.
+		endif
+	else
+		bRet := .t.
+	endif
+endif
+
+return bRet
+*}
+
+

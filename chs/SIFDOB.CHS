@@ -1,0 +1,3 @@
+*ROBA.DBF
+A SIFRADOB C 8 0
+

@@ -3,7 +3,7 @@ MODUL=ka_1prp
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\primpak\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\primpak\\1g\\
 
 PRGS=primpak.prg
 

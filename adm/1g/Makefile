@@ -3,7 +3,7 @@ MODUL=ka_1adm
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\adm\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\adm\\1g\\
 
 PRGS=gen_9999.prg kor_nc.prg mnu_adm.prg rob_id.prg set_m10.prg sifk.prg
 

@@ -3,7 +3,7 @@ MODUL=ka_1sql
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\sql\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\sql\\1g\\
 
 PRGS=sql.prg
 

@@ -3,7 +3,7 @@ MODUL=ka_m1db
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\mag\\db\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\mag\\db\\1g\\
 
 PRGS=adm_kalk.prg nivel.prg ut.prg
 

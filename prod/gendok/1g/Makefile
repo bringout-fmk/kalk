@@ -4,7 +4,7 @@ MODUL=ka_p1gd
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\prod\\gendok\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\prod\\gendok\\1g\\
 
 PRGS=gen_dok.prg pst.prg
 

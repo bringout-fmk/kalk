@@ -3,7 +3,7 @@ MODUL=ka_1gd
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\gendok\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\gendok\\1g\\
 
 PRGS=mnu_gdok.prg storno.prg 
 

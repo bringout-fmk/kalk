@@ -3,7 +3,7 @@ MODUL=ka_s1vin
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\vindija\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\specif\\vindija\\1g\\
 
 PRGS=vindija.prg
 

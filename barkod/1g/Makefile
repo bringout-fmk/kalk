@@ -3,7 +3,7 @@ MODUL=ka_1bk
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\barkod\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\barkod\\1g\\
 
 PRGS=barkod.prg
 

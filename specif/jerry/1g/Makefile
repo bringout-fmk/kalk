@@ -3,7 +3,7 @@ MODUL=ka_s1jer
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\jerry\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\specif\\jerry\\1g\\
 
 PRGS=jerry.prg
 

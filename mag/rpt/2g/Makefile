@@ -3,7 +3,7 @@ MODUL=ka_m2rpt
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\mag\\rpt\\2g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\mag\\rpt\\2g\\
 
 PRGS=rpt_lag.prg
 

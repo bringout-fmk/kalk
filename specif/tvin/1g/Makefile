@@ -3,7 +3,7 @@ MODUL=ka_s1tv
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\tvin\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\specif\\tvin\\1g\\
 
 PRGS=tvin.prg
 

@@ -4,7 +4,7 @@ MODUL=ka_s1opt
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\opresa\\tar\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\specif\\opresa\\tar\\1g\\
 
 PRGS=mnu_tar.prg izvj.prg
 

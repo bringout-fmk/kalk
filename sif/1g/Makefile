@@ -3,7 +3,7 @@ MODUL=ka_1sif
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\sif\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\sif\\1g\\
 
 PRGS=sifre.prg
 

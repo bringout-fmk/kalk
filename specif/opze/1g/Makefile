@@ -3,7 +3,7 @@ MODUL=ka_s1oz
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\specif\\opze\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\specif\\opze\\1g\\
 
 PRGS=mnu_ekon.prg
 

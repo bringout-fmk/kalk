@@ -12,7 +12,7 @@ EXEDEST=/cygdrive/c/SIGMA
 
 CFLAGS=/n /w /c /AL /FPa /Gs /Zl
 
-SRCDOSROOT=C:\\CL\\KALK\\SPECIF\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\specif\\
 	
 ROBODOC=robodoc
 

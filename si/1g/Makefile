@@ -4,7 +4,7 @@ MODUL=ka_1si
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\si\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\si\\1g\\
 
 PRGS=gen_dok.prg
 

@@ -3,7 +3,7 @@ MODUL=ka_1ut
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\ut\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\ut\\1g\\
 
 PRGS=ut.prg
 

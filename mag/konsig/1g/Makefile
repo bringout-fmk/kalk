@@ -4,7 +4,7 @@ MODUL=ka_m1ksg
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\kalk\\mag\\konsig\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\kalk\\mag\\konsig\\1g\\
 
 PRGS=fak_kal.prg
 

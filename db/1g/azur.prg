@@ -1076,15 +1076,43 @@ closeret
 *}
 
 
+/*! \fn ErPripr9(cIdF, cIdVd, cBrDok)
+ *  \brief Brise dokument iz tabele PRIPR9
+ */
 function ErPripr9(cIdF, cIdVd, cBrDok)
 *{
+if Pitanje(,"Sigurno zelite izbrisati dokument?","N")=="N"
+	return
+endif
+
+select PRIPR9
+seek cIdF+cIdVd+cBrDok
+
+do while !eof() .and. cIdF==IdFirma .and. cIdVD==IdVD .and. cBrDok==BrDok
+	skip 1
+	nRec:=RecNo()
+	skip -1
+   	dbdelete2()
+   	go nRec
+enddo
 
 return
 *}
 
+
+/*! \fn ErP9All()
+ *  \brief Brisi sve zapise iz tabele PRIPR9
+ */
 function ErP9All()
 *{
 
+if Pitanje(,"Sigurno zelite izbrisati sve zapise?","N")=="N"
+	return
+endif
+
+select PRIPR9
+go top
+zap
 
 return
 *}

@@ -415,8 +415,8 @@
 	#include "sc.ch"
 #endif
 
-#define D_KA_VERZIJA "1.w.1.1.41"
-#define D_KA_PERIOD  '11.94-28.02.05'
+#define D_KA_VERZIJA "1.w.1.1.42"
+#define D_KA_PERIOD  '11.94-02.03.05'
 
 
 #ifndef FMK_DEFINED

@@ -62,6 +62,7 @@
  *  \brief KALK utilities
  */
 
+
 function ODbKalk()
 *{
 if IzFMKIni("Svi","Sifk")=="D"

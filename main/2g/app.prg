@@ -200,6 +200,9 @@ endif
 SETKEY(K_SH_F1,{|| Calc()})
 Izbor:=1
 
+// provjeri da li je read only
+CheckROnly(KUMPATH + "\KALK.DBF")
+
 O_DOKS
 select doks
 TrebaRegistrovati(10)

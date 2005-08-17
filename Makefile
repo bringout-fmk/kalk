@@ -82,3 +82,10 @@ clean:
 	cd si/1g; make clean
 	make -C proizvod/1g clean
 	make -C 1g  clean
+
+zip:
+	cd 1g; make zip
+
+commit:
+	cd 1g; make commit
+

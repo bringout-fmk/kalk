@@ -1,5 +1,6 @@
 VERZIJA=CDX
 MODUL=KALK
+MODVER=1.w.1.1.45
 
 PRGS=/dev/fmk/kalk/main/1g/e.prg
 CS=
@@ -34,10 +35,11 @@ mod: $(OBJS)
 	cp e.exe $(EXEDEST)/$(MODUL).EXE
 
 zip:
-	rm -f /z/fmk/$(MODUL).zip
-	/sclib/zip.sh z:\\fmk\\$(MODUL).zip ..\\chs\\\*.chs \\dev\\fmk\\AF\\cl_AF\\svi\\\*.chs \\dev\\fmk\\AF\\cl-AF\\roba\\\*.chs $(EXEDOSDEST)\\$(MODUL).EXE 
+	/sclib/zip.sh h:\\cs\\FMK\\binary\\$(MODUL).zip ..\\chs\\\*.chs \\dev\\fmk\\AF\\cl_AF\\svi\\\*.chs \\dev\\fmk\\AF\\cl-AF\\roba\\\*.chs $(EXEDOSDEST)\\$(MODUL).EXE 
 
-
+commit:
+	/sclib/commit.sh $(MODVER) h:\\cs\\FMK\\binary\\$(MODUL).zip
+	
 clean:
 	rm -f *.obj *.OBJ
 	rm -f $(OBJS) I$(MODULH).OBJ *.bak *.BAK
@@ -46,3 +48,7 @@ clean:
 
 sfx:
 	/cygdrive/p/bat/SFXMA.BAT kalk
+
+7exe:
+	/sclib/7exe.sh h:\\cs\\fmk\\binary\\$(MODUL).exe ..\\chs\\\*.chs \\dev\\fmk\\af\\cl-af\\svi\\\*.chs ..\\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
+

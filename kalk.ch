@@ -416,7 +416,7 @@
 #endif
 
 #define D_KA_VERZIJA "1.w.1.1.45"
-#define D_KA_PERIOD  '11.94-06.07.05'
+#define D_KA_PERIOD  "11.94-06.07.05"
 
 
 #ifndef FMK_DEFINED

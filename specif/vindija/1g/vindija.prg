@@ -205,6 +205,11 @@ gaDodStavke:={}
 nKol:=0
 aKol:={}
 
+// duzina i broj decimala
+private nLen := 0
+private nDec := 0
+GetPictDem(@nLen, @nDec)
+
 lPA := (cPA=="D")
 
 IF lPA
@@ -212,7 +217,7 @@ IF lPA
 ELSE
 	AADD(aKol, { "GRUPA/PODGRUPA", {|| ""        }, .f., "C", 65, 0, 1, ++nKol} )
 ENDIF
-AADD(aKol, { "Kolicina"      , {|| BKOLICINA }, lPA, "N", 13, 3, 1, ++nKol} )
+AADD(aKol, { "Kolicina"      , {|| BKOLICINA }, lPA, "N", nLen, nDec, 1, ++nKol} )
    
 if cSaPSiPM=="D"
 	AADD(aKol, { "Kolicina"      , {|| BKOLP1S }, lPA, "N", 13, 3, 1, ++nKol} )
@@ -249,14 +254,14 @@ IF PROW()>56+gPStranica-LEN(aGr); FF; endif
 	   	? REPL("-",40)+" "+REPL("-",13)+" "+REPL("-",13)+" "+REPL("-",13)+" "+REPL("-",13)+" "+REPL("-",13)+" "+REPL("-",10)+" "+REPL("-",13)
 	   	nIznos:=nKol:=nKolP1S:=nKolP4S:=0
 	   	FOR i:=1 TO LEN(aGr)
-	      		? PADR(aGr[i,1],40),;
-	        	TRANS(aGr[i,2],gPicDem),;
-	        	TRANS(aGr[i,3],gPicDem),;
-	        	TRANS(SDiv(aGr[i,3],aGr[i,2]),gPicDem),;
-	        	TRANS(aGr[i,4],gPicDem),;
-	        	TRANS(SDiv(aGr[i,4],aGr[i,2]),gPicDem),;
-	        	PADR(aGr[i,5],10),;
-	        	TRANS(aGr[i,6],gPicDem)
+	      		? PADR(aGr[i,1],40)+" "
+	        	?? STR(aGr[i,2],13,3)+" "
+	        	?? STR(aGr[i,3],13,3)+" "
+	        	?? STR(SDiv(aGr[i,3],aGr[i,2]),13,3)+" "
+	        	?? STR(aGr[i,4],13,3)+" "
+	        	?? STR(SDiv(aGr[i,4],aGr[i,2]),13,3)+" "
+	        	?? PADR(aGr[i,5],10)+" "
+	        	?? STR(aGr[i,6],13,3)
 	     		nKol += aGr[i,2]
 	     		nKolP1S += aGr[i,3]
 	     		nKolP4S += aGr[i,4]
@@ -471,4 +476,25 @@ else
 endif
 return nV
 *}
+
+
+/*! \fn GetPictDem(nLen, nDec)
+ *  \brief Vraca velicinu i broj decimala num polja
+ *  \param nLen
+ *  \param nDec
+ */
+function GetPictDem(nLen, nDec)
+*{
+// ovo odmah znamo = duzina
+nLen := LEN(gPicDem)
+
+// sracunaj broj decimala
+nAt := AT(".", gPicDem)
+nPom := SUBSTR(gPicDem, (nAt + 1), (nLen - nAt))
+
+nDec := LEN(nPom)
+
+return
+*}
+
 

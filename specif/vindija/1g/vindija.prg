@@ -250,13 +250,13 @@ IF PROW()>56+gPStranica-LEN(aGr); FF; endif
 	   	nIznos:=nKol:=nKolP1S:=nKolP4S:=0
 	   	FOR i:=1 TO LEN(aGr)
 	      		? PADR(aGr[i,1],40),;
-	        	TRANS(aGr[i,2],"999999999.999"),;
-	        	TRANS(aGr[i,3],"999999999.999"),;
-	        	TRANS(SDiv(aGr[i,3],aGr[i,2]),"999999999.999"),;
-	        	TRANS(aGr[i,4],"999999999.999"),;
-	        	TRANS(SDiv(aGr[i,4],aGr[i,2]),"999999999.999"),;
+	        	TRANS(aGr[i,2],gPicDem),;
+	        	TRANS(aGr[i,3],gPicDem),;
+	        	TRANS(SDiv(aGr[i,3],aGr[i,2]),gPicDem),;
+	        	TRANS(aGr[i,4],gPicDem),;
+	        	TRANS(SDiv(aGr[i,4],aGr[i,2]),gPicDem),;
 	        	PADR(aGr[i,5],10),;
-	        	TRANS(aGr[i,6],"999999999.999")
+	        	TRANS(aGr[i,6],gPicDem)
 	     		nKol += aGr[i,2]
 	     		nKolP1S += aGr[i,3]
 	     		nKolP4S += aGr[i,4]
@@ -272,9 +272,9 @@ IF PROW()>56+gPStranica-LEN(aGr); FF; endif
 	   	nIznos:=nKol:=0
 	   	FOR i:=1 TO LEN(aGr)
 	      		? PADR(aGr[i,1],40),;
-	        	TRANS(aGr[i,2],"999999999.999"),;
+	        	TRANS(aGr[i,2], gPicDem),;
 	        	PADR(aGr[i,3],10),;
-	        	TRANS(aGr[i,4],"999999999.999")
+	        	TRANS(aGr[i,4], gPicDem)
 	     		nKol += aGr[i,2]
 	     		nIznos += aGr[i,4]
 	   	NEXT

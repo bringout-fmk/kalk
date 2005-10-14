@@ -46,6 +46,10 @@ AADD(opc,"4. sifrarnik KALK prebaci u TOPS")
 AADD(opcexe, {|| SifKalkTOPS()} )
 AADD(opc,"5. iz KALK generisi TOPS dokumente")
 AADD(opcexe, {|| Mnu_GenKaTOPS()} )
+if IsVindija()
+	AADD(opc,"6. import txt")
+	AADD(opcexe, {|| MnuImpTxt()} )
+endif
 private Izbor:=1
 Menu_SC("rmod")
 

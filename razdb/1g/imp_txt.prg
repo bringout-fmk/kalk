@@ -11,20 +11,19 @@ private opc:={}
 private opcexe:={}
 
 AADD(opc, "1. import vindija racun        ")
-AADD(opcexe, {|| ImpTxtDok("R")})
+AADD(opcexe, {|| ImpTxtDok()})
 AADD(opc, "2. import vindija partner      ")
-AADD(opcexe, {|| ImpTxtDok("P")})
+AADD(opcexe, {|| ImpTxtSif()})
 
 Menu_SC("itx")
 
 return
 *}
 
-/*! \fn ImpTxtDok(cTip)
+/*! \fn ImpTxtDok()
  *  \brief Import dokumenta
- *  \param cTip - tip importa
  */
-function ImpTxtDok(cTip)
+function ImpTxtDok()
 *{
 private cExpPath
 private cImpFile
@@ -32,7 +31,7 @@ private cImpFile
 // setuj varijablu putanje exportovanih fajlova
 GetExpPath(@cExpPath)
 
-cFFilt := cTip + "*." + cTip + "??"
+cFFilt := "R*.R??"
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
 if GetFList(cFFilt, cExpPath, @cImpFile) == 0
@@ -48,44 +47,86 @@ endif
 private aDbf:={}
 private aRules:={}
 // setuj polja temp tabele u matricu aDbf
-if cTip == "R"
-	SetTblDok(@aDbf)
-	// setuj pravila upisa podataka u temp tabelu
-	SetRuleDok(@aRules)
-endif
-if cTip == "P"
-	SetTblPartn(@aDbf)
-	// setuj pravila upisa podataka u temp tabelu
-	SetRulePartn(@aRules)
-endif
-
+SetTblDok(@aDbf)
+// setuj pravila upisa podataka u temp tabelu
+SetRuleDok(@aRules)
 // prebaci iz txt => temp tbl
 Txt2TTbl(aDbf, aRules, cImpFile)
 
-if !CheckTbl(cTip)
+if !CheckDok()
 	MsgBeep("Prekidamo operaciju !!!#Nepostojece sifre!!!")
 	return
 endif
 
-if cTip == "R"
-	if TTbl2Kalk() == 0
-		MsgBeep("Operacija prekinuta!")
-		return 
-	endif
-	MsgBeep("Dokumenti prebaceni u pripremu#Izvrsiti obradu asistentom...")
+if TTbl2Kalk() == 0
+	MsgBeep("Operacija prekinuta!")
+	return 
 endif
-if cTip == "P"
-	if TTbl2Partn() == 0
-		MsgBeep("Operacija prekinuta!")
-		return
-	endif
-	MsgBeep("Novi partneri su dodati u sifrarnik!")
-endif
+
+MsgBeep("Dokumenti prebaceni u pripremu#Izvrsiti obradu asistentom...")
 
 TxtErase(cImpFile)
 
 return
 *}
+
+
+/*! \fn ImpTxtSif()
+ *  \brief Import sifrarnika
+ */
+function ImpTxtSif()
+*{
+private cExpPath
+private cImpFile
+
+// setuj varijablu putanje exportovanih fajlova
+GetExpPath(@cExpPath)
+
+cFFilt := "P*.P??"
+
+// daj mi pregled fajlova za import, te setuj varijablu cImpFile
+if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+	return
+endif
+
+// provjeri da li je fajl za import prazan
+if CheckFile(cImpFile)==0
+	MsgBeep("Odabrani fajl je prazan!#!!! Prekidam operaciju !!!")
+	return
+endif
+
+private aDbf:={}
+private aRules:={}
+// setuj polja temp tabele u matricu aDbf
+SetTblPartn(@aDbf)
+// setuj pravila upisa podataka u temp tabelu
+SetRulePartn(@aRules)
+
+// prebaci iz txt => temp tbl
+Txt2TTbl(aDbf, aRules, cImpFile)
+
+CheckSif()
+
+if Pitanje(,"Izvrsiti import partnera (D/N)?", "D") == "N"
+	MsgBeep("Opcija prekinuta!")
+	return 
+endif
+
+lEdit := Pitanje(,"Izvrsiti korekcije postojecih podataka (D/N)?", "N") == "D"
+
+if TTbl2Partn(lEdit) == 0
+	MsgBeep("Operacija prekinuta!")
+	return
+endif
+
+MsgBeep("Operacija zavrsena !")
+
+
+TxtErase(cImpFile)
+
+return
+*}
+
 
 
 /*! \fn SetTblDok(aDbf)
@@ -119,7 +160,7 @@ return
 static function SetTblPartner(aDbf)
 *{
 
-AADD(aDbf,{"id", "C", 6, 0})
+AADD(aDbf,{"idpartner", "C", 6, 0})
 AADD(aDbf,{"naz", "C", 25, 0})
 AADD(aDbf,{"ptt", "C", 5, 0})
 AADD(aDbf,{"mjesto", "C", 16, 0})
@@ -184,33 +225,33 @@ static function SetRulePartn(aRule)
 // id
 AADD(aRule, {"SUBSTR(cVar, 1, 6)"})
 // naz
-AADD(aRule, {"SUBSTR(cVar, 7, 25)"})
+AADD(aRule, {"SUBSTR(cVar, 8, 25)"})
 // ptt
-AADD(aRule, {"SUBSTR(cVar, 35, 6)"})
+AADD(aRule, {"SUBSTR(cVar, 34, 5)"})
 // mjesto
-AADD(aRule, {"SUBSTR(cVar, 42, 10)"})
+AADD(aRule, {"SUBSTR(cVar, 40, 16)"})
 // adresa 
-AADD(aRule, {"SUBSTR(cVar, 27, 6)"})
+AADD(aRule, {"SUBSTR(cVar, 57, 24)"})
 // ziror
-AADD(aRule, {"SUBSTR(cVar, 34, 3)"})
+AADD(aRule, {"SUBSTR(cVar, 82, 22)"})
 // telefon
-AADD(aRule, {"SUBSTR(cVar, 38, 1)"})
+AADD(aRule, {"SUBSTR(cVar, 105, 12)"})
 // fax
-AADD(aRule, {"SUBSTR(cVar, 40, 3)"})
+AADD(aRule, {"SUBSTR(cVar, 118, 12)"})
 // idops
-AADD(aRule, {"SUBSTR(cVar, 44, 5)"})
+AADD(aRule, {"SUBSTR(cVar, 131, 4)"})
 // rokpl
-AADD(aRule, {"SUBSTR(cVar, 50, 16)"})
+AADD(aRule, {"VAL(SUBSTR(cVar, 136, 5))"})
 // porbr
-AADD(aRule, {"SUBSTR(cVar, 67, 16)"})
+AADD(aRule, {"SUBSTR(cVar, 143, 16)"})
 // idbroj
-AADD(aRule, {"SUBSTR(cVar, 84, 14)"})
+AADD(aRule, {"SUBSTR(cVar, 160, 16)"})
 // ustn
-AADD(aRule, {"SUBSTR(cVar, 99, 14)"})
+AADD(aRule, {"SUBSTR(cVar, 177, 20)"})
 // brupis
-AADD(aRule, {"SUBSTR(cVar, 99, 14)"})
+AADD(aRule, {"SUBSTR(cVar, 198, 20)"})
 // brjes
-AADD(aRule, {"SUBSTR(cVar, 99, 14)"})
+AADD(aRule, {"SUBSTR(cVar, 219, 20)"})
 
 return
 *}
@@ -262,19 +303,24 @@ next
 
 // selekcija fajla
 IzbF:=1
-do while .t.
+lRet := .f.
+do while .t. .and. LastKey()!=K_ESC
 	IzbF:=Menu("imp", OpcF, IzbF, .f.)
-	if IzbF==0
+	if IzbF == 0
         	exit
-		return 0
         else
         	cImpFile:=Trim(cPath)+Trim(LEFT(OpcF[IzbF],15))
         	if Pitanje(,"Zelite li izvrsiti import fajla ?","D")=="D"
         		IzbF:=0
-          	endif
+			lRet:=.t.
+		endif
         endif
 enddo
-
+if lRet
+	return 1
+else
+	return 0
+endif
 return 1
 *}
 
@@ -289,7 +335,9 @@ return 1
 function Txt2TTbl(aDbf, aRules, cTxtFile)
 *{
 // prvo kreiraj tabelu temp
+close all
 CreTemp(aDbf)
+
 if !File(PRIVPATH + SLASH + "TEMP.DBF")
 	MsgBeep("Ne mogu kreirati fajl TEMP.DBF!")
 	return
@@ -302,6 +350,7 @@ nBrLin:=BrLinFajla(cTxtFile)
 nStart:=0
 
 // prodji kroz svaku liniju i insertuj zapise u temp.dbf
+altd()
 for i:=1 to nBrLin
 	aFMat:=SljedLin(cTxtFile, nStart)
       	nStart:=aFMat[2]
@@ -360,22 +409,14 @@ return
 *}
 
 
-/*! \fn CheckId()
- *  \brief Provjera da li postoje sifre u sifrarnicima
+/*! \fn CheckDok()
+ *  \brief Provjera da li postoje sve sifre u sifrarnicima za dokumente
  */
-function CheckTbl(cTip)
+function CheckDok()
 *{
 
-if cTip == nil
-	cTip := "R"
-endif
-
 aPomPart := ParExist()
-aPomArt := {}
-
-if cTip == "R"
-	aPomArt := ArtExist()
-endif
+aPomArt  := ArtExist()
 
 if (LEN(aPomPart) > 0 .or. LEN(aPomArt) > 0)
 	
@@ -410,15 +451,48 @@ endif
 return .t.
 *}
 
+/*! \fn CheckSif()
+ *  \Provjerava i daje listu nepostojecih partnera pri importu liste partnera
+ */
+function CheckSif()
+*{
+
+aPomPart := ParExist(.t.)
+
+if (LEN(aPomPart) > 0)
+	
+	START PRINT CRET
+	
+	? "Lista nepostojecih partnera:"
+	? "----------------------------"
+	? 
+	for i:=1 to LEN(aPomPart)
+		? aPomPart[i, 1]
+		?? " " + aPomPart[i, 2]
+	next
+	?
+
+	FF
+	END PRINT
+
+endif
+
+return .t.
+*}
+
 
 /*! \fn ParExist()
  *  \brief Provjera da li postoje sifre partnera u sifraniku FMK
  */
-function ParExist()
+function ParExist(lPartNaz)
 *{
 O_PARTN
 select temp
 go top
+
+if lPartNaz == nil
+	lPartNaz := .f.
+endif
 
 aRet:={}
 
@@ -427,7 +501,11 @@ do while !EOF()
 	go top
 	seek temp->idpartner
 	if !Found()
-		AADD(aRet, {temp->idpartner})
+		if lPartNaz
+			AADD(aRet, {temp->idpartner, temp->naz})
+		else
+			AADD(aRet, {temp->idpartner})
+		endif
 	endif
 	select temp
 	skip
@@ -505,15 +583,16 @@ select temp
 go top
 
 nRbr:=0
+nUvecaj:=1
 
 cPFakt := ALLTRIM(temp->brdok)
-
 do while !EOF()
 
 	cFakt := ALLTRIM(temp->brdok)
 	if cRazd == "D"
 		if cFakt <> cPFakt
-			cBrojKalk:=GetNextKalkDoc(gFirma, cTipDok)
+			cBrojKalk := GetNextKalkDoc(gFirma, cTipDok, ++nUvecaj)
+			nRbr := 0
 		endif
 	endif
 	// pronadji robu
@@ -561,10 +640,11 @@ return 1
 *}
 
 
-/*! \fn TTbl2Partn()
+/*! \fn TTbl2Partn(lEditOld)
  *  \brief kopira podatke iz pomocne tabele u tabelu PARTN
+ *  \param lEditOld - ispraviti stare zapise
  */
-function TTbl2Partn()
+function TTbl2Partn(lEditOld)
 *{
 
 O_PARTN
@@ -574,39 +654,62 @@ O_SIFV
 select temp
 go top
 
+lNovi := .f.
+
 do while !EOF()
 
 	// pronadji partnera
 	select partn
-	cTmpPar := ALLTRIM(temp->id)
+	cTmpPar := ALLTRIM(temp->idpartner)
 	go top
 	seek cTmpPar
 	
-	// ako si nasao preskoci
+	// ako si nasao:
+	//  1. ako je lEditOld .t. onda ispravi postojeci
+	//  2. ako je lEditOld .f. onda preskoci
 	if Found()
+		if !lEditOld
+			select temp
+			skip
+			loop
+		endif
+		lNovi := .f.
+	else
+		lNovi := .t.
+	endif
+	
+	// dodaj zapis u partn
+	select partn
+	
+	if lNovi
+		append blank
+	endif
+	
+	if !lNovi .and. !lEditOld
 		select temp
 		skip
 		loop
 	endif
 	
-	// dodaj zapis u partn
-	select partn
-	append blank
-	replace id with temp->id
-	replace naz with temp->naz
+	replace id with temp->idpartner
+	cNaz := temp->naz
+	replace naz with KonvZnWin(@cNaz, "8")
 	replace ptt with temp->ptt
-	replace mjesto with temp->mjesto
-	replace adresa with temp->adresa
+	cMjesto := temp->mjesto
+	replace mjesto with KonvZnWin(@cMjesto, "8")
+	cAdres := temp->adresa
+	replace adresa with KonvZnWin(@cAdres, "8")
 	replace ziror with temp->ziror
 	replace telefon with temp->telefon
 	replace fax with temp->fax
 	replace idops with temp->idops
-	replace rokpl with temp->rokpl
-	replace porbr with temp->porbr
-	replace idbroj with temp->idbroj
-	replace ustn with temp->ustn
-	replace brupis with temp->brupis
-	replace brjes with temp->brjes
+	// ubaci --vezane-- podatke i u sifK tabelu
+	USifK("PARTN", "ROKP", temp->idpartner, temp->rokpl)
+	USifK("PARTN", "PORB", temp->idpartner, temp->porbr)
+	USifK("PARTN", "REGB", temp->idpartner, temp->idbroj)
+	USifK("PARTN", "USTN", temp->idpartner, temp->ustn)
+	USifK("PARTN", "BRUP", temp->idpartner, temp->brupis)
+	USifK("PARTN", "BRJS", temp->idpartner, temp->brjes)
 	
 	select temp
 	skip
@@ -617,30 +720,36 @@ return 1
 
 
 
-/*! \fn GetKVars()
- *  \brief Setuj parametre prenosa
+/*! \fn GetKVars(dDatDok, cBrKalk, cTipDok, cIdKonto, cIdKonto2, cRazd)
+ *  \brief Setuj parametre prenosa TEMP->PRIPR(KALK)
+ *  \param dDatDok - datum dokumenta
+ *  \param cBrKalk - broj kalkulacije
+ *  \param cTipDok - tip dokumenta
+ *  \param cIdKonto - id konto zaduzuje
+ *  \param cIdKonto2 - konto razduzuje
+ *  \param cRazd - razdvajati dokumente po broju fakture (D ili N)
  */
 static function GetKVars(dDatDok, cBrKalk, cTipDok, cIdKonto, cIdKonto2, cRazd)
 *{
-
 dDatDok:=DATE()
 cTipDok:="14"
 cIdFirma:=gFirma
 cIdKonto:=PADR("1200",7)
 cIdKonto2:=PADR("1310",7)
 cRazd:="D"
+O_KONTO
 O_DOKS
 cBrKalk:=GetNextKalkDoc(cIdFirma, cTipDok)
 
 Box(,15,60)
 	@ m_x+1,m_y+2   SAY "Broj kalkulacije 14-" GET cBrKalk pict "@!"
   	@ m_x+1,col()+2 SAY "Datum:" GET dDatDok
-  	@ m_x+4,m_y+2   SAY "Konto razduzuje:" GET cIdKonto2 pict "@!" when !glBrojacPoKontima valid P_Konto(@cIdKonto2)
+  	@ m_x+4,m_y+2   SAY "Konto razduzuje:" GET cIdKonto2 pict "@!" VALID P_Konto(@cIdKonto2)
   	@ m_x+6,m_y+2   SAY "Razdvajati kalkulacije po broju faktura" GET cRazd pict "@!" valid cRazd$"DN"
 	read
 BoxC()
 
-if lastkey()==K_ESC
+if LastKey()==K_ESC
 	return 0
 endif
 
@@ -648,13 +757,22 @@ return 1
 *}
   
 
-
-/*! \fn TxtErase(cTxtFile)
+/*! \fn TxtErase(cTxtFile, lErase)
  *  \brief Brisanje fajla cTxtFile
  *  \param cTxtFile - fajl za brisanje
+ *  \param lErase - .t. ili .f. - brisati ili ne brisati fajl txt nakon importa
  */
-function TxtErase(cTxtFile)
+function TxtErase(cTxtFile, lErase)
 *{
+if lErase == nil
+	lErase := .f.
+endif
+
+// postavi pitanje za brisanje fajla
+if lErase .and. Pitanje(,"Pobrisati txt fajl (D/N)?","D")=="N"
+	return
+endif
+
 if FErase(cTxtFile) == -1
 	MsgBeep("Ne mogu izbrisati " + cTxtFile)
 	ShowFError()

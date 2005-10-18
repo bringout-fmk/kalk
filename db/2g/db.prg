@@ -570,6 +570,9 @@ if (nArea==-1 .or. nArea==(F_DOKS))
 	if glBrojacPoKontima
 		CREATE_INDEX("1S","IdFirma+idvd+SUBSTR(brdok,6)+LEFT(brdok,5)",KUMPATH+"DOKS")
 	endif
+	if IsVindija()
+		CREATE_INDEX("V_BRF","brfaktp",KUMPATH+"DOKS")
+	endif
 endif
 
 

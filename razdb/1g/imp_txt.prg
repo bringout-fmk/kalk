@@ -158,8 +158,8 @@ AADD(aDbf,{"rbr", "C", 3, 0})
 AADD(aDbf,{"idroba", "C", 10, 0})
 AADD(aDbf,{"kolicina", "N", 14, 5})
 AADD(aDbf,{"cijena", "N", 14, 5})
-AADD(aDbf,{"rabat", "N", 8, 5})
-AADD(aDbf,{"porez", "N", 9, 5})
+AADD(aDbf,{"rabat", "N", 10, 5})
+AADD(aDbf,{"porez", "N", 10, 5})
 
 return
 *}
@@ -201,7 +201,7 @@ AADD(aRule, {"SUBSTR(cVar, 1, 2)"})
 // idtipdok
 AADD(aRule, {"SUBSTR(cVar, 4, 2)"})
 // brdok
-AADD(aRule, {"SUBSTR(cVar, 6, 9)"})
+AADD(aRule, {"SUBSTR(cVar, 7, 8)"})
 // datdok
 AADD(aRule, {"CTOD(SUBSTR(cVar, 16, 10))"})
 // idpartner 
@@ -361,7 +361,6 @@ nBrLin:=BrLinFajla(cTxtFile)
 nStart:=0
 
 // prodji kroz svaku liniju i insertuj zapise u temp.dbf
-altd()
 for i:=1 to nBrLin
 	aFMat:=SljedLin(cTxtFile, nStart)
       	nStart:=aFMat[2]
@@ -374,6 +373,9 @@ for i:=1 to nBrLin
 	append blank
 	
 	for nCt:=1 to LEN(aRules)
+		
+		altd()
+		
 		fname := FIELD(nCt)
 		xVal := aRules[nCt, 1]
 		replace &fname with &xVal

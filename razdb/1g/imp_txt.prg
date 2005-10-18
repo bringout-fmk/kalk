@@ -58,6 +58,11 @@ if !CheckDok()
 	return
 endif
 
+if CheckBrFakt() == 0
+	MsgBeep("Prekidamo operaciju !!!#Dokumenti vec postoje azurirani!")
+	return
+endif
+
 if TTbl2Kalk() == 0
 	MsgBeep("Operacija prekinuta!")
 	return 
@@ -105,14 +110,20 @@ SetRulePartn(@aRules)
 // prebaci iz txt => temp tbl
 Txt2TTbl(aDbf, aRules, cImpFile)
 
-CheckSif()
-
-if Pitanje(,"Izvrsiti import partnera (D/N)?", "D") == "N"
-	MsgBeep("Opcija prekinuta!")
-	return 
+if CheckSif() > 0
+	if Pitanje(,"Izvrsiti import partnera (D/N)?", "D") == "N"
+		MsgBeep("Opcija prekinuta!")
+		return 
+	endif
+else
+	MsgBeep("Nema novih partnera za import !")
+	return
 endif
 
-lEdit := Pitanje(,"Izvrsiti korekcije postojecih podataka (D/N)?", "N") == "D"
+// ova opcija ipak i nije toliko dobra da se radi!
+// 
+//lEdit := Pitanje(,"Izvrsiti korekcije postojecih podataka (D/N)?", "N") == "D"
+lEdit := .f.
 
 if TTbl2Partn(lEdit) == 0
 	MsgBeep("Operacija prekinuta!")
@@ -408,6 +419,43 @@ USEX (cTmpTbl)
 return
 *}
 
+/*! \fn CheckBrFakt()
+ *  \brief Provjeri da li postoji broj fakture u azuriranim dokumentima
+ */
+function CheckBrFakt()
+*{
+
+aPomFakt := FaktExist()
+
+if LEN(aPomFakt) > 0
+
+	START PRINT CRET
+	
+	? "Kontrola azuriranih dokumenata:"
+	? "-------------------------------"
+	? "Broj fakture => kalkulacija"
+	? "-------------------------------"
+	? 
+	
+	for i:=1 to LEN(aPomFakt)
+		? aPomFakt[i, 1] + " => " + aPomFakt[i, 2]
+	next
+	
+	?
+	? "Kontrolom azuriranih dokumenata, uoceno da se vec pojavljuju"
+	? "navedeni brojevi faktura iz fajla za import !"
+	?
+
+	FF
+	END PRINT
+
+	return 0
+	
+endif
+
+return 1
+*}
+
 
 /*! \fn CheckDok()
  *  \brief Provjera da li postoje sve sifre u sifrarnicima za dokumente
@@ -477,7 +525,7 @@ if (LEN(aPomPart) > 0)
 
 endif
 
-return .t.
+return LEN(aPomPart)
 *}
 
 
@@ -557,6 +605,46 @@ enddo
 return aRet
 *}
 
+/*! \fn FaktExist()
+ *  \brief vraca matricu sa parovima faktura -> pojavljuje se u azur.kalk
+ */
+function FaktExist()
+*{
+O_DOKS
+
+select temp
+go top
+
+aRet:={}
+
+altd()
+cDok := "XXXXXX"
+do while !EOF()
+
+	cBrFakt := ALLTRIM(temp->brdok)
+	
+	if cBrFakt == cDok
+		skip
+		loop
+	endif
+	
+	select doks
+	set order to tag "V_BRF"
+	go top
+	seek cBrFakt
+	
+	if Found()
+		AADD(aRet, {cBrFakt, doks->idfirma + "-" + doks->idvd + "-" + ALLTRIM(doks->brdok)})
+	endif
+	
+	select temp
+	skip
+	
+	cDok := cBrFakt
+enddo
+
+return aRet
+*}
 
 
 /*! \fn TTbl2Kalk()

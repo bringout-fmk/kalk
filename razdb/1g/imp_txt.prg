@@ -1,5 +1,20 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
+// ================
+// KONTA:
+// ================
+// KALK_14KR=1310
+// KALK_14KZ=????
+
+// KALK_11KZ=ovdje moramo imati konto prodavnice
+// KALK_11KR=1310
+
+// KALK_41KZ=13200 / diskont sarajevo
+// KALK_41KR=1310
+
+// KALK_95KR=1310
+// KALK_96KZ=30041 // troskovi
+
 
 /*! \fn MnuImpTxt()
  *  \brief Menij opcije import txt
@@ -70,7 +85,7 @@ endif
 
 MsgBeep("Dokumenti prebaceni u pripremu#Izvrsiti obradu asistentom...")
 
-TxtErase(cImpFile)
+TxtErase(cImpFile, .t.)
 
 return
 *}
@@ -152,6 +167,7 @@ AADD(aDbf,{"idtipdok", "C", 2, 0})
 AADD(aDbf,{"brdok", "C", 8, 0})
 AADD(aDbf,{"datdok", "D", 8, 0})
 AADD(aDbf,{"idpartner", "C", 6, 0})
+AADD(aDbf,{"idpm", "C", 3, 0})
 AADD(aDbf,{"dindem", "C", 3, 0})
 AADD(aDbf,{"zaokr", "N", 1, 0})
 AADD(aDbf,{"rbr", "C", 3, 0})
@@ -206,22 +222,24 @@ AADD(aRule, {"SUBSTR(cVar, 7, 8)"})
 AADD(aRule, {"CTOD(SUBSTR(cVar, 16, 10))"})
 // idpartner 
 AADD(aRule, {"SUBSTR(cVar, 27, 6)"})
-// dindem
+// id pm
 AADD(aRule, {"SUBSTR(cVar, 34, 3)"})
+// dindem
+AADD(aRule, {"SUBSTR(cVar, 38, 3)"})
 // zaokr
-AADD(aRule, {"VAL(SUBSTR(cVar, 38, 1))"})
+AADD(aRule, {"VAL(SUBSTR(cVar, 42, 1))"})
 // rbr
-AADD(aRule, {"STR(VAL(SUBSTR(cVar, 40, 3)),3)"})
+AADD(aRule, {"STR(VAL(SUBSTR(cVar, 44, 3)),3)"})
 // idroba
-AADD(aRule, {"ALLTRIM(SUBSTR(cVar, 44, 5))"})
+AADD(aRule, {"ALLTRIM(SUBSTR(cVar, 48, 5))"})
 // kolicina
-AADD(aRule, {"VAL(SUBSTR(cVar, 50, 16))"})
+AADD(aRule, {"VAL(SUBSTR(cVar, 54, 16))"})
 // cijena
-AADD(aRule, {"VAL(SUBSTR(cVar, 67, 16))"})
+AADD(aRule, {"VAL(SUBSTR(cVar, 71, 16))"})
 // rabat
-AADD(aRule, {"VAL(SUBSTR(cVar, 84, 14))"})
+AADD(aRule, {"VAL(SUBSTR(cVar, 88, 14))"})
 // porez
-AADD(aRule, {"VAL(SUBSTR(cVar, 99, 14))"})
+AADD(aRule, {"VAL(SUBSTR(cVar, 103, 14))"})
 
 return
 *}
@@ -381,6 +399,8 @@ for i:=1 to nBrLin
 		replace &fname with &xVal
 	next
 next
+
+MsgBeep("Import txt => temp - OK")
 
 return
 *}
@@ -607,6 +627,91 @@ enddo
 return aRet
 *}
 
+
+/*! \fn GetKTipDok(cFaktTD)
+ *  \brief Vraca kalk tip dokumenta na osnovu fakt tip dokumenta
+ *  \param cFaktTD - fakt tip dokumenta
+ */
+static function GetKTipDok(cFaktTD, cPm)
+*{
+cRet:=""
+
+if (cFaktTD == "" .or. cFaktTD == nil)
+	return "XX" 
+endif
+
+do case
+	// racuni VP
+	// FAKT 10 -> KALK 14
+	case cFaktTD == "10"
+		cRet := "14"
+		
+	// diskont vindija
+	// FAKT 11 -> KALK 41
+	case (cFaktTD == "11" .and. cPm == "200")
+		cRet := "41"
+		
+	// zaduzenje prodavnica
+	// FAKT 13 -> KALK 11
+	case (cFaktTD == "11" .and. cPm <> "200")
+		cRet := "11"
+		
+	// kalo, rastur - otpis
+	// radio se u kalku
+	case cFaktTD $ "90#91#92"
+		cRet := "95"
+endcase
+
+return cRet
+*}
+
+/*! \fn GetVPr(cProd)
+ *  \brief Vrati konto za prodajno mjesto Vindijine prodavnice
+ *  \param cProd - prodajno mjesto C(3), npr "200"
+ */
+static function GetVPr(cProd)
+*{
+if cProd == "XXX"
+	return "XXXXX"
+endif
+
+if cProd == "" .or. cProd == nil
+	return "XXXXX"
+endif
+
+cRet := IzFmkIni("VINDIJA", "VPR"+cProd, "xxxx", KUMPATH)
+
+if cRet == "" .or. cRet == nil
+	cRet := "XXXXX"
+endif
+
+return cRet
+*}
+
+
+/*! \fn GetTdKonto(cTipDok, cTip)
+ *  \brief Vrati konto za odredjeni tipdokumenta
+ *  \param cTipDok - tip dokumenta
+ *  \param cTip - "Z" zaduzuje, "R" - razduzuje
+ */
+static function GetTdKonto(cTipDok, cTip)
+*{
+
+cRet := IzFmkIni("VINDIJA", "TD" + cTipDok + cTip, "xxxx", KUMPATH)
+
+// primjer:
+// TD14Z=1310
+// TD14R=1200
+
+if cRet == "" .or. cRet == nil
+	cRet := "XXXXX"
+endif
+
+return cRet
+*}
+
+
+
 /*! \fn FaktExist()
  *  \brief vraca matricu sa parovima faktura -> pojavljuje se u azur.kalk
  */
@@ -654,16 +759,10 @@ return aRet
  */
 function TTbl2Kalk()
 *{
-local dDatDok
 local cBrojKalk
 local cTipDok
 local cIdKonto
 local cIdKonto2
-local cRazd
-
-if GetKVars(@dDatDok, @cBrojKalk, @cTipDok, @cIdKonto, @cIdKonto2, @cRazd) == 0
-	return 0
-endif
 
 O_PRIPR
 O_DOKS
@@ -674,44 +773,68 @@ go top
 
 nRbr:=0
 nUvecaj:=1
+nCnt:=0
 
-cPFakt := ALLTRIM(temp->brdok)
+cPFakt := "XXXXXX"
+aPom := {}
+
 do while !EOF()
 
 	cFakt := ALLTRIM(temp->brdok)
-	if cRazd == "D"
-		if cFakt <> cPFakt
-			cBrojKalk := GetNextKalkDoc(gFirma, cTipDok, ++nUvecaj)
-			nRbr := 0
-		endif
+	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
+	
+	if cFakt <> cPFakt
+		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, ++nUvecaj)
+		nRbr := 0
+		AADD(aPom, {cTDok, cBrojKalk})
 	endif
+	
 	// pronadji robu
 	select roba
 	cTmpArt := ALLTRIM(temp->idroba)
+	
 	if LEN(cTmpArt) == 4
 		set order to tag "ID_V4"
 	endif
+	
 	if LEN(cTmpArt) == 5
 		set order to tag "ID_V5"
 	endif
+	
 	go top
 	seek cTmpArt
 	
 	// dodaj zapis u pripr
 	select pripr
 	append blank
+	
 	replace idfirma with gFirma
 	replace rbr with STR(++nRbr, 3)
-	replace idvd with cTipDok
+	
+	// uzmi pravilan tip dokumenta za kalk
+	replace idvd with cTDok
+	
 	replace brdok with cBrojKalk
-	replace datdok with dDatDok
+	replace datdok with temp->datdok
 	replace idpartner with temp->idpartner
 	replace idtarifa with ROBA->idtarifa
 	replace brfaktp with cFakt
 	replace datfaktp with temp->datdok
-	replace idkonto   with cIdKonto
-	replace idkonto2  with cIdKonto2
-	replace idzaduz2  with ""
+	
+	// konta:
+	// =====================
+	// zaduzuje
+	replace idkonto with GetKtKalk(cTDok, temp->idpm, "Z")
+	// razduzuje
+	replace idkonto2 with GetKtKalk(cTDok, temp->idpm, "R")
+	replace idzaduz2 with ""
+	
+	// spec.za tip dok 11
+	if cTDok $ "11#41"
+		replace tmarza2 with "A"
+		replace tprevoz with "A"
+	endif
+	
 	replace datkurs with temp->datdok
 	replace kolicina with temp->kolicina
 	replace idroba with roba->id
@@ -721,12 +844,60 @@ do while !EOF()
 	replace mpc with temp->porez
 	
 	cPFakt := cFakt
+	++ nCnt
 	
 	select temp
 	skip
 enddo
 
+// izvjestaj o prebacenim dokumentima....
+if nCnt > 0
+	START PRINT CRET
+	? "========================================"
+	? "Sljedeci dokumenti prebaceni u pripremu:"
+	? "========================================"
+	? "Tip dok * Broj dokumenta * "
+	? "-------------------------"
+	
+	for i:=1 to LEN(aPom)
+		? aPom[i, 1] + " - " + aPom[i, 2]
+	next
+	
+	?
+	
+	FF
+	END PRINT
+endif
+
 return 1
+*}
+
+
+/*! \fn GetKtKalk(cTipDok, cPm, cTip)
+ *  \brief Varaca konto za trazeni tip dokumenta i prodajno mjesto
+ *  \param cTipDok - tip dokumenta
+ *  \param cPm - prodajno mjesto
+ *  \param cTip - tip "Z" zad. i "R" razd.
+ */
+static function GetKtKalk(cTipDok, cPm, cTip)
+*{
+
+do case
+	case cTipDok == "14"
+		cRet := GetTDKonto(cTipDok, cTip)
+	case cTipDok == "11"
+		if cTip == "R"
+			cRet := GetTDKonto(cTipDok, cTip)
+		else
+			cRet := GetVPr(cPm)
+		endif
+	case cTipDok == "41"
+		cRet := GetTDKonto(cTipDok, cTip)
+	case cTipDok == "95"
+		cRet := GetTDKonto(cTipDok, cTip)
+endcase
+
+return cRet
 *}
 
 

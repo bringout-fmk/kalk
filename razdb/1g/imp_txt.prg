@@ -176,6 +176,7 @@ AADD(aDbf,{"kolicina", "N", 14, 5})
 AADD(aDbf,{"cijena", "N", 14, 5})
 AADD(aDbf,{"rabat", "N", 10, 5})
 AADD(aDbf,{"porez", "N", 10, 5})
+AADD(aDbf,{"rabatp", "N", 10, 5})
 
 return
 *}
@@ -240,6 +241,8 @@ AADD(aRule, {"VAL(SUBSTR(cVar, 71, 16))"})
 AADD(aRule, {"VAL(SUBSTR(cVar, 88, 14))"})
 // porez
 AADD(aRule, {"VAL(SUBSTR(cVar, 103, 14))"})
+// procenat rabata
+AADD(aRule, {"VAL(SUBSTR(cVar, 118, 14))"})
 
 return
 *}
@@ -840,7 +843,7 @@ do while !EOF()
 	replace idroba with roba->id
 	replace nc with ROBA->nc
 	replace vpc with temp->cijena
-	replace rabatv with temp->rabat
+	replace rabatv with temp->rabatp
 	replace mpc with temp->porez
 	
 	cPFakt := cFakt
@@ -1038,6 +1041,62 @@ if FErase(cTxtFile) == -1
 	MsgBeep("Ne mogu izbrisati " + cTxtFile)
 	ShowFError()
 endif
+
+return
+*}
+
+
+/*! \fn ObradiImport()
+ *  \brief Obrada importovanih dokumenata
+ */
+function ObradiImport()
+*{
+O_PRIPR
+O_KALK
+O_DOKS
+O_ROBA
+O_TARIFA
+
+// iz pripr_temp prebaci u pripr jednu po jednu kalkulaciju
+select p_temp
+go top
+
+do while !EOF()
+	
+	cBrDok := p_temp->brdok
+	cFirma := p_temp->idfirma
+	cIdVd := p_temp->idvd
+	
+	do while !EOF() .and. p_temp->brdok = cBrDok .and. p_temp->idfirma = cFirma .and. p_temp->idvd = cIdVd
+		// jedan po jedan row azuriraj u pripr
+		// scatter
+		// gather
+	enddo
+
+	// nakon sto smo prebacili dokument u pripremu obraditi ga
+	ObradiDokument(cFirma, cIdVd, cBrDok)
+	
+	select p_temp
+	skip
+	
+enddo
+
+return
+*}
+
+
+/*! \fn ObradiDokument(cFirma, cIdVd, cBrDok)
+ *  \brief Obrada jednog dokumenta
+ *  \param cFirma - id firma
+ *  \param cIdVd - id vrsta dokumenta
+ *  \param cBrDok - broj dokumenta
+ */
+function ObradiDokument(cFirma, cIdVd, cBrDok)
+*{
+
+// 1. pokreni asistenta
+// 2. azuriraj kalk
+// 3. azuriraj FIN
 
 return
 *}

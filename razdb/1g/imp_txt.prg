@@ -1123,13 +1123,16 @@ do while !EOF()
 		
 		select pript
 		skip
+		nRec := RecNo()
 	enddo
 	
 	// nakon sto smo prebacili dokument u pripremu obraditi ga
-	//ObradiDokument(cFirma, cIdVd, cBrDok)
+	ObradiDokument(cFirma, cIdVd, cBrDok)
 	
+	O_PRIPR
+	O_PRIPT
 	select pript
-	//skip
+	go nRec
 	
 enddo
 
@@ -1150,8 +1153,8 @@ function ObradiDokument(cFirma, cIdVd, cBrDok)
 // 2. azuriraj kalk
 // 3. azuriraj FIN
 
-// otvori pripremu
-KUnos()
+private lAsistRadi:=.f.
+KUnos(.t.)
 
 return
 *}

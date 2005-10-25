@@ -1,20 +1,5 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-// ================
-// KONTA:
-// ================
-// KALK_14KR=1310
-// KALK_14KZ=????
-
-// KALK_11KZ=ovdje moramo imati konto prodavnice
-// KALK_11KR=1310
-
-// KALK_41KZ=13200 / diskont sarajevo
-// KALK_41KR=1310
-
-// KALK_95KR=1310
-// KALK_96KZ=30041 // troskovi
-
 
 /*! \fn MnuImpTxt()
  *  \brief Menij opcije import txt
@@ -25,10 +10,12 @@ private izbor:=1
 private opc:={}
 private opcexe:={}
 
-AADD(opc, "1. import vindija racun        ")
+AADD(opc, "1. import vindija racun                 ")
 AADD(opcexe, {|| ImpTxtDok()})
-AADD(opc, "2. import vindija partner      ")
+AADD(opc, "2. import vindija partner               ")
 AADD(opcexe, {|| ImpTxtSif()})
+AADD(opc, "3. obrada dokumenata iz pomocne tabele ")
+AADD(opcexe, {|| MnuObrDok()})
 
 Menu_SC("itx")
 
@@ -42,6 +29,8 @@ function ImpTxtDok()
 *{
 private cExpPath
 private cImpFile
+
+CrePripTDbf()
 
 // setuj varijablu putanje exportovanih fajlova
 GetExpPath(@cExpPath)
@@ -83,9 +72,25 @@ if TTbl2Kalk() == 0
 	return 
 endif
 
-MsgBeep("Dokumenti prebaceni u pripremu#Izvrsiti obradu asistentom...")
+// obrada dokumenata iz pript tabele
+MnuObrDok()
 
 TxtErase(cImpFile, .t.)
+
+return
+*}
+
+
+/*! \fn MnuObrDok()
+ *  \brief Obrada dokumenata iz pomocne tabele
+ */
+static function MnuObrDok()
+*{
+if Pitanje(,"Obraditi dokumente iz pomocne tabele (D/N)?", "D") == "D"
+	ObradiImport()
+else
+	MsgBeep("Dokumenti nisu obradjeni!#Obrada se moze uraditi i naknadno!")
+endif
 
 return
 *}
@@ -368,7 +373,9 @@ function Txt2TTbl(aDbf, aRules, cTxtFile)
 *{
 // prvo kreiraj tabelu temp
 close all
+
 CreTemp(aDbf)
+
 
 if !File(PRIVPATH + SLASH + "TEMP.DBF")
 	MsgBeep("Ne mogu kreirati fajl TEMP.DBF!")
@@ -394,9 +401,6 @@ for i:=1 to nBrLin
 	append blank
 	
 	for nCt:=1 to LEN(aRules)
-		
-		altd()
-		
 		fname := FIELD(nCt)
 		xVal := aRules[nCt, 1]
 		replace &fname with &xVal
@@ -427,7 +431,7 @@ static function CreTemp(aDbf)
 *{
 select 0
 
-cTmpTbl:=PRIVPATH+"TEMP"
+cTmpTbl := PRIVPATH + "TEMP"
 
 if File(cTmpTbl + ".DBF") .and. FErase(cTmpTbl + ".DBF") == -1
 	MsgBeep("Ne mogu izbrisati TEMP.DBF!")
@@ -443,6 +447,28 @@ USEX (cTmpTbl)
 
 return
 *}
+
+
+/*! \fn CrePriprTDbf()
+ *  \brief Kreiranje tabele PRIVPATH + PRIPT.DBF
+ */
+static function CrePripTDbf()
+*{
+
+FErase(PRIVPATH + "PRIPT.DBF")
+FErase(PRIVPATH + "PRIPT.CDX")
+
+O_PRIPR
+select pripr
+
+// napravi pript sa strukturom tabele PRIPR
+copy structure to (PRIVPATH+"struct")
+create (PRIVPATH + "pript") from (PRIVPATH + "struct")
+create_index("1","idfirma+idvd+brdok", PRIVPATH+"pript")
+
+return
+*}
+
 
 /*! \fn CheckBrFakt()
  *  \brief Provjeri da li postoji broj fakture u azuriranim dokumentima
@@ -600,7 +626,6 @@ go top
 aRet:={}
 
 do while !EOF()
-	altd()	
 	cTmpRoba := ALLTRIM(temp->idroba)
 	
 	select roba
@@ -612,7 +637,6 @@ do while !EOF()
 	endif
 	go top
 	
-	altd()	
 	seek cTmpRoba
 	
  	// ako ne nadjes napuni matricu
@@ -727,7 +751,6 @@ go top
 
 aRet:={}
 
-altd()
 cDok := "XXXXXX"
 do while !EOF()
 
@@ -770,6 +793,7 @@ local cIdKonto2
 O_PRIPR
 O_DOKS
 O_ROBA
+O_PRIPT
 
 select temp
 go top
@@ -779,17 +803,30 @@ nUvecaj:=1
 nCnt:=0
 
 cPFakt := "XXXXXX"
+cPPm := "XXX"
+
 aPom := {}
 
 do while !EOF()
 
 	cFakt := ALLTRIM(temp->brdok)
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
-	
+	cPm := temp->idpm
+
+	altd()
 	if cFakt <> cPFakt
 		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, ++nUvecaj)
 		nRbr := 0
 		AADD(aPom, {cTDok, cBrojKalk})
+	else
+		// ako su diskontna zaduzenja razgranici ih putem polja prodajno mjesto
+		if cTDok == "11"
+			if cPm <> cPPm
+				cBrojKalk := GetNextKalkDoc(gFirma, cTDok, ++nUvecaj)
+				nRbr := 0
+				AADD(aPom, {cTDok, cBrojKalk})
+			endif
+		endif
 	endif
 	
 	// pronadji robu
@@ -808,7 +845,7 @@ do while !EOF()
 	seek cTmpArt
 	
 	// dodaj zapis u pripr
-	select pripr
+	select pript
 	append blank
 	
 	replace idfirma with gFirma
@@ -836,6 +873,11 @@ do while !EOF()
 	if cTDok $ "11#41"
 		replace tmarza2 with "A"
 		replace tprevoz with "A"
+		if cTDok == "11"
+			replace mpcsapp with roba->mpc2
+		else
+			replace mpcsapp with roba->mpc
+		endif
 	endif
 	
 	replace datkurs with temp->datdok
@@ -847,6 +889,8 @@ do while !EOF()
 	replace mpc with temp->porez
 	
 	cPFakt := cFakt
+	cPPm := cPm
+	
 	++ nCnt
 	
 	select temp
@@ -857,7 +901,7 @@ enddo
 if nCnt > 0
 	START PRINT CRET
 	? "========================================"
-	? "Sljedeci dokumenti prebaceni u pripremu:"
+	? "Generisani sljedeci dokumenti:          "
 	? "========================================"
 	? "Tip dok * Broj dokumenta * "
 	? "-------------------------"
@@ -1052,32 +1096,40 @@ return
 function ObradiImport()
 *{
 O_PRIPR
-O_KALK
-O_DOKS
-O_ROBA
-O_TARIFA
+O_PRIPT
 
 // iz pripr_temp prebaci u pripr jednu po jednu kalkulaciju
-select p_temp
+select pript
 go top
+
+nRec:=RecNo()
 
 do while !EOF()
 	
-	cBrDok := p_temp->brdok
-	cFirma := p_temp->idfirma
-	cIdVd := p_temp->idvd
+	cBrDok := field->brdok
+	cFirma := field->idfirma
+	cIdVd  := field->idvd
 	
-	do while !EOF() .and. p_temp->brdok = cBrDok .and. p_temp->idfirma = cFirma .and. p_temp->idvd = cIdVd
+	do while !EOF() .and. field->brdok = cBrDok .and. field->idfirma = cFirma .and. field->idvd = cIdVd
+		
 		// jedan po jedan row azuriraj u pripr
-		// scatter
-		// gather
+		select pripr
+		append blank
+		Scatter()
+		select pript
+		Scatter()
+		select pripr
+		Gather()
+		
+		select pript
+		skip
 	enddo
-
-	// nakon sto smo prebacili dokument u pripremu obraditi ga
-	ObradiDokument(cFirma, cIdVd, cBrDok)
 	
-	select p_temp
-	skip
+	// nakon sto smo prebacili dokument u pripremu obraditi ga
+	//ObradiDokument(cFirma, cIdVd, cBrDok)
+	
+	select pript
+	//skip
 	
 enddo
 
@@ -1097,6 +1149,9 @@ function ObradiDokument(cFirma, cIdVd, cBrDok)
 // 1. pokreni asistenta
 // 2. azuriraj kalk
 // 3. azuriraj FIN
+
+// otvori pripremu
+KUnos()
 
 return
 *}

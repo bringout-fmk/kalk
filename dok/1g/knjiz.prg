@@ -151,21 +151,37 @@ return
 
 
 
-/*! \fn KUnos()
+/*! \fn KUnos(lAutoObrada)
  *  \brief Tabela pripreme dokumenta
  */
 
-function KUnos()
+function KUnos(lAObrada)
 *{
 O_PARAMS
-private cSection:="K",cHistory:=" "; aHistory:={}
-select 99; use
+
+private lAutoObr := .f.
+private lAAsist := .f.
+private lAAzur := .f.
+
+if lAObrada == nil
+	lAutoObr := .f.
+else
+	lAutoObr := lAObrada
+	lAAsist := .t.
+	lAAzur := .t.
+endif
+
+private cSection:="K"
+private cHistory:=" "
+private aHistory:={}
+select 99
+use
 
 OEdit()
 
 private gVarijanta:="2"
-
 private PicV:="99999999.9"
+
 ImeKol:={ ;
           { "F."        , {|| IdFirma                  }, "IdFirma"     } ,;
           { "VD"        , {|| IdVD                     }, "IdVD"        } ,;
@@ -192,29 +208,33 @@ ImeKol:={ ;
         }
 
 IF lPoNarudzbi
-  AADD( ImeKol , { "Br.nar." , {|| brojnar   }, "brojnar"   } )
-  AADD( ImeKol , { "Narucioc" , {|| idnar   }, "idnar"   } )
+	AADD( ImeKol , { "Br.nar." , {|| brojnar   }, "brojnar"   } )
+  	AADD( ImeKol , { "Narucioc" , {|| idnar   }, "idnar"   } )
 ENDIF
 
-Kol:={}; for i:=1 to len(ImeKol); AADD(Kol,i); next
+Kol:={}
+
+for i:=1 to LEN(ImeKol)
+	AADD(Kol, i)
+next
+
 Box(,20,77)
-@ m_x+17,m_y+2 SAY "<c-N>  Nove Stavke      ³<ENT> Ispravi stavku    ³<c-T>  Brisi Stavku   "
-@ m_x+18,m_y+2 SAY "<c-A>  Ispravka Naloga  ³<c-P> Stampa Kalkulacije³<a-A> Azuriranje      "
-@ m_x+19,m_y+2 SAY "<a-K>  Rekap+Kontiranje ³<c-F9> Brisi pripremu   ³<a-P> Stampa pripreme "
-@ m_x+20,m_y+2 SAY "<c-F8> Raspored troskova³<a-F10> asistent        ³<F10>,<F11> Ost.opcije"
-IF gCijene=="1" .and. gMetodaNC==" "
-  Soboslikar({{m_x+17,m_y+1,m_x+20,m_y+77}},23,14)
-ENDIF
+	@ m_x+17,m_y+2 SAY "<c-N>  Nove Stavke      ³<ENT> Ispravi stavku    ³<c-T>  Brisi Stavku   "
+	@ m_x+18,m_y+2 SAY "<c-A>  Ispravka Naloga  ³<c-P> Stampa Kalkulacije³<a-A> Azuriranje      "
+	@ m_x+19,m_y+2 SAY "<a-K>  Rekap+Kontiranje ³<c-F9> Brisi pripremu   ³<a-P> Stampa pripreme "
+	@ m_x+20,m_y+2 SAY "<c-F8> Raspored troskova³<a-F10> asistent        ³<F10>,<F11> Ost.opcije"
+	IF gCijene=="1" .and. gMetodaNC==" "
+  		Soboslikar({{m_x+17,m_y+1,m_x+20,m_y+77}},23,14)
+	ENDIF
 
-PRIVATE lAutoAsist:=.f.
+	PRIVATE lAutoAsist:=.f.
 
-ObjDbedit("PNal",20,77,{|| EdPRIPR()},"<F5>-kartica magacin, <F6>-kartica prodavnica","Priprema...", , , , ,4)
+	ObjDbedit("PNal",20,77,{|| EdPRIPR(lAutoObr)},"<F5>-kartica magacin, <F6>-kartica prodavnica","Priprema...", , , , ,4)
 BoxC()
 
 CLOSERET
 return
 *}
-
 
 
 
@@ -250,7 +270,7 @@ return
 
 
 
-/*! \fn EdPRIPR()
+/*! \fn EdPRIPR(lAObrada)
  *  \brief Obrada dostupnih opcija u tabeli pripreme
  */
 
@@ -258,8 +278,9 @@ function EdPRIPR()
 *{
 local nTr2,cSekv,nkekk
 local isekv
+
 if (Ch==K_CTRL_T .or. Ch==K_ENTER) .and. eof()
-  return DE_CONT
+	return DE_CONT
 endif
 
 PRIVATE PicCDEM:=gPicCDEM
@@ -269,128 +290,145 @@ PRIVATE Pickol:= gPicKol
 
 select pripr
 do case
-
-  case Ch==K_ALT_H
-     Savjetnik()
-  case Ch==K_ALT_K
-     close all
-       RekapK()
-       if Pitanje(,"Zelite li izvrsiti kontiranje ?","D")=="D"
-         Kontnal()
-       endif
-     Oedit()
-     return DE_REFRESH
-  case Ch==K_ALT_P
-     close all
-     IzbDokOLPP()
-     // StPripr()
-     Oedit()
-     return DE_REFRESH
-  case Ch==K_ALT_L
-	close all
-     KaLabelBKod()
-     // StPripr()
-     
-     OEdit()
-     return DE_REFRESH
-  
-  case Ch==K_ALT_Q
-	if Pitanje(,"Stampa naljepnica(labela) za robu ?","D")=="D"
-  		CLOSE ALL
-		RLabele()
-		OEdit()		
-		return DE_REFRESH
-	endif
-	return DE_CONT
-	
-  case Ch==K_ALT_A
-	if IsJerry()
-		JerryMP()
-	endif
-	close all
-	Azur()
-	Oedit()
-	if PRIPR->(RECCOUNT())==0 .and. IzFMKINI("Indikatori","ImaU_KALK","N",PRIVPATH)=="D"
-		O__KALK
-		SELECT PRIPR
-		APPEND FROM _KALK
-		UzmiIzINI(PRIVPATH+"FMK.INI","Indikatori","ImaU_KALK","N","WRITE")
+	case Ch==K_ALT_H
+     		Savjetnik()
+  	case Ch==K_ALT_K
+     		close all
+       		RekapK()
+       		if Pitanje(,"Zelite li izvrsiti kontiranje ?","D")=="D"
+         		Kontnal()
+       		endif
+     		Oedit()
+     		return DE_REFRESH
+  	case Ch==K_ALT_P
+     		close all
+     		IzbDokOLPP()
+     		// StPripr()
+     		Oedit()
+     		return DE_REFRESH
+  	case Ch==K_ALT_L
 		close all
+     		KaLabelBKod()
+     		// StPripr()
+   		OEdit()
+     		return DE_REFRESH
+	case Ch==K_ALT_Q
+		if Pitanje(,"Stampa naljepnica(labela) za robu ?","D")=="D"
+  			CLOSE ALL
+			RLabele()
+			OEdit()		
+			return DE_REFRESH
+		endif
+		return DE_CONT
+	case Ch==K_ALT_A
+		if IsJerry()
+			JerryMP()
+		endif
+		close all
+		Azur()
 		Oedit()
-		MsgBeep("Stavke koje su bile privremeno sklonjene sada su vracene! Obradite ih!")
-	endif
-	return DE_REFRESH
-
-  case Ch==K_CTRL_P
-  	if IsJerry()
-		JerryMP()
-	endif
-	close all
-	StKalk()
-	Oedit()
-	return DE_REFRESH
-
-  case Ch==K_CTRL_T
-     if Pitanje(,"Zelite izbrisati ovu stavku ?","D")=="D"
-      delete
-      if Logirati(goModul:oDataBase:cName,"DOK","BRISIDOK")
-      	EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje stavke iz pripreme")
-      endif
-      return DE_REFRESH
-     endif
-     return DE_CONT
-
-   case IsDigit(Chr(Ch))
-      Msg("Ako zelite zapoceti unos novog dokumenta: <Ctrl-N>")
-      return DE_CONT
-   case Ch==K_ENTER
-     return EditStavka()
-
-   case Ch==K_CTRL_A
-       return EditAll() 
-
-   case Ch==K_CTRL_N  // nove stavke
-        return NovaStavka()
-
-
-     case Ch==K_CTRL_F8
-      RaspTrosk()
-      return DE_REFRESH
-
-     case Ch==K_CTRL_F9
-      if Pitanje(,"Zelite Izbrisati cijelu pripremu ??","N")=="D"
-	 if Logirati(goModul:oDataBase:cName,"DOK","BRISIDOK")
-      		EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje kompletne pripreme")
-      	 endif
- 	 zapp()
-         return DE_REFRESH
-      endif
-      return DE_CONT
-
-     case Ch==K_ALT_F10 .or. lAutoAsist
-      
-         return KnjizAsistent()
-
-     case Ch==K_F10
-       return MeniF10()
-
-     case Ch==K_F11
-       return MeniF11()
-
-     case Ch==K_F5
-         Kmag()
-         return DE_CONT
-
-     case Ch==K_F6
-         KPro()
-         return DE_CONT
-
+		if PRIPR->(RECCOUNT())==0 .and. IzFMKINI("Indikatori","ImaU_KALK","N",PRIVPATH)=="D"
+			O__KALK
+			SELECT PRIPR
+			APPEND FROM _KALK
+			UzmiIzINI(PRIVPATH+"FMK.INI","Indikatori","ImaU_KALK","N","WRITE")
+			close all
+			Oedit()
+			MsgBeep("Stavke koje su bile privremeno sklonjene sada su vracene! Obradite ih!")
+		endif
+		return DE_REFRESH
+	case Ch==K_CTRL_P
+  		if IsJerry()
+			JerryMP()
+		endif
+		close all
+		StKalk()
+		Oedit()
+		return DE_REFRESH
+	case Ch==K_CTRL_T
+     		if Pitanje(,"Zelite izbrisati ovu stavku ?","D")=="D"
+      			delete
+      			if Logirati(goModul:oDataBase:cName,"DOK","BRISIDOK")
+      				EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje stavke iz pripreme")
+      			endif
+      			return DE_REFRESH
+     		endif
+     		return DE_CONT
+	case IsDigit(Chr(Ch))
+      		Msg("Ako zelite zapoceti unos novog dokumenta: <Ctrl-N>")
+      		return DE_CONT
+   	case Ch==K_ENTER
+     		return EditStavka()
+	case Ch==K_CTRL_A
+       		return EditAll() 
+	case Ch==K_CTRL_N  // nove stavke
+        	return NovaStavka()
+	case Ch==K_CTRL_F8
+      		RaspTrosk()
+      		return DE_REFRESH
+	case Ch==K_CTRL_F9
+      		if Pitanje(,"Zelite Izbrisati cijelu pripremu ??","N")=="D"
+	 		if Logirati(goModul:oDataBase:cName,"DOK","BRISIDOK")
+      				EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje kompletne pripreme")
+      	 		endif
+ 	 		zapp()
+         		return DE_REFRESH
+      		endif
+      		return DE_CONT
+	case Ch==K_ALT_F10 .or. lAutoAsist
+               return KnjizAsistent()
+     	case Ch==K_F10
+       		return MeniF10()
+	case Ch==K_F11
+       		return MeniF11()
+	case Ch==K_F5
+        	Kmag()
+         	return DE_CONT
+	case Ch==K_F6
+        	KPro()
+         	return DE_CONT
+     	case lAutoObr .and. lAAsist 
+		
+		altd()
+		// automatski obradi dokument
+		// asistent
+		lAAsist := .f.
+		return KnjizAsistent()
+	case lAutoObr .and. lAAzur
+		// automatski azuriraj dokument
+		lAAzur:=.f.
+		select pripr
+		go top
+		return AutoAzur()
+	
 endcase
+
 return DE_CONT
 *}
 
 
+/*! \fn AutoAzur()
+ *  \brief Auto azuriranje
+ */
+function AutoAzur()
+*{
+// azuriranje
+private nEntera:=1
 
+cSekv:=CHR(286)
+keyboard cSekv
+
+return DE_REFRESH 
+*}
+
+
+function AutoClose()
+*{
+cSekv := CHR(K_ESC)
+keyboard cSekv
+
+return DE_REFRESH
+*}
 
 /*! \fn EditStavka()
  *  \brief Ispravka stavke dokumenta u pripremi
@@ -618,39 +656,35 @@ return DE_REFRESH
 *}
 
 
-
-
 /*! \fn KnjizAsistent()
  *  \brief Asistent za obradu stavki dokumenta u pripremi
  */
 
 function KnjizAsistent()
 *{
-      lAutoAsist:=.f.
-      private nEntera:=30
-      IF IzFMKIni("KALK","PametniAsistent","D",KUMPATH)=="D"
-        lAsistRadi:=.t.
+lAutoAsist:=.f.
+private nEntera:=30
+IF IzFMKIni("KALK","PametniAsistent","D",KUMPATH)=="D"
+	lAsistRadi:=.t.
         csekv:=chr(K_CTRL_A)
         keyboard csekv
-      ELSE
-        // nova varijanta rada asistenta mora se ukljuciti parametrom
-        // PametniAsistent=D
-        // -----------------
-        lAsistRadi:=.f.
-        // -----------------
+ELSE
+	// nova varijanta rada asistenta mora se ukljuciti parametrom
+	// PametniAsistent=D
+	// -----------------
+	lAsistRadi:=.f.
+	// -----------------
         for isekv:=1 to int(reccount2()/15)+1
-          csekv:=chr(K_CTRL_A)
-          for nkekk:=1 to min(reccount2(),15)*30
-            cSekv+=cEnter
-          next
-          keyboard csekv
+		csekv:=chr(K_CTRL_A)
+          	for nkekk:=1 to min(reccount2(),15)*30
+            		cSekv+=cEnter
+          	next
+          	keyboard csekv
         next
-      ENDIF
+ENDIF
+
 return DE_REFRESH
 *}
-
-
-
 
 
 /*! \fn MeniF10()

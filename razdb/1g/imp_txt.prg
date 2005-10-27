@@ -633,14 +633,29 @@ do while !EOF()
 		set order to tag "ID_V4"
 	endif
 	if LEN(cTmpRoba) == 5
+		// asortiman koka
 		set order to tag "ID_V5"
 	endif
 	go top
 	
 	seek cTmpRoba
 	
+	// ako asortiman nije koka a pronasao sam zapis 
+	// provjeri je li to kokina sifra
+	lFound := .f.
+	if LEN(cTmpRoba) == 4 .and. Found()
+		do while .t.
+			if Substr(roba->id, 1, 1) == "K"
+				skip
+			else
+				lFound := .t.
+				exit
+			endif
+		enddo
+	endif
+	
  	// ako ne nadjes napuni matricu
-	if !Found()
+	if lFound := .f. 
 		nRes := ASCAN(aRet, {|aVal| aVal[1] == cTmpRoba})
 		if nRes == 0
 			AADD(aRet, {cTmpRoba})
@@ -843,6 +858,20 @@ do while !EOF()
 	
 	go top
 	seek cTmpArt
+	
+	// ako asortiman nije koka a pronasao sam zapis 
+	// provjeri je li to kokina sifra
+	if LEN(cTmpArt) == 4 .and. Found()
+		do while .t.
+			if Substr(roba->id, 1, 1) == "K"
+				// pozicioniraj se na sljedeci zapis
+				// to bi trebalo da je ta roba???
+				skip
+			else
+				exit
+			endif
+		enddo
+	endif
 	
 	// dodaj zapis u pripr
 	select pript
@@ -1098,6 +1127,11 @@ function ObradiImport()
 O_PRIPR
 O_PRIPT
 
+lAutom := .f.
+if Pitanje(,"Automatski asistent i azuriranje naloga (D/N)?", "D") == "D"
+	lAutom := .t.
+endif
+
 // iz pripr_temp prebaci u pripr jednu po jednu kalkulaciju
 select pript
 go top
@@ -1127,10 +1161,12 @@ do while !EOF()
 	enddo
 	
 	// nakon sto smo prebacili dokument u pripremu obraditi ga
-	ObradiDokument(cFirma, cIdVd, cBrDok)
+	if lAutom
+		ObradiDokument(cFirma, cIdVd, cBrDok)
+		O_PRIPR
+		O_PRIPT
+	endif
 	
-	O_PRIPR
-	O_PRIPT
 	select pript
 	go nRec
 	

@@ -30,17 +30,25 @@
  *  \brief Centralna funkcija za formiranje i stampu FIN-naloga
  */
 
-function P_Fin()
+function P_Fin(lAuto)
 *{
-private gDatNal:="N",gRavnot:="D",cDatVal:="D",gnLOst:=0
-if gafin=="D"
- #ifdef CAX
-   close all
- #endif
- KZbira()
- StNal()
- Azur()
+private gDatNal:="N"
+private gRavnot:="D"
+private cDatVal:="D"
+private gnLOst:=0
+
+if (lAuto == nil)
+	lAuto := .f.
 endif
+if gafin=="D"
+	#ifdef CAX
+   		close all
+ 	#endif
+ 	KZbira()
+ 	StNal(lAuto)
+ 	Azur(lAuto)
+endif
+
 return
 *}
 
@@ -51,10 +59,13 @@ return
  *  \brief Centralna funkcija za stampu FIN-naloga
  */
 
-static function StNal()
+static function StNal(lAuto)
 *{
 private dDatNal:=date()
-StAnalNal()
+if lAuto == nil
+	lAuto := .f.
+endif
+StAnalNal(lAuto)
 //StSintNal()
 SintStav()
 return
@@ -67,7 +78,7 @@ return
  *  \brief Stampanje analitickog naloga
  */
 
-static function StAnalNal()
+static function StAnalNal(lAuto)
 *{
 FO_PRIPR
 O_KONTO
@@ -82,15 +93,26 @@ gVar1:=2
 
 M:="---- ------- ------ ---------------------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1==1,"-"," ---------- ----------")
 
-select PSUBAN; ZAP
+if lAuto == nil
+	lAuto := .f.
+endif
 
-SELECT PRIPR; set order to 1;go top
-if eof(); closeret2; endif
+select PSUBAN
+ZAP
+
+SELECT PRIPR
+set order to 1
+go top
+
+if EOF()
+	closeret2
+endif
 
 nUkDugBHD:=nUkPotBHD:=nUkDugDEM:=nUkPotDEM:=0
 DO WHILE !EOF()
    cIdFirma:=IdFirma; cIdVN:=IdVN; cBrNal:=BrNal
 
+   if !lAuto
    Box("",2,50)
      set cursor on
      @ m_x+1,m_y+2 SAY "Finansijski nalog broj:" GET cIdFirma
@@ -101,6 +123,7 @@ DO WHILE !EOF()
      endif
      read; ESC_BCR
    BoxC()
+   endif	
 
    HSEEK cIdFirma+cIdVN+cBrNal
    if eof(); closeret2; endif
@@ -418,7 +441,7 @@ return
  *  \brief Azuriranje knjizenja
  */
 
-static function Azur()
+static function Azur(lAuto)
 *{
 FO_PRIPR
 FO_SUBAN
@@ -431,22 +454,39 @@ FO_PANAL
 FO_PSINT
 FO_PNALOG
 
-fAzur:=.t.
-select PSUBAN; if reccount2()==0; fAzur:=.f.; endif
-select PANAL; if reccount2()==0; fAzur:=.f.; endif
-select PSINT; if reccount2()==0; fAzur:=.f.; endif
-if !fAzur
- //*   Beep(3)
- //*   Msg("Niste izvrsili stampanje naloga ...",10)
- closeret2
+if (lAuto == nil)
+	lAuto := .f.
 endif
 
-if pitanje(,"Izvrsiti azuriranje FIN naloga ?","D")=="N"
- closeret2
+fAzur:=.t.
+
+select PSUBAN
+if reccount2()==0
+	fAzur:=.f.
+endif
+select PANAL
+if reccount2()==0
+	fAzur:=.f.
+endif
+select PSINT
+if reccount2()==0
+	fAzur:=.f.
+endif
+
+if !fAzur
+	//*   Beep(3)
+ 	//*   Msg("Niste izvrsili stampanje naloga ...",10)
+ 	closeret2
+endif
+
+if !lAuto .and. pitanje(,"Izvrsiti azuriranje FIN naloga ?","D")=="N"
+	closeret2
 endif
 
 Box(,5,60)
-select PSUBAN; set order to 1; go top
+select PSUBAN
+set order to 1
+go top
 
 do while !eof()
 // prodji kroz PSUBAN i vidi da li je nalog zatvoren
@@ -559,7 +599,11 @@ select PSINT; zap
 select PNALOG; zap
 BoxC()
 
-closeret2
+if lAuto
+	closeret
+else
+	closeret2
+endif
 return
 *}
 

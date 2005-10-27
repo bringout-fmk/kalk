@@ -58,7 +58,7 @@
  *  \brief Kontiranje dokumenta tj. formiranje FIN i/ili MAT naloga
  */
 
-function KontNal(fAuto)
+function KontNal(fAuto, lAGen)
 *{
 local cidfirma,cidvd,cbrdok, lAFin,lAMat, lafin2,lamat2
 local nRecNo
@@ -66,18 +66,26 @@ local lPrvoDzok:=(IzFMKINI("KontiranjeKALK","PrioritetImajuDzokeri","N",SIFPATH)
 
 PRIVATE lVrsteP := ( IzFmkIni("FAKT","VrstePlacanja","N",SIFPATH)=="D" )
 
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
+if (lAGen == nil)
+	lAGen := .f.
 endif
+
+if IzFMKIni("Svi","Sifk")=="D"
+	O_SIFK
+	O_SIFV
+endif
+
 O_ROBA
 O_FINMAT
 O_TRFP
 O_KONCIJ
+
 IF FIELDPOS("IDRJ")<>0
-  lPoRj:=.t.
+	lPoRj:=.t.
 ELSE
-  lPoRj:=.f.
+  	lPoRj:=.f.
 ENDIF
+
 O_VALUTE
 
 if fAuto==NIL
@@ -88,7 +96,11 @@ lAFin:=(fauto .and. gAFin=="D")
 
 if lafin
 	Beep(1)
-	lafin:=Pitanje(,"Formirati FIN nalog?","D")=="D"
+	if !lAGen
+		lafin:=Pitanje(,"Formirati FIN nalog?","D")=="D"
+	else 
+		lafin := .t.
+	endif
 endif
 
 lafin2:=(!fauto .and. gafin<>"0")
@@ -188,7 +200,8 @@ if fAuto
 		endif
 	endif
 	
-	@ m_x+4,m_y+2 SAY "Datum naloga: "; ?? dDatNal
+	@ m_x+4,m_y+2 SAY "Datum naloga: "
+	?? dDatNal
 	
 	if lAFin .or. lAMat
 		inkey(0)

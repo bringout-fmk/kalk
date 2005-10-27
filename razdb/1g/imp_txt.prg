@@ -375,7 +375,7 @@ function Txt2TTbl(aDbf, aRules, cTxtFile)
 close all
 
 CreTemp(aDbf)
-
+O_TEMP
 
 if !File(PRIVPATH + SLASH + "TEMP.DBF")
 	MsgBeep("Ne mogu kreirati fajl TEMP.DBF!")
@@ -429,8 +429,6 @@ return nBrLin
  */
 static function CreTemp(aDbf)
 *{
-select 0
-
 cTmpTbl := PRIVPATH + "TEMP"
 
 if File(cTmpTbl + ".DBF") .and. FErase(cTmpTbl + ".DBF") == -1
@@ -443,7 +441,6 @@ if File(cTmpTbl + ".CDX") .and. FErase(cTmpTbl + ".CDX") == -1
 endif
 
 DbCreate2(cTmpTbl, aDbf)
-USEX (cTmpTbl)
 
 return
 *}
@@ -1094,14 +1091,21 @@ endif
 select pript
 go top
 
-nRec:=RecNo()
+nPTRec:=RecNo()
+
+Box(,10, 70)
+@ 1+m_x, 2+m_y SAY "Obrada dokumenata iz pomocne tabele:"
+@ 2+m_x, 2+m_y SAY "===================================="
 
 do while !EOF()
-	
+	altd()
 	cBrDok := field->brdok
 	cFirma := field->idfirma
 	cIdVd  := field->idvd
 	
+	@ 3+m_x, 2+m_y SAY "Prebacujem: " + cFirma + "-" + cIdVd + "-" + cBrDok
+	
+	nStCnt := 0
 	do while !EOF() .and. field->brdok = cBrDok .and. field->idfirma = cFirma .and. field->idvd = cIdVd
 		
 		// jedan po jedan row azuriraj u pripr
@@ -1115,20 +1119,28 @@ do while !EOF()
 		
 		select pript
 		skip
-		nRec := RecNo()
+		++ nStCnt
+		
+		nPTRec := RecNo()
+
+		@ 5+m_x, 2+m_y SAY "Broj stavki:" + ALLTRIM(STR(nStCnt))
 	enddo
 	
 	// nakon sto smo prebacili dokument u pripremu obraditi ga
 	if lAutom
+		altd()
 		ObradiDokument(cFirma, cIdVd, cBrDok)
-		O_PRIPR
 		O_PRIPT
 	endif
 	
 	select pript
-	go nRec
+	go nPTRec
 	
 enddo
+
+BoxC()
+
+MsgBeep("Dokumenti obradjeni!")
 
 return
 *}
@@ -1148,7 +1160,13 @@ function ObradiDokument(cFirma, cIdVd, cBrDok)
 // 3. azuriraj FIN
 
 private lAsistRadi:=.f.
+// pozovi asistenta
 KUnos(.t.)
+// odstampaj kalk
+StKalk(nil,nil,.t.)
+// azuriraj kalk
+Azur(.t.)
+OEdit()
 
 return
 *}

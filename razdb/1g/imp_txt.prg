@@ -14,8 +14,8 @@ AADD(opc, "1. import vindija racun                 ")
 AADD(opcexe, {|| ImpTxtDok()})
 AADD(opc, "2. import vindija partner               ")
 AADD(opcexe, {|| ImpTxtSif()})
-AADD(opc, "3. obrada dokumenata iz pomocne tabele ")
-AADD(opcexe, {|| MnuObrDok()})
+AADD(opc, "3. popuna polja sifra dobavljaca ")
+AADD(opcexe, {|| FillDobSifra()})
 
 Menu_SC("itx")
 
@@ -629,33 +629,13 @@ do while !EOF()
 	cTmpRoba := ALLTRIM(temp->idroba)
 	
 	select roba
-	if LEN(cTmpRoba) == 4
-		set order to tag "ID_V4"
-	endif
-	if LEN(cTmpRoba) == 5
-		// asortiman koka
-		set order to tag "ID_V5"
-	endif
-	go top
+	set order to tag "ID_VSD"
 	
+	go top
 	seek cTmpRoba
 	
-	// ako asortiman nije koka a pronasao sam zapis 
-	// provjeri je li to kokina sifra
-	lFound := .f.
-	if LEN(cTmpRoba) == 4 .and. Found()
-		do while .t.
-			if Substr(roba->id, 1, 1) == "K"
-				skip
-			else
-				lFound := .t.
-				exit
-			endif
-		enddo
-	endif
-	
- 	// ako ne nadjes napuni matricu
-	if lFound := .f. 
+	// ako nisi nasao dodaj robu u matricu
+	if !Found() 
 		nRes := ASCAN(aRet, {|aVal| aVal[1] == cTmpRoba})
 		if nRes == 0
 			AADD(aRet, {cTmpRoba})
@@ -846,32 +826,10 @@ do while !EOF()
 	
 	// pronadji robu
 	select roba
+	set order to tag "ID_VSD"
 	cTmpArt := ALLTRIM(temp->idroba)
-	
-	if LEN(cTmpArt) == 4
-		set order to tag "ID_V4"
-	endif
-	
-	if LEN(cTmpArt) == 5
-		set order to tag "ID_V5"
-	endif
-	
 	go top
 	seek cTmpArt
-	
-	// ako asortiman nije koka a pronasao sam zapis 
-	// provjeri je li to kokina sifra
-	if LEN(cTmpArt) == 4 .and. Found()
-		do while .t.
-			if Substr(roba->id, 1, 1) == "K"
-				// pozicioniraj se na sljedeci zapis
-				// to bi trebalo da je ta roba???
-				skip
-			else
-				exit
-			endif
-		enddo
-	endif
 	
 	// dodaj zapis u pripr
 	select pript
@@ -1194,4 +1152,101 @@ KUnos(.t.)
 
 return
 *}
+
+
+/*! \fn FillDobSifra()
+ *  \brief Popunjavanje polja sifradob prema kljucu
+ */
+function FillDobSifra()
+*{
+if !SigmaSif("FILLDOB")
+	MsgBeep("Nemate ovlastenja za ovu opciju!!!")
+	return
+endif
+
+O_ROBA
+
+select roba
+set order to tag "ID"
+go top
+
+cSifra:=""
+nCnt := 0
+aRpt := {}
+aSDob := {}
+
+Box(,5, 60)
+@ 1+m_x, 2+m_y SAY "Vrsim upis sifre dobavaljaca robe:"
+@ 2+m_x, 2+m_y SAY "==================================="
+
+do while !EOF()
+	// ako je prazan zapis preskoci
+	if Empty(field->id)
+		skip
+		loop
+	endif
+
+	cSStr := SUBSTR(field->id, 1, 1)
+	
+	// provjeri karakteristicnost robe
+	if cSStr == "K" .or. cSStr == "P"
+		// roba KOKA LEN 5 sifradob
+		cSifra := SUBSTR(RTRIM(field->id), -5)
+	elseif cSStr == "V"
+		// ostala roba
+		cSifra := SUBSTR(RTRIM(field->id), -4)
+	else
+		skip
+		loop
+	endif
+	
+	// upisi zapis
+	Scatter()
+	_sifradob := cSifra
+	Gather()
+	
+	// potrazi sifru u matrici
+	nRes := ASCAN(aSDob, {|aVal| aVal[1] == cSifra})
+	if nRes == 0
+		AADD(aSDob, {cSifra, field->id})
+	else
+		AADD(aRpt, {cSifra, aSDob[nRes, 2]})
+		AADD(aRpt, {cSifra, field->id})
+	endif
+	
+	++ nCnt
+	
+	@ 3+m_x, 2+m_y SAY "FMK sifra " + ALLTRIM(field->id) + " => sifra dob. " + cSifra
+	@ 5+m_x, 2+m_y SAY " => ukupno " + ALLTRIM(STR(nCnt))
+
+	skip
+	
+enddo
+
+BoxC()
+
+// ako je report matrica > 0 dakle postoje dupli zapisi
+if LEN(aRpt) > 0
+	START PRINT CRET
+	? "KONTROLA DULIH SIFARA VINDIJA_FAKT:"
+	? "==================================="
+	? "Sifra Vindija_FAKT -> Sifra FMK  "
+	? 
+	
+	for i:=1 to LEN(aRpt)
+		? aRpt[i, 1] + " -> " + aRpt[i, 2]
+	next
+	
+	?
+	? "Provjerite navedene sifre..."
+	?
+	
+	FF
+	END PRINT
+endif
+
+
+return
+*}
+
 

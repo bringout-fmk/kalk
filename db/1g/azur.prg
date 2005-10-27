@@ -54,7 +54,7 @@
  *  \brief Azuriranje kalkulacije
  */
 
-function Azur()
+function Azur(lAuto)
 *{
 local cidfirma,cidvd,cbrdok,cOdg:="N", lgAFin:=gAFin, lgAMat:=gAMat
 local cPametno:="D"  // pametno azuriranje
@@ -63,8 +63,12 @@ local lBrStDoks:=.f.
 
 PRIVATE aRezim:={}
 
-if Pitanje("p1","Zelite li izvrsiti azuriranje KALK dokumenta (D/N) ?","N")=="N"
-  return
+if (lAuto == nil)
+	lAuto := .f.
+endif
+
+if !lAuto .and. Pitanje("p1","Zelite li izvrsiti azuriranje KALK dokumenta (D/N) ?","N")=="N"
+	return
 endif
 
 O_PRIPR2
@@ -92,27 +96,26 @@ if cTest<>idfirma+idvd+brdok
     gMetodaNC := " "
   ENDIF
 elseif gCijene=="2"       // ako je samo jedan dokument u pripremi
-  DO WHILE !EOF()         // i strogi rezim rada
-    IF ERROR=="1"
-      Beep(1)
-      Msg("Program je kontrolisuci redom stavke utvrdio da je stavka#"+;
-          "br."+rbr+" sumnjiva! Ukoliko bez obzira na to zelite da izvrsite#"+;
-          "azuriranje ovog dokumenta, na sljedece pitanje odgovorite#"+;
-          "sa 'D'.")
-      IF Pitanje(,"Zelite li dokument azurirati bez obzira na upozorenje? (D/N)","N")=="D"
-        aRezim:={}
-        AADD(aRezim, gCijene )
-        AADD(aRezim, gMetodaNC )
-        gCijene   := "1"
-      ENDIF
-      EXIT
-    ENDIF
-    SKIP 1
-  ENDDO
+	DO WHILE !EOF()         // i strogi rezim rada
+    		IF ERROR=="1"
+      			Beep(1)
+      			Msg("Program je kontrolisuci redom stavke utvrdio da je stavka#"+;
+          		"br."+rbr+" sumnjiva! Ukoliko bez obzira na to zelite da izvrsite#"+;
+          		"azuriranje ovog dokumenta, na sljedece pitanje odgovorite#"+;
+          		"sa 'D'.")
+      			IF Pitanje(,"Zelite li dokument azurirati bez obzira na upozorenje? (D/N)","N")=="D"
+        			aRezim:={}
+        			AADD(aRezim, gCijene )
+        			AADD(aRezim, gMetodaNC )
+        			gCijene   := "1"
+      			ENDIF
+      			EXIT
+    		ENDIF
+    		SKIP 1
+  	ENDDO
 endif
 
 if gCijene=="2"   // provjera integriteta
-
 close all
 O_DOKS
 if fieldpos("ukstavki")<>0
@@ -219,31 +222,34 @@ do while !eof()
 enddo
 
 if gcijene=="2"
- cPametno:="D"
+	cPametno:="D"
 else
- if gMetodaNC==" "
-  cPametno:="N"
- else
-  cPametno:=Pitanje(,"Zelite li formirati zavisne dokumente pri azuriranju","D")
- endif
+ 	if gMetodaNC==" "
+  		cPametno:="N"
+ 	elseif lAuto
+		cPametno:="D"
+	else
+  		cPametno:=Pitanje(,"Zelite li formirati zavisne dokumente pri azuriranju","D")
+ 	endif
 endif
 
-if cpametno=="D"
- Niv_10()  // nivelacija 10,94,16
- Niv_11()  // nivelacija 11,81
- Otprema() // iz otpreme napravi ulaza
- Iz13u11()  // prenos iz prodavnice u prodavnicu
- InvManj()
- lOSitInv:=.f.
- IF IzFMKIni("KALKSI","EvidentirajOtpis","N",KUMPATH)=="D"
-   lOSitInv:=Otpis16SI()
- ENDIF
+if cPametno=="D"
+	Niv_10()  // nivelacija 10,94,16
+ 	Niv_11()  // nivelacija 11,81
+ 	Otprema() // iz otpreme napravi ulaza
+ 	Iz13u11()  // prenos iz prodavnice u prodavnicu
+ 	InvManj()
+ 	lOSitInv:=.f.
+ 	IF IzFMKIni("KALKSI","EvidentirajOtpis","N",KUMPATH)=="D"
+   		lOSitInv:=Otpis16SI()
+ 	ENDIF
 endif
 
 O_DOKS
-if gkalks; O_KALKS; endif
+if gkalks
+	O_KALKS
+endif
 O_KALK
-
 O_PRIPR
 cIdFirma:=""
 aOstaju:={}
@@ -396,10 +402,10 @@ if cPametno=="D"
  RekapK()
  if (gafin=="D" .or. gamat=="D")
    //RekapK()
-   KontNal(.t.)
+   KontNal(.t., lAuto)
  endif
 
- P_Fin()
+ P_Fin(lAuto)
  //P_Mat()
 
  gAFin:=lgAFin

@@ -93,6 +93,7 @@ if Pitanje(,"Obraditi dokumente iz pomocne tabele (D/N)?", "D") == "D"
 	ObradiImport()
 else
 	MsgBeep("Dokumenti nisu obradjeni!#Obrada se moze uraditi i naknadno!")
+	close all
 endif
 
 return

@@ -16,6 +16,8 @@ AADD(opc, "2. import vindija partner               ")
 AADD(opcexe, {|| ImpTxtSif()})
 AADD(opc, "3. popuna polja sifra dobavljaca ")
 AADD(opcexe, {|| FillDobSifra()})
+AADD(opc, "4. nastavak obrade dokumenata ... ")
+AADD(opcexe, {|| RestoreObrada()})
 
 Menu_SC("itx")
 
@@ -63,8 +65,9 @@ if !CheckDok()
 endif
 
 if CheckBrFakt() == 0
-	MsgBeep("Prekidamo operaciju !!!#Dokumenti vec postoje azurirani!")
-	return
+	//MsgBeep("Prekidamo operaciju !!!#Dokumenti vec postoje azurirani!")
+	//return
+	MsgBeep("Obratite paznju na problematicne dokumente !!!")
 endif
 
 if TTbl2Kalk() == 0
@@ -182,6 +185,7 @@ AADD(aDbf,{"cijena", "N", 14, 5})
 AADD(aDbf,{"rabat", "N", 10, 5})
 AADD(aDbf,{"porez", "N", 10, 5})
 AADD(aDbf,{"rabatp", "N", 10, 5})
+AADD(aDbf,{"datval", "D", 8, 0})
 
 return
 *}
@@ -248,6 +252,8 @@ AADD(aRule, {"VAL(SUBSTR(cVar, 88, 14))"})
 AADD(aRule, {"VAL(SUBSTR(cVar, 103, 14))"})
 // procenat rabata
 AADD(aRule, {"VAL(SUBSTR(cVar, 118, 14))"})
+// datum valute
+AADD(aRule, {"CTOD(SUBSTR(cVar, 133, 10))"})
 
 return
 *}
@@ -784,6 +790,7 @@ local cIdKonto2
 
 O_PRIPR
 O_DOKS
+O_DOKS2
 O_ROBA
 O_PRIPT
 
@@ -828,6 +835,23 @@ do while !EOF()
 	go top
 	seek cTmpArt
 	
+	// ovo ne kontam ali eto !!!!
+	if cTDok == "14"
+        	select doks2
+		hseek gFirma + cTDok + cBrojKalk
+        	if !Found()
+           		append blank
+           		replace idvd with "14" // izlazna faktura
+                   	replace brdok with cBrojKalk
+                   	replace idfirma with gfirma
+        	endif
+        	replace DatVal with temp->datval
+        	
+		//IF lVrsteP
+          	//	replace k2 with cIdVrsteP
+        	//ENDIF
+	endif
+
 	// dodaj zapis u pripr
 	select pript
 	append blank
@@ -1077,28 +1101,41 @@ return
 /*! \fn ObradiImport()
  *  \brief Obrada importovanih dokumenata
  */
-function ObradiImport()
+function ObradiImport(nPocniOd)
 *{
 O_PRIPR
 O_PRIPT
 
+if nPocniOd == nil
+	nPocniOd := 0
+endif
+
 lAutom := .f.
 if Pitanje(,"Automatski asistent i azuriranje naloga (D/N)?", "D") == "D"
-	lAutom := .t.
+	lAutom := .t. 
 endif
+
 
 // iz pripr_temp prebaci u pripr jednu po jednu kalkulaciju
 select pript
-go top
 
-nPTRec:=RecNo()
+if nPocniOd == 0
+	go top
+else
+	go nPocniOd
+endif
+
+
+//SetKey(K_F3,{|| SaveObrada(nPTRec)})
 
 Box(,10, 70)
-@ 1+m_x, 2+m_y SAY "Obrada dokumenata iz pomocne tabele:"
+@ 1+m_x, 2+m_y SAY "Obrada dokumenata iz pomocne tabele:" COLOR "I"
 @ 2+m_x, 2+m_y SAY "===================================="
 
 do while !EOF()
-	altd()
+
+	nPTRec:=RecNo()
+	nPCRec:=nPTRec
 	cBrDok := field->brdok
 	cFirma := field->idfirma
 	cIdVd  := field->idvd
@@ -1123,13 +1160,16 @@ do while !EOF()
 		
 		nPTRec := RecNo()
 
+		@ 5+m_x, 13+m_y SAY SPACE(5)
 		@ 5+m_x, 2+m_y SAY "Broj stavki:" + ALLTRIM(STR(nStCnt))
 	enddo
 	
 	// nakon sto smo prebacili dokument u pripremu obraditi ga
 	if lAutom
-		altd()
-		ObradiDokument(cFirma, cIdVd, cBrDok)
+		// snimi zapis u params da znas dokle si dosao
+		SaveObrada(nPCRec)
+		ObradiDokument(cIdVd)
+		SaveObrada(nPTRec)
 		O_PRIPT
 	endif
 	
@@ -1140,19 +1180,85 @@ enddo
 
 BoxC()
 
+// snimi i da je obrada zavrsena
+SaveObrada(0)
+
 MsgBeep("Dokumenti obradjeni!")
 
 return
 *}
 
-
-/*! \fn ObradiDokument(cFirma, cIdVd, cBrDok)
- *  \brief Obrada jednog dokumenta
- *  \param cFirma - id firma
- *  \param cIdVd - id vrsta dokumenta
- *  \param cBrDok - broj dokumenta
+/*! \fn SaveObrada()
+ *  \brief Snima momenat do kojeg je dosao pri obradi dokumenata
  */
-function ObradiDokument(cFirma, cIdVd, cBrDok)
+static function SaveObrada(nPRec)
+*{
+local nArr
+nArr := SELECT()
+
+O_PARAMS
+select params
+
+private cSection:="K"
+private cHistory:=" "
+private aHistory:={}
+
+Wpar("is", nPRec)
+
+select (nArr)
+
+return
+*}
+
+/*! \fn RestoreObrada()
+ *  \brief Pokrece ponovo obradu od momenta do kojeg je stao
+ */
+static function RestoreObrada()
+*{
+O_PARAMS
+select params
+private cSection:="K"
+private cHistory:=" "
+private aHistory:={}
+private nDosaoDo
+Rpar("is", @nDosaoDo)
+
+if nDosaoDo == nil
+	MsgBeep("Nema nista zapisano u parametrima!#Prekidam operaciju!")
+	return 	
+endif
+
+if nDosaoDo == 0
+	MsgBeep("Nema zapisa o prekinutoj obradi!")
+	return
+endif
+
+O_PRIPT
+select pript
+go nDosaoDo
+
+if !EOF()
+	MsgBeep("Nastavljam od dokumenta#" + field->idfirma + "-" + field->idvd + "-" + field->brdok)
+else
+	MsgBeep("Kraj tabele, nema nista za obradu!")
+	return
+endif
+
+if Pitanje(,"Nastaviti sa obradom dokumenata", "D") == "N"
+	MsgBeep("Operacija prekinuta!")
+	return
+endif
+
+ObradiImport(nDosaoDo)
+
+return
+*}
+
+/*! \fn ObradiDokument(cIdVd)
+ *  \brief Obrada jednog dokumenta
+ *  \param cIdVd - id vrsta dokumenta
+ */
+function ObradiDokument(cIdVd)
 *{
 
 // 1. pokreni asistenta
@@ -1168,7 +1274,140 @@ StKalk(nil,nil,.t.)
 Azur(.t.)
 OEdit()
 
+// ako postoje zavisni dokumenti non stop ponavljaj proceduru obrade
+altd()
+private nRslt
+do while (ChkKPripr(cIdVd, @nRslt) <> 0)
+	// vezni dokument u pripremi je ok
+	if nRslt == 1
+		// otvori pripremu
+		KUnos(.t.)
+		StKalk(nil, nil, .t.)
+		Azur(.t.)
+		OEdit()
+	endif
+
+	// vezni dokument ne pripada azuriranom dokumentu 
+	// sta sa njim
+	if nRslt == 2
+		MsgBeep("Dokument u pripremi ne pripada azuriranom#veznom dokumentu!!!")
+		KUnos()
+		OEdit()
+	endif
+enddo
+
 return
+*}
+
+/*! \fn ChkKPripr(cIdVd, nRes)
+ *  \brief Provjeri da li je priprema prazna
+ *  \param cIdVd - id vrsta dokumenta
+ */
+function ChkKPripr(cIdVd, nRes)
+*{
+// provjeri da li je priprema prazna, ako je prazna vrati 0
+select pripr
+go top
+
+if RecCount() == 0
+	// idi dalje...
+	nRes := 0
+	return 0
+endif
+
+// provjeri koji je dokument u pripremi u odnosu na cIdVd
+return nRes:=ChkTipDok(cIdVd)
+
+return 0
+*}
+
+/*! \fn ChkTipDok(cIdVd)
+ *  \brief Provjeri pripremu za tip dokumenta
+ *  \param cIdVd - vrsta dokumenta
+ */
+static function ChkTipDok(cIdVd)
+*{
+
+nNrRec := RecCount()
+nTmp := 0
+cPrviDok := field->idvd
+nPrviDok := VAL(cPrviDok)
+
+do while !EOF()
+	nTmp += VAL(field->idvd)
+	skip
+enddo
+
+nUzorak := nPrviDok * nNrRec
+
+if nUzorak <> nNrRec * nTmp
+	// ako u pripremi ima vise dokumenata vrati 2
+	return 3
+endif
+
+do case
+	case cIdVd == "14"
+		return ChkTD14(cPrviDok)
+	case cIdVd == "41"
+		return ChkTD41(cPrviDok)
+	case cIdVd == "11"
+		return ChkTD11(cPrviDok)
+	case cIdVD == "95"
+		return ChkTD95(cPrviDok)
+endcase
+
+return 0
+*}
+
+
+/*! \fn ChkTD14(cVezniDok)
+ *  \brief Provjeri vezne dokumente za tip dokumenta 14
+ *  \param cVezniDok - dokument iz pripreme
+ *  \result vraca 1 ako je sve ok, ili 2 ako vezni dokument ne odgovara
+ */
+static function ChkTD14(cVezniDok)
+*{
+if cVezniDok $ "18#19#95#16#11"
+	return 1
+endif
+
+return 2
+*}
+
+/*! \fn ChkTD41()
+ *  \brief Provjeri vezne dokumente za tip dokumenta 41
+ */
+static function ChkTD41(cVezniDok)
+*{
+if cVezniDok $ "18#19#95#16#11"
+	return 1
+endif
+
+return 2
+*}
+
+/*! \fn ChkTD11()
+ *  \brief Provjeri vezne dokumente za tip dokumenta 11
+ */
+static function ChkTD11(cVezniDok)
+*{
+if cVezniDok $ "18#19#95#16#11"
+	return 1
+endif
+
+return 2
+*}
+
+/*! \fn ChkTD95()
+ *  \brief Provjeri vezne dokumente za tip dokumenta 95
+ */
+static function ChkTD95(cVezniDok)
+*{
+if cVezniDok $ "18#19#95#16#11"
+	return 1
+endif
+
+return 2
 *}
 
 

@@ -52,6 +52,9 @@ endif
 
 private aDbf:={}
 private aRules:={}
+private aFaktEx
+private lFtSkip := .f.
+
 // setuj polja temp tabele u matricu aDbf
 SetTblDok(@aDbf)
 // setuj pravila upisa podataka u temp tabelu
@@ -64,13 +67,14 @@ if !CheckDok()
 	return
 endif
 
-if CheckBrFakt() == 0
-	//MsgBeep("Prekidamo operaciju !!!#Dokumenti vec postoje azurirani!")
-	//return
-	MsgBeep("Obratite paznju na problematicne dokumente !!!")
+altd()
+if CheckBrFakt(@aFaktEx) == 0
+	if Pitanje(,"Preskociti ove dokumente prilikom importa (D/N)?","D")=="D"
+		lFtSkip := .t.
+	endif
 endif
 
-if TTbl2Kalk() == 0
+if TTbl2Kalk(aFaktEx, lFtSkip) == 0
 	MsgBeep("Operacija prekinuta!")
 	return 
 endif
@@ -477,7 +481,7 @@ return
 /*! \fn CheckBrFakt()
  *  \brief Provjeri da li postoji broj fakture u azuriranim dokumentima
  */
-function CheckBrFakt()
+function CheckBrFakt(aFakt)
 *{
 
 aPomFakt := FaktExist()
@@ -504,9 +508,12 @@ if LEN(aPomFakt) > 0
 	FF
 	END PRINT
 
+	aFakt := aPomFakt
 	return 0
 	
 endif
+
+aFakt := aPomFakt
 
 return 1
 *}
@@ -779,10 +786,12 @@ return aRet
 *}
 
 
-/*! \fn TTbl2Kalk()
- *  \brief kopira podatke iz pomocne tabele u tabelu KALK->PRIPREMA
+/*! \fn TTbl2Kalk(aFExist, lFSkip)
+ *  \brief kopira podatke iz pomocne tabele u tabelu KALK->PRIPT
+ *  \param aFExist matrica sa postojecim fakturama
+ *  \param lFSkip preskaci postojece fakture
  */
-function TTbl2Kalk()
+function TTbl2Kalk(aFExist, lFSkip)
 *{
 local cBrojKalk
 local cTipDok
@@ -812,8 +821,21 @@ do while !EOF()
 	cFakt := ALLTRIM(temp->brdok)
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	cPm := temp->idpm
-
-	altd()
+	
+	// ako je ukljucena opcija preskakanja postojecih faktura
+	if lFSkip
+		// ako postoji ista u matrici
+		if LEN(aFExist) > 0
+			nFExist := ASCAN(aFExist, {|aVal| ALLTRIM(aVal[1]) == cFakt})
+			if nFExist > 0
+				// prekoci onda ovaj zapis i idi dalje
+				select temp
+				skip
+				loop
+			endif
+		endif
+	endif
+	
 	if cFakt <> cPFakt
 		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, ++nUvecaj)
 		nRbr := 0

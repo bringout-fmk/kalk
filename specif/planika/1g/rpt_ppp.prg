@@ -253,11 +253,11 @@ next
 //drugi red
 ? PADC("", NAZIV_PROD_LEN)
 @ PROW(), PCOL()+1 SAY PADC("", LEN(gPicKol))
-@ PROW(), PCOL()+1 SAY PADC("ostale", LEN(gPicDem))
-@ PROW(), PCOL()+1 SAY PADC("djecije", LEN(gPicDem))
+@ PROW(), PCOL()+1 SAY PADC("visa tarifa", LEN(gPicDem))
+@ PROW(), PCOL()+1 SAY PADC("niza tarifa", LEN(gPicDem))
 @ PROW(), PCOL()+1 SAY PADC("svega", LEN(gPicDem))
-@ PROW(), PCOL()+1 SAY PADC("ostale", LEN(gPicDem))
-@ PROW(), PCOL()+1 SAY PADC("djecije", LEN(gPicDem))
+@ PROW(), PCOL()+1 SAY PADC("visa tarifa", LEN(gPicDem))
+@ PROW(), PCOL()+1 SAY PADC("niza tarifa", LEN(gPicDem))
 @ PROW(), PCOL()+1 SAY PADC("svega", LEN(gPicDem))
 
 for i:=1 to LEN(aPolozi)

@@ -935,183 +935,209 @@ else
  O_PRIPR
 endif
 
-select FINMAT; zap
-select PRIPR; set order to 1  // idfirma+brdok+rbr
+select FINMAT
+zap
+select PRIPR
+set order to 1  // idfirma+brdok+rbr
 
 if fprvi
- cIdFirma:=IdFirma;cIdVD:=IdVD;cBrdok:=brdok
- if empty(cidfirma)
-   cIdFirma:=gFirma
- endif
-
- fprvi:=.f.
+	cIdFirma:=IdFirma
+	cIdVD:=IdVD
+	cBrdok:=brdok
+ 	if empty(cidfirma)
+   		cIdFirma:=gFirma
+ 	endif
+	fprvi:=.f.
 endif
 
 if fstara
-
- Box("",1,50)
-  set cursor on
-  @ m_x+1,m_y+2 SAY "Dokument broj:"
-  if gNW $ "DX"
-   @ m_x+1,col()+2  SAY cIdFirma
-  else
-   @ m_x+1,col()+2 GET cIdFirma
-  endif
-  @ m_x+1,col()+1 SAY "-" GET cIdVD
-  @ m_x+1,col()+1 SAY "-" GET cBrDok
-  read; ESC_BCR
- BoxC()
- HSEEK cIdFirma+cIdVD+cBrDok
+	Box("",1,50)
+  	set cursor on
+  	@ m_x+1,m_y+2 SAY "Dokument broj:"
+  	if gNW $ "DX"
+   		@ m_x+1,col()+2  SAY cIdFirma
+  	else
+   		@ m_x+1,col()+2 GET cIdFirma
+  	endif
+  	@ m_x+1,col()+1 SAY "-" GET cIdVD
+  	@ m_x+1,col()+1 SAY "-" GET cBrDok
+  	read
+	ESC_BCR
+ 	BoxC()
+ 	altd()
+	HSEEK cIdFirma+cIdVD+cBrDok
 else
-  go top
-  cIdFirma:=IdFirma;cIdVD:=IdVD;cBrdok:=brdok
+	go top
+  	cIdFirma:=IdFirma
+	cIdVD:=IdVD
+	cBrdok:=brdok
 endif
 
 EOF CRET
 
 if fstara
-  // - info o izabranom dokumentu -
-  Box("#DOKUMENT "+cIdFirma+"-"+cIdVd+"-"+cBrDok,7,77)
-   cDalje:="D"
-   SELECT PARTN; HSEEK PRIPR->IDPARTNER
-   SELECT KONTO; HSEEK PRIPR->MKONTO; cPom:=naz
-   SELECT KONTO; HSEEK PRIPR->PKONTO
-   SELECT PRIPR
-   @ m_x+2, m_y+2 SAY "DATUM------------>"             COLOR "W+/B"
-   @ m_x+2, col()+1 SAY DTOC(DATDOK)                   COLOR "N/W"
-   @ m_x+3, m_y+2 SAY "PARTNER---------->"             COLOR "W+/B"
-   @ m_x+3, col()+1 SAY IDPARTNER+"-"+PARTN->naz       COLOR "N/W"
-   @ m_x+4, m_y+2 SAY "KONTO MAGACINA--->"             COLOR "W+/B"
-   @ m_x+4, col()+1 SAY MKONTO+"-"+PADR(cPom,49)       COLOR "N/W"
-   @ m_x+5, m_y+2 SAY "KONTO PRODAVNICE->"             COLOR "W+/B"
-   @ m_x+5, col()+1 SAY PKONTO+"-"+PADR(KONTO->naz,49) COLOR "N/W"
-   @ m_x+7, m_y+2 SAY "Zelite li kontirati dokument? (D/N)" GET cDalje VALID cDalje$"DN" PICT "@!"
-   READ
-  BoxC()
-  IF LASTKEY()==K_ESC .or. cDalje<>"D"
-    LOOP
-  ENDIF
+	// - info o izabranom dokumentu -
+  	Box("#DOKUMENT "+cIdFirma+"-"+cIdVd+"-"+cBrDok,7,77)
+   	cDalje:="D"
+   	SELECT PARTN
+	HSEEK PRIPR->IDPARTNER
+   	SELECT KONTO
+	HSEEK PRIPR->MKONTO
+	cPom:=naz
+   	SELECT KONTO
+	HSEEK PRIPR->PKONTO
+   	SELECT PRIPR
+   	@ m_x+2, m_y+2 SAY "DATUM------------>"             COLOR "W+/B"
+   	@ m_x+2, col()+1 SAY DTOC(DATDOK)                   COLOR "N/W"
+   	@ m_x+3, m_y+2 SAY "PARTNER---------->"             COLOR "W+/B"
+   	@ m_x+3, col()+1 SAY IDPARTNER+"-"+PARTN->naz       COLOR "N/W"
+   	@ m_x+4, m_y+2 SAY "KONTO MAGACINA--->"             COLOR "W+/B"
+   	@ m_x+4, col()+1 SAY MKONTO+"-"+PADR(cPom,49)       COLOR "N/W"
+   	@ m_x+5, m_y+2 SAY "KONTO PRODAVNICE->"             COLOR "W+/B"
+   	@ m_x+5, col()+1 SAY PKONTO+"-"+PADR(KONTO->naz,49) COLOR "N/W"
+   	@ m_x+7, m_y+2 SAY "Zelite li kontirati dokument? (D/N)" GET cDalje VALID cDalje$"DN" PICT "@!"
+   	READ
+  	BoxC()
+  	IF LASTKEY()==K_ESC .or. cDalje<>"D"
+    		LOOP
+  	ENDIF
 endif
 
 if cidvd=="24"
- START PRINT CRET
+	START PRINT CRET
 endif
 
 nStr:=0
 
- nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=0
- do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
-   cBrDok:=BrDok
-   cIdPartner:=IdPartner; cBrFaktP:=BrFaktP; dDatFaktP:=DatFaktP
-   dDatKurs:=DatKurs; cIdKonto:=IdKonto; cIdKonto2:=IdKonto2
-   if cidvd=="24" .and. (prow()==0 .or. prow()>55)
-     if prow()-gPStranica>55; FF ;endif
-     P_COND
-     ?? "KALK: REKAPITULACIJA NA DAN:",date()
-     @ prow(),125 SAY "Str:"+str(++nStr,3)
-   endif
+nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=0
 
-   if cidvd=="24"
-    ?
-    ? "KALKULACIJA BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,SPACE(2),P_TipDok(cIdVD,-2), SPACE(2),"Datum:",DatDok
-    select PARTN; HSEEK cIdPartner
-   endif
+do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
+	cBrDok:=BrDok
+   	cIdPartner:=IdPartner
+	cBrFaktP:=BrFaktP
+	dDatFaktP:=DatFaktP
+   	dDatKurs:=DatKurs
+	cIdKonto:=IdKonto
+	cIdKonto2:=IdKonto2
+   	
+	
+	if cidvd=="24" .and. (prow()==0 .or. prow()>55)
+     		if prow()-gPStranica>55
+			FF
+		endif
+     		P_COND
+     		?? "KALK: REKAPITULACIJA NA DAN:",date()
+     		@ prow(),125 SAY "Str:"+str(++nStr,3)
+   	endif
 
-   if cIDVD == "24"
-    ?  "KUPAC:",cIdPartner,"-",naz,SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
-   endif
+   	if cidvd=="24"
+    		?
+    		? "KALKULACIJA BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,SPACE(2),P_TipDok(cIdVD,-2), SPACE(2),"Datum:",DatDok
+    		select PARTN
+		HSEEK cIdPartner
+   	endif
 
-   select KONTO; HSEEK cIdKonto
+   	if cIDVD == "24"
+    		?  "KUPAC:",cIdPartner,"-",naz,SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
+   	endif
 
-   HSEEK cIdKonto2
-   select PRIPR
+   	select KONTO
+	HSEEK cIdKonto
 
-   m:=""
-   if cidvd == "24"
-     m:="---- -------------- -------------- -------------- -------------- -------------- ---------- ---------- ---------- ---------- ----------"
-     P_COND2
-     ? m
-     ? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     * POREZ    *  POREZ   *   FV     * PRIHOD  *"
-     ? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ POR  *   %      *          * SA POR   *         *"
-     ? m
-   endif
+   	HSEEK cIdKonto2
+   	select PRIPR
 
-   IF lVoSaTa
-     cIdd:=idpartner+idkonto+idkonto2
-   ELSE
-     cIdd:=idpartner+brfaktp+idkonto+idkonto2
-   ENDIF
-   do whilesc !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
+   	m:=""
+   	if cidvd == "24"
+     		m:="---- -------------- -------------- -------------- -------------- -------------- ---------- ---------- ---------- ---------- ----------"
+     		P_COND2
+     		? m
+     		? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     * POREZ    *  POREZ   *   FV     * PRIHOD  *"
+     		? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ POR  *   %      *          * SA POR   *         *"
+     		? m
+   	endif
 
-     if gmagacin<>"1" .and.;
-        ( !lVoSaTa .and. idpartner+brfaktp+idkonto+idkonto2<>cidd .or.;
-          lVoSaTa .and. idpartner+idkonto+idkonto2<>cidd )
-      set device to screen
-      if ! ( (idvd $ "16#80" )  .and. !empty(idkonto2)  )
-       if !idvd $ "24"
-        Beep(2)
-        Msg("Unutar kalkulacije se pojavilo vise dokumenata !",6)
-       endif
-      endif
-      if cidvd=="24"
-       set device to printer
-      endif
-     endif
+   	IF lVoSaTa
+     		cIdd:=idpartner+idkonto+idkonto2
+   	ELSE
+     		cIdd:=idpartner+brfaktp+idkonto+idkonto2
+   	ENDIF
+   	do whilesc !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
-     // iznosi troskova koji se izracunavaju u KTroskovi()
-     Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
+     		if cIdVd == "97"
+			if field->tbanktr == "X"
+				skip
+				loop
+			endif
+		endif
+			
+		if gmagacin<>"1" .and. ( !lVoSaTa .and. idpartner+brfaktp+idkonto+idkonto2<>cidd .or. lVoSaTa .and. idpartner+idkonto+idkonto2<>cidd )
+      			set device to screen
+      			if ! ( (idvd $ "16#80" )  .and. !empty(idkonto2)  )
+       				if !idvd $ "24"
+        				Beep(2)
+        				Msg("Unutar kalkulacije se pojavilo vise dokumenata !",6)
+       				endif
+      			endif
+      			if cidvd=="24"
+       				set device to printer
+      			endif
+     		endif
 
-        nFV:=FCj*Kolicina
-        if gKalo=="1"
-          SKol:=Kolicina-GKolicina-GKolicin2
-        else
-          SKol:=Kolicina
-        endif
+     		// iznosi troskova koji se izracunavaju u KTroskovi()
+     		Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
 
-        if cidvd=="24" .and. prow()>62
-		FF
-		@ prow(),125 SAY "Str:"+str(++nStr,3)
-	endif
+        	nFV:=FCj*Kolicina
+        	if gKalo=="1"
+          		SKol:=Kolicina-GKolicina-GKolicin2
+        	else
+          		SKol:=Kolicina
+        	endif
 
-        select ROBA; HSEEK PRIPR->IdRoba
-        select TARIFA; HSEEK PRIPR->idtarifa
-        select PRIPR
+        	if cidvd=="24" .and. prow()>62
+			FF
+			@ prow(),125 SAY "Str:"+str(++nStr,3)
+		endif
+
+        	select ROBA; HSEEK PRIPR->IdRoba
+        	select TARIFA; HSEEK PRIPR->idtarifa
+        	select PRIPR
 
 	// if !glPoreziLegacy
 		Tarifa(pkonto,idroba,@aPorezi)
 	// endif
 
-        KTroskovi()
+        	KTroskovi()
 
-        if cidvd=="24"
-         @ prow()+1,0 SAY  Rbr PICTURE "999"
-        endif
+        	if cidvd=="24"
+         		@ prow()+1,0 SAY  Rbr PICTURE "999"
+        	endif
 
-        if cidvd=="24"
-         nCol1:=pcol()+6
-         @ prow(),pcol()+6 SAY n1:=prevoz    pict picdem
-         @ prow(),pcol()+5 SAY n2:=banktr    pict picdem
-         @ prow(),pcol()+5 SAY n3:=spedtr    pict picdem
-         @ prow(),pcol()+5 SAY n4:=cardaz    pict picdem
-         @ prow(),pcol()+5 SAY n5:=zavtr     pict picdem
-         @ prow(),pcol()+1 SAY n6:=fcj       pict picdem
-         @ prow(),pcol()+1 SAY tarifa->vpp   pict picproc
-         @ prow(),pcol()+1 SAY n7:=nc-fcj    pict picdem
-         @ prow(),pcol()+1 SAY n8:=nc        pict picdem
-         @ prow(),pcol()+1 SAY n9:=marza     pict picdem
-         @ prow()+1,nCol1  SAY nA:=mpc       pict picdem
-         @ prow(),pcol()+5 SAY nB:=mpcsapp pict picdem
-         nTot1+=n1; nTot2+=n2; nTot3+=n3; nTot4+=n4
-         nTot5+=n5; nTot6+=n6; nTot7+=n7; nTot8+=n8
-         nTot9+=n9; nTotA+=na; nTotB+=nB
-        endif
+        	if cidvd=="24"
+         		nCol1:=pcol()+6
+         		@ prow(),pcol()+6 SAY n1:=prevoz    pict picdem
+         		@ prow(),pcol()+5 SAY n2:=banktr    pict picdem
+         		@ prow(),pcol()+5 SAY n3:=spedtr    pict picdem
+         		@ prow(),pcol()+5 SAY n4:=cardaz    pict picdem
+         		@ prow(),pcol()+5 SAY n5:=zavtr     pict picdem
+         		@ prow(),pcol()+1 SAY n6:=fcj       pict picdem
+         		@ prow(),pcol()+1 SAY tarifa->vpp   pict picproc
+         		@ prow(),pcol()+1 SAY n7:=nc-fcj    pict picdem
+         		@ prow(),pcol()+1 SAY n8:=nc        pict picdem
+         		@ prow(),pcol()+1 SAY n9:=marza     pict picdem
+         		@ prow()+1,nCol1  SAY nA:=mpc       pict picdem
+         		@ prow(),pcol()+5 SAY nB:=mpcsapp pict picdem
+         		nTot1+=n1; nTot2+=n2; nTot3+=n3; nTot4+=n4
+         		nTot5+=n5; nTot6+=n6; nTot7+=n7; nTot8+=n8
+         		nTot9+=n9; nTotA+=na; nTotB+=nB
+        	endif
 
-        VtPorezi()
+        	VtPorezi()
 	
-	aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
+		aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
 
-        select FINMAT
-        append blank
+        	select FINMAT
+        	append blank
 	
         replace IdFirma   with PRIPR->IdFirma,;
                 IdKonto   with PRIPR->IdKonto,;

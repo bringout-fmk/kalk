@@ -808,7 +808,7 @@ select temp
 go top
 
 nRbr:=0
-nUvecaj:=1
+nUvecaj:=0
 nCnt:=0
 
 cPFakt := "XXXXXX"

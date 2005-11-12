@@ -407,62 +407,73 @@ return DE_CONT
 
 function EditStavka()
 *{
-    if reccount2()==0
-      Msg("Ako zelite zapoceti unos novog dokumenta: <Ctrl-N>")
-      return DE_CONT
-    endif
-    Scatter()
-    if left(_idkonto2,3)="XXX"
-      Beep(2)
-      Msg("Ne mozete ispravljati protustavke")
-      return DE_CONT
-    endif
-    nRbr:=RbrUNum(_Rbr);_ERROR:=""
+if reccount2()==0
+	Msg("Ako zelite zapoceti unos novog dokumenta: <Ctrl-N>")
+      	return DE_CONT
+endif
 
-    Box("ist",20,77,.f.)
-    if EditPRIPR(.f.)==0
-     BoxC()
-     return DE_CONT
-    else
-     BoxC()
-     if _ERROR<>"1"; _ERROR:="0"; endif       // stavka onda postavi ERROR
-     if _idvd=="16"
-      _oldval:=_vpc*_kolicina  // vrijednost prosle stavke
-     else
-      _oldval:=_mpcsapp*_kolicina  // vrijednost prosle stavke
-     endif
-     _oldvaln:=_nc*_kolicina
-     Gather()
-     if _idvd $ "16#80" .and. !empty(_idkonto2)
-              cIdkont:=_idkonto
-              cIdkont2:=_idkonto2
-              Box("",21,77,.f.,"Protustavka")
-              seek _idfirma+_idvd+_brdok+_rbr
-              _Tbanktr:="X"
-              do while !eof() .and. _idfirma+_idvd+_brdok+_rbr==idfirma+idvd+brdok+rbr
-                if left(idkonto2,3)=="XXX"
-                 Scatter()
-                 _TBankTr:=""
-                 exit
-                endif
-                skip
-              enddo
-               _idkonto:=cidkont2
-               _idkonto2:="XXX"
-               if _idvd=="16"
-                Get1_16b()
-               else
-                Get1_80b()
-               endif
-               if _TBanktr=="X"
-                 append ncnl
-               endif
-               if _ERROR<>"1"; _ERROR:="0"; endif       // stavka onda postavi ERROR
-               Gather()
-              BoxC()
-      endif
-     return DE_REFRESH
-    endif
+Scatter()
+
+if left(_idkonto2,3)="XXX"
+	Beep(2)
+      	Msg("Ne mozete ispravljati protustavke")
+     	return DE_CONT
+endif
+
+nRbr:=RbrUNum(_Rbr);_ERROR:=""
+
+Box("ist",20,77,.f.)
+if EditPRIPR(.f.)==0
+	BoxC()
+     	return DE_CONT
+else
+	BoxC()
+     	if _ERROR<>"1"
+		_ERROR:="0"
+	endif       // stavka onda postavi ERROR
+     	if _idvd=="16"
+      		_oldval:=_vpc*_kolicina  // vrijednost prosle stavke
+     	else
+      		_oldval:=_mpcsapp*_kolicina  // vrijednost prosle stavke
+     	endif
+     	_oldvaln:=_nc*_kolicina
+     	Gather()
+     	if _idvd $ "16#80" .and. !empty(_idkonto2)
+        	cIdkont:=_idkonto
+              	cIdkont2:=_idkonto2
+              	_idkonto:=cidkont2
+              	_idkonto2:="XXX"
+              	_kolicina:=-kolicina
+          
+		Box("",21,77,.f.,"Protustavka")
+              		seek _idfirma+_idvd+_brdok+_rbr
+              		_Tbanktr:="X"
+              		do while !eof() .and. _idfirma+_idvd+_brdok+_rbr==idfirma+idvd+brdok+rbr
+                		if left(idkonto2,3)=="XXX"
+                 			Scatter()
+                 			_TBankTr:=""
+                 			exit
+                		endif
+                		skip
+              		enddo
+               		_idkonto:=cidkont2
+               		_idkonto2:="XXX"
+               		if _idvd=="16"
+                		Get1_16b()
+               		else
+                		Get1_80b()
+               		endif
+               		if _TBanktr=="X"
+                 		append ncnl
+               		endif
+               		if _ERROR<>"1"
+				_ERROR:="0"
+			endif       // stavka onda postavi ERROR
+               		Gather()
+              	BoxC()
+      	endif
+     	return DE_REFRESH
+endif
 return DE_CONT
 *}
 
@@ -601,7 +612,11 @@ Box("anal",20,77,.f.,"Ispravka naloga")
           	if _idvd $ "16#80" .and. !empty(_idkonto2)
             		cIdkont:=_idkonto
            		cIdkont2:=_idkonto2
-            		Box("",21,77,.f.,"Protustavka")
+            		_idkonto:=cidkont2
+              		_idkonto2:="XXX"
+              		_kolicina:=-kolicina
+              
+			Box("",21,77,.f.,"Protustavka")
               			seek _idfirma+_idvd+_brdok+_rbr
               			_Tbanktr:="X"
               			do while !eof() .and. _idfirma+_idvd+_brdok+_rbr==idfirma+idvd+brdok+rbr
@@ -836,6 +851,10 @@ AADD(opc, "4. obracun poreza pri uvozu")
 AADD(opcexe, {|| ObracunPorezaUvoz()})
 AADD(opc, "5. pregled smeca")
 AADD(opcexe, {|| Pripr9View()})
+AADD(opc, "6. brisi sve protu-stavke")
+AADD(opcexe, {|| ProtStErase()})
+AADD(opc, "7. setuj sve NC na 0")
+AADD(opcexe, {|| SetNcTo0()})
 
 close all
 private am_x:=m_x,am_y:=m_y
@@ -846,6 +865,53 @@ OEdit()
 return DE_REFRESH
 *}
 
+
+/*! \fn ProtStErase()
+ *  \brief Brisi sve protustavke
+ */
+function ProtStErase()
+*{
+if Pitanje(,"Pobrisati protustavke dokumenta (D/N)?", "N") == "N"
+	return
+endif
+
+O_PRIPR
+select pripr
+go top
+do while !EOF()
+	if "XXX" $ idkonto2
+		delete
+	endif
+	skip
+enddo
+
+go top
+return
+*}
+
+
+/*! \fn SetNcTo0()
+ *  \brief Setuj sve NC na 0
+ */
+function SetNcTo0()
+*{
+if Pitanje(, "Setovati NC na 0 (D/N)?", "N") == "N"
+	return
+endif
+
+O_PRIPR
+select pripr
+go top
+do while !EOF()
+	Scatter()
+	_nc := 0
+	Gather()
+	skip
+enddo
+
+go top
+return
+*}
 
 
 
@@ -1920,7 +1986,7 @@ do while .t.
 					StKalk11_2()
 				endif
 			endif
-		elseif (cidvd $ "14#94#74")
+		elseif (cidvd $ "14#94#74#KO")
 			if (c10Var=="3")
 				Stkalk14_3()
 			else

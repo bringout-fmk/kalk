@@ -224,6 +224,9 @@ endif
 IF lPoNarudzbi
   _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
   _PKonto:=""; _PU_I:=""
+  if _idvd == "KO"
+  	_MU_I:="4" // ne utice na stanje
+  endif
   IF lGenStavke
     pIzgSt:=.t.
     // viçe od jedne stavke
@@ -264,6 +267,9 @@ ENDIF
 
 _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
 _PKonto:=""; _PU_I:=""
+if _idvd == "KO"
+	_MU_I:="4" // ne utice na stanje
+endif
 
 if pIzgSt  .and. _kolicina>0 .and. lastkey()<>K_ESC // izgenerisane stavke postoje
  private nRRec:=recno()

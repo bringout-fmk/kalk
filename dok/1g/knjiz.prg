@@ -986,63 +986,60 @@ private pIzgSt:=.f.   // izgenerisane stavke postoje
 private Getlist:={}
 
 if Get1Header() == 0
-    return K_ESC
+	return K_ESC
 endif
 
 if _idvd=="10"
-
-  if nRbr==1
-   if gVarEv=="2" .or. glEkonomat .or. Pitanje(,"Skracena varijanta (bez troskova) D/N ?","N")=="D"
-     gVarijanta:="1"
-   else
-     gVarijanta:="2"
-   endif
-  endif
-  return if( gVarijanta=="1", Get1_10s(), Get1_10() )
-
+	if nRbr==1
+   		if gVarEv=="2" .or. glEkonomat .or. Pitanje(,"Skracena varijanta (bez troskova) D/N ?","N")=="D"
+     			gVarijanta:="1"
+   		else
+     			gVarijanta:="2"
+   		endif
+  	endif
+  	return if( gVarijanta=="1", Get1_10s(), Get1_10() )
 elseif _idvd=="11"
-   return GET1_11()
+	return GET1_11()
 elseif _idvd=="12"
-   return GET1_12()
+   	return GET1_12()
 elseif _idvd=="13"
-   return GET1_12()
+   	return GET1_12()
 elseif _idvd=="14"  //.or._idvd=="74"
-   return GET1_14()
-
+   	return GET1_14()
+elseif _idvd=="KO"   // vindija KO
+	return GET1_14()
 elseif _idvd=="15"
-   return GET1_15()
-
+	return GET1_15()
 elseif _idvd=="16"
-   return GET1_16()
-   
+   	return GET1_16()
 elseif _idvd=="18"
-   return GET1_18()
+   	return GET1_18()
 elseif _idvd=="19"
-   return GET1_19()
+   	return GET1_19()
 elseif _idvd $ "41#42#43#47#49"
-   return GET1_41()
+   	return GET1_41()
 elseif _idvd == "81"
-   return GET1_81()
+  	return GET1_81()
 elseif _idvd == "80"
-   return GET1_80()
+   	return GET1_80()
 elseif _idvd=="24"
-   return GET1_24()
+   	return GET1_24()
 elseif _idvd $ "95#96#97"
-   return GET1_95()
+   	return GET1_95()
 elseif _idvd $  "94#16"    // storno fakture, storno otpreme, doprema
-   return GET1_94()
+   	return GET1_94()
 elseif _idvd == "82"
-   return GET1_82()
+   	return GET1_82()
 elseif _idvd == "IM"
-   return GET1_IM()
+   	return GET1_IM()
 elseif _idvd == "IP"
-   return GET1_IP()
+   	return GET1_IP()
 elseif _idvd == "RN"
-   return GET1_RN()
+   	return GET1_RN()
 elseif _idvd == "PR"
-   return GET1_PR()
+   	return GET1_PR()
 else
-   return K_ESC
+   	return K_ESC
 endif
 return
 *}

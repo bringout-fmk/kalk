@@ -37,7 +37,8 @@ CrePripTDbf()
 // setuj varijablu putanje exportovanih fajlova
 GetExpPath(@cExpPath)
 
-cFFilt := "R*.R??"
+// daj mi filter za import MP ili VP
+cFFilt := GetImpFilter()
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
 if GetFList(cFFilt, cExpPath, @cImpFile) == 0
@@ -85,6 +86,36 @@ MnuObrDok()
 TxtErase(cImpFile, .t.)
 
 return
+*}
+
+/*! \fn GetImpFilter()
+ *  \brief Vraca filter za naziv dokumenta u zavisnosti sta je odabrano VP ili MP
+ */
+function GetImpFilter()
+*{
+cVPMP := "V"
+// pozovi box za izbor
+Box(,5, 60)
+	@ 1+m_x, 2+m_y SAY "Importovati:"
+	@ 2+m_x, 2+m_y SAY "----------------------------------"
+	@ 3+m_x, 2+m_y SAY "Veleprodaja (V)"
+	@ 4+m_x, 2+m_y SAY "Maloprodaja (M)"
+	@ 5+m_x, 17+m_y SAY "izbor =>" GET cVPMP VALID cVPMP$"MV" .and. !Empty(cVPMP) PICT "@!"
+	read
+BoxC()
+
+// filter za veleprodaju
+cRet := "R*.R??"
+
+// postavi filter za fajlove
+do case
+	case cVPMP == "M"
+		cRet := "M*.M??"
+	case cVPMP == "V"
+		cRet := "R*.R??"
+endcase
+
+return cRet
 *}
 
 
@@ -191,6 +222,7 @@ AADD(aDbf,{"rabat", "N", 10, 5})
 AADD(aDbf,{"porez", "N", 10, 5})
 AADD(aDbf,{"rabatp", "N", 10, 5})
 AADD(aDbf,{"datval", "D", 8, 0})
+AADD(aDbf,{"obrkol", "N", 14, 5})
 
 return
 *}
@@ -259,6 +291,8 @@ AADD(aRule, {"VAL(SUBSTR(cVar, 103, 14))"})
 AADD(aRule, {"VAL(SUBSTR(cVar, 118, 14))"})
 // datum valute
 AADD(aRule, {"CTOD(SUBSTR(cVar, 133, 10))"})
+// obracunska kolicina
+AADD(aRule, {"VAL(SUBSTR(cVar, 144, 16))"})
 
 return
 *}
@@ -693,6 +727,12 @@ do case
 	// radio se u kalku
 	case cFaktTD $ "90#91#92"
 		cRet := "95"
+	
+	// Knjizna obavjest
+	// 70 -> KALK KO
+	case cFaktTD == "70"
+		cRet := "KO"
+		
 endcase
 
 return cRet
@@ -813,7 +853,6 @@ nCnt:=0
 
 cPFakt := "XXXXXX"
 cPPm := "XXX"
-
 aPom := {}
 
 do while !EOF()
@@ -973,6 +1012,9 @@ do case
 		cRet := GetTDKonto(cTipDok, cTip)
 	case cTipDok == "95"
 		cRet := GetTDKonto(cTipDok, cTip)
+	case cTipDok == "KO"
+		cRet := GetTDKonto(cTipDok, cTip)
+
 endcase
 
 return cRet
@@ -1141,6 +1183,7 @@ endif
 
 // iz pripr_temp prebaci u pripr jednu po jednu kalkulaciju
 select pript
+set order to tag "1"
 
 if nPocniOd == 0
 	go top
@@ -1148,6 +1191,17 @@ else
 	go nPocniOd
 endif
 
+// uzmi parametre koje ces dokumente prenositi
+cBBTipDok := SPACE(30)
+Box(,3, 60)
+	@ 1+m_x, 2+m_y SAY "Prenositi sljedece tipove dokumenata:"
+	@ 3+m_x, 2+m_y SAY "Tip dokumenta (prazno-svi):" GET cBBTipDok PICT "@S25"
+	read
+BoxC()
+
+if !Empty(cBBTipDok)
+	cBBTipDok := ALLTRIM(cBBTipDok)
+endif
 
 //SetKey(K_F3,{|| SaveObrada(nPTRec)})
 
@@ -1162,6 +1216,11 @@ do while !EOF()
 	cBrDok := field->brdok
 	cFirma := field->idfirma
 	cIdVd  := field->idvd
+
+	if !Empty(cBBTipDok) .and. !(cIdVd $ cBBTipDok)
+		skip
+		loop
+	endif
 	
 	@ 3+m_x, 2+m_y SAY "Prebacujem: " + cFirma + "-" + cIdVd + "-" + cBrDok
 	
@@ -1258,6 +1317,7 @@ endif
 
 O_PRIPT
 select pript
+set order to tag "1"
 go nDosaoDo
 
 if !EOF()

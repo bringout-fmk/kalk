@@ -207,6 +207,7 @@ if fAuto
 		inkey(0)
 	endif
 else
+	altd()
 	if laFin2
 		@ m_x+1,m_y+2 SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalF
 	endif
@@ -912,7 +913,9 @@ local nCol1:=nCol2:=nCol3:=0
 private aPorezi
 aPorezi:={}
 
-if pcount()==0; fstara:=.f.; endif
+if pcount()==0
+	fstara:=.f.
+endif
 
 lVoSaTa := (gVodiSamoTarife=="D")
 
@@ -925,14 +928,15 @@ O_PARTN
 O_TDOK
 O_ROBA
 O_TARIFA
-if fstara
 
-#ifdef CAX
- select (F_PRIPR); use
-#endif
- O_SKALK   // alias pripr
+if fstara
+	#ifdef CAX
+ 		select (F_PRIPR)
+		use
+	#endif
+ 	O_SKALK   // alias pripr
 else
- O_PRIPR
+ 	O_PRIPR
 endif
 
 select FINMAT
@@ -964,7 +968,7 @@ if fstara
   	read
 	ESC_BCR
  	BoxC()
- 	altd()
+ 	
 	HSEEK cIdFirma+cIdVD+cBrDok
 else
 	go top
@@ -1003,12 +1007,13 @@ if fstara
   	ENDIF
 endif
 
-if cidvd=="24"
+altd()
+
+if cIdVd=="24"
 	START PRINT CRET
 endif
 
 nStr:=0
-
 nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=0
 
 do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
@@ -1019,9 +1024,8 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
    	dDatKurs:=DatKurs
 	cIdKonto:=IdKonto
 	cIdKonto2:=IdKonto2
-   	
 	
-	if cidvd=="24" .and. (prow()==0 .or. prow()>55)
+	if cIdVd=="24" .and. (prow()==0 .or. prow()>55)
      		if prow()-gPStranica>55
 			FF
 		endif
@@ -1030,7 +1034,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
      		@ prow(),125 SAY "Str:"+str(++nStr,3)
    	endif
 
-   	if cidvd=="24"
+   	if cIdVd=="24"
     		?
     		? "KALKULACIJA BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,SPACE(2),P_TipDok(cIdVD,-2), SPACE(2),"Datum:",DatDok
     		select PARTN
@@ -1099,8 +1103,10 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 			@ prow(),125 SAY "Str:"+str(++nStr,3)
 		endif
 
-        	select ROBA; HSEEK PRIPR->IdRoba
-        	select TARIFA; HSEEK PRIPR->idtarifa
+        	select ROBA
+		HSEEK PRIPR->IdRoba
+        	select TARIFA
+		HSEEK PRIPR->idtarifa
         	select PRIPR
 
 	// if !glPoreziLegacy
@@ -1212,10 +1218,15 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
                   replace POREZV with round(TARIFA->VPP/100/(1+tarifa->vpp/100)*iif(nMarza<0,0,nMarza)*Kolicina,gZaokr)
                endif
           endif
+	  
           if  !empty(pripr->mu_i)
-               select tarifa; hseek roba->idtarifa; select finmat
+               select tarifa
+	       hseek roba->idtarifa
+	       select finmat
                replace UPOREZV with  round(pripr->(nMarza*kolicina*TARIFA->VPP/100/(1+TARIFA->VPP/100)),gZaokr)
-               select tarifa; hseek roba->idtarifa; select finmat
+               select tarifa
+	       hseek roba->idtarifa
+	       select finmat
           endif
 
           if gKalo=="2" .and.  pripr->idvd $ "10#81"  // kalo ima vrijednost po NC
@@ -1247,7 +1258,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
          skip
    enddo // brdok
 
-   if cidvd=="24"
+   if cIdVd=="24"
     ? m
    else
      // problemi kompatibilnosti - kija
@@ -1257,11 +1268,15 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
    endif
 
  enddo // idfirma,idvd
- if cidvd=="24" .and. prow()>60; FF; @ prow(),125 SAY "Str:"+str(++nStr,3); endif
+ 
+ if cidvd=="24" .and. prow()>60
+ 	FF
+	@ prow(),125 SAY "Str:"+str(++nStr,3)
+ endif
 
  if cidvd=="24"
-  ?
-  ? m
+   ?
+   ? m
   @ prow()+1,0      SAY  "Ukup."+cIdVD+":"
  endif
 
@@ -1284,12 +1299,12 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
   ? m
  endif
 
-if cidvd=="24"
- ?
+if cIdVd=="24"
+	?
 endif
 
-if cidvd=="24"
- END PRINT
+if cIdVd=="24"
+	END PRINT
 endif
 
 if !fstara
@@ -1299,6 +1314,8 @@ else
 	cidvd:=idvd
 	cBrdok:=brdok
 	close all
+	altd()
+	
 	Kontnal(.f.)
 endif
 

@@ -64,5 +64,6 @@
 #xcommand O_RPT_TMP => select (F_RPT_TMP); usex (PRIVPATH+"rpt_tmp")
 
 #xcommand O_PRIPT => select (F_PRIPT); usex (PRIVPATH+"pript")
+#xcommand O_TEMP => select (F_TEMP); usex (PRIVPATH+"temp")
 
 

@@ -486,6 +486,7 @@ if File(cTmpTbl + ".CDX") .and. FErase(cTmpTbl + ".CDX") == -1
 endif
 
 DbCreate2(cTmpTbl, aDbf)
+create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
 
 return
 *}
@@ -845,6 +846,7 @@ O_ROBA
 O_PRIPT
 
 select temp
+set order to tag "1"
 go top
 
 nRbr:=0
@@ -852,10 +854,13 @@ nUvecaj:=0
 nCnt:=0
 
 cPFakt := "XXXXXX"
+cPTDok := "XX"
 cPPm := "XXX"
 aPom := {}
 
 do while !EOF()
+	
+	altd()
 
 	cFakt := ALLTRIM(temp->brdok)
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
@@ -875,15 +880,21 @@ do while !EOF()
 		endif
 	endif
 	
+	if cTDok <> cPTDok
+		nUvecaj := 0
+	endif
+	
 	if cFakt <> cPFakt
-		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, ++nUvecaj)
+		++ nUvecaj
+		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
 		nRbr := 0
 		AADD(aPom, {cTDok, cBrojKalk})
 	else
 		// ako su diskontna zaduzenja razgranici ih putem polja prodajno mjesto
 		if cTDok == "11"
 			if cPm <> cPPm
-				cBrojKalk := GetNextKalkDoc(gFirma, cTDok, ++nUvecaj)
+				++ nUvecaj
+				cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
 				nRbr := 0
 				AADD(aPom, {cTDok, cBrojKalk})
 			endif
@@ -908,10 +919,6 @@ do while !EOF()
                    	replace idfirma with gfirma
         	endif
         	replace DatVal with temp->datval
-        	
-		//IF lVrsteP
-          	//	replace k2 with cIdVrsteP
-        	//ENDIF
 	endif
 
 	// dodaj zapis u pripr
@@ -959,6 +966,7 @@ do while !EOF()
 	replace mpc with temp->porez
 	
 	cPFakt := cFakt
+	cPTDok := cTDok
 	cPPm := cPm
 	
 	++ nCnt
@@ -969,6 +977,9 @@ enddo
 
 // izvjestaj o prebacenim dokumentima....
 if nCnt > 0
+
+	ASORT(aPom,,,{|x,y| x[1]+"-"+x[2] < y[1]+"-"+y[2]})
+	
 	START PRINT CRET
 	? "========================================"
 	? "Generisani sljedeci dokumenti:          "

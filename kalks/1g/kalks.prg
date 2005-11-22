@@ -28,15 +28,16 @@
 function KalksInit()
 *{
 if gKalks
-O_KALKS
-if reccount()=0
-  select kalks; set order to 0
-  showkorner(0,100)
-  MsgO("Sacekajte ... azuriram KALKS ")
-   AP52 FROM (KUMPATH+"KALK")  WHILE  {|| showkorner(1,100)}
-  MsgC()
-endif
-use
+	O_KALKS
+	if reccount()=0
+  		select kalks
+		set order to 0
+  		showkorner(0,100)
+  		MsgO("Sacekajte ... azuriram KALKS ")
+   		AP52 FROM (KUMPATH+"KALK")  WHILE  {|| showkorner(1,100)}
+  		MsgC()
+	endif
+	use
 endif
 return
 *}

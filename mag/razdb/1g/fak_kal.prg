@@ -491,8 +491,11 @@ return cSufiks
 *}
 
 
-function GetNextKalkDoc(cIdFirma, cIdTipDok)
+function GetNextKalkDoc(cIdFirma, cIdTipDok, nUvecaj)
 *{
+if nUvecaj == nil
+	nUvecaj := 1
+endif
 lIdiDalje:=.f.
 //select kalk
 select doks
@@ -520,7 +523,7 @@ do while .t.
 	
 enddo
 
-cResult:=UBrojDok(VAL(LEFT(cResult,5))+1, 5, RIGHT(cResult,3))
+cResult:=UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, 5, RIGHT(cResult,3))
 
 return cResult
 *}

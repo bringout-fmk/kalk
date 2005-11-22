@@ -277,6 +277,7 @@ aFajlovi:={ PRIVPATH+"_KALK.*",;
             PRIVPATH+"_roba.*",;
             PRIVPATH+"_partn.*",;
             PRIVPATH+"_SIF?.*"}
+altd()
 Zipuj(aFajlovi,cFZaPredaju,cLokPren)
 return
 *}

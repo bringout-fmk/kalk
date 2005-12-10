@@ -64,7 +64,7 @@ O_DOKS
 
 altd()
 
-nUvecaj := 0
+nUvecaj := 1
 for nCnt:=1 to LEN(aProd)
 	// daj broj kalkulacije
 	cBrKalk:=GetNextKalkDok(gFirma, "80", nUvecaj)
@@ -79,7 +79,10 @@ next
 
 BoxC()
 
-// ovdje pozvati ... generisanje dokumenata
+MsgBeep("Zavrseno filovanje pomocne tabele pokrecem obradu!")
+// Automatska obrada dokumenata
+ObradiImport(0)
+
 
 return
 *}
@@ -131,21 +134,20 @@ return
 function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk)
 *{
 local cIdFirma
+local nRbr
+local fPocStanje:=.t.
 
 O_SIFK
 O_SIFV
 O_ROBA
+O_DOKS
+O_KALK
 O_KONTO
 O_PARTN
 O_KONCIJ
 O_PRIPT // pomocna tabela pript
 
 cIdFirma:=gFirma
-
-private fSMark:=.f.
-if right(trim(qqRoba),1)="*"
-	fSMark:=.t.
-endif
 
 select KALK
 set order to tag "4"
@@ -165,13 +167,10 @@ nTMPVU:=0
 nTMPVI:=0
 nTNVU:=0
 nTNVI:=0
+nRbr:=0
 
 do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	cIdRoba:=Idroba
-	if fSMark .and. SkLoNMark("ROBA",cIdroba)
-   		skip
-   		loop
-	endif
 	
 	select roba
 	hseek cIdRoba
@@ -194,10 +193,6 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	endif
 
 	do while !eof() .and. cIdFirma+cPKonto+cIdRoba==idFirma+pkonto+idroba .and. IspitajPrekid()
-		if fSMark .and. SkLoNMark("ROBA",cIdroba)
-     			skip
-     			loop
-  		endif
   		
 		// provjeri datumski
 		if (field->datdok < dDatOd) .or. (field->datdok > dDatDo)
@@ -240,13 +235,38 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	if Round(nMPVU-nMPVI+nPMPV,4)<>0 
   		select pript
   		if round(nUlaz-nIzlaz,4)<>0
-     			append blank
+     			// prva stavka stara tarifa
+			append blank
+			++ nRbr
      			replace idFirma with cIdfirma
 			replace idroba with cIdRoba
-			replace idkonto with cIdKonto
+			replace rbr with RedniBroj(nRbr)
+			replace idkonto with cPKonto
 			replace datdok with dDatDo
-			replace idTarifa with Tarifa(cIdKonto, cIdRoba, @aPorezi)
+			replace idTarifa with Tarifa(cPKonto, cIdRoba, @aPorezi)
 			replace datfaktp with dDatDo
+			// promjeni predznak kolicine
+			replace kolicina with -(nulaz-nizlaz)
+			replace idvd with "80"
+			replace brdok with cBrKalk
+			replace nc with (nNVU-nNVI+nPNV)/(nulaz-nizlaz+nPKol)
+			replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nulaz-nizlaz+nPKol)
+			replace TMarza2 with "A"
+			if koncij->NAZ=="N1"
+             			replace vpc with nc
+     			endif
+
+			// kontra stavka PDV tarifa
+			append blank
+			++nRbr
+     			replace idFirma with cIdfirma
+			replace idroba with cIdRoba
+			replace rbr with RedniBroj(nRbr)
+			replace idkonto with cPKonto
+			replace datdok with dDatDo
+			replace idTarifa with cPrTarifa
+			replace datfaktp with dDatDo
+			// promjeni predznak kolicine
 			replace kolicina with nulaz-nizlaz
 			replace idvd with "80"
 			replace brdok with cBrKalk

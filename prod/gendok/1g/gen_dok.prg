@@ -57,22 +57,12 @@ AADD(opc, "4. vrati na cijene prije posljednje nivelacije")
 AADD(opcexe, {|| VratiZadNiv()})
 AADD(opc, "5. preknjizenje stanja na drugi konto")
 AADD(opcexe, {|| GetPreknj()})
+AADD(opc, "6. generisi poc.stanja na osnovu preknjizenja")
+AADD(opcexe, {|| GetPstPDV()})
 
 private Izbor:=1
 Menu_SC("gdpr")
 
-// do while .t.
-// 	Izbor:=menu("gdpr",opc,Izbor,.f.)
-// 	do case
-// 		case Izbor==0
-// 			EXIT
-// 		otherwise
-// 			if opcexe[izbor]<>NIL
-// 				private xPom:=opcexe[izbor]
-// 				xDummy:=&(xPom)
-// 			endif  
-// 	endcase
-// enddo
 
 return
 *}

@@ -57,7 +57,7 @@ AADD(opc, "4. vrati na cijene prije posljednje nivelacije")
 AADD(opcexe, {|| VratiZadNiv()})
 AADD(opc, "5. preknjizenje stanja na drugi konto")
 AADD(opcexe, {|| GetPreknj()})
-AADD(opc, "6. generisi poc.stanja na osnovu preknjizenja")
+AADD(opc, "6. generisi poc.stanja PPP->PDV17")
 AADD(opcexe, {|| GetPstPDV()})
 
 private Izbor:=1

@@ -55,6 +55,8 @@ AADD(opc, "3. nivelacija prema zadatnom %")
 AADD(opcexe, {|| NivPoProc()})
 AADD(opc, "4. vrati na cijene prije posljednje nivelacije")
 AADD(opcexe, {|| VratiZadNiv()})
+AADD(opc, "5. preknjizenje stanja na drugi konto")
+AADD(opcexe, {|| GetPreknj()})
 
 private Izbor:=1
 Menu_SC("gdpr")

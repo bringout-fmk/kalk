@@ -495,7 +495,7 @@ return
 /*! \fn CrePriprTDbf()
  *  \brief Kreiranje tabele PRIVPATH + PRIPT.DBF
  */
-static function CrePripTDbf()
+function CrePripTDbf()
 *{
 
 FErase(PRIVPATH + "PRIPT.DBF")

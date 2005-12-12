@@ -4,17 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/proizvod/1g/gen_dok.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.3 $
- * $Log: gen_dok.prg,v $
- * Revision 1.3  2002/11/22 10:37:29  mirsad
- * sredjivanje makroa za oblasti - ukidanje starog sistema
- *
- * Revision 1.2  2002/06/21 13:07:28  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -135,7 +124,6 @@ do while .t.
                       kolicina with kalk2->kolicina*sast->kolicina,;
                       idroba with sast->id2,;
                       nc  with ROBA->nc
-              PrenPoNar()
             endif
             select sast
             skip

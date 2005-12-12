@@ -4,26 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/razdb/1g/fak_kal.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: fak_kal.prg,v $
- * Revision 1.6  2003/12/01 14:04:16  sasavranic
- * no message
- *
- * Revision 1.5  2003/11/29 13:49:58  sasavranic
- * Uvedena nova funkcija GetNextKalkDoc() za provjeru sljedeceg broja kalkulacije
- *
- * Revision 1.4  2003/07/06 22:20:23  mirsad
- * prenos fakt12->kalk96 obuhvata i varijantu unosa radnog naloga u fakt12
- *
- * Revision 1.3  2003/03/12 09:20:17  mirsad
- * brojac KALK dokumenata po kontima (koristenje sufiksa iz KONCIJ-a)
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -46,11 +26,11 @@ AADD(opcexe,{|| Prenos() })
 AADD(Opc,"2. fakt->kalk (12->96) otpremnica")
 AADD(opcexe,{||  PrenosOt()  })
 AADD(Opc,"3. fakt->kalk (19->96) izlazi po ostalim osnovama")
-AADD(opcexe,{||          PrenosOt("19") })         
+AADD(opcexe,{||  PrenosOt("19") })         
 AADD(Opc,"4. fakt->kalk (01->10) ulaz od dobavljaca")
-AADD(opcexe,{||          PrenosOt("01_10") })          
+AADD(opcexe,{||  PrenosOt("01_10") })          
 AADD(Opc,"5. fakt->kalk (0x->16) doprema u magacin")
-AADD(opcexe,{||          PrenosOt("0x") })          
+AADD(opcexe,{||  PrenosOt("0x") })          
 private Izbor:=1
 Menu_SC("fkma")
 CLOSERET
@@ -224,11 +204,6 @@ do while .t.
                vpc with xfakt->cijena,;
                rabatv with xfakt->rabat,;
                mpc with xfakt->porez
-       PrenPoNar()
-       //if roba->tip=="V"  // visoka tarifa
-       //        replace vpc  with xfakt->cijena/(1+tarifa->opp/100),;
-       //                mpc  with tarifa->opp
-       //endif
        select xfakt
        skip
      enddo
@@ -333,7 +308,9 @@ do while .t.
   ENDIF
   @ m_x+6,col()+1 SAY "-" GET cBrDok
   read
-  if lastkey()==K_ESC; exit; endif
+  if lastkey()==K_ESC
+    exit
+  endif
 
 
   select xfakt
@@ -423,12 +400,6 @@ do while .t.
 		replace idzaduz2 with xfakt->idRNal
 	endif
 
-       PrenPoNar()
-
-       //if roba->tip=="V"  // visoka tarifa
-       //        replace vpc  with xfakt->cijena/(1+tarifa->opp/100),;
-       //                mpc  with tarifa->opp
-       //endif
        select xfakt
        skip
      enddo

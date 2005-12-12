@@ -5,84 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_llp.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.20 $
- * $Log: rpt_llp.prg,v $
- * Revision 1.20  2004/05/25 14:24:04  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.19  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.18  2004/05/07 14:38:59  sasavranic
- * no message
- *
- * Revision 1.17  2004/05/05 08:16:52  sasavranic
- * Na izvj.LLP dodao uslov za partnera
- *
- * Revision 1.16  2003/12/03 15:39:25  sasavranic
- * Na LLP i LLM uslov po polju pl.vrsta
- *
- * Revision 1.15  2003/11/14 08:45:59  sasavranic
- * Uslov po K9 na llp i pkz (planika)
- *
- * Revision 1.14  2003/10/06 15:00:28  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.13  2003/06/23 09:31:20  sasa
- * prikaz dobavljaca
- *
- * Revision 1.12  2003/05/09 12:23:15  ernad
- * planika pregled kretanja zaliha - prog. promjena
- *
- * Revision 1.11  2003/04/30 13:14:03  sasa
- * Ispravljena greska u uslovu if cSRedCij:
- *
- *    if (lPoNarudzbi .and. cSRedCij...)
- *
- * bilo:
- *
- *   if cSRedCij.....
- *
- * Revision 1.10  2003/03/12 09:24:34  mirsad
- * Tvin: srednja cijena
- *
- * Revision 1.9  2003/01/10 14:14:56  ernad
- *
- *
- * bug - prenos poc stanja za region 2 - prodavnice RS
- *
- * Revision 1.8  2003/01/09 16:29:15  mirsad
- * ispravka bug-a u planici (gen.p.st.prod.)
- *
- * Revision 1.7  2002/08/05 13:33:11  mirsad
- * 1.w.0.9.26, ispravljen bug u generaciji poc.st.prodavnice
- *
- * Revision 1.6  2002/08/05 11:03:58  ernad
- *
- *
- * Fin/SQLLog funkcije, debug bug RJ/KUMPATH
- *
- * Revision 1.5  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.4  2002/06/25 15:08:47  ernad
- *
- *
- * prikaz parovno - Planika
- *
- * Revision 1.3  2002/06/25 12:04:07  ernad
- *
- *
- * ubaceno kreiranje SECUR-a (posto je prebacen u kumpath)
- *
- * Revision 1.2  2002/06/21 12:12:43  mirsad
- * dokumentovanje
- *
- *
  */
  
 *string
@@ -151,7 +73,7 @@ if IsDomZdr()
 	private cKalkTip:=SPACE(1)
 endif
 
-Box(,17+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),68)
+Box(,17+IF(IsTvin(),1,0),68)
 
 cGrupacija:=space(4)
 cPredhStanje:="N"
@@ -209,10 +131,7 @@ do while .t.
  	private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
  	private aUsl3:=Parsiraj(qqIDVD,"idvd")
 	private aUsl4:=Parsiraj(qqIdPartn, "IdPartner")
- 	if lPoNarudzbi
-  		aUslN:=Parsiraj(qqIdNar,"idnar")
- 	endif
- 	if aUsl1<>NIL .and. aUsl2<>NIL .and. aUsl3<>NIL .and.(!lPoNarudzbi.or.aUslN<>NIL)
+ 	if aUsl1<>NIL .and. aUsl2<>NIL .and. aUsl3<>NIL 
    		exit
  	endif
 	if aUsl4<>NIL
@@ -258,9 +177,6 @@ endif
 if aUsl4<>".t."
 	cFilter+=".and."+aUsl4   // partner
 endif
-if lPoNarudzbi .and. aUslN<>".t."
-  	cFilter+=".and."+aUslN
-endif
 // po tipu sredstva
 if IsDomZdr() .and. !Empty(cKalkTip)
 	cFilter+=".and. tip="+Cm2Str(cKalkTip)
@@ -268,19 +184,16 @@ endif
 
 select KALK
 
-if lPoNarudzbi .and. cPKN=="D"
-  	set order to tag "4N"
-else
-  	set order to 4
-endif
+set order to 4
 
 set filter to &cFilter
 //"4","idFirma+Pkonto+idroba+dtos(datdok)+PU_I+IdVD","KALKS")
+
 hseek cIdfirma+cIdkonto
 EOF CRET
 
 nLen:=1
-m:="----- ---------- -------------------- ---"+IF(lPoNarudzbi.and.cPKN=="D"," ------","")+" ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+m:="----- ---------- -------------------- ---"+" ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 if cPredhstanje=="D"
   	m+=" ----------"
 endif
@@ -315,9 +228,6 @@ nRbr:=0
 Eval(bZagl)
 do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 	cIdRoba:=Idroba
-	if lPoNarudzbi .and. cPKN=="D"
-  		cIdNar:=idnar
-	endif
 	if fSMark .and. SkLoNMark("ROBA",cIdroba)
    		skip
    		loop
@@ -374,7 +284,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 		loop
 	endif
 
-	do while !eof() .and. cidfirma+cidkonto+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cidroba==idFirma+pkonto+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba .and. IspitajPrekid()
+	do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba .and. IspitajPrekid()
 		if fSMark .and. SkLoNMark("ROBA",cIdroba)
      			skip
      			loop
@@ -630,11 +540,6 @@ P_COND
 ?? "KALK: LAGER LISTA  PRODAVNICA ZA PERIOD",dDatOd,"-",dDatDo," NA DAN "
 ?? date(), space(12),"Str:",str(++nTStrana,3)
 
-if lPoNarudzbi .and. !EMPTY(qqIdNar)
-	?
-  	? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
-  	?
-endif
 if !fSint .and. !EMPTY(qqIdPartn)
 	? "Obugvaceni sljedeci partneri:", TRIM(qqIdPartn)
 endif
@@ -651,35 +556,30 @@ if IsDomZdr() .and. !Empty(cKalkTip)
 	PrikTipSredstva(cKalkTip)
 endif
 
-if (lPoNarudzbi .and. cSredCij=="D")
-	cSC1:="*Sred.cij.*"
-	cSC2:="*         *"
-else
-	cSC1:=""
-	cSC2:=""
-endif
+cSC1:=""
+cSC2:=""
 
 select kalk
 ? m
 if cPredhStanje=="D"
-	? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+" Predh.st *  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
-  	? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+" Kol/MPV  *                     *          *          *         *          *          *"+cSC2
+	? " R.  * Artikal  *   Naziv            *jmj*"+" Predh.st *  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
+  	? " br. *          *                    *   *"+" Kol/MPV  *                     *          *          *         *          *          *"+cSC2
   	if cPNab=="D"
-  		? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"          *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
+  		? "     *          *                    *   *"+"          *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
   	endif
 else
-	? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
-  	? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *         *          *          *"+cSC2
+	? " R.  * Artikal  *   Naziv            *jmj*  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
+  	? " br. *          *                    *   *                     *          *          *         *          *          *"+cSC2
   	if cPNab=="D"
-  		? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
+  		? "     *          *                    *   *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
   	endif
 endif
 
 if cPredhStanje=="D"
-	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4    *     5    *     6    *  5 - 6   *     7    *     8   *   7 - 8  *     9    *"+cSC2
+	? "     *    1     *        2           * 3 *     4    *     5    *     6    *  5 - 6   *     7    *     8   *   7 - 8  *     9    *"+cSC2
   	? m
 else
-	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4    *     5    *  4 - 5   *     6    *     7   *   6 - 7  *     8    *"+cSC2
+	? "     *    1     *        2           * 3 *     4    *     5    *  4 - 5   *     6    *     7   *   6 - 7  *     8    *"+cSC2
   	? m
 endif
 

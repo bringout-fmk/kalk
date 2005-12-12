@@ -5,25 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_llps.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.5 $
- * $Log: rpt_llps.prg,v $
- * Revision 1.5  2003/07/02 07:36:44  ernad
- * Planika - llp, llps, dodatni uslov za artikal "NAZ $ &*"
- *
- * Revision 1.4  2003/06/06 14:38:10  sasa
- * dodat uslov Prikaz ERR, uvedena varijabla cERR
- *
- * Revision 1.3  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.2  2002/06/21 12:12:35  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -44,10 +25,8 @@ PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
 
 cIdFirma:=gFirma
 qqKonto:=padr("132;",60)
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-   	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_KONTO
 O_PARTN
@@ -125,9 +104,6 @@ AADD(aRptText, {5, "R.", "br."})
 AADD(aRptText, {10, " Artikal"," 1 "})
 AADD(aRptText, {20, " Naziv", " 2 "})
 AADD(aRptText, {3, "jmj", " 3 "})
-if lPoNarudzbi .and. cPKN=="D"
-	AADD(aRptText, {10, " naru-", " cilac "})
-endif
 if cPredhStanje=="D"
 	AADD(aRptText, {10, " Predh.st", " kol/MPV "})
 endif
@@ -138,9 +114,6 @@ AADD(aRptText, {LEN(PicDem), " MPV.Dug", " 6 "})
 AADD(aRptText, {LEN(PicDem), " MPV.Pot", " 7 "})
 AADD(aRptText, {LEN(PicDem), " MPV", " 6-7 "})
 AADD(aRptText, {LEN(PicDem), " MPCSAPP", " 8 "})
-if (lPoNarudzbi .and. cSredCij=="D")
-	AADD(aRptText, {LEN(PicDem), " Sred.cij", " 9 "})
-endif
 
 private cLine:=SetRptLineAndText(aRptText, 0)
 private cText1:=SetRptLineAndText(aRptText, 1, "*")
@@ -384,13 +357,8 @@ endif
 ?? "KALK: SINTETICKA LAGER LISTA PRODAVNICA ZA PERIOD",dDatOd,"-",dDatDo," NA DAN "
 ?? date(), space(12),"Str:",str(++nTStrana,3)
 
-if lPoNarudzbi .and. !EMPTY(qqIdNar)
-	?
-  	? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
-  	?
-endif
 if !fSint .and. !EMPTY(qqIdPartn)
-	? "Obugvaceni sljedeci partneri:", TRIM(qqIdPartn)
+	? "Obuhvaceni sljedeci partneri:", TRIM(qqIdPartn)
 endif
 
 if fsint

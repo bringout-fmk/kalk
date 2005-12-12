@@ -5,32 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/gendok/1g/gen_dok.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: gen_dok.prg,v $
- * Revision 1.8  2004/06/01 10:40:37  sasavranic
- * BugFix, generacija nivelacije za prod. na osnovu polja N2
- *
- * Revision 1.7  2003/08/30 15:42:15  mirsad
- * nova opcija (F10 u pripremi): J.prenos KALK 10->11
- *
- * Revision 1.6  2002/12/27 09:05:46  mirsad
- * ispravka: gen.niv.prod. sada moze i bez asistenta
- *
- * Revision 1.5  2002/12/26 16:08:07  mirsad
- * no message
- *
- * Revision 1.4  2002/12/25 15:12:42  mirsad
- * ispravka: potpuna gen.nivel.prod.
- *
- * Revision 1.3  2002/08/05 13:33:40  mirsad
- * 1.w.0.9.26, ispravljen bug u generaciji poc.st.prodavnice
- *
- * Revision 1.2  2002/06/21 09:24:55  mirsad
- * no message
- *
- *
  */
  
 
@@ -70,9 +44,6 @@ return
 *}
 
 
-
-
-
 /*! \fn GenNivP()
  *  \brief Generisanje 19-ke na osnovu azuriranog dokumenta IP
  */
@@ -81,11 +52,11 @@ function GenNivP()
 *{
 O_KONTO
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 Box(,4,70)
+
 cIdFirma:=gFirma
 cIdVD:="19"
 cOldDok:=space(8)
@@ -163,7 +134,8 @@ enddo // po orderu 4
 
 select kalk; set order to 1; go nTrec
 
- select roba; hseek cidroba
+ select roba
+ hseek cidroba
  select pripr
  scatter()
  append ncnl
@@ -380,10 +352,8 @@ local nSlog:=0,nPom:=0,cStBrDok:=""
 
 O_KONTO
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 Box(,4,60)
@@ -625,9 +595,8 @@ O_KONTO
 O_PRIPR
 O_PRIPR2
 O_KALK
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 select pripr; go top
@@ -978,7 +947,9 @@ function Iz10u11()
   SEEK cIdFirma+cIdVDU+cBrDokU
   DO WHILE !EOF() .and. cIdFirma+cIdVDU+cBrDokU == IDFIRMA+IDVD+BRDOK
     PushWA()
-    SELECT PRIPR; APPEND BLANK; Scatter()
+    SELECT PRIPR
+    APPEND BLANK
+    Scatter()
       _idfirma   := cIdFirma
       _idroba    := KALK->idroba
       _idkonto   := cIdKonto

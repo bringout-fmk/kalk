@@ -4,31 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_81.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: rpt_81.prg,v $
- * Revision 1.8  2003/11/22 09:05:05  sasavranic
- * ispravljen bug pri stampi 81-ce varijanta prenos za TOPS
- *
- * Revision 1.7  2003/11/20 09:24:06  sasavranic
- * no message
- *
- * Revision 1.6  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.5  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.4  2003/09/08 08:41:43  ernad
- * porezi u ugostiteljstvu
- *
- * Revision 1.3  2002/07/19 13:59:27  mirsad
- * lPrikPRUC ubacio kao globalnu varijablu
- *
- * Revision 1.2  2002/06/21 12:12:43  mirsad
- * dokumentovanje
- *
  *
  */
  
@@ -162,10 +137,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),4 SAY  ""; ?? trim(ROBA->naz),"(",ROBA->jmj,")"
-    if gRokTr=="D"; ?? space(4),"Rok Tr.:",RokTr; endif
-    IF lPoNarudzbi
-      IspisPoNar()
-    ENDIF
     @ prow()+1,4 SAY IdRoba
     nCol1:=pcol()+1
     if !fZaTops
@@ -227,7 +198,11 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
   skip
 enddo
 
-if prow()>61+gPStranica; FF; @ prow(),125 SAY "Str:"+str(++nStr,3); endif
+if prow()>61+gPStranica
+	FF
+	@ prow(),125 SAY "Str:"+str(++nStr,3)
+endif
+
 ? m
 @ prow()+1,0        SAY "Ukupno:"
 *************************** magacin *****************************
@@ -282,8 +257,12 @@ nMarza:=nMarza2:=nPRUC:=0
 // iznosi troskova i marzi koji se izracunavaju u KTroskovi()
 
 nStr:=0
-cIdPartner:=IdPartner; cBrFaktP:=BrFaktP; dDatFaktP:=DatFaktP
-dDatKurs:=DatKurs; cIdKonto:=IdKonto; cIdKonto2:=IdKonto2
+cIdPartner:=IdPartner
+cBrFaktP:=BrFaktP
+dDatFaktP:=DatFaktP
+dDatKurs:=DatKurs
+cIdKonto:=IdKonto
+cIdKonto2:=IdKonto2
 
 P_10CPI
 ?? "ULAZ U PRODAVNICU DIREKTNO OD DOBAVLJACA"
@@ -345,7 +324,10 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       	nMarza2:=nMarza2-nPRUC
     ENDIF
 
-    if prow()>62+gPStranica; FF; @ prow(),125 SAY "Str:"+str(++nStr,3); endif
+    if prow()>62+gPStranica
+    	FF
+	@ prow(),125 SAY "Str:"+str(++nStr,3)
+    endif
 
     if gKalo=="1"
         SKol:=Kolicina-GKolicina-GKolicin2
@@ -382,7 +364,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow()+1,4 SAY IdRoba
     nCol1:=pcol()+1
     @ prow(),pcol()+1 SAY FCJ                   PICTURE PicCDEM
-    //@ prow(),pcol()+1 SAY GKolicina             PICTURE PicKol
     @ prow(),pcol()+1 SAY -Rabat                PICTURE PicProc
     @ prow(),pcol()+1 SAY fcj*(1-Rabat/100)     picture piccdem
     @ prow(),pcol()+1 SAY (nPrevoz+nBankTr+nSpedtr+nCarDaz+nZavTr)/FCJ2*100       PICTURE PicProc

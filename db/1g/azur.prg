@@ -4,45 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/db/1g/azur.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.12 $
- * $Log: azur.prg,v $
- * Revision 1.12  2003/11/22 15:25:56  sasavranic
- * planika robno poslovanje, prodnc
- *
- * Revision 1.11  2003/11/11 14:06:34  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.10  2003/11/06 16:07:55  sasavranic
- * no message
- *
- * Revision 1.9  2003/11/06 15:44:50  sasavranic
- * formiranje 11-ke na osnovu 10-ke
- *
- * Revision 1.8  2003/10/04 11:06:59  sasavranic
- * uveden security sistem
- *
- * Revision 1.7  2003/07/24 11:03:55  mirsad
- * omogucio prenos KALK97->FAKT01 pri azuriranju gledajuci konta u RJ.DBF u FAKT-u
- *
- * Revision 1.6  2003/07/21 08:10:12  mirsad
- * varijanta koristenja polja UKSTAVKI u DOKS u koje se upisuje broj stavki dokumenta
- *
- * Revision 1.5  2003/02/28 08:05:33  mirsad
- * varijanta kalk16->fakt za vindiju za prenos i stavke i protustavke
- *
- * Revision 1.4  2002/07/18 08:14:56  mirsad
- * uvedeno koristenje IsJerry() za specificnosti za Jerry Trade
- *
- * Revision 1.3  2002/06/18 14:02:38  mirsad
- * dokumentovanje (priprema za doxy)
- *
- * Revision 1.2  2002/06/17 09:43:43  ernad
- *
- *
- * header
- *
  *
  */
 
@@ -56,8 +17,14 @@
 
 function Azur(lAuto)
 *{
-local cidfirma,cidvd,cbrdok,cOdg:="N", lgAFin:=gAFin, lgAMat:=gAMat
-local cPametno:="D"  // pametno azuriranje
+local cidfirma
+local cidvd
+local cbrdok
+local cOdg:="N"
+local lgAFin:=gAFin
+local lgAMat:=gAMat
+// pametno azuriranje
+local cPametno:="D" 
 local nBrStavki:=0
 local lBrStDoks:=.f.
 
@@ -121,21 +88,23 @@ O_DOKS
 if fieldpos("ukstavki")<>0
 	lBrStDoks:=.t.
 endif
-if !flock(); Msg("Neko vec koristi datoteku DOKS"); closeret; endif
-if gkalks
- O_KALKS; if !flock(); Msg("Neko vec koristi datoteku KALKS"); closeret; endif
+if !flock()
+	Msg("Neko vec koristi datoteku DOKS")
+	closeret
 endif
 O_KALK
-if !flock(); Msg("Neko vec koristi datoteku KALK"); closeret; endif
+if !flock()
+	Msg("Neko vec koristi datoteku KALK")
+	closeret
+endif
 
 O_PRIPR
 
 if ((TPrevoz=="R" .or. TCarDaz=="R" .or. TBankTr=="R" .or. ;
    TSpedTr=="R" .or. TZavTr =="R" ) .and. idvd $ "10#81" )  .or. ;
    idvd $ "RN"
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+   O_SIFK
+   O_SIFV
     O_ROBA
     O_TARIFA
     O_KONCIJ
@@ -146,7 +115,8 @@ endif
     O_PRIPR
 endif
 
-select pripr; go top
+select pripr
+go top
 nBrDoks:=0
 do while !eof()
 
@@ -246,9 +216,6 @@ if cPametno=="D"
 endif
 
 O_DOKS
-if gkalks
-	O_KALKS
-endif
 O_KALK
 O_PRIPR
 cIdFirma:=""
@@ -317,17 +284,20 @@ else
     cNPodbr:=chr(30)
   endif
 endif
-select doks; set order to 1
-altd()
+select doks
+set order to 1
 select KALK
 
 select pripr
 nNV:=nVPV:=nMPV:=nRABAT:=0
 do while !eof()
-  cIdFirma:=idfirma; cBrDok:=brdok; cIdvd:=idvd
+  cIdFirma:=idfirma
+  cBrDok:=brdok
+  cIdvd:=idvd
   PRIVATE nNV:=nVPV:=nMPV:=nRABAT:=0  // za DOKS.DBF
   IF lViseDok .and. ASCAN(aOstaju,cIdFirma+cIdVd+cBrDok)<>0  // preskoci postojece
-    SKIP 1; LOOP
+    SKIP 1
+    LOOP
   ENDIF
   select doks
   append blank
@@ -345,7 +315,11 @@ if Logirati(goModul:oDataBase:cName,"DOK","UNOSDOK")
 	EventLog(nUser,goModul:oDataBase:cName,"DOK","UNOSDOK",nil,nil,nil,nil,"","",cIdFirma+"-"+cIdVd+"-"+cBrDok,pripr->datdok,Date(),"","Azuriranje dokumenta")
 endif
 #ifdef SR
-  O_LOGK; go bottom; Scatter(); _NO:=NO+1; append blank
+  O_LOGK
+  go bottom
+  Scatter()
+  _NO:=NO+1
+  append blank
   _Id:="AZUR";_datum:=pripr->datdok; _datprom:=date()
   _k1:=pripr->brdok; _k2:=pripr->brfaktp; Gather()
   O_LOGKD  // otvori logove kumulativa
@@ -357,8 +331,9 @@ endif
    nBrStavki:=nBrStavki+1
    Scatter()
    _Podbr:=cNPodbr
-   if gKalks; select kalks; append blank; Gather() ; endif  // KALKS
-   select kalk; append blank;  Gather()
+   select kalk
+   append blank
+   Gather()
    if cIdVd=="97"
      append blank
        _TBankTr := "X"
@@ -431,7 +406,9 @@ IF lViseDok .and. LEN(aOstaju)>0
   // izbrisi samo azurirane
   GO TOP
   DO WHILE !EOF()
-    SKIP 1; nRecNo:=RECNO(); SKIP -1
+    SKIP 1
+    nRecNo:=RECNO()
+    SKIP -1
     IF ASCAN(aOstaju,idfirma+idvd+brdok) = 0
       DELETE
     ENDIF
@@ -475,7 +452,8 @@ if cPametno=="D"
    select pripr2; zap
   endif
 
- elseif idvd $ "16"  .and. gGen16=="1" // nakon otpreme doprema
+ elseif idvd $ "16"  .and. gGen16=="1" 
+   // nakon otpreme doprema
 
   if pripr2->(reccount2())<>0
    Beep(1)
@@ -530,7 +508,8 @@ return
 
 function Azur9()
 *{
-local cPametno:="D"  // pametno azuriranje
+ // pametno azuriranje
+local cPametno:="D" 
 
 if Pitanje("p1","Zelite li pripremu prebaciti u smece (D/N) ?","N")=="N"
   return
@@ -584,18 +563,13 @@ if Klevel<>"0"
   closeret
 endif
 
-if gcijene=="2" .and. Pitanje(,"Zadati broj (D) / Povrat po hronologiji obrade (N) ?","D")="N"
+if gCijene=="2" .and. Pitanje(,"Zadati broj (D) / Povrat po hronologiji obrade (N) ?","D")="N"
 	Beep(1)
   	PNajn()
   	closeret
 endif
 
 O_DOKS
-
-if gKalks
-	O_KALKS
-	set order to 1
-endif
 
 O_KALK
 set order to 1
@@ -645,13 +619,6 @@ if cBrDok="."
 
   	if Pitanje(,"Povuci u pripremu kalk sa ovim kriterijom ?","N")=="D"
     		gEraseKum:=Pitanje(,"Izbrisati dokument iz kumulativne tabele ?", "D")=="D"
-		if gKalks
-      			select kalks
-      			if !flock()
-				Msg("KALKS je zauzeta ",3)
-				closeret
-			endif
-    		endif
     		select kalk
     		if !flock()
 			Msg("KALK je zauzeta ",3)
@@ -687,21 +654,6 @@ if cBrDok="."
       				go nRec
 			endif
     		enddo
-    		if gKalks .and. gEraseKum
-       			select kalks
-       			IF !(cFilt1==".t.")
-         			SET FILTER TO &cFilt1
-       			ENDIF
-       			go top
-       			MsgO("Prolaz kroz kumulativnu datoteku KALKS...")
-       			do while !eof()
-         			select kalks
-         			skip; nRec:=recno(); skip -1
-         			dbdelete2()
-         			go nRec
-       			enddo
-       			select kalks
-    		endif
     		select kalk
 		MsgC()
   	endif
@@ -714,13 +666,6 @@ endif
 
 gEraseKum:=Pitanje(,"Izbrisati dokument iz kumulativne tabele ?", "D")=="D"
 
-if gKalks
-	select kalks
- 	if !flock()
-		Msg("KALKS je zauzeta ",3)
-		closeret
-	endif
-endif
 
 select KALK
 if !flock()
@@ -761,24 +706,12 @@ if gEraseKum
 		EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+"-"+idVd+"-"+cBrDok,Date(),Date(),"","KALK - Povrat dokumenta u pripremu")
 	endif
 
-	if gKalks
-		select KALKS
-		seek cidfirma+cidvd+cBrDok
-		do while !eof() .and. cIdFirma==IdFirma .and. cIdVD==IdVD .and. cBrDok==BrDok
-   			select kalks
-   			skip 1; nRec:=recno(); skip -1
-   			dbdelete2()
-   			go nRec
-		enddo
-		if Logirati(goModul:oDataBase:cName,"DOK","POVRATDOK")
-			EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+idvd+cBrDok,"KALKS - Povrat dokumenta u pripremu")
-		endif
-	endif  // gkalks
 endif
 
-select doks; use
-select kalk; use
-if gkalks; select kalks; use; endif
+select doks
+use
+select kalk
+use
 
 MsgC()
 

@@ -5,14 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/frm_kart.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: frm_kart.prg,v $
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -28,9 +20,8 @@
 function AnaKart()
 *{
 O_KONCIJ
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_KALK
 if Pitanje(,"Prodji kroz neobradjene stavke","N")="D"

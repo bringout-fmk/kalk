@@ -5,42 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_kmag.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.10 $
- * $Log: rpt_kmag.prg,v $
- * Revision 1.10  2004/05/25 13:53:16  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.9  2004/05/25 13:27:22  sasavranic
- * Dom Zdravlja SA:
- * evidentiranje tipa sredstva pri pravljenju ulaza,
- * mogucnost prikaza tipa sredstva na izvjestajima
- *
- * Revision 1.8  2004/05/19 12:16:54  sasavranic
- * no message
- *
- * Revision 1.7  2004/05/05 08:16:52  sasavranic
- * Na izvj.LLP dodao uslov za partnera
- *
- * Revision 1.6  2003/11/11 14:06:34  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.5  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.4  2003/06/23 09:31:45  sasa
- * prikaz dobavljaca
- *
- * Revision 1.3  2002/06/20 16:52:06  ernad
- *
- *
- * ciscenje planika, uvedeno fmk/svi/specif.prg
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -74,10 +38,8 @@ private fVeci:=.f.
 
 O_PARTN
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-   	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_KONTO
 
@@ -251,10 +213,10 @@ start print cret
 nLen:=1
 
 IF gVarEv=="2"
-	m:="-------- ----------- ------ "+IF(lPoNarudzbi.and.cPKN=="D","------ ---------- ","")+"------ ---------- ---------- ----------"
+	m:="-------- ----------- ------ ------ ---------- ---------- ----------"
 
 ELSE
-	m:="-------- ----------- ------ "+IF(lPoNarudzbi.and.cPKN=="D","------ ---------- ","")+"------ ---------- ---------- ---------- ---------- ----------"
+	m:="-------- ----------- ------ ------ ---------- ------ ---------- ---------- ---------- ---------- ----------"
  	IF cPVSS=="N".and.koncij->naz="N1"
    		m+=" ---------- ----------"
 	ENDIF
@@ -270,58 +232,6 @@ ELSE
 		m+=" --------"
 	endif
 ENDIF
-
-/*
-aLineArgs := {}
-AADD(aLineArgs, {8," Datum",""})
-AADD(aLineArgs, {11," Dokument",""})
-AADD(aLineArgs, {6," Tar.",""})
-
-if (lPoNarudzbi .and. cPKN == "D")
-	AADD(aLineArgs, {6,"Naru-",""})
-	AADD(aLineArgs, {10,"cilac","Narudzbe"})
-endif
-
-AADD(aLineArgs, {6,"Partn.",""})
-AADD(aLineArgs, {13,"Ulaz",""})
-AADD(aLineArgs, {13,"Izlaz",""})
-AADD(aLineArgs, {13,"Stanje",""})
-
-if gVarEv <> "2"
-	AADD(aLineArgs, {13,"NC","FCJ"})
- 	if cPVSS=="N".and.koncij->naz="N1"
-		AADD(aLineArgs, {13,"NV Dug",""})
-		AADD(aLineArgs, {13,"NV Pot",""})
-	endif
-	AADD(aLineArgs, {13,"NV",""})
-	if koncij->naz <> "N1"
-		AADD(aLineArgs, {13,"RABAT",""})
-		if koncij->naz == "P2"
-			AADD(aLineArgs, {13,"Plan C.",""})
-			if cPVSS == "N"
-				AADD(aLineArgs, {13,"PlVr dug",""})
-				AADD(aLineArgs, {13,"PlVr pot",""})
-			endif
-			AADD(aLineArgs, {13,"Plan Vr",""})
-		else
-			AADD(aLineArgs, {13,"VPC",""})
-			if cPVSS == "N"
-				AADD(aLineArgs, {13,"VPV dug",""})
-				AADD(aLineArgs, {13,"VPV pot",""})
-			endif
-			AADD(aLineArgs, {13,"VPV",""})
-		endif
-		AADD(aLineArgs, {13,"MPCSAPP",""})
-	endif
-	if gRokTr=="D"
-		AADD(aLineArgs, {8,"Rok Tr."})
-	endif
-
-endif
-m := SetRptLineAndText(aLineArgs, 0)
-private cZText1 := SetRptLineAndText(aLineArgs, 1, "*")
-private cZText2 := SetRptLineAndText(aLineArgs, 2, "*")
-*/
 
 private nTStrana:=0
 
@@ -674,12 +584,6 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
       ENDIF
     endif // cpredh
 
-    //nNV-=nc*(kolicina)
-    //if koncij->naz=="P2"
-    //  nVPV-=roba->plc*(kolicina)
-    //else
-    //  nVPV-=vpc*(kolicina)
-    //endif
     nRabat+=vpc*rabatv/100*kolicina
     if datdok>=ddatod
       IF gVarEv=="1"
@@ -716,7 +620,6 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 
 
   endif
-  if gRokTr=="D"; @ prow(),pcol()+1 SAY RokTr; endif
   skip    // kalk
 enddo   // cIdRoba
 ? m

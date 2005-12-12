@@ -15,21 +15,8 @@
 
 
 
-/*! \fn RekTarife()
- *  \brief Nova funkcija RekTarife - koristi proracun poreza iz roba/tarife.prg
- * prosljedjuje se cidfirma,cidvd,cbrdok
- */
-function RekTarife()
-if IsPDV()
-	RekTarPDV()
-else
-	RekTarPPP()
-endif
-return
-
-
-// PDV obracun
-function RekTarPDV()
+// porez na promet proizvoda
+function RekTarPPP()
 *{
 local aPKonta
 local nIznPRuc
@@ -39,7 +26,6 @@ IF prow()>55+gPStranica
 	FF
 	@ prow(),123 SAY "Str:"+str(++nStr,3)
 endif
-
 nRec:=recno()
 select pripr
 set order to 2
@@ -65,7 +51,7 @@ for i:=1 to nCntKonto
     			loop
   		endif
 
-  		cIdtarifa:=idTarifa
+  		cIdtarifa:=idtarifa
   		// mpv
 		nU1:=0
 		// ppp
@@ -93,7 +79,9 @@ for i:=1 to nCntKonto
 			Tarifa(pripr->pkonto, pripr->idRoba, @aPorezi, cIdTarifa)
 			select pripr
 		
-			nMpc:=DokMpc(field->idvd, aPorezi)
+    			VtPorezi()
+
+			nMpc:=DokMpc(field->idvd,aPorezi)
 			if field->idvd=="19"
     				// nova cijena
     				nMpcSaPP1:=field->mpcSaPP+field->fcj
@@ -127,12 +115,19 @@ for i:=1 to nCntKonto
 		nTot4+=nU4
 		nTot5+=nU5
   
+		//nTot6+=(mpc-nc)*nKolicina
 		? cIdTarifa
   
 		@ prow(),pcol()+1   SAY aPorezi[POR_PPP] pict picproc
+		@ prow(),pcol()+1   SAY PrPPUMP() pict picproc
+		@ prow(),pcol()+1   SAY aPorezi[POR_PP] pict picproc
   
 		nCol1:=pcol()+1
 		@ prow(),pcol()+1   SAY nU1 pict picdem
+		@ prow(),pcol()+1   SAY nU2 pict picdem
+		@ prow(),pcol()+1   SAY nU3 pict picdem
+		@ prow(),pcol()+1   SAY nU4 pict picdem
+		@ prow(),pcol()+1   SAY nU5 pict picdem
 	enddo
 
 	if prow()>56+gPStranica
@@ -144,6 +139,9 @@ for i:=1 to nCntKonto
 	? "UKUPNO "+aPKonta[i]
 	@ prow(),nCol1      SAY nTot1 pict picdem
 	@ prow(),pcol()+1   SAY nTot2 pict picdem
+	@ prow(),pcol()+1   SAY nTot3 pict picdem
+	@ prow(),pcol()+1   SAY nTot4 pict picdem
+	@ prow(),pcol()+1   SAY nTot5 pict picdem
 	? m
 next
 
@@ -151,52 +149,4 @@ set order to 1
 go nRec
 return
 *}
-
-/*! \fn PKontoCnt(cSeek)
- *  \brief Kreira niz prodavnickih konta koji se nalaze u zadanom dokumentu
- *  \param cSeek - firma + tip dok + broj dok
- */
-
-function PKontoCnt(cSeek)
-*{
-local nPos, aPKonta
-aPKonta:={}
-// baza: PRIPR, order: 2
-seek cSeek
-do while !eof() .and. (IdFirma+Idvd+BrDok)=cSeek
-  nPos:= ASCAN(aPKonta, PKonto)
-  if nPos<1
-    AADD(aPKonta, PKonto)
-  endif
-  skip
-enddo
-
-return aPKonta
-*}
-
-
-function DokKolicina(cIdVd)
-*{
-local nKol
-if cIdVd=="IP"
-	nKol:=field->gkolicin2
-else
-	nKol:=field->kolicina
-endif
-return nKol
-*}
-
-
-
-function DokMpc(cIdVd,aPorezi)
-*{
-local nMpc
-if cIdVd=="IP"
-	nMpc:=MpcBezPor(field->mpcSaPP,aPorezi,,field->nc)
-else
-	nMpc:=field->mpc
-endif
-return nMpc
-*}
-
 

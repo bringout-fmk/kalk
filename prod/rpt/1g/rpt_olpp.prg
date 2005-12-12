@@ -5,23 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_olpp.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.5 $
- * $Log: rpt_olpp.prg,v $
- * Revision 1.5  2003/12/22 14:58:26  sasavranic
- * Dodata rekapitulacija tarifa na OLPP
- *
- * Revision 1.4  2003/11/11 14:06:35  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.3  2002/12/30 01:30:24  mirsad
- * ispravke bugova-Planika
- *
- * Revision 1.2  2002/06/21 12:12:29  mirsad
- * dokumentovanje
- *
- *
  */
  
 

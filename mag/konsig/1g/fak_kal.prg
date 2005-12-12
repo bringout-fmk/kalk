@@ -5,14 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/konsig/1g/fak_kal.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: fak_kal.prg,v $
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -181,8 +173,6 @@ do while .t.
                rabatv    WITH xfakt->rabat
 
        REPLACE vpc       WITH KoncijVPC()
-
-       PrenPoNar()
 
        select xfakt
        skip 1

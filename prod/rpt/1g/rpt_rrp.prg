@@ -5,34 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_rrp.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.9 $
- * $Log: rpt_rrp.prg,v $
- * Revision 1.9  2004/05/05 08:16:52  sasavranic
- * Na izvj.LLP dodao uslov za partnera
- *
- * Revision 1.8  2004/01/07 13:43:27  sasavranic
- * Korekcija algoritama za tarife, ako je bilo promjene tarifa
- *
- * Revision 1.7  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.6  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.5  2003/09/08 08:41:43  ernad
- * porezi u ugostiteljstvu
- *
- * Revision 1.4  2003/02/10 02:19:55  mirsad
- * no message
- *
- * Revision 1.3  2002/07/22 14:16:07  mirsad
- * dodao proracun poreza u ugostiteljstvu (varijante "M" i "J")
- *
- * Revision 1.2  2002/06/21 12:12:18  mirsad
- * dokumentovanje
- *
  *
  */
  
@@ -61,7 +33,8 @@ local i:=0
 
 private aPorezi
 
-lVoSaTa := ( IzFMKIni("KALK","VodiSamoTarife","N",PRIVPATH)=="D" )
+
+lVoSaTa := ( IzFMKIni("KALK","VodiSamoTarife","N", PRIVPATH)=="D" )
 
 dDat1:=dDat2:=ctod("")
 cVDok:="99"
@@ -204,15 +177,6 @@ DO WHILE !EOF() .and. IspitajPrekid()
      	select kalk
      	VtPorezi()
 
-//    	if !glPoreziLegacy 
-     		cIdTarifa:=Tarifa(pkonto, idRoba, @aPorezi, cIdTarifa)
-//	else
-     
-//     		nOPP:=TARIFA->OPP
-//		nPPP:=TARIFA->PPP
-//     		nZPP:=tarifa->zpp
-//     	endif
-     	
 	nMPV:=0
      	nNv:=0
      	nPopust:=0
@@ -399,6 +363,7 @@ IF !lVoSaTa
   ?
   FF
 ELSE
+
   SELECT POM
   GO TOP
   DO WHILE !EOF() .and. IspitajPrekid()

@@ -5,14 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/db/1g/adm_kalk.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: adm_kalk.prg,v $
- * Revision 1.2  2002/06/19 13:57:53  mirsad
- * no message
- *
- *
  */
  
 
@@ -54,8 +46,10 @@ private nRbr:=0
 select kalk
 cBr95:=sljedeci(gfirma,"95")
 
-select koncij; seek trim(cMagac)
-select kalk; set order to 3
+select koncij
+seek trim(cMagac)
+select kalk
+set order to 3
 HSEEK gFirma+cMagac
 
 do while !eof() .and. idfirma+mkonto=gFirma+cMagac

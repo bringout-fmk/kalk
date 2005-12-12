@@ -5,14 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/proizvod/1g/fak_kal.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: fak_kal.prg,v $
- * Revision 1.2  2002/06/21 13:07:28  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -144,7 +136,6 @@ do while .t.
                        vpc with xfakt->cijena,;
                        rabatv with xfakt->rabat,;
                        mpc with xfakt->porez
-              PrenPoNar()
             endif
             select sast
             skip
@@ -265,7 +256,6 @@ do while .t.
                      rabatv with xfakt->rabat,;
                      kolicina with xfakt->kolicina,;
                      mpc with xfakt->porez
-            PrenPoNar()
           endif
 
        endif // roba->tip == "P"

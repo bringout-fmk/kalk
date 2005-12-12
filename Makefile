@@ -2,7 +2,6 @@
 all: 
 	make -C adm/1g
 	make -C barkod/1g
-	make -C kalks/1g
 	make -C mag/db/1g
 	make -C mag/rpt/1g
 	make -C mag/rpt/2g

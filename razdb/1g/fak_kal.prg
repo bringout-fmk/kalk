@@ -121,15 +121,4 @@ return lVrati
 
 
 
-/*! \fn PrenPoNar()
- *  \brief Za evidenciju po narudzbama, ovdje prenosimo i te podatke
- */
-
-function PrenPoNar()
-*{
-  IF lPoNarudzbi .and. FIELDPOS("IDNAR")<>0
-    REPLACE idnar WITH XFAKT->idnar, brojnar WITH XFAKT->brojnar
-  ENDIF
-return
-*}
 

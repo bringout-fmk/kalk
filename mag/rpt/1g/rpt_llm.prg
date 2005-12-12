@@ -5,59 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_llm.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.15 $
- * $Log: rpt_llm.prg,v $
- * Revision 1.15  2004/05/25 13:53:17  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.14  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.13  2004/05/05 08:16:52  sasavranic
- * Na izvj.LLP dodao uslov za partnera
- *
- * Revision 1.12  2004/02/12 15:37:29  sasavranic
- * no message
- *
- * Revision 1.11  2003/12/03 15:39:25  sasavranic
- * Na LLP i LLM uslov po polju pl.vrsta
- *
- * Revision 1.10  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.9  2003/06/23 09:31:45  sasa
- * prikaz dobavljaca
- *
- * Revision 1.8  2003/03/12 09:22:31  mirsad
- * Tvin: srednja cijena
- *
- * Revision 1.7  2003/01/03 15:52:33  sasa
- * ispravka pocetnog stanja
- *
- * Revision 1.6  2003/01/03 11:06:21  sasa
- * Ispravka greske sa pocetnim stanjem gSezona->goModul:oDataBase:cSezona
- *
- * Revision 1.5  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.4  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.3  2002/06/25 15:08:46  ernad
- *
- *
- * prikaz parovno - Planika
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -84,7 +31,7 @@ local nKolicina
 
 cIdFirma:=gFirma
 cPrikazDob:="N"
-cIdKonto:=padr("1310",gDuzKonto)
+cIdKonto:=padr("1310", gDuzKonto)
 
 private nVPVU:=0
 private nVPVI:=0
@@ -782,12 +729,6 @@ if fPocStanje
  endif
 endif
 
-#ifdef CAX
- if gKalks
- 	select kalk
-	use
- endif
-#endif
 closeret
 return
 *}

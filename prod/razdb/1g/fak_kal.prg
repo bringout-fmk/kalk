@@ -5,26 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/razdb/1g/fak_kal.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.5 $
- * $Log: fak_kal.prg,v $
- * Revision 1.5  2002/10/17 14:37:31  mirsad
- * nova opcija prenosa dokumenata: FAKT11->KALK42
- * dorada za Vindiju (sa rabatom u MP)
- *
- * Revision 1.4  2002/10/02 12:20:22  sasa
- * Uvodjenje nove opcije kreiranja zbirne 41-ce na osnovu vise 11-ki (Vindija)
- *
- * Revision 1.3  2002/06/26 12:13:49  ernad
- *
- *
- * debug potencijalni bug - pri prenosu 13->11, za Planika se sada uvijek pojavi prodavnicki konto.
- *
- * Revision 1.2  2002/06/21 12:11:49  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -212,8 +192,6 @@ do while .t.
          replace idkonto with cidkonto
        endif
 
-       PrenPoNar()
-
        select xfakt
        skip
      enddo
@@ -363,8 +341,6 @@ Box(,15,60)
        					APPEND BLANK
        					replace idfirma with cIdFirma,rbr with str(++nRbr,3),idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa,	brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cidkonto, idzaduz with cidzaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena,	tmarza2 with "%"
 
-       					PrenPoNar()
-
        					select xfakt
       					skip
      				enddo
@@ -418,7 +394,6 @@ Box(,15,60)
        			
 					replace idfirma with cIdFirma, rbr with str(++nRbr,3), idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa, brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cIdKonto, idzaduz with cIdZaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena, tmarza2 with "%"
 
-					PrenPoNar()
 
        					select xfakt
       					skip
@@ -571,8 +546,6 @@ do while .t.
                fcj with xfakt->cijena/(1+tarifa->opp/100)/(1+tarifa->ppp/100),;
                tmarza2 with "%"
 
-       PrenPoNar()
-
        select xfakt
        skip
      enddo
@@ -723,8 +696,6 @@ do while .t.
                tprevoz with "A",;
                mpcsapp with xfakt->cijena
 
-       PrenPoNar()
-
        APPEND BLANK // protustavka
        replace idfirma with cIdFirma,;
                rbr     with str(nRbr,3),;
@@ -747,7 +718,6 @@ do while .t.
                tprevoz with "A",;
                mpcsapp with xfakt->cijena
 
-       PrenPoNar()
 
        select xfakt
        skip
@@ -937,12 +907,6 @@ do while .t.
                idpartner with cIdPartner      ,;
                mpcsapp   with xfakt->cijena
 
-       PrenPoNar()
-
-       //if roba->tip=="V"  // visoka tarifa
-       //        replace vpc  with xfakt->cijena/(1+tarifa->opp/100),;
-       //                mpc  with tarifa->opp
-       //endif
        select xfakt
        skip
      enddo
@@ -1092,8 +1056,6 @@ Box(,15,60)
        					APPEND BLANK
        					replace idfirma with cIdFirma,rbr with str(++nRbr,3),idvd with "42", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa,	brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cidkonto, idzaduz with cidzaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena,	tmarza2 with "%"
 					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
-       					PrenPoNar()
-
        					select xfakt
       					skip
      				enddo
@@ -1147,8 +1109,6 @@ Box(,15,60)
        			
 					replace idfirma with cIdFirma, rbr with str(++nRbr,3), idvd with "42", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa, brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cIdKonto, idzaduz with cIdZaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena, tmarza2 with "%"
 					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
-					PrenPoNar()
-
        					select xfakt
       					skip
 					loop

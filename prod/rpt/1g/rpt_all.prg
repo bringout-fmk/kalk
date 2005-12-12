@@ -44,9 +44,14 @@ nRec:=recno()
 select pripr
 set order to 2
 seek cIdFirma+cIdVd+cBrDok
-m:="------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+m:="------ ----------"
+for i:=1 to 3
+ m += " ----------" 
+next
+
 ? m
-?  "* Tar.*  PPP%    *   PPU%   *    PP%   *    MPV   *    PPP   *   PPU    *    PP    * MPVSAPP *"
+?  "* Tar.*  PDV%    *    MPV   *    PDV   *   MPV   *"
+?  "*     *  PDV%    *  bez PDV *   iznos  *  sa PDV *"
 ? m
 
 aPKonta:=PKontoCnt(cIdFirma+cIdvd+cBrDok)
@@ -68,14 +73,12 @@ for i:=1 to nCntKonto
   		cIdtarifa:=idTarifa
   		// mpv
 		nU1:=0
-		// ppp
+		
+		// pdv
 		nU2:=0
-		// ppu
-		nU3:=0
-		// pp
-		nU4:=0
+		
 		// mpv sa porezom
-		nU5:=0
+		nU3:=0
 		
 	  	select tarifa
 		hseek cIdtarifa
@@ -96,27 +99,23 @@ for i:=1 to nCntKonto
 			nMpc:=DokMpc(field->idvd, aPorezi)
 			if field->idvd=="19"
     				// nova cijena
-    				nMpcSaPP1:=field->mpcSaPP+field->fcj
-    				nMpc1:=MpcBezPor(nMpcSaPP1,aPorezi,,field->nc)
-    				aIPor1:=RacPorezeMP(aPorezi,nMpc1,nMpcSaPP1,field->nc)
+    				nMpcsaPdv1:=field->mpcSaPP+field->fcj
+    				nMpc1:=MpcBezPor(nMpcsaPdv1,aPorezi,,field->nc)
+    				aIPor1:=RacPorezeMP(aPorezi,nMpc1,nMpcsaPdv1,field->nc)
     
     				// stara cijena
-    				nMpcSaPP2:=field->fcj
-    				nMpc2:=MpcBezPor(nMpcSaPP2,aPorezi,,field->nc)
-    				aIPor2:=RacPorezeMP(aPorezi,nMpc2,nMpcSaPP2,field->nc)
+    				nMpcsaPdv2:=field->fcj
+    				nMpc2:=MpcBezPor(nMpcsaPdv2,aPorezi,,field->nc)
+    				aIPor2:=RacPorezeMP(aPorezi,nMpc2,nMpcsaPdv2,field->nc)
 				aIPor:={0,0,0}
 				aIPor[1]:=aIPor1[1]-aIPor2[1]
-				aIPor[2]:=aIPor1[2]-aIPor2[2]
-				aIPor[3]:=aIPor1[3]-aIPor2[3]
 			else
 				aIPor:=RacPorezeMP(aPorezi,nMpc,field->mpcSaPP,field->nc)
 			endif
 			nKolicina:=DokKolicina(field->idvd)
 			nU1+=nMpc*nKolicina
 			nU2+=aIPor[1]*nKolicina
-			nU3+=aIPor[2]*nKolicina
-			nU4+=aIPor[3]*nKolicina
-    			nU5+=field->mpcSaPP*nKolicina
+    			nU3+=field->mpcSaPP*nKolicina
 			// ukupna bruto marza
 			nTot6+=(nMpc-pripr->nc)*nKolicina
     			skip 1
@@ -124,8 +123,6 @@ for i:=1 to nCntKonto
 		nTot1+=nU1
 		nTot2+=nU2
 		nTot3+=nU3
-		nTot4+=nU4
-		nTot5+=nU5
   
 		? cIdTarifa
   
@@ -133,6 +130,8 @@ for i:=1 to nCntKonto
   
 		nCol1:=pcol()+1
 		@ prow(),pcol()+1   SAY nU1 pict picdem
+		@ prow(),pcol()+1   SAY nU2 pict picdem
+		@ prow(),pcol()+1   SAY nU3 pict picdem
 	enddo
 
 	if prow()>56+gPStranica
@@ -144,6 +143,7 @@ for i:=1 to nCntKonto
 	? "UKUPNO "+aPKonta[i]
 	@ prow(),nCol1      SAY nTot1 pict picdem
 	@ prow(),pcol()+1   SAY nTot2 pict picdem
+	@ prow(),pcol()+1   SAY nTot3 pict picdem
 	? m
 next
 

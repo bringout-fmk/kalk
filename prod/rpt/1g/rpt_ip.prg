@@ -5,29 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_ip.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.7 $
- * $Log: rpt_ip.prg,v $
- * Revision 1.7  2003/11/11 14:06:34  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.6  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.5  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.4  2003/03/17 07:58:08  mirsad
- * dorada za Biletiæa: obrazac sank liste na osnovu dokumenta IP
- *
- * Revision 1.3  2003/02/03 00:28:17  mirsad
- * Jerry - dorada
- *
- * Revision 1.2  2002/06/21 12:12:43  mirsad
- * dokumentovanje
- *
- *
  */
  
 

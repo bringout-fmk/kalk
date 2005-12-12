@@ -92,12 +92,12 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     KTroskovi()
 
-    select ROBA; HSEEK PRIPR->IdRoba
-    select TARIFA; HSEEK PRIPR->IdTarifa
+    select ROBA
+    HSEEK PRIPR->IdRoba
+    select TARIFA
+    HSEEK PRIPR->IdTarifa
 
     select PRIPR
-    
-    altd()	
     
     Tarifa(field->pkonto,field->idRoba,@aPorezi)
     aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)

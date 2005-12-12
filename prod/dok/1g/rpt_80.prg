@@ -5,28 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/rpt_80.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: rpt_80.prg,v $
- * Revision 1.6  2004/01/07 13:43:27  sasavranic
- * Korekcija algoritama za tarife, ako je bilo promjene tarifa
- *
- * Revision 1.5  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.4  2002/07/19 13:57:23  mirsad
- * lPrikPRUC ubacio kao globalnu varijablu
- *
- * Revision 1.3  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.2  2002/06/21 07:49:36  mirsad
- * no message
- *
- *
  */
  
 
@@ -47,7 +25,7 @@ local nCol1:=nCol2:=0,npom:=0
 Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
 // iznosi troskova i marzi koji se izracunavaju u KTroskovi()
 
-if fbeznc==NIL
+if fbezNc==NIL
  fBezNC:=.f.
 endif
 
@@ -62,27 +40,46 @@ P_10CPI
 P_COND
 ? "KALK. DOKUMENT BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,SPACE(2),P_TipDok(cIdVD,-2), SPACE(2),"Datum:",DatDok
 @ prow(),125 SAY "Str:"+str(++nStr,3)
-select PARTN; HSEEK cIdPartner
+select PARTN
+HSEEK cIdPartner
 
 ?  "DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
 
-select KONTO; HSEEK cIdKonto
+select KONTO
+HSEEK cIdKonto
+
 ?  "KONTO zaduzuje :",cIdKonto,"-",naz
 
 
- m:="--- -------------------------------------------- ----------"+iif(fBezNC,""," ---------- ----------")+" ---------- ----------"
+m:="--- -------------------------------------------- ----------"+;
+   iif(fBezNC,""," ---------- ----------")+;
+   " ---------- ----------"
 
- IF lPrikPRUC
-   m += " ----------"
-   ? m
-   ? "*R * ROBA                                       * KOLICINA *"+iif(fBezNC,"","  NAB.CJ  * MARZA.   * POREZ NA *")+"   MPC    * MPCSaPP *"
-   ? "*BR* TARIFA                                     *          *"+iif(fBezNC,"","          *          *   MARZU  *")+"          *         *"
- ELSE
-   ? m
-   ? "*R * ROBA                                       * KOLICINA *"+iif(fBezNC,"","  NAB.CJ  * MARZA.   *")+"   MPC    * MPCSaPP *"
-   ? "*BR* TARIFA                                     *          *"+iif(fBezNC,"","          *          *")+"          *         *"
- ENDIF
- ? m
+
+? m
+
+if !IsPdv()
+   // 1. red
+   ? "*R.* Roba                                       * kolicina *"+;
+   iif(fBezNC, "", "  Nab.cj  * marza    *")+;
+   "   MPC    *  MPC    *"
+   // 2.red
+   ? "*br* Tarifa                                     *          *"+;
+   iif(fBezNC,"","          *          *")+;
+   "          * sa PPP  *"
+else
+   // 1. red
+   ? "*R.* Roba                                       * kolicina *"+;
+   iif(fBezNC, "", "  Nab.cj  * marza    *")+;
+   "   MPC    *  MPC    *"
+   // 2.red
+   ? "*br* Tarifa                                     *          *"+;
+   iif(fBezNC,"","          *          *")+;
+   "  bez PDV * sa PDV  *"
+
+endif
+
+? m
 
 select pripr
 nRec:=recno()
@@ -135,10 +132,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     Tarifa(field->pkonto,field->idroba,@aPorezi)
     aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
 
-    IF lPrikPRUC
-    	nPRUC:=aIPor[2]
-    	nMarza2:=nMarza2-nPRUC
-    ENDIF
 
     DokNovaStrana(125, @nStr, 2)
 
@@ -150,9 +143,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     nTot8+= (nU8:=NC *    (Kolicina-Gkolicina-GKolicin2) )
     nTot9+= (nU9:=nMarza2* (Kolicina-Gkolicina-GKolicin2) )
-    IF lPrikPRUC
-      nTot9a+= (nU9a:=nPRUC* (Kolicina-Gkolicina-GKolicin2) )
-    ENDIF
     nTotA+= (nUA:=MPC   * (Kolicina-Gkolicina-GKolicin2) )
     nTotB+= (nUB:=MPCSAPP* (Kolicina-Gkolicina-GKolicin2) )
 
@@ -172,9 +162,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       else
         @ prow(),pcol()+1 SAY 0        PICTURE PicProc
       endif
-      IF lPrikPRUC
-        @ prow(),pcol()+1 SAY TARIFA->mpp        PICTURE PicProc
-      ENDIF
     endif
     @ prow(),pcol()+1 SAY MPC                   PICTURE PicCDEM
     @ prow(),pcol()+1 SAY MPCSaPP               PICTURE PicCDEM
@@ -183,9 +170,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     IF !fBezNC
       @ prow(),nCol1     SAY nU8         picture         PICDEM
       @ prow(),pcol()+1  SAY nU9         picture         PICDEM
-      IF lPrikPRUC
-        @ prow(),pcol()+1 SAY nU9a                PICTURE PicCDEM
-      ENDIF
       @ prow(),pcol()+1  SAY nUA         picture         PICDEM
       @ prow(),pcol()+1  SAY nUB         picture         PICDEM
     ELSE
@@ -207,9 +191,6 @@ enddo
    IF !fBezNC
      @ prow(),nCol1     SAY nTot8         picture         PICDEM
      @ prow(),pcol()+1  SAY nTot9         picture         PICDEM
-     IF lPrikPRUC
-       @ prow(),pcol()+1  SAY nTot9a        picture         PICDEM
-     ENDIF
      @ prow(),pcol()+1  SAY nTotA         picture         PICDEM
      @ prow(),pcol()+1  SAY nTotB         picture         PICDEM
    ELSE
@@ -230,9 +211,6 @@ DokNovaStrana(125, @nStr, 3)
 @ prow()+1,0        SAY "Ukupno:"
   @ prow(),nCol1     SAY unTot8         picture         PICDEM
   @ prow(),pcol()+1  SAY unTot9         picture         PICDEM
-  IF lPrikPRUC
-    @ prow(),pcol()+1  SAY unTot9a        picture         PICDEM
-  ENDIF
   @ prow(),pcol()+1  SAY unTotA         picture         PICDEM
   @ prow(),pcol()+1  SAY unTotB         picture         PICDEM
 

@@ -59,6 +59,8 @@ AADD(opc, "5. preknjizenje stanja na drugi konto")
 AADD(opcexe, {|| GetPreknj()})
 AADD(opc, "6. generisi poc.stanja PPP->PDV17")
 AADD(opcexe, {|| GetPstPDV()})
+AADD(opc, "7. set roba tarifa PPP->PDV17")
+AADD(opcexe, {|| roba_pdv17()})
 
 private Izbor:=1
 Menu_SC("gdpr")

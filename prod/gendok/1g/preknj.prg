@@ -26,11 +26,15 @@ Box(,5, 65)
 	@ 3+m_x, 2+m_y SAY "Datum od" GET dDateOd 
 	@ 3+m_x, col()+m_y SAY "datum do" GET dDateDo 
 	@ 4+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
-	@ 5+m_x, 2+m_y SAY "Preknjizenje na tarifu:" GET cPTarifa VALID !Empty(cPTarifa) .or. P_Tarifa(@cPTarifa)
+	@ 5+m_x, 2+m_y SAY "Preknjizenje na tarifu:" GET cPTarifa VALID P_Tarifa(@cPTarifa)
 	read
 BoxC()
 // prekini operaciju
 if LastKey()==K_ESC
+	return
+endif
+
+if Pitanje(,"Izvrsiti preknjizenje (D/N)?","D")=="N"
 	return
 endif
 
@@ -118,6 +122,10 @@ if LastKey()==K_ESC
 	return
 endif
 
+if Pitanje(,"Izvrsiti prenos poc.st. (D/N)?","D")=="N"
+	return
+endif
+
 aProd:={}
 if Empty(ALLTRIM(cProdKto))
 	// napuni matricu sa prodavnckim kontima
@@ -200,6 +208,30 @@ do while !EOF()
 	skip
 enddo
 
+return
+*}
+
+
+function roba_pdv17()
+*{
+if !IsPDV()
+	MsgBeep("Opcija raspoloziva samo za PDV rezim!")
+	return
+endif
+
+MsgO("Setujem tarifa PDV17...")
+O_ROBA
+SET ORDER TO 0
+go TOP
+do while !eof()
+   if IsPDV() 
+   	// prelazak na PDV 01.01.2006
+	replace IDTARIFA with "PDV17"
+   endif
+   
+   SKIP
+enddo
+MsgC()
 return
 *}
 

@@ -362,9 +362,13 @@ return .t.
  *  \note koriste se lokalne varijable
  */
 
-function VMpcSaPP_lv(fRealizacija, fMarza, aPorezi)
+function VMpcSaPP_lv(fRealizacija, fMarza, aPorezi, lShowGets)
 *{
 local nPom
+
+if lShowGets == nil
+	lShowGets := .t.
+endif
 
 if fRealizacija==NIL
   fRealizacija:=.f.
@@ -387,8 +391,9 @@ if _mpcsapp<>0 .and. empty(fMarza)
   else  
     Marza2()
   endif
-  ShowGets()
-
+  if lShowGets
+  	ShowGets()
+  endif
   if fRealizacija
      DuplRoba()
   endif

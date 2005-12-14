@@ -1177,10 +1177,14 @@ return
 /*! \fn ObradiImport()
  *  \brief Obrada importovanih dokumenata
  */
-function ObradiImport(nPocniOd)
+function ObradiImport(nPocniOd, lAsPokreni)
 *{
 O_PRIPR
 O_PRIPT
+
+if lAsPokreni == nil
+	lAsPokreni := .t.
+endif
 
 if nPocniOd == nil
 	nPocniOd := 0
@@ -1261,7 +1265,7 @@ do while !EOF()
 	if lAutom
 		// snimi zapis u params da znas dokle si dosao
 		SaveObrada(nPCRec)
-		ObradiDokument(cIdVd)
+		ObradiDokument(cIdVd, lAsPokreni)
 		SaveObrada(nPTRec)
 		O_PRIPT
 	endif
@@ -1352,7 +1356,7 @@ return
  *  \brief Obrada jednog dokumenta
  *  \param cIdVd - id vrsta dokumenta
  */
-function ObradiDokument(cIdVd)
+function ObradiDokument(cIdVd, lAsPokreni)
 *{
 
 // 1. pokreni asistenta
@@ -1360,8 +1364,20 @@ function ObradiDokument(cIdVd)
 // 3. azuriraj FIN
 
 private lAsistRadi:=.f.
-// pozovi asistenta
-KUnos(.t.)
+
+altd()
+
+if lAsPokreni == nil
+	lAsPokreni := .t.
+endif
+
+if lAsPokreni
+	// pozovi asistenta
+	KUnos(.t.)
+else
+	OEdit()
+endif
+
 // odstampaj kalk
 StKalk(nil,nil,.t.)
 // azuriraj kalk
@@ -1374,8 +1390,12 @@ private nRslt
 do while (ChkKPripr(cIdVd, @nRslt) <> 0)
 	// vezni dokument u pripremi je ok
 	if nRslt == 1
-		// otvori pripremu
-		KUnos(.t.)
+		if lAsPokreni
+			// otvori pripremu
+			KUnos(.t.)
+		else
+			OEdit()
+		endif
 		StKalk(nil, nil, .t.)
 		Azur(.t.)
 		OEdit()

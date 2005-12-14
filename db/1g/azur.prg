@@ -258,6 +258,8 @@ endif
 // AZURIRAJ PRIPREMU !!
 Tone(360,2)
 
+MsgO("Azuriram pripremu ...")
+
 select pripr; go top
 
 select doks; set order to 3
@@ -369,6 +371,8 @@ endif
 
   select pripr
 enddo
+
+MsgC()
 
 select KALK
 

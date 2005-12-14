@@ -80,7 +80,8 @@ BoxC()
 
 MsgBeep("Zavrseno filovanje pomocne tabele pokrecem obradu!")
 // Automatska obrada dokumenata
-ObradiImport(0)
+// 0 - kreni od 0, .f. - ne pokreci asistenta
+ObradiImport(0, .f.)
 
 
 return
@@ -168,7 +169,7 @@ BoxC()
 
 MsgBeep("Zavrseno filovanje pomocne tabele pokrecem obradu!")
 // Automatska obrada dokumenata
-ObradiImport(0)
+ObradiImport(0, .f.)
 
 
 return
@@ -259,6 +260,7 @@ else
 endif
 O_KONTO
 O_KONCIJ
+O_TARIFA
 O_PRIPT // pomocna tabela pript
 
 cIdFirma:=gFirma
@@ -319,7 +321,7 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 		skip
 		loop
 	endif
-
+		
 	do while !eof() .and. cIdFirma+cPKonto+cIdRoba==idFirma+pkonto+idroba .and. IspitajPrekid()
   		
 		// provjeri datumski
@@ -372,20 +374,32 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				replace idroba with cIdRoba
 				replace rbr with RedniBroj(nRbr)
 				replace idkonto with cPKonto
+				replace pkonto with cPKonto
 				replace datdok with dDatDo
+				replace pu_i with "1"
+				replace error with "0"
 				replace idTarifa with Tarifa(cPKonto, cIdRoba, @aPorezi)
 				replace datfaktp with dDatDo
+				replace datkurs with dDatDo
 				// promjeni predznak kolicine
 				replace kolicina with -(nUlaz-nIzlaz)
 				replace idvd with "80"
 				replace brdok with cBrKalk
 				replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
 				replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+				replace vpc with nc
 				replace TMarza2 with "A"
-				if koncij->NAZ=="N1"
-             				replace vpc with nc
-     				endif
+				// setuj marzu i mpc
+				Scatter()
+				if WMpc_lv(nil, nil, aPorezi)
+					VMpc_lv(nil, nil, aPorezi)
+					VMpcSaPP_lv(nil, nil, aPorezi, .f.)
+				endif
+				Gather()
 			endif
+			
+			// resetuj poreze
+			aPorezi := {}	
 			
 			// kontra stavka PDV tarifa
 			append blank
@@ -399,16 +413,16 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			replace idroba with cIdRoba
 			replace rbr with RedniBroj(nRbr)
 			replace idkonto with cPKonto
+			replace pkonto with cPKonto
+			replace pu_i with "1"
+			replace error with "0"
 			if lPst
 				replace datdok with dDatPst
 			else
 				replace datdok with dDatDo
 			endif
-			if lPst
-				replace idTarifa with "PDV17 "
-			else
-				replace idTarifa with cPrTarifa
-			endif
+			replace datkurs with dDatDo
+			replace idTarifa with Tarifa(cPKonto, cIdRoba, @aPorezi, cPrTarifa)
 			if lPst
 				replace datfaktp with dDatPst
 			else
@@ -419,10 +433,16 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			replace brdok with cBrKalk
 			replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
 			replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+			replace vpc with nc
 			replace TMarza2 with "A"
-			if koncij->NAZ=="N1"
-             			replace vpc with nc
-     			endif
+			// setuj marzu i MPC
+			Scatter()
+			if WMpc_lv(nil, nil, aPorezi)
+				VMpc_lv(nil, nil, aPorezi)
+				VMpcSaPP_lv(nil, nil, aPorezi, .f.)
+			endif
+			Gather()
+
 		endif
   		if lPst
 			select kalksez

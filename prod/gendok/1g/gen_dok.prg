@@ -45,7 +45,7 @@ endif
 
 AADD(opc, "9. generacija nivelacije za sve prodavnice")
 AADD(opcexe, {|| get_nivel_p()})
-AADD(opc, "10. azuriranje i obrada nivelacije ")
+AADD(opc, "10. azuriranje nivelacije za sve prodavnice")
 AADD(opcexe, {|| obr_nivel_p()})
 
 private Izbor:=1

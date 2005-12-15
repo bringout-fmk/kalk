@@ -21,7 +21,8 @@ function GenProd()
 *{
 private Opc:={}
 private opcexe:={}
-AADD(opc,"1. pocetno stanje                                ")
+
+AADD(opc, "1. pocetno stanje                                ")
 AADD(opcexe, {|| PocStProd()})
 AADD(opc, "2. dokument inventure")
 AADD(opcexe, {|| IP()})
@@ -29,12 +30,23 @@ AADD(opc, "3. nivelacija prema zadatnom %")
 AADD(opcexe, {|| NivPoProc()})
 AADD(opc, "4. vrati na cijene prije posljednje nivelacije")
 AADD(opcexe, {|| VratiZadNiv()})
-AADD(opc, "5. preknjizenje stanja na drugi konto")
+AADD(opc, "5. ------------------------------------")
+AADD(opcexe, {|| nil})
+if IsPDV()
+	AADD(opc, "6. generisi poc.stanja PPP->PDV17")
+	AADD(opcexe, {|| GetPstPDV()})
+endif
+AADD(opc, "7. preknjizenje stanja na drugi konto")
 AADD(opcexe, {|| GetPreknj()})
-AADD(opc, "6. generisi poc.stanja PPP->PDV17")
-AADD(opcexe, {|| GetPstPDV()})
-AADD(opc, "7. set roba tarifa PPP->PDV17")
-AADD(opcexe, {|| roba_pdv17()})
+if IsPDV()
+	AADD(opc, "8. set roba tarifa PPP->PDV17")
+	AADD(opcexe, {|| roba_pdv17()})
+endif
+
+AADD(opc, "9. generacija nivelacije za sve prodavnice")
+AADD(opcexe, {|| get_nivel_p()})
+AADD(opc, "10. azuriranje i obrada nivelacije ")
+AADD(opcexe, {|| obr_nivel_p()})
 
 private Izbor:=1
 Menu_SC("gdpr")
@@ -42,6 +54,7 @@ Menu_SC("gdpr")
 
 return
 *}
+
 
 
 /*! \fn GenNivP()

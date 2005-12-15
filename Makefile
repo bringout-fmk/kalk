@@ -43,7 +43,6 @@ all:
 clean:	
 	cd adm/1g; make clean
 	cd barkod/1g; make clean
-	cd kalks/1g; make clean
 	cd mag/db/1g; make clean
 	cd mag/rpt/1g; make clean
 	cd mag/rpt/2g; make clean

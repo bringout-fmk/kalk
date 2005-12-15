@@ -81,8 +81,10 @@ local cIdRoba
 local nNivCijena
 local nStCijena
 
+O_PRIPT
 O_KALK
 O_ROBA
+O_KONTO
 O_KONCIJ
 O_TARIFA
 
@@ -94,7 +96,7 @@ select koncij
 seek TRIM(cPKonto)
 
 select roba
-set order to tag "1"
+set order to tag "ID"
 
 do while !eof()
 
@@ -161,7 +163,7 @@ do while !eof()
 	_pkonto := cPKonto
 	_pu_i := "3"
  	_idroba := cIdRoba
-	_idtarifa := Tarifa(cPKonto, cIdRoba, @aPorezi)
+	_idtarifa := Tarifa(cPKonto, cIdRoba, @aPorezi, roba->idtarifa)
  	_idvd := "19"
 	_brdok := cBrKalk
  	_tmarza2 := "A"

@@ -262,7 +262,7 @@ O_TARIFA
 if IsPDV()
 	cPorez := "PDV"	
 else
-	cPorez := "por"
+	cPorez := "PP"
 endif
 
 select pript
@@ -276,7 +276,7 @@ START PRINT CRET
 
 P_COND
 
-cLine := REPLICATE("-", 85)
+cLine := REPLICATE("-", 86)
 
 ? cLine
 
@@ -284,7 +284,7 @@ cLine := REPLICATE("-", 85)
 PADR("Naziv", 15), ;
 PADR("S.MPC sa " + cPorez,14), ;
 PADR("Razl.MPC",14), ;
-PADR("Razl.MPC sa " + cPorez,14), ;
+PADR("Raz.MPC sa " + cPorez,14), ;
 PADR("N.MPC sa " + cPorez,14) 
 ? cLine
 

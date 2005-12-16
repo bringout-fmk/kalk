@@ -60,21 +60,21 @@ B_OFF
 P_COND
 ? "KALK BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,", Datum:",DatDok
 @ prow(),125 SAY "Str:"+str(++nStr,3)
-select PARTN; HSEEK cIdPartner             // izbaciti?  19.5.00
-select KONTO; HSEEK cidkonto               // dodano     19.5.00
+select PARTN
+HSEEK cIdPartner             // izbaciti?  19.5.00
+select KONTO
+HSEEK cidkonto               // dodano     19.5.00
 
 ?  "KONTO zaduzuje :",cIdKonto,"-",naz
 
 select PRIPR
 
 if (cIdVD=="19")
- m:= "--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
- ? m
- ? "*R * ROBA     * Kolicina *  STARA   * RAZLIKA  * PPP   %  *IZN. PPP  * UK. PPP  * RAZLIKA  *  NOVA   *"
- ? "*BR*          *          *MPC SA PP *   MPC    * PPU   %  *IZN. PPU  * UK. PPU  * MPC SA PP*MPC SA PP*"
- ? "*  *          *          *    ä     *    ä     *          *    ä     *    ä     *    ä     *    ä    *"
- ? m
- nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=0
+	m:= "--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+ 	? m
+	header19()
+	? m
+ 	nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=0
 endif
 
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
@@ -151,6 +151,21 @@ PrnClanoviKomisije()
 return
 *}
 
+
+function header19()
+*{
+if IsPDV()
+	? "*R * ROBA     * Kolicina *  STARA   * RAZLIKA  * PDV   %  *IZN. PDV  * UK. PDV  * RAZLIKA  *  NOVA   *"
+	? "*BR*          *          *MPC SA PDV*   MPC    *          *          *          *MPC SA PDV*MPC SA PDV*"
+	? "*  *          *          *    ä     *    ä     *          *    ä     *    ä     *    ä     *    ä    *"
+else
+	? "*R * ROBA     * Kolicina *  STARA   * RAZLIKA  * PPP   %  *IZN. PPP  * UK. PPP  * RAZLIKA  *  NOVA   *"
+	? "*BR*          *          *MPC SA PP *   MPC    * PPU   %  *IZN. PPU  * UK. PPU  * MPC SA PP*MPC SA PP*"
+	? "*  *          *          *    ä     *    ä     *          *    ä     *    ä     *    ä     *    ä    *"
+endif
+
+return
+*}
 
 
 /*! \fn Obraz19()

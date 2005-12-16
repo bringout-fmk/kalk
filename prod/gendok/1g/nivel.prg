@@ -97,7 +97,8 @@ seek TRIM(cPKonto)
 
 select roba
 set order to tag "ID"
-
+go top
+altd()
 do while !eof()
 
 	// provjeri polje ROBA->ZANIVEL
@@ -156,8 +157,10 @@ do while !eof()
 
 	// upisi u pript
 	select pript
- 	scatter()
- 	append ncnl
+ 	//scatter()
+ 	//append ncnl
+	append blank
+	Scatter()
  	_idfirma := cIdFirma
 	_idkonto := cPKonto
 	_pkonto := cPKonto
@@ -179,7 +182,8 @@ do while !eof()
 	
 	_error := "0"
 	
-	Gather2()
+	//Gather2()
+	Gather()
 
 	select roba
 	skip
@@ -235,9 +239,31 @@ return
 
 function st_res_niv_p(cVar)
 *{
+local cIdFirma
+local cIdVd
+local cBrDok
+local cIdRoba
+local cRobaNaz
+local nSMpcP // stara mpc sa por.
+local nNMpcP // nova mpc sa por.
+local nRMpcP // razlika mpc sa por.
+local nRMpcBP // razlika mpc bez.por.
+local nUSMpcP // ukupno stara mpc sa por.
+local nUNMpcP // ukupno nova mpc sa por.
+local nURMpcP // ukupno razlika mpc sa por.
+local nURMpcBP // ukupno razlika mpc bez. por.
+local cProd
+local cPorez
+
 O_PRIPT
 O_ROBA
 O_TARIFA
+
+if IsPDV()
+	cPorez := "PDV"	
+else
+	cPorez := "por"
+endif
 
 select pript
 set order to tag "1"
@@ -245,9 +271,67 @@ go top
 
 START PRINT CRET
 
-do while !EOF()
-	// stampaj rezultate
+? "Prikaz efekata nivelacije za sve prodavnice, na dan " + DToC(DATE())
+?
 
+P_COND
+
+cLine := REPLICATE("-", 85)
+
+? cLine
+
+? PADR("Artikal", 10), ;
+PADR("Naziv", 15), ;
+PADR("S.MPC sa " + cPorez,14), ;
+PADR("Razl.MPC",14), ;
+PADR("Razl.MPC sa " + cPorez,14), ;
+PADR("N.MPC sa " + cPorez,14) 
+? cLine
+
+do while !EOF()
+	
+	cIdFirma := field->idfirma
+	cIdVd := field->idvd
+	cBrDok := field->brdok
+	nUSMpcP := 0
+	nUNMpcP := 0
+	nURMpcP := 0
+	nURMpcBP := 0
+	cProd := field->pkonto
+	
+	do while !EOF() .and. pript->(idfirma+idvd+brdok) == cIdFirma+cIdVd+cBrDok
+		cIdRoba := field->idroba
+		nSMpcP := field->fcj
+		nNMpcP := field->mpc
+		nRMpcP := field->mpcsapp
+		nRMpcBP := field->mpcsapp + field->fcj
+		
+		if cVar == "1"
+			select roba
+			set order to tag "ID"
+			hseek cIdRoba
+			select pript
+			
+			// prikazi stavku
+			? cIdRoba, PADR(roba->naz,15), ROUND(nSMpcP, 3), ROUND(nNMpcP, 3), ROUND(nRMpcP, 3), ROUND(nRMpcBP, 3)
+		endif
+	
+		nUSMpcP += nSMpcP
+		nUNMpcP += nNMpcP
+		nURMpcP += nRMpcP
+		nURMpcBP += nRMpcBP
+	
+		skip
+	enddo
+	
+	if cVar == "1"
+		? cLine
+	endif 
+	
+	? PADR("PRODAVNICA " + ALLTRIM(cProd) + " UKUPNO:",26), ROUND(nUSMpcP, 3), ROUND(nUNMpcP, 3), ROUND(nURMpcP, 3), ROUND(nURMpcBP, 3)
+	if cVar == "1"
+		? cLine
+	endif
 enddo
 
 
@@ -257,6 +341,5 @@ END PRINT
 
 return
 *}
-
 
 

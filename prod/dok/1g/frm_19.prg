@@ -155,9 +155,9 @@ select pripr
 
 nNCJ:=nStCj+_MPCSaPP
 
-@ m_x+16,m_y+2  SAY "STARA CIJENA (MPCSAPP):"
+@ m_x+16,m_y+2  SAY "STARA CIJENA " + if(IsPDV(),"(MPCSAPDV):","(MPCSAPP):")
 @ m_x+16,m_y+50 GET nStCj    pict "999999.9999"
-@ m_x+17,m_y+2  SAY "NOVA CIJENA  (MPCSAPP):"
+@ m_x+17,m_y+2  SAY "NOVA CIJENA  " + if(IsPDV(),"(MPCSAPDV):","(MPCSAPP):")
 @ m_x+17,m_y+50 GET nNCj     pict "999999.9999"
 
 SayPorezi(19)

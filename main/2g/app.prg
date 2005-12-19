@@ -368,6 +368,9 @@ public gDefNiv:="D"
 public gDecKol:=5
 public gKalo:="2"
 public gMagacin:="2"
+if IsPDV()
+	public gPDVMagNab:="D"
+endif
 public gTS:="Preduzece"
 public gPotpis:="N"
 public g10Porez:="N"
@@ -463,6 +466,9 @@ RPar("am",@gAMat)
 RPar("ax",@gAFakt)
 Rpar("br",@gBrojac)
 RPar("c1",@gMagacin)
+if IsPDV()
+	RPar("c2",@gPDVMagNab)
+endif
 RPar("ci",@gCijene)
 RPar("d3",@gDirFIK)
 RPar("d4",@gDirMaK)

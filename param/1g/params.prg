@@ -99,6 +99,9 @@ private  GetList:={}
   @ m_x+7,m_y+2 SAY "Voditi kalo pri ulazu " GET gVodiKalo valid gVodiKalo $ "DN" pict "@!"
 
   @ m_x+8,m_y+2 SAY "Program se koristi iskljucivo za vodjenje magacina po NC  Da-1 / Ne-2 " GET gMagacin valid gMagacin $ "12"
+  if IsPDV()
+  	@ m_x+9,m_y+2 SAY "PDV, evidencija magacina po NC  D/N " GET gPDVMagNab valid gPDVMagNab $ "DN"
+  endif
   @ m_x+10,m_y+2 SAY "Varijanta FAKT13->KALK11 ( 1-mpc iz sifrarnika, 2-mpc iz FAKT13)" GET  gVar13u11  pict "@!" valid gVar13u11 $ "12"
   @ m_x+12,m_y+2 SAY "Varijanta KALK 11 bez prikaza NC i storna RUC-a (D/N)" GET  g11bezNC  pict "@!" valid g11bezNC $ "DN"
   @ m_x+13,m_y+2 SAY "Pri ulaznoj kalkulaciji pomoc sa MPC (D/N)" GET  gMPCPomoc pict "@!" valid gMPCPomoc $ "DN"
@@ -110,6 +113,9 @@ private  GetList:={}
 
  if lastkey()<>K_ESC
   WPar("c1",gMagacin)
+  if IsPDV()
+  	WPar("c2",gPDVMagNab)
+  endif
   Wpar("ka",gKalo)
   Wpar("vk",gVodiKalo)
   Wpar("up",g10Porez)

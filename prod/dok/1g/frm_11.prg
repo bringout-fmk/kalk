@@ -133,10 +133,12 @@ if fNovi
  select roba
  _MPCSaPP:=UzmiMPCSif()
 
- if koncij->naz<>"N1"
-   _FCJ:=NC; _VPC:=UzmiVPCSif(_mkonto)
+ if koncij->naz=="N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+   _FCJ:=NC
+   _VPC:=NC
  else
-   _FCJ:=NC; _VPC:=NC
+   _FCJ:=NC
+   _VPC:=UzmiVPCSif(_mkonto)
  endif
 
  select koncij; seek trim(_pkonto); select roba
@@ -218,37 +220,40 @@ if !lPoNarudzbi
  endif
 endif
 
-select koncij; seek trim(_idkonto2); select pripr
-if  koncij->naz=="N1"
-  _VPC:=_NC
+select koncij
+seek trim(_idkonto2)
+select pripr
+
+if  koncij->naz == "N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+	_VPC:=_NC
 endif
 
-if koncij->naz<>"N1"
- if _kolicina>0
-  @ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolMag()
- else // storno zaduzenja
-  @ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolPro()
- endif
-  @ m_x+14,col()+2  SAY "VPC :"  GET _vpc picture picdem ;
-             when {|| iif(gCijene=="2",.f.,.t.)}
-else
-  _vpc:=_fcj
-  @ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)       :"  
-  if _kolicina>0
-    @ m_x+14,m_y+50   get _fcj    picture gPicNC ;
+if koncij->naz == "N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+	_vpc:=_fcj
+  	@ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)       :"  
+  	if _kolicina>0
+    		@ m_x+14,m_y+50   get _fcj    picture gPicNC ;
                         VALID {|| V_KolMag(),;
                         _vpc:=_Fcj,.t.}
-  else // storno zaduzenja prodavnice
-    @ m_x+14,m_y+50   get _FCJ    picture PicDEM;
+  	else // storno zaduzenja prodavnice
+    		@ m_x+14,m_y+50   get _FCJ    picture PicDEM;
                      VALID {|| V_KolPro(),;
                                _vpc:=_fcj, .t.}
-  endif
+  	endif
+else
+	if _kolicina>0
+  		@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolMag()
+ 	else // storno zaduzenja
+  		@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolPro()
+ 	endif
+  	@ m_x+14,col()+2  SAY "VPC :"  GET _vpc picture picdem ;
+             when {|| iif(gCijene=="2",.f.,.t.)}
 endif
 
 select koncij; seek trim(_idkonto); select pripr
 
 if fnovi
- _TPrevoz:="R"
+	_TPrevoz:="R"
 endif
 
 if nRBr==1 .or. !fNovi // prva stavka

@@ -205,10 +205,19 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     if lPrikPRUC
     	@ prow(),nCol1    SAY aPorezi[POR_PPU]   picture picproc
     else
-    	@ prow(),nCol1    SAY PrPPUMP()   picture picproc
+    	if IsPDV()
+		 @ prow(),nCol1    SAY aPorezi[POR_PPP]   picture picproc
+	else
+		 @ prow(),nCol1    SAY PrPPUMP()   picture picproc
+        endif
     endif
-    @ prow(),  pcol()+1 SAY  nPor2             picture piccdem
-    @ prow(),  pcol()+1 SAY  nU7               picture picdem
+    if IsPDV()
+    	@ prow(),  pcol()+1 SAY  nU6             picture piccdem
+    	@ prow(),  pcol()+1 SAY  nU7             picture piccdem
+    else
+   	@ prow(),  pcol()+1 SAY  nPor1             picture piccdem
+    	@ prow(),  pcol()+1 SAY  nU7               picture piccdem
+    endif
 
     skip
 
@@ -275,10 +284,10 @@ if IsPDV()
   	if koncij->naz=="P2"
     		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PDV %  *   PDV    *  MPC     *"
   	else
-    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"*   VPC    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PDV %  *   PDV    *  MPC     *"
+    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+ "*   " + if(gPDVMagNab == "D", " NC","VPC") + "    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   *    MPC   *   PDV %  *   PDV   *  MPC     *"
   	endif
-  	? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP    *          *          *           *  SA PDV  *"
-  	? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *          *"+IF(g11bezNC=="D","","          *          *")+"         *          *          *          *          *"
+ 	? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP     *          *          *         *  SA PDV  *"
+  	? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *          *"+IF(g11bezNC=="D","","          *          *")+"          *          *          *         *          *"
 else
 	IF lPrikPRUC
 		? cLine

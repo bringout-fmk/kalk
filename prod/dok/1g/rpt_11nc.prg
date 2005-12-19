@@ -58,7 +58,8 @@ HSEEK cIdKonto2
 
 select PRIPR
 
-m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------" + if(!IsPDV() .or. gPDVMagNab == "N"," ----------","")
+
 head_11_1(lPrikPRUC, m)
 
 nTot1:=nTot1b:=nTot2:=nTot3:=nTot4:=nTot4B:=nTot5:=nTot6:=nTot7:=0
@@ -130,7 +131,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       @ prow(),pcol()+1 SAY Prevoz               PICTURE PicCDEM
     ENDIF
     @ prow(),pcol()+1 SAY NC                   PICTURE PicCDEM
-    if !IsPDV()
+    if !IsPDV() .or. gPDVMagNab == "N"
     	@ prow(),pcol()+1 SAY nMarza              PICTURE PicCDEM
     endif
     @ prow(),pcol()+1 SAY nMarza2              PICTURE PicCDEM
@@ -148,7 +149,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       @ prow(),  pcol()+1 SAY  prevoz*kolicina      picture picdem
     ENDIF
     @ prow(),  pcol()+1 SAY  nc*kolicina      picture picdem
-    @ prow(),  pcol()+1 SAY  nmarza*kolicina      picture picdem
+    if !IsPDV() .or. gPDVMagNab == "N"
+    	@ prow(),  pcol()+1 SAY  nmarza*kolicina      picture picdem
+    endif
     @ prow(),  pcol()+1 SAY  nmarza2*kolicina      picture picdem
     IF lPrikPRUC
       @ prow(),pcol()+1 SAY nU4c                PICTURE PicCDEM
@@ -161,6 +164,10 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     		@ prow(),nCol1 SAY PrPPUMP()  picture picproc
     	endif
     	@ prow(),  pcol()+1 SAY  nPor2             picture piccdem
+    else
+	@ prow(), pcol()+1 SAY aPorezi[POR_PPP] picture picproc
+	@ prow(), pcol()+1 SAY nU6 picture piccdem
+	@ prow(), pcol()+1 SAY nU7 picture piccdem
     endif
     
     skip 1
@@ -175,9 +182,11 @@ IF !lPrikPRUC
   @ prow(),pcol()+1   SAY  nTot2        picture       PicDEM
 ENDIF
 @ prow(),pcol()+1   SAY  nTot3        picture       PicDEM
-if !IsPDV()
+
+if !IsPDV() .or. gPDVMagNab == "N"
 	@ prow(),pcol()+1   SAY  nTot4        picture       PicDEM
 endif
+
 @ prow(),pcol()+1   SAY  nTot4b        picture       PicDEM
 IF lPrikPRUC
   @ prow(),pcol()+1  SAY nTot4c        picture         PICDEM
@@ -202,9 +211,9 @@ function head_11_1(lPrikPRUC, cLine)
 *{
 if IsPDV()
 	? cLine
-  	? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *  MARZA   *  MARZA   *    MPC   *   PDV %  *   PDV    * MPC     *"
-  	? "*BR*          *          *   U VP   *   U MP   *   U MP   *   VP     *    MP    *          *          *          * SA PDV  *"
-  	? "*  *          *          *          *          *          *          *          *          *          *          *         *"
+  	? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *" + if(gPDVMagNab == "N", "MARZA   *", "") + "  MARZA   *    MPC   *   PDV %  *   PDV    * MPC     *"
+  	? "*BR*          *          *   U VP   *   U MP   *   U MP   *" + if(gPDVMagNab == "N","   VP     *", "") + "    MP    *          *          *          * SA PDV  *"
+  	? "*  *          *          *          *          *          *" + if(gPDVMagNab == "N", "         *", "") + "          *          *          *          *         *"
 else
 	IF lPrikPRUC
   		? cLine

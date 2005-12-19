@@ -99,7 +99,7 @@ select koncij
 seek trim(pripr->mkonto)
 select pripr
 
-header11(lPrikPRUC, m)
+head_11(lPrikPRUC, m)
 
 select koncij
 seek trim(pripr->pkonto)

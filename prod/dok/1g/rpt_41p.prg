@@ -23,8 +23,6 @@ Private nMarza,nMarza2,nPRUC,aPorezi
 nMarza:=nMarza2:=nPRUC:=0
 aPorezi:={}
 
-lVoSaTa := ( IzFmkIni("KALK","VodiSamoTarife","N",PRIVPATH)=="D" )
-
 nStr:=0
 cIdPartner:=IdPartner; cBrFaktP:=BrFaktP; dDatFaktP:=DatFaktP
 dDatKurs:=DatKurs; cIdKonto:=IdKonto; cIdKonto2:=IdKonto2
@@ -35,13 +33,13 @@ Naslov4x()
 select PRIPR
 
 m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-if cIdVd<>'47' .and. !lVoSaTa
+if cIdVd<>'47'
 	m+=" ---------- ---------- ---------- ----------"
 endif
 
 ? m
 
-if cIdVd='47' .or. lVoSaTa
+if cIdVd='47'
 	? "*R * ROBA     * Kolicina *    MPC   *   PDV %  *   MPC     *"
 	? "*BR*          *          *          *   PDV    *  SA PDV   *"
 	? "*  *          *          *     ä    *     ä    *     ä     *"
@@ -56,15 +54,10 @@ endif
 nTot1:=nTot1b:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=0
 nTot4a:=0
 
-IF lVoSaTa
-  private cIdd:=idpartner+idkonto+idkonto2
-ELSE
-  private cIdd:=idpartner+brfaktp+idkonto+idkonto2
-ENDIF
+private cIdd:=idpartner+brfaktp+idkonto+idkonto2
 
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
-	IF lVoSaTa .and. idpartner+idkonto+idkonto2<>cidd .or.;
-       !lVoSaTa .and. idpartner+brfaktp+idkonto+idkonto2<>cidd
+	IF idpartner+brfaktp+idkonto+idkonto2<>cidd
      		set device to screen
      		Beep(2)
      		Msg("Unutar kalkulacije se pojavilo vise dokumenata !",6)
@@ -109,7 +102,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	nCol0:=pcol()
 
     	@ prow(),nCol0 SAY ""
-    	IF IDVD<>'47' .and. !lVoSaTa
+    	IF IDVD<>'47'
      		IF ROBA->tip="U"
        			@ prow(),pcol()+1 SAY 0                   PICTURE PicCDEM
      		ELSE
@@ -120,7 +113,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
    	@ prow(),pcol()+1 SAY MPC                  PICTURE PicCDEM
     	nCol1:=pcol()+1
     	@ prow(),pcol()+1 SAY aPorezi[POR_PPP]      PICTURE PicProc
-    	if IDVD<>"47" .and. !lVoSaTa
+    	if IDVD<>"47"
      		@ prow(),pcol()+1 SAY MPCSAPP-RabatV       PICTURE PicCDEM
      		@ prow(),pcol()+1 SAY RabatV               PICTURE PicCDEM
     	endif
@@ -128,7 +121,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     	@ prow()+1,4 SAY idTarifa
     	@ prow(), nCol0 SAY ""
-    	IF cIDVD<>'47' .and. !lVoSaTa
+    	IF cIDVD<>'47'
      		IF ROBA->tip="U"
       			@ prow(), pcol()+1  SAY  0                picture picdem
      		ELSE
@@ -139,7 +132,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	@ prow(), pcol()+1 SAY  mpc*kolicina      picture picdem
 
     	@ prow(),nCol1    SAY  nPor1*kolicina    picture piccdem
-    	if IDVD<>"47" .and. !lVoSaTa
+    	if IDVD<>"47"
 		@ prow(),pcol()+1 SAY  (mpcsapp-RabatV)*kolicina   picture picdem
 		@ prow(),pcol()+1 SAY  RabatV*kolicina   picture picdem
     	endif
@@ -156,7 +149,7 @@ DokNovaStrana(125, @nStr, 3)
 
 @ prow()+1,0        SAY "Ukupno:"
 @ prow(),nCol0  say  ""
-IF cIDVD<>'47' .and. !lVoSaTa
+IF cIDVD<>'47'
 	@ prow(),pcol()+1 SAY nTot3 picture PicDEM
  	@ prow(),pcol()+1 SAY nTot4 picture PicDEM
 endif
@@ -164,7 +157,7 @@ endif
 @ prow(),pcol()+1   SAY  space(len(picproc))
 @ prow(),pcol()+1   SAY  space(len(picproc))
 @ prow(),pcol()+1   SAY  nTot6        picture        PicDEM
-if cIDVD<>"47" .and. !lVoSaTa
+if cIDVD<>"47"
 	@ prow(),pcol()+1   SAY  nTot8        picture        PicDEM
 	@ prow(),pcol()+1   SAY  nTot9        picture        PicDEM
 endif
@@ -282,7 +275,7 @@ DokNovaStrana(125, @nStr, 4)
 @ prow(),pcol()+1   SAY nTotP pict picdem  
 @ prow(),pcol()+1   SAY nTot5 pict picdem
 ? m
-if cIdVd<>"47" .and. !lVoSaTa .and. !IsJerry()
+if cIdVd<>"47" .and. !IsJerry()
 	? "RUC:"
 	@ prow(),pcol()+1 SAY nTot6 pict picdem
 ? m

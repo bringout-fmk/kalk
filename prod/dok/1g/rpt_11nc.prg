@@ -130,7 +130,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       @ prow(),pcol()+1 SAY Prevoz               PICTURE PicCDEM
     ENDIF
     @ prow(),pcol()+1 SAY NC                   PICTURE PicCDEM
-    @ prow(),pcol()+1 SAY nMarza              PICTURE PicCDEM
+    if !IsPDV()
+    	@ prow(),pcol()+1 SAY nMarza              PICTURE PicCDEM
+    endif
     @ prow(),pcol()+1 SAY nMarza2              PICTURE PicCDEM
     IF lPrikPRUC
       @ prow(),pcol()+1 SAY aPorezi[POR_PRUCMP] PICTURE PicProc
@@ -152,13 +154,15 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       @ prow(),pcol()+1 SAY nU4c                PICTURE PicCDEM
     ENDIF
     @ prow(),  pcol()+1 SAY  mpc*kolicina      picture picdem
-    if lPrikPRUC
-    	@ prow(),nCol1 SAY aPorezi[POR_PPU]  picture picproc
-    else
-    	@ prow(),nCol1 SAY PrPPUMP()  picture picproc
+    if !IsPDV()
+    	if lPrikPRUC
+    		@ prow(),nCol1 SAY aPorezi[POR_PPU]  picture picproc
+    	else
+    		@ prow(),nCol1 SAY PrPPUMP()  picture picproc
+    	endif
+    	@ prow(),  pcol()+1 SAY  nPor2             picture piccdem
     endif
-    @ prow(),  pcol()+1 SAY  nPor2             picture piccdem
-
+    
     skip 1
 
 enddo
@@ -171,7 +175,9 @@ IF !lPrikPRUC
   @ prow(),pcol()+1   SAY  nTot2        picture       PicDEM
 ENDIF
 @ prow(),pcol()+1   SAY  nTot3        picture       PicDEM
-@ prow(),pcol()+1   SAY  nTot4        picture       PicDEM
+if !IsPDV()
+	@ prow(),pcol()+1   SAY  nTot4        picture       PicDEM
+endif
 @ prow(),pcol()+1   SAY  nTot4b        picture       PicDEM
 IF lPrikPRUC
   @ prow(),pcol()+1  SAY nTot4c        picture         PICDEM
@@ -195,17 +201,10 @@ return
 function head_11_1(lPrikPRUC, cLine)
 *{
 if IsPDV()
-	IF lPrikPRUC
-  		? cLine
-  		? "*R * ROBA     * Kolicina *  NAB.CJ  *  NAB.CJ  *  MARZA   *  MARZA   * POREZ NA *    MPC   *   PDV %  *   PDV    * MPC     *"
-  		? "*BR*          *          *   U VP   *   U MP   *   VP     *    MP    *  MARZU   *          *          *          * SA PDV  *"
-  		? "*  *          *          *          *          *          *          *    MP    *          *          *          *         *"
-	ELSE
- 		? cLine
-  		? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *  MARZA   *  MARZA   *    MPC   *   PDV %  *   PDV    * MPC     *"
-  		? "*BR*          *          *   U VP   *   U MP   *   U MP   *   VP     *    MP    *          *          *          * SA PDV  *"
-  		? "*  *          *          *          *          *          *          *          *          *          *          *         *"
-	ENDIF
+	? cLine
+  	? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *  MARZA   *  MARZA   *    MPC   *   PDV %  *   PDV    * MPC     *"
+  	? "*BR*          *          *   U VP   *   U MP   *   U MP   *   VP     *    MP    *          *          *          * SA PDV  *"
+  	? "*  *          *          *          *          *          *          *          *          *          *          *         *"
 else
 	IF lPrikPRUC
   		? cLine

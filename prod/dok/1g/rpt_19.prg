@@ -72,7 +72,7 @@ select PRIPR
 if (cIdVD=="19")
 	m:= "--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
  	? m
-	header19()
+	head_19()
 	? m
  	nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=0
 endif
@@ -152,7 +152,7 @@ return
 *}
 
 
-function header19()
+function head_19()
 *{
 if IsPDV()
 	? "*R * ROBA     * Kolicina *  STARA   * RAZLIKA  * PDV   %  *IZN. PDV  * UK. PDV  * RAZLIKA  *  NOVA   *"
@@ -215,11 +215,11 @@ P_COND
 @ prow(),110 SAY "Str:"+str(++nStr,3)
 
 if cIdVD == "19"
- m:= "--- --------------------------------------------------- ---------- ---------- ---------- ------------- ------------- -------------"
- ? m
- ? "*R *  Sifra   *        Naziv                           *  STARA   *   NOVA   * promjena *  zaliha     *   iznos     *  ukupno    *"
- ? "*BR*          *                                        *  cijena  *  cijena  *  cijene  * (kolicina)  *   poreza    * promjena   *"
- ? m
+	m:= "--- --------------------------------------------------- ---------- ---------- ---------- ------------- ------------- -------------"
+ 	? m
+ 	? "*R *  Sifra   *        Naziv                           *  STARA   *   NOVA   * promjena *  zaliha     *   iznos     *  ukupno    *"
+ 	? "*BR*          *                                        *  cijena  *  cijena  *  cijene  * (kolicina)  *   poreza    * promjena   *"
+ 	? m
  nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=0
 endif
 

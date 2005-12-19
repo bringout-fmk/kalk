@@ -159,7 +159,12 @@ select PRIPR
 
 SayPorezi_lv(19, aPorezi)
 
-@ m_x+20+IF(lPoNarudzbi,1,0),m_y+2 SAY "MPC SA POREZOM:"
+if IsPDV()
+	@ m_x+20+IF(lPoNarudzbi,1,0),m_y+2 SAY "MPC SA PDV    :"
+else
+	@ m_x+20+IF(lPoNarudzbi,1,0),m_y+2 SAY "MPC SA POREZOM:"
+endif
+
 @ m_x+20+IF(lPoNarudzbi,1,0),m_y+50 GET _MPCSaPP  picture PicDEM ;
            valid VMpcSaPP_lv(nil, nil, aPorezi)
 
@@ -250,7 +255,12 @@ select PRIPR
 	       
 SayPorezi_lv(19, aPorezi)
 
-@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
+if IsPDV()
+	@ m_x+20,m_y+2 SAY "MPC SA PDV    :"
+else
+	@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
+endif
+
 @ m_x+20,m_y+50 GET _MPCSaPP  picture PicDEM ;
      valid {|| Svedi(cSvedi), VMpcSapp_lv(nil, nil, aPorezi) }
 

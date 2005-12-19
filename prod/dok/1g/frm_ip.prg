@@ -233,7 +233,11 @@ private aPorezi:={}
     when {|| iif(gMetodaNC==" ",.t.,.f.)}
  @ m_x+13,col()+2 SAY "Popisana Kolicina" GET _Kolicina VALID VKol() PICTURE PicKol
 
- @ m_x+15,m_y+2    SAY "CIJENA (MPCSAPP)" GET _mpcsapp pict picdem
+ if IsPDV()
+   @ m_x+15,m_y+2    SAY "CIJENA (MPCSAPDV)" GET _mpcsapp pict picdem
+ else
+   @ m_x+15,m_y+2    SAY "CIJENA (MPCSAPP)" GET _mpcsapp pict picdem
+ endif
  @ m_x+17,m_y+2    SAY "NABAVNA CIJENA  " GET _nc pict picdem
 
  read; ESC_RETURN K_ESC

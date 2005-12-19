@@ -59,19 +59,8 @@ HSEEK cIdKonto2
 select PRIPR
 
 m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-IF lPrikPRUC
-  //m += " ----------"
-  ? m
-  ? "*R * ROBA     * Kolicina *  NAB.CJ  *  NAB.CJ  *  MARZA   *  MARZA   * POREZ NA *    MPC   *   PPP %  *   PPP    * MPC     *"
-  ? "*BR*          *          *   U VP   *   U MP   *   VP     *    MP    *  MARZU   *          *   PPU %  *   PPU    * SA Por  *"
-  ? "*  *          *          *          *          *          *          *    MP    *          *          *          *         *"
-ELSE
-  ? m
-  ? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *  MARZA   *  MARZA   *    MPC   *   PPP %  *   PPP    * MPC     *"
-  ? "*BR*          *          *   U VP   *   U MP   *   U MP   *   VP     *    MP    *          *   PPU %  *   PPU    * SA Por  *"
-  ? "*  *          *          *          *          *          *          *          *          *          *          *         *"
-ENDIF
-? m
+head_11_1(lPrikPRUC, m)
+
 nTot1:=nTot1b:=nTot2:=nTot3:=nTot4:=nTot4B:=nTot5:=nTot6:=nTot7:=0
 nTot4c:=0
 
@@ -200,4 +189,39 @@ Rektarife()
 
 return
 *}
+
+
+
+function head_11_1(lPrikPRUC, cLine)
+*{
+if IsPDV()
+	IF lPrikPRUC
+  		? cLine
+  		? "*R * ROBA     * Kolicina *  NAB.CJ  *  NAB.CJ  *  MARZA   *  MARZA   * POREZ NA *    MPC   *   PDV %  *   PDV    * MPC     *"
+  		? "*BR*          *          *   U VP   *   U MP   *   VP     *    MP    *  MARZU   *          *          *          * SA PDV  *"
+  		? "*  *          *          *          *          *          *          *    MP    *          *          *          *         *"
+	ELSE
+ 		? cLine
+  		? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *  MARZA   *  MARZA   *    MPC   *   PDV %  *   PDV    * MPC     *"
+  		? "*BR*          *          *   U VP   *   U MP   *   U MP   *   VP     *    MP    *          *          *          * SA PDV  *"
+  		? "*  *          *          *          *          *          *          *          *          *          *          *         *"
+	ENDIF
+else
+	IF lPrikPRUC
+  		? cLine
+  		? "*R * ROBA     * Kolicina *  NAB.CJ  *  NAB.CJ  *  MARZA   *  MARZA   * POREZ NA *    MPC   *   PPP %  *   PPP    * MPC     *"
+  		? "*BR*          *          *   U VP   *   U MP   *   VP     *    MP    *  MARZU   *          *   PPU %  *   PPU    * SA Por  *"
+  		? "*  *          *          *          *          *          *          *    MP    *          *          *          *         *"
+	ELSE
+ 		? cLine
+  		? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *  MARZA   *  MARZA   *    MPC   *   PPP %  *   PPP    * MPC     *"
+  		? "*BR*          *          *   U VP   *   U MP   *   U MP   *   VP     *    MP    *          *   PPU %  *   PPU    * SA Por  *"
+  		? "*  *          *          *          *          *          *          *          *          *          *          *         *"
+	ENDIF
+endif
+? cLine
+
+return
+*}
+
 

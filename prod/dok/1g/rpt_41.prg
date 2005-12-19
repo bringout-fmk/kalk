@@ -56,6 +56,11 @@ function StKalk41()
 local nCol0:=nCol1:=nCol2:=0
 local nPom:=0
 
+if IsPDV()
+	StKalk41PDV()
+	return
+endif
+
 Private nMarza,nMarza2,nPRUC,aPorezi
 nMarza:=nMarza2:=nPRUC:=0
 aPorezi:={}
@@ -71,31 +76,34 @@ Naslov4x()
 
 select PRIPR
 
- m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 if cidvd<>'47' .and. !lVoSaTa
-  m+=" ---------- ---------- ---------- ----------"
-  IF lPrikPRUC
-    m += " ----------"
-  ENDIF
+	m+=" ---------- ---------- ---------- ----------"
+  	IF lPrikPRUC
+    		m += " ----------"
+  	ENDIF
 endif
+
 ? m
 
 if cIdVd='47' .or. lVoSaTa
- ? "*R * ROBA     * Kolicina *    MPC   *   PPP %  *   PPU%   *   PP%    *  MPC     *"
- ? "*BR*          *          *          *   PPU    *   PPU    *   PP     *  SA Por  *"
- ? "*  *          *          *     ä    *     ä    *    ä     *          *    ä     *"
+	? "*R * ROBA     * Kolicina *    MPC   *   PPP %  *   PPU%   *   PP%    *  MPC     *"
+	? "*BR*          *          *          *   PPU    *   PPU    *   PP     *  SA Por  *"
+	? "*  *          *          *     ä    *     ä    *    ä     *          *    ä     *"
 else
- IF lPrikPRUC
-   ? "*R * ROBA     * Kolicina *  NAB.CJ  *  MARZA  * POREZ NA *    MPC   *   PPP %  *   PPU%   *   PP%    *MPC sa por*          *  MPC     *"
-   ? "*BR*          *          *   U MP   *         *  MARZU   *          *   PPP    *   PPU    *   PP     * -Popust  *  Popust  *  SA Por  *"
-   ? "*  *          *          *    ä     *         *     ä    *     ä    *     ä    *    ä     *          *    ä     *    ä     *    ä     *"
- ELSE
-   ? "*R * ROBA     * Kolicina *  NAB.CJ  *  MARZA  *    MPC   *   PPP %  *   PPU%   *   PP%    *MPC sa por*          *  MPC     *"
-   ? "*BR*          *          *   U MP   *         *          *   PPP    *   PPU    *   PP     * -Popust  *  Popust  *  SA Por  *"
-   ? "*  *          *          *    ä     *         *     ä    *     ä    *    ä     *          *    ä     *    ä     *    ä     *"
- ENDIF
+	IF lPrikPRUC
+		? "*R * ROBA     * Kolicina *  NAB.CJ  *  MARZA  * POREZ NA *    MPC   *   PPP %  *   PPU%   *   PP%    *MPC sa por*          *  MPC     *"
+		? "*BR*          *          *   U MP   *         *  MARZU   *          *   PPP    *   PPU    *   PP     * -Popust  *  Popust  *  SA Por  *"
+		? "*  *          *          *    ä     *         *     ä    *     ä    *     ä    *    ä     *          *    ä     *    ä     *    ä     *"
+ 	ELSE
+   		? "*R * ROBA     * Kolicina *  NAB.CJ  *  MARZA  *    MPC   *   PPP %  *   PPU%   *   PP%    *MPC sa por*          *  MPC     *"
+   		? "*BR*          *          *   U MP   *         *          *   PPP    *   PPU    *   PP     * -Popust  *  Popust  *  SA Por  *"
+   		? "*  *          *          *    ä     *         *     ä    *     ä    *    ä     *          *    ä     *    ä     *    ä     *"
+ 	ENDIF
 endif
+
 ? m
+
 nTot1:=nTot1b:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=0
 nTot4a:=0
 
@@ -246,8 +254,6 @@ return
 *}
 
 
-
-
 /*
  * Rekapitulacija tarifa - nova fja 
  */
@@ -377,70 +383,70 @@ function Naslov4x()
 *{
 local cSvediDatFakt
 B_ON
-  IF CIDVD=="41"
-    IF lVoSaTa
-      ?? "AVANS POREZA NA REALIZACIJU PO TARIFAMA"
-    ELSE
-      ?? "IZLAZ IZ PRODAVNICE - KUPAC"
-    ENDIF
-  ELSEIF CIDVD=="49"
-    ?? "IZLAZ IZ PRODAVNICE PO OSTALIM OSNOVAMA"
-  ELSEIF cIdVd=="43"
-    ?? "IZLAZ IZ PRODAVNICE - KOMISIONA - PARAGON BLOK"
-  ELSEIF cIdVd=="47"
-    ?? "PREGLED PRODAJE"
-  ELSE
-    IF lVoSaTa .and. cIdVd=="42"
-      ?? "OBRACUN REALIZACIJE"
-    ELSE
-      ?? "IZLAZ IZ PRODAVNICE - PARAGON BLOK"
-    ENDIF
-  ENDIF
-  B_OFF
+IF CIDVD=="41"
+	IF lVoSaTa
+      		?? "AVANS POREZA NA REALIZACIJU PO TARIFAMA"
+    	ELSE
+      		?? "IZLAZ IZ PRODAVNICE - KUPAC"
+    	ENDIF
+ELSEIF CIDVD=="49"
+	?? "IZLAZ IZ PRODAVNICE PO OSTALIM OSNOVAMA"
+ELSEIF cIdVd=="43"
+	?? "IZLAZ IZ PRODAVNICE - KOMISIONA - PARAGON BLOK"
+ELSEIF cIdVd=="47"
+	?? "PREGLED PRODAJE"
+ELSE
+	IF lVoSaTa .and. cIdVd=="42"
+      		?? "OBRACUN REALIZACIJE"
+    	ELSE
+      		?? "IZLAZ IZ PRODAVNICE - PARAGON BLOK"
+    	ENDIF
+ENDIF
+B_OFF
 
-  P_COND
-  ?
-  IF IsJerry()
-    cSvediDatFakt := IzFmkIni("KALK","Jerry_KALK4x_SvediDatum","F",KUMPATH)
-    ?
-    ?? "KALK BR: "
-    B_ON
-    ?? cIdFirma+"-"+cIdVD+"-"+cBrDok
-    B_OFF
-    ?? "   ", P_TipDok(cIdVD,-2), SPACE(2),"Datum:",IF(cSvediDatFakt=="F",DatFaktP,DatDok)
-    @ prow(),125 SAY "Str:"+str(++nStr,3)
-    ?
-  ELSE
-    ?? "KALK BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,SPACE(2),P_TipDok(cIdVD,-2), SPACE(2),"Datum:",DatDok
-    @ prow(),125 SAY "Str:"+str(++nStr,3)
-  ENDIF
+P_COND
+?
+IF IsJerry()
+	cSvediDatFakt := IzFmkIni("KALK","Jerry_KALK4x_SvediDatum","F",KUMPATH)
+    	?
+    	?? "KALK BR: "
+    	B_ON
+    	?? cIdFirma+"-"+cIdVD+"-"+cBrDok
+    	B_OFF
+    	?? "   ", P_TipDok(cIdVD,-2), SPACE(2),"Datum:",IF(cSvediDatFakt=="F",DatFaktP,DatDok)
+    	@ prow(),125 SAY "Str:"+str(++nStr,3)
+    	?
+ELSE
+	?? "KALK BR:",  cIdFirma+"-"+cIdVD+"-"+cBrDok,SPACE(2),P_TipDok(cIdVD,-2), SPACE(2),"Datum:",DatDok
+    	@ prow(),125 SAY "Str:"+str(++nStr,3)
+ENDIF
 
-  select PARTN; HSEEK cIdPartner
+select PARTN; HSEEK cIdPartner
 
-  IF IsJerry()
-    if cidvd=="41" .and. !lVoSaTa
-     ?  "KUPAC: "
-     B_ON
-     ?? cIdPartner,"-",naz
-     B_OFF
-     ?? SPACE(6),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
-    elseif cidvd=="43"
-     ?  "DOBAVLJAC KOMIS.ROBE: "
-     B_ON
-     ?? cIdPartner,"-",naz
-     B_OFF
-    endif
-    ?
-  ELSE
-    if cidvd=="41" .and. !lVoSaTa
-     ?  "KUPAC:",cIdPartner,"-",naz,SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
-    elseif cidvd=="43"
-     ?  "DOBAVLJAC KOMIS.ROBE:",cIdPartner,"-",naz
-    endif
-  ENDIF
+IF IsJerry()
+	if cidvd=="41" .and. !lVoSaTa
+     		?  "KUPAC: "
+    		B_ON
+     		?? cIdPartner,"-",naz
+     		B_OFF
+     		?? SPACE(6),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
+    	elseif cidvd=="43"
+     		?  "DOBAVLJAC KOMIS.ROBE: "
+     		B_ON
+     		?? cIdPartner,"-",naz
+     		B_OFF
+    	endif
+ 	?
+ELSE
+	if cidvd=="41" .and. !lVoSaTa
+     		?  "KUPAC:",cIdPartner,"-",naz,SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
+    	elseif cidvd=="43"
+     		?  "DOBAVLJAC KOMIS.ROBE:",cIdPartner,"-",naz
+    	endif
+ENDIF
 
-  select KONTO; HSEEK cIdKonto
-  ?  "Prodavnicki konto razduzuje:",cIdKonto,"-",naz
+select KONTO; HSEEK cIdKonto
+?  "Prodavnicki konto razduzuje:",cIdKonto,"-",naz
 return nil
 *}
 

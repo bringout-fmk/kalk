@@ -226,17 +226,17 @@ if empty(_TMarza);  _TMarza:="%" ; endif
 
 @ m_x+12,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 
-  @ m_x+12,m_y+50 GET _MPC picture PicDEM;
-          WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
-	 
-@ m_x+14,m_y+2  SAY "PPP (%):"; @ row(),col()+2 SAY  TARIFA->OPP PICTURE "99.99"
-@ m_x+14,col()+8  SAY "PPU (%):"; @ row(),col()+2  SAY TARIFA->PPP PICTURE "99.99"
-@ m_x+14,col()+8  SAY "PP (%):"; @ row(),col()+2  SAY TARIFA->ZPP PICTURE "99.99"
+@ m_x+12,m_y+50 GET _MPC picture PicDEM WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
 
-@ m_x+16,m_y+2 SAY "MPC SA POREZOM:"
+SayPorezi(14)
 
-  @ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM ;
-            VALID VMpcSaPP_lv(nil, nil, aPorezi)
+if IsPDV()
+	@ m_x+16,m_y+2 SAY "MPC SA PDV    :"
+else
+	@ m_x+16,m_y+2 SAY "MPC SA POREZOM:"
+endif
+
+@ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM VALID VMpcSaPP_lv(nil, nil, aPorezi)
 
 read; ESC_RETURN K_ESC
 

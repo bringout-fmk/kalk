@@ -227,7 +227,11 @@ private cRCRP:="C"
 @ m_x+19,m_y+2 SAY "POPUST (C-CIJENA,P-%)" GET cRCRP VALID cRCRP$"CP" PICT "@!"
 @ m_x+19,m_y+50 GET _Rabatv picture picdem  VALID RabProcToC()
 
-@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
+if IsPDV()
+	@ m_x+20,m_y+2 SAY "MPC SA PDV    :"
+else
+	@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
+endif
 
 @ m_x+20,m_y+50 GET _MPCSaPP  picture PicDEM  VALID VMpcSapp(.t.)
 	     

@@ -187,11 +187,15 @@ _TPrevoz:="R"
 @ m_x+17,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 @ m_x+17,m_y+50 GET _MPC picture PicDEM ;
                WHEN WMpc() VALID VMpc()
-	      
-@ m_x+19,m_y+2  SAY "PPP (%):"; @ row(),col()+2 SAY  _opp*100   PICTURE "99.99"
-@ m_x+19,col()+8  SAY "PPU (%):"; @ row(),col()+2  SAY _ppp*100 PICTURE "99.99"
 
-@ m_x+19,m_y+2 SAY "MPC SA POREZOM:"
+SayPorezi(19)
+
+if IsPDV()
+	@ m_x+19,m_y+2 SAY "MPC SA PDV    :"
+else
+	@ m_x+19,m_y+2 SAY "MPC SA POREZOM:"
+endif
+
 @ m_x+19,m_y+50 GET _MPCSaPP  picture PicDEM ;
             valid VMpcSaPP()
 read; ESC_RETURN K_ESC

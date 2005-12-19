@@ -95,29 +95,12 @@ select PRIPR
 
 m:="--- ---------- ---------- "+IF(g11bezNC=="D","","---------- ")+"---------- ---------- "+IF(g11bezNC=="D","","---------- ---------- ")+"---------- ---------- ---------- --------- -----------"
 
-select koncij; seek trim(pripr->mkonto); select pripr
+select koncij
+seek trim(pripr->mkonto)
+select pripr
 
-IF lPrikPRUC
-  //m += " ----------"
-  ? m
-  if koncij->naz=="P2"
-    ? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   * POREZ NA*    MPC   *   PPP %  *   PPP    *  MPC     *"
-  else
-    ? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"*   VPC    *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   * POREZ NA*    MPC   *   PPP %  *   PPP    *  MPC     *"
-  endif
-  ? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP     *  MARZU  *          *   PPU %  *   PPU    *  SA Por  *"
-  ? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *"+IF(g11bezNC=="D","","          *          *")+"          *   MP    *          *          *          *          *"
-ELSE
-  ? m
-  if koncij->naz=="P2"
-    ? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PPP %  *   PPP    *  MPC     *"
-  else
-    ? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"*   VPC    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PPP %  *   PPP    *  MPC     *"
-  endif
-  ? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP    *          *   PPU %  *   PPU    *  SA Por  *"
-  ? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *          *"+IF(g11bezNC=="D","","          *          *")+"         *          *          *          *          *"
-ENDIF
-? m
+header11(lPrikPRUC, m)
+
 select koncij
 seek trim(pripr->pkonto)
 select pripr
@@ -275,7 +258,6 @@ elseif cidvd$"12#13" .and. g11bezNC!="D"
 	@ prow(),pcol()+1 SAY nMarzaVP pict picdem
 endif
 
-
 ? m
 
 if fZaTops
@@ -284,4 +266,45 @@ endif
 
 return
 *}
+
+
+function head_11(lPrikPRUC, cLine)
+*{
+if IsPDV()
+  	? cLine
+  	if koncij->naz=="P2"
+    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PDV %  *   PDV    *  MPC     *"
+  	else
+    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"*   VPC    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PDV %  *   PDV    *  MPC     *"
+  	endif
+  	? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP    *          *          *           *  SA PDV  *"
+  	? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *          *"+IF(g11bezNC=="D","","          *          *")+"         *          *          *          *          *"
+else
+	IF lPrikPRUC
+		? cLine
+  		if koncij->naz=="P2"
+    			? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   * POREZ NA*    MPC   *   PPP %  *   PPP    *  MPC     *"
+  		else
+    			? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"*   VPC    *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   * POREZ NA*    MPC   *   PPP %  *   PPP    *  MPC     *"
+  		endif
+  		? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP     *  MARZU  *          *   PPU %  *   PPU    *  SA Por  *"
+  		? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *"+IF(g11bezNC=="D","","          *          *")+"          *   MP    *          *          *          *          *"
+	ELSE
+  		? cLine
+  		if koncij->naz=="P2"
+    			? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PPP %  *   PPP    *  MPC     *"
+  		else
+    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"*   VPC    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PPP %  *   PPP    *  MPC     *"
+  		endif
+  		? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP    *          *   PPU %  *   PPU    *  SA Por  *"
+  		? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *          *"+IF(g11bezNC=="D","","          *          *")+"         *          *          *          *          *"
+	ENDIF
+endif
+
+? cLine
+
+return
+*}
+
+
 

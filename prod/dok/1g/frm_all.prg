@@ -415,14 +415,17 @@ return .t.
 
 function SayPorezi_lv(nRow, aPorezi)
 *{
-@ m_x+nRow,m_y+2  SAY "PPP (%):"
-@ row(),col()+2 SAY  aPorezi[POR_PPP] PICTURE "99.99"
-
-@ m_x+nRow,col()+8  SAY "PPU (%):"
-@ row(),col()+2  SAY PrPPUMP() PICTURE "99.99"
-
-@ m_x+nRow,col()+8  SAY "PP (%):"
-@ row(),col()+2  SAY aPorezi[POR_PP] PICTURE "99.99"
+if IsPDV()
+	@ m_x+nRow,m_y+2  SAY "PDV (%):"
+	@ row(),col()+2 SAY  aPorezi[POR_PPP] PICTURE "99.99"
+else
+	@ m_x+nRow,m_y+2  SAY "PPP (%):"
+	@ row(),col()+2 SAY  aPorezi[POR_PPP] PICTURE "99.99"
+	@ m_x+nRow,col()+8  SAY "PPU (%):"
+	@ row(),col()+2  SAY PrPPUMP() PICTURE "99.99"
+	@ m_x+nRow,col()+8  SAY "PP (%):"
+	@ row(),col()+2  SAY aPorezi[POR_PP] PICTURE "99.99"
+endif
 return
 *}
 

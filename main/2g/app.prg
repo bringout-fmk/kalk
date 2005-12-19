@@ -368,8 +368,9 @@ public gDefNiv:="D"
 public gDecKol:=5
 public gKalo:="2"
 public gMagacin:="2"
+public gPDVMagNab:="N"
 if IsPDV()
-	public gPDVMagNab:="D"
+	gPDVMagNab:="D"
 endif
 public gTS:="Preduzece"
 public gPotpis:="N"

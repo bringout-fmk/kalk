@@ -209,11 +209,15 @@ next
 DokNovaStrana(125, @nStr, 3)
 ? m
 @ prow()+1,0        SAY "Ukupno:"
-  @ prow(),nCol1     SAY unTot8         picture         PICDEM
-  @ prow(),pcol()+1  SAY unTot9         picture         PICDEM
-  @ prow(),pcol()+1  SAY unTotA         picture         PICDEM
-  @ prow(),pcol()+1  SAY unTotB         picture         PICDEM
-
+if !fBezNC
+	@ prow(),nCol1     SAY unTot8         picture         PICDEM
+	@ prow(),pcol()+1  SAY unTot9         picture         PICDEM
+	@ prow(),pcol()+1  SAY unTotA         picture         PICDEM
+	@ prow(),pcol()+1  SAY unTotB         picture         PICDEM
+else
+	@ prow(),nCol1     SAY unTotA         picture         PICDEM
+	@ prow(),pcol()+1  SAY unTotB         picture         PICDEM
+endif
 ? m
 
 DokNovaStrana(125, @nStr, 8)

@@ -190,8 +190,8 @@ function Get2_81()
 *{
 local cSPom:=" (%,A,U,R) "
 private getlist:={}
-
 private fMarza:=" "
+aPorezi := {}
 
 if empty(_TPrevoz); _TPrevoz:="%"; endif
 if empty(_TCarDaz); _TCarDaz:="%"; endif

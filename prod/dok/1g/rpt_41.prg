@@ -384,11 +384,7 @@ function Naslov4x()
 local cSvediDatFakt
 B_ON
 IF CIDVD=="41"
-	IF lVoSaTa
-      		?? "AVANS POREZA NA REALIZACIJU PO TARIFAMA"
-    	ELSE
-      		?? "IZLAZ IZ PRODAVNICE - KUPAC"
-    	ENDIF
+      	?? "IZLAZ IZ PRODAVNICE - KUPAC"
 ELSEIF CIDVD=="49"
 	?? "IZLAZ IZ PRODAVNICE PO OSTALIM OSNOVAMA"
 ELSEIF cIdVd=="43"
@@ -396,11 +392,7 @@ ELSEIF cIdVd=="43"
 ELSEIF cIdVd=="47"
 	?? "PREGLED PRODAJE"
 ELSE
-	IF lVoSaTa .and. cIdVd=="42"
-      		?? "OBRACUN REALIZACIJE"
-    	ELSE
-      		?? "IZLAZ IZ PRODAVNICE - PARAGON BLOK"
-    	ENDIF
+	?? "IZLAZ IZ PRODAVNICE - PARAGON BLOK"
 ENDIF
 B_OFF
 
@@ -424,7 +416,7 @@ ENDIF
 select PARTN; HSEEK cIdPartner
 
 IF IsJerry()
-	if cidvd=="41" .and. !lVoSaTa
+	if cidvd=="41"
      		?  "KUPAC: "
     		B_ON
      		?? cIdPartner,"-",naz
@@ -438,7 +430,7 @@ IF IsJerry()
     	endif
  	?
 ELSE
-	if cidvd=="41" .and. !lVoSaTa
+	if cidvd=="41"
      		?  "KUPAC:",cIdPartner,"-",naz,SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
     	elseif cidvd=="43"
      		?  "DOBAVLJAC KOMIS.ROBE:",cIdPartner,"-",naz

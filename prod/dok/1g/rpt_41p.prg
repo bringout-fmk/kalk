@@ -34,7 +34,7 @@ select PRIPR
 
 m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 if cIdVd<>'47'
-	m+=" ---------- ---------- ---------- ----------"
+	m+=" ---------- ----------"
 endif
 
 ? m
@@ -154,8 +154,10 @@ IF cIDVD<>'47'
  	@ prow(),pcol()+1 SAY nTot4 picture PicDEM
 endif
 @ prow(),pcol()+1   SAY  nTot5        picture       PicDEM
-@ prow(),pcol()+1   SAY  space(len(picproc))
-@ prow(),pcol()+1   SAY  space(len(picproc))
+if !IsPDV()
+	@ prow(),pcol()+1   SAY  space(len(picproc))
+	@ prow(),pcol()+1   SAY  space(len(picproc))
+endif
 @ prow(),pcol()+1   SAY  nTot6        picture        PicDEM
 if cIDVD<>"47"
 	@ prow(),pcol()+1   SAY  nTot8        picture        PicDEM
@@ -190,10 +192,10 @@ select pripr
 set order to 2
 seek cIdfirma+cIdvd+cBrdok
 
-m:="----- ---------- ---------- ---------- --------- ----------"
+m:="------ ---------- ---------- ---------- ---------- ----------"
 
 ? m
-? "* Tar *  PDV%    *   MPV   *    PDV   *   Popust * MPVSAPDV*"
+?  "* Tar *  PDV%    *   MPV    *    PDV   *  Popust  * MPVSAPDV*"
 ? m
 
 nTot1:=0

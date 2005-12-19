@@ -104,21 +104,23 @@ DuplRoba()
 _GKolicina:=0
 
 if fNovi
- select koncij; seek trim(_idkonto)
- select ROBA; HSEEK _IdRoba
+	select koncij
+	seek trim(_idkonto)
+ 	select ROBA
+	HSEEK _IdRoba
 
- _MPCSaPP:=UzmiMPCSif()
-
- if koncij->naz<>"N2"
-   _FCJ:=NC
-   _VPC:=UzmiVPCSif(_mkonto)
- else
-   _FCJ:=NC
-   _VPC:=NC
- endif
-
- select PRIPR
- _Marza2:=0; _TMarza2:="A"
+ 	_MPCSaPP:=UzmiMPCSif()
+	
+	if koncij->naz == "N2" .or. (IsPDV() .and. gPDVMagNab == "D")
+  		_FCJ:=NC
+   		_VPC:=NC
+	else
+   		_FCJ:=NC
+   		_VPC:=UzmiVPCSif(_mkonto)
+	endif
+	select PRIPR
+ 	_Marza2:=0
+	_TMarza2:="A"
 endif
 
 if gCijene=="2"
@@ -166,14 +168,14 @@ IF !lPoNarudzbi
   @ m_x+12,m_y+30   SAY "Ukupno na stanju "; @ m_x+12,col()+2 SAY nkols pict pickol
 ENDIF
 
-if koncij->naz<>"N1"
-  @ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture picdem valid V_KolPro()
-  @ m_x+14,col()+4  SAY "VPC :"  GET _vpc picture picdem valid _vpc>0
-else
-  @ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)         :"
-  @ m_x+14,m_y+50   get _FCJ    picture PicDEM;
+if koncij->naz=="N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+	@ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)         :"
+  	@ m_x+14,m_y+50   get _FCJ    picture PicDEM;
                      VALID {|| V_KolPro(),;
                                _vpc:=_fcj, .t.}
+else
+  	@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture picdem valid V_KolPro()
+  	@ m_x+14,col()+4  SAY "VPC :"  GET _vpc picture picdem valid _vpc>0
 endif
 
 _TPrevoz:="R"

@@ -55,8 +55,6 @@ endif
 select KONTO
 HSEEK cIdKonto
 
-?  "MAGACINSKI KONTO zaduzuje :",cIdKonto,"-",naz
-
 select PRIPR
 
 m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ----------"

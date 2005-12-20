@@ -735,8 +735,11 @@ private getlist:={}, cPom:="VPC"
  else
    nMarza:=_VPC/(1+_PORVT)*(1-_RabatV/100)-_NC
  endif
- @ m_x+15,m_y+41  SAY "VPC b.p.-RAB:"
-
+ if IsPDV()
+ 	@ m_x+15,m_y+41  SAY "PC b.pdv.-RAB:"
+ else
+ 	@ m_x+15,m_y+41  SAY "VPC b.p.-RAB:"
+ endif
  if roba->tip=="V"
    @ m_x+15,col()+1 SAY _Vpc/(1+_PORVT)-_VPC*_RabatV/100 pict picdem
  elseif roba->tip=="X"

@@ -5,38 +5,11 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/frm_10.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: frm_10.prg,v $
- * Revision 1.6  2004/05/25 13:27:22  sasavranic
- * Dom Zdravlja SA:
- * evidentiranje tipa sredstva pri pravljenju ulaza,
- * mogucnost prikaza tipa sredstva na izvjestajima
- *
- * Revision 1.5  2003/11/22 15:26:45  sasavranic
- * planika robno poslovanje, prodnc
- *
- * Revision 1.4  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.3  2003/10/06 15:00:26  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.2  2002/06/19 13:57:53  mirsad
- * no message
- *
- *
  */
  
 // privatne varijable: 
 //  - fNovi
 //  - nRbr
-
-
-/*! \file fmk/kalk/mag/dok/1g/frm_10.prg
- *  \brief Maska za unos dokumenta tipa 10
- */
 
 
 /*! \fn Get1_10()
@@ -46,6 +19,10 @@
 function Get1_10()
 *{
 // ovim funkcijama je proslijedjen parametar fnovi kao privatna varijabla
+
+if IsPDV()
+	Get1_10PDV()
+endif
 
 if nRbr==1 .and. fnovi
 	_DatFaktP:=_datdok
@@ -101,11 +78,6 @@ ESC_RETURN K_ESC
 if lKoristitiBK
 	_idRoba:=Left(_idRoba, 10)
 endif
-
-// Bas i nije pametno ovo raditi pri unosu
-//if IsPlanika()
-//	PlFillIdPartner(_idpartner, _idroba)
-//endif
 
 select koncij
 seek trim(_idkonto)
@@ -180,6 +152,10 @@ function Get2_10()
 local cSPom:=" (%,A,U,R) "
 private getlist:={}
 
+if IsPDV()
+	Get2_10PDV()
+endif
+
 if empty(_TPrevoz); _TPrevoz:="%"; endif
 if empty(_TCarDaz); _TCarDaz:="%"; endif
 if empty(_TBankTr); _TBankTr:="%"; endif
@@ -207,49 +183,47 @@ if empty(_TMarza);  _TMarza:="%" ; endif
 @ m_x+8,m_y+50    GET _NC     PICTURE gPicNC
 
 if koncij->naz<>"N1"  // vodi se po vpc
-  private fMarza:=" "
-  @ m_x+10,m_y+2    SAY "Magacin. Marza            :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
-  @ m_x+10,m_y+40 GET _Marza PICTURE PicDEM
-  @ m_x+10,col()+1 GET fMarza pict "@!" valid {|| Marza(fMarza),fMarza:=" ",.t.}
-
-  if roba->tip $ "VKX"
-    @ m_x+14,m_y+2  SAY "VELEPRODAJNA CJENA VT          :"
-    @ m_x+14,m_y+40 GET _VPC pict picdem ;
-      valid {|| Marza(fMarza),vvt()}
-  else
-    if koncij->naz=="P2"
-     @ m_x+12,m_y+2    SAY "PLANSKA CIJENA  (PLC)       :"
-    else
-     @ m_x+12,m_y+2    SAY "VELEPRODAJNA CIJENA (VPC)   :"
-    endif
-    @ m_x+12,m_y+50 get _VPC    picture PicDEM;
+	private fMarza:=" "
+  	@ m_x+10,m_y+2    SAY "Magacin. Marza            :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
+  	@ m_x+10,m_y+40 GET _Marza PICTURE PicDEM
+  	@ m_x+10,col()+1 GET fMarza pict "@!" valid {|| Marza(fMarza),fMarza:=" ",.t.}
+	if roba->tip $ "VKX"
+    		@ m_x+14,m_y+2  SAY "VELEPRODAJNA CJENA VT          :"
+    		@ m_x+14,m_y+40 GET _VPC pict picdem ;
+      			valid {|| Marza(fMarza),vvt()}
+  	else
+    		if koncij->naz=="P2"
+     			@ m_x+12,m_y+2    SAY "PLANSKA CIJENA  (PLC)       :"
+    		else
+			@ m_x+12,m_y+2    SAY "VELEPRODAJNA CIJENA (VPC)   :"
+    		endif
+    		@ m_x+12,m_y+50 get _VPC    picture PicDEM;
                        VALID {|| Marza(fMarza),.t.}
 
-  endif
+  	endif
 
-  if gMPCPomoc=="D"
-    _mpcsapp:=roba->mpc
-   // VPC se izracunava pomocu MPC cijene !!
-       @ m_x+16,m_y+2 SAY "MPC SA POREZOM:"
-       @ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM ;
-             valid {|| _mpcsapp:=iif(_mpcsapp=0,round(_vpc*(1+TARIFA->opp/100)/(1+TARIFA->PPP/100),2),_mpcsapp),_mpc:=_mpcsapp/(1+TARIFA->opp/100)/(1+TARIFA->PPP/100),;
+  	if gMPCPomoc=="D" 
+    		_mpcsapp:=roba->mpc
+   		// VPC se izracunava pomocu MPC cijene !!
+       		@ m_x+16,m_y+2 SAY "MPC SA POREZOM:"
+       		@ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM ;
+             		valid {|| _mpcsapp:=iif(_mpcsapp=0,round(_vpc*(1+TARIFA->opp/100)/(1+TARIFA->PPP/100),2),_mpcsapp),_mpc:=_mpcsapp/(1+TARIFA->opp/100)/(1+TARIFA->PPP/100),;
                        iif(_mpc<>0,_vpc:=round(_mpc,2),_vpc), ShowGets(),.t.}
 
-  endif
-  read
+  	endif
+  	read
 
-  if gmpcpomoc=="D"
-     if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
-         select roba; replace mpc with _mpcsapp
-         select pripr
-     endif
-  endif
+  	if gMpcPomoc=="D" 
+     		if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
+         		select roba; replace mpc with _mpcsapp
+         		select pripr
+     		endif
+  	endif
 
-  SetujVPC(_VPC , .f. )    // .f. - setuj samo ako je vpc u sifraniku 0
-
+  	SetujVPC(_VPC , .f. )    // .f. - setuj samo ako je vpc u sifraniku 0
 else
-  read
-  _Marza:=0; _TMarza:="A"; _VPC:=_NC
+	read
+  	_Marza:=0; _TMarza:="A"; _VPC:=_NC
 endif
 
 _MKonto:=_Idkonto; _MU_I:="1"
@@ -266,6 +240,10 @@ return lastkey()
 function Get1_10s()
 *{
 LOCAL nNCpom:=0
+if IsPDV()
+	Get1_10sPDV()
+endif
+
 if nRbr==1  .or. !fnovi
  _DatFaktP:=_datdok
  @  m_x+6,m_y+2   SAY "DOBAVLJAC:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,6,22)
@@ -356,9 +334,8 @@ IF gVarEv=="1"
    @ m_x+19,col()+2  get _VPC    picture PicDEM;
                     VALID {|| Marza(fMarza),.t.}
    read
-
+  
    VPCuSif(_vpc)
-
  else
    read
    _Marza:=0; _TMarza:="A"; _VPC:=_NC

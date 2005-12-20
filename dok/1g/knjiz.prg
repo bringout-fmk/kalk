@@ -997,7 +997,11 @@ if _idvd=="10"
      			gVarijanta:="2"
    		endif
   	endif
-  	return if( gVarijanta=="1", Get1_10s(), Get1_10() )
+  	if IsPDV()
+		return if( gVarijanta=="1", Get1_10sPDV(), Get1_10PDV() )
+	else
+		return if( gVarijanta=="1", Get1_10s(), Get1_10() )
+	endif
 elseif _idvd=="11"
 	return GET1_11()
 elseif _idvd=="12"
@@ -1056,7 +1060,11 @@ function Get2()
 *{
 parameters fnovi
 if _idvd $ "10"
-  return Get2_10()
+	if IsPDV()
+		return Get2_10PDV()
+	else
+		return Get2_10()
+	endif
 elseif _idvd == "81"
   return Get2_81()
 elseif _idvd == "RN"
@@ -1955,10 +1963,10 @@ do while .t.
 
 		Preduzece()
 
-		if (cidvd=="10" .or. cidvd=="70")
+		if (cidvd=="10" .or. cidvd=="70") .and. !IsPDV()
 			if (gVarEv=="2")
 				StKalk10_sk()
-			elseif (gmagacin=="1")
+			elseif (gMagacin=="1")
 				StKalk10_1()
 			else
 				if (c10Var=="1")
@@ -1969,7 +1977,8 @@ do while .t.
 					StKalk10_4()
 				endif
 			endif
-
+		elseif cIdVD == "10" .and. IsPDV()
+			StKalk10_PDV()
 		elseif cidvd $ "15"
 			StKalk15()
 

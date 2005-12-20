@@ -19,11 +19,6 @@
 function Get1_10()
 *{
 // ovim funkcijama je proslijedjen parametar fnovi kao privatna varijabla
-
-if IsPDV()
-	Get1_10PDV()
-endif
-
 if nRbr==1 .and. fnovi
 	_DatFaktP:=_datdok
 endif
@@ -152,10 +147,6 @@ function Get2_10()
 local cSPom:=" (%,A,U,R) "
 private getlist:={}
 
-if IsPDV()
-	Get2_10PDV()
-endif
-
 if empty(_TPrevoz); _TPrevoz:="%"; endif
 if empty(_TCarDaz); _TCarDaz:="%"; endif
 if empty(_TBankTr); _TBankTr:="%"; endif
@@ -240,9 +231,6 @@ return lastkey()
 function Get1_10s()
 *{
 LOCAL nNCpom:=0
-if IsPDV()
-	Get1_10sPDV()
-endif
 
 if nRbr==1  .or. !fnovi
  _DatFaktP:=_datdok

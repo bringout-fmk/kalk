@@ -61,30 +61,26 @@ select PARTN; HSEEK cIdPartner
 select KONTO; HSEEK cIdKonto
 ?  "MAGACINSKI KONTO zaduzuje :",cIdKonto,"-",naz
 
+m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 
- m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+? m
+? "*R * ROBA     *  FCJ     * NOR.KALO * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     *"+iif(gVarVP=="1"," MARZA.   "," RUC+PRUC ")+"*  VPC    *"
+? "*BR* TARIFA   *  KOLICINA* PRE.KALO * SKONTO   *          *          *          *          *          *          *          *         *"
+? "*  *          *    ä     *    ä     *   ä      *    ä     *    ä     *     ä    *    ä     *    ä     *    ä     *    ä     *   ä     *"
 
- ? m
- ? "*R * ROBA     *  FCJ     * NOR.KALO * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     *"+iif(gVarVP=="1"," MARZA.   "," RUC+PRUC ")+"*  VPC    *"
- ? "*BR* TARIFA   *  KOLICINA* PRE.KALO * SKONTO   *          *          *          *          *          *          *          *         *"
- ? "*  *          *    ä     *    ä     *   ä      *    ä     *    ä     *     ä    *    ä     *    ä     *    ä     *    ä     *   ä     *"
- ? m
- nTot:=nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTotA:=0
- nTotB:=0
+? m
+nTot:=nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTotA:=0
+nTotB:=nTotP:=nTotM:=0
 
 select pripr
 
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
-
-
 
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     ViseDokUPripremi(cIdd)
     RptSeekRT()
     KTroskovi()
-
-
 
     DokNovaStrana(125, @nStr, 2)
 
@@ -117,7 +113,6 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       private cistaMar:=round(nU9/(1+tarifa->vpp/100) ,gZaokr)
       nTotB+=round( cistaMar*tarifa->vpp/100,gZaokr)  // porez na razliku u cijeni
     endif
-
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),4 SAY  ""; ?? trim(ROBA->naz),"(",ROBA->jmj,")"
     if roba->(fieldpos("KATBR"))<>0
@@ -165,29 +160,26 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow(),pcol()+1  SAY nU9         picture         PICDEM
     @ prow(),pcol()+1  SAY nUA         picture         PICDEM
 
-
   skip
 enddo
-
 
 DokNovaStrana(125, @nStr, 5)
 ? m
 
-
 @ prow()+1,0        SAY "Ukupno:"
-  @ prow(),nCol1     SAY nTot          picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot1         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot2         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot3         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot4         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot5         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot6         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot7         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot8         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTot9         picture         PICDEM
-  @ prow(),pcol()+1  SAY nTotA         picture         PICDEM
+@ prow(),nCol1     SAY nTot          picture         PICDEM
+@ prow(),pcol()+1  SAY nTot1         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot2         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot3         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot4         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot5         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot6         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot7         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot8         picture         PICDEM
+@ prow(),pcol()+1  SAY nTot9         picture         PICDEM
+@ prow(),pcol()+1  SAY nTotA         picture         PICDEM
 
-if g10Porez=="D" .or. gVarVP=="2"
+ if g10Porez=="D" .or. gVarVP=="2"
  ? m
  if gVarVP=="1"
   ? "Ukalkulisani porez na ruc (PRUC):"
@@ -206,8 +198,9 @@ if g10Porez=="D" .or. gVarVP=="2"
   @ prow(),pcol()+15 SAY "RUC + PRUC ="
   @ prow(),pcol()+1 SAY alltrim(transform(nTot9,picdem))
  endif
-endif
+ endif
 ? m
+
 return
 *}
 
@@ -253,21 +246,21 @@ if !empty(pripr->Idzaduz2); ?? " Rad.nalog:",pripr->Idzaduz2; endif
 if lBezNC
 
  m:="--- ---------- ----------"+IF(lNC,""," ---------- ----------")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D" .or. (IsPDV() .and. gPDVMagNab == "D")
    m+= " ----------"
  endif
  ? m
  ? "*R * ROBA     * KOLICINA "+IF(lNC,"","*   PPP    *    VPC  *")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D" .or. (IsPDV() .and. gPDVMagNab == "D")
    ?? "    MPC   *"
  endif
  ? "*BR* TARIFA   *          "+IF(lNC,"","*          *         *")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D" .or. (IsPDV() .and. gPDVMagNab == "D")
    ?? "          *"
  endif
 
  ? "*  *          *          "+IF(lNC,"","*          *         *")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D" .or. (IsPDV() .and. gPDVMagNab == "D")
    ?? "          *"
  endif
 
@@ -279,16 +272,16 @@ else
  endif
  ? m
  ? "*R * ROBA     *  FCJ     * KOLICINA * RABAT    * FCJ-RAB  * TROSKOVI *    NC    *"+IF(lNC,"",iif(gVarVP=="1"," MARZA.   "," RUC+PRUC ")+"*   PPP    *    VPC  *")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D" .or. (IsPDV() .and. gPDVMagNab == "D")
    ?? "    MPC   *"
  endif
  ? "*BR* TARIFA   *          *          * DOBAVLJ. *          *          *          *"+IF(lNC,"","          *          *         *")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D"  .or. (IsPDV() .and. gPDVMagNab == "D")
    ?? "          *"
  endif
 
  ? "*  *          *  FV      *          *          * FV-RABAT *          *          *"+IF(lNC,"","          *          *         *")
- if gmpcpomoc=="D"
+ if gmpcpomoc=="D"  .or. (IsPDV() .and. gPDVMagNab == "D")
    ?? "          *"
  endif
  

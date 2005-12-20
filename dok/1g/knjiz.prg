@@ -1009,9 +1009,17 @@ elseif _idvd=="12"
 elseif _idvd=="13"
    	return GET1_12()
 elseif _idvd=="14"  //.or._idvd=="74"
-   	return GET1_14()
+   	if IsPDV()
+		return Get1_14PDV()
+	else
+		return GET1_14()
+	endif
 elseif _idvd=="KO"   // vindija KO
-	return GET1_14()
+	if IsPDV()
+		return GET1_14PDV()
+	else
+		return GET1_14()
+	endif
 elseif _idvd=="15"
 	return GET1_15()
 elseif _idvd=="16"
@@ -1996,7 +2004,11 @@ do while .t.
 			if (c10Var=="3")
 				Stkalk14_3()
 			else
-				Stkalk14()
+				if IsPDV()
+					StKalk14PDV()
+				else
+					Stkalk14()
+				endif
 			endif
 		elseif (cidvd $ "95#96#97#16")
 			if (gVarEv=="2")

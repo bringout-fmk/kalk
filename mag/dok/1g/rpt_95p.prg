@@ -144,7 +144,11 @@ DokNovaStrana(125, @nStr, 5)
 @ prow(),pcol()+1  SAY nTotM         picture         PICDEM
 
 ? m
-? "Magacin se zaduzuje po nabavnoj vrijednosti " + ALLTRIM(TRANSFORM(nTot8,picdem))
+if cIdVD == "16"
+	? "Magacin se zaduzuje po nabavnoj vrijednosti " + ALLTRIM(TRANSFORM(nTot8,picdem))
+else
+	? "Magacin se razduzuje po nabavnoj vrijednosti " + ALLTRIM(TRANSFORM(nTot8,picdem))
+endif
 ? m
 
 return

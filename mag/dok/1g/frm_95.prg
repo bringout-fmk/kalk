@@ -5,37 +5,8 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/frm_95.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.7 $
- * $Log: frm_95.prg,v $
- * Revision 1.7  2004/05/27 07:09:51  sasavranic
- * Dodao uslov za tip sredstva i na izvjestaj Fin.stanja magacina
- *
- * Revision 1.6  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.5  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.4  2003/02/03 00:25:31  mirsad
- * specificnosti za Vindiju - otpisi
- *
- * Revision 1.3  2003/01/28 07:40:45  mirsad
- * dorada radni nalozi za pogon.knjigov.
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
-
-
-/*! \file fmk/kalk/mag/dok/1g/frm_95.prg
- *  \brief Maska za unos dokumenata tipa 95,96,97
- */
-
 
 /*! \fn Get1_95()
  *  \brief Prva strana maske za unos dokumenata tipa 95,96,97
@@ -200,16 +171,34 @@ IF gVarEv=="1"
  if !glEkonomat
    @ m_x+14,m_y+2  SAY "NAB.CJ   "  GET _NC  picture gPicNC  valid V_KolMag()
    private _vpcsappp:=0
-   if koncij->naz<>"N1"
+   if koncij->naz<>"N1" .or. (IsPDV() .and. gPDVMagNab == "D")
      if _vpc=0
         _vpc := KoncijVPC()        // MS 19.12.00
      endif
-     @ m_x+15,m_y+2   SAY "VPC      " get _VPC    picture PicDEM
+     if IsPDV()
+     	@ m_x+15,m_y+2   SAY "PROD.CIJ " get _VPC    picture PicDEM
+     else
+     	@ m_x+15,m_y+2   SAY "VPC      " get _VPC    picture PicDEM
+     endif
      _PNAP:=0
-     if gMagacin=="1"  // ovu cijenu samo prikazati ako se vodi po nabavnim cijenama
+     
+     if gMagacin=="1" .and. !IsPDV()
+     // ovu cijenu samo prikazati ako se vodi po nabavnim cijenama
        _VPCSAPPP:=0
      endif
-     read
+     
+     if IsPDV()
+     
+    	_mpcsapp:=roba->mpc
+   	// VPC se izracunava pomocu MPC cijene !!
+   	@ m_x+17,m_y+2 SAY "PROD.CJENA SA PDV:"
+   	@ m_x+17,col()+2 GET _MPCSaPP  picture PicDEM ;
+             	valid {|| _mpcsapp:=iif(_mpcsapp=0,round( _vpc * (1+TARIFA->opp/100),2),_mpcsapp),_mpc:=_mpcsapp/(1+TARIFA->opp/100),iif(_mpc<>0,_vpc:=round(_mpc,2),_vpc), ShowGets(),.t.}
+        read
+   else
+   	read
+   endif    
+   
    else // magacin po vpc
      read
      _Marza:=0; _TMarza:="A"; _VPC:=_NC
@@ -260,7 +249,9 @@ IF lPoNarudzbi
   ENDIF
 ELSEIF glEkonomat
   _Marza:=0; _TMarza:="A"
-  _mpcsapp:=0
+  if !IsPDV()
+  	_mpcsapp:=0
+  endif
   _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
   _PKonto:=""; _PU_I:=""
   IF lGenStavke
@@ -295,7 +286,9 @@ ELSEIF glEkonomat
   ENDIF
 ENDIF
 
-_mpcsapp:=0
+if !IsPDV()
+	_mpcsapp:=0
+endif
 nStrana:=2
 _marza:=_vpc-_nc
 _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina

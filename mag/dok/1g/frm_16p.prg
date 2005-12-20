@@ -22,6 +22,8 @@ if nRbr==1 .and. fnovi
   _DatFaktP:=_datdok
 endif
 
+if empty(_TMarza);  _TMarza:="%" ; endif
+
 if nRbr==1 .or. !fnovi .or. gMagacin=="1"
  if _idvd $ "94#97"
   @  m_x+6,m_y+2   SAY "KUPAC:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,6,18)

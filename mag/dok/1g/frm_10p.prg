@@ -168,7 +168,7 @@ if empty(_TMarza);  _TMarza:="%" ; endif
 @ m_x+8,m_y+2     SAY "NABAVNA CJENA:"
 @ m_x+8,m_y+50    GET _NC     PICTURE gPicNC
 
-if koncij->naz<>"N1"  // vodi se po vpc
+if koncij->naz<>"N1" .or. gPDVMagNab == "D" 
 	private fMarza:=" "
   	@ m_x+10,m_y+2    SAY "Magacin. Marza            :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
   	@ m_x+10,m_y+40 GET _Marza PICTURE PicDEM
@@ -309,7 +309,7 @@ if empty(_TSpedTr); _TSpedtr:="%"; endif
 if empty(_TZavTr);  _TZavTr:="%" ; endif
 if empty(_TMarza);  _TMarza:="%" ; endif
 
-if koncij->naz<>"N1"  // vodi se po vpc
+if koncij->naz<>"N1" .or. gPDVMagNab=="D"
    private fMarza:=" "
    @ m_x+17,m_y+36   SAY "Magacin. Marza   :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
    @ m_x+17,col()+1  GET _Marza PICTURE PicDEM

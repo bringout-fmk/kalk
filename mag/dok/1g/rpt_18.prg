@@ -52,9 +52,15 @@ select KONTO; HSEEK cidkonto
 select pripr
 
 m:="--- ------------------------------------------------ ----------- ---------- ---------- ---------- ---------- ---------- ----------"
+
 ? m
-? "*RB*       ROBA                                     * Kolicina  * STARA VPC*  RAZLIKA *  NOVA VPC*  IZNOS   *   PPP%  *  IZNOS   *"
-? "*  *                                                *           *          *    VPC   *          *  RAZLIKE *         *   PPP    *"
+if IsPDV()
+	? "*RB*       ROBA                                     * Kolicina  * STARA PC *  RAZLIKA *  NOVA  PC*  IZNOS   *   PDV%  *  IZNOS   *"
+	? "*  *                                                *           *  BEZ PDV *PC BEZ PDV*  BEZ PDV *  RAZLIKE *         *   PDV    *"
+else
+	? "*RB*       ROBA                                     * Kolicina  * STARA VPC*  RAZLIKA *  NOVA VPC*  IZNOS   *   PPP%  *  IZNOS   *"
+	? "*  *                                                *           *          *    VPC   *          *  RAZLIKE *         *   PPP    *"
+endif
 ? m
 nTotA:=nTotB:=nTotC:=0
 

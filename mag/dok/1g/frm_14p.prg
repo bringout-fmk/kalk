@@ -181,9 +181,11 @@ private cTRabat:="%"
 _PNAP:=0
 _MPC := tarifa->opp
 
-@ m_x+16,m_y+2 SAY "PDV (%)  " + TRANSFORM(_MPC, "99.99")
-
-//when {|| iif(roba->tip $ "VKX",_mpc:=0,NIL),iif(roba->tip $ "VKX",pPDV14(.f.),.t.)} valid pPDV14(.t.)
+if gPDVMagNab == "D"
+	@ m_x+16,m_y+2 SAY "PDV (%)  " + TRANSFORM(_MPC, "99.99")
+else
+	@ m_x+16,m_y+2 SAY "PDV (%)  " GET _MPC pict "99.99" when {|| iif(roba->tip $ "VKX",_mpc:=0,NIL),iif(roba->tip $ "VKX",pPDV14(.f.),.t.)} valid pPDV14(.t.)
+endif
 
 if gVarVP=="1"
 	_VPCsaPP:=0

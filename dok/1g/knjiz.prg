@@ -459,7 +459,11 @@ else
                		_idkonto:=cidkont2
                		_idkonto2:="XXX"
                		if _idvd=="16"
-                		Get1_16b()
+                		if IsPDV()
+					Get1_16bPDV()
+				else
+					Get1_16b()
+				endif
                		else
                 		Get1_80b()
                		endif
@@ -536,7 +540,11 @@ function NovaStavka()
               _kolicina:=-kolicina
               Box("",21,77,.f.,"Protustavka")
               if _idvd=="16"
-               Get1_16b()
+	      	if IsPDV()
+			Get1_16bPDV()
+		else
+               		Get1_16b()
+		endif
               else
                Get1_80b()
               endif
@@ -1021,9 +1029,15 @@ elseif _idvd=="KO"   // vindija KO
 		return GET1_14()
 	endif
 elseif _idvd=="15"
-	return GET1_15()
+	if !IsPDV()
+		return GET1_15()
+	endif
 elseif _idvd=="16"
-   	return GET1_16()
+   	if IsPDV()
+		return GET1_16PDV()
+	else
+		return GET1_16()
+	endif
 elseif _idvd=="18"
    	return GET1_18()
 elseif _idvd=="19"
@@ -1988,8 +2002,9 @@ do while .t.
 		elseif cIdVD == "10" .and. IsPDV()
 			StKalk10_PDV()
 		elseif cidvd $ "15"
-			StKalk15()
-
+			if !IsPDV()
+				StKalk15()
+			endif
 		elseif (cidvd $ "11#12#13")
 			if (c10Var=="3")
 				StKalk11_3()
@@ -2010,7 +2025,9 @@ do while .t.
 					Stkalk14()
 				endif
 			endif
-		elseif (cidvd $ "95#96#97#16")
+		elseif (cidvd $ "16#95#96#97") .and. IsPDV()
+			StKalk95_PDV()
+		elseif (cidvd $ "95#96#97#16") .and. !IsPDV()
 			if (gVarEv=="2")
 				Stkalk95_sk()
 			elseif (gmagacin=="1")

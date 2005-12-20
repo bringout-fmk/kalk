@@ -4,33 +4,7 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/frm_14.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: frm_14.prg,v $
- * Revision 1.6  2004/05/25 13:53:16  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.5  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.4  2003/10/06 15:00:26  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.3  2003/07/18 07:24:54  mirsad
- * stavio u f-ju kontrolu stanja za varijantu po narudzbama za izlazne dokumente (14,41,42)
- *
- * Revision 1.2  2002/06/19 13:57:53  mirsad
- * no message
- *
- *
  */
-
-
-/*! \file fmk/kalk/mag/dok/1g/frm_14.prg
- *  \brief Maska za unos dokumenta tipa 14
- */
- 
 
 /*! \fn Get1_14()
  *  \brief Prva strana maske za unos dokumenta tipa 14
@@ -80,10 +54,6 @@ endif
  	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!" valid  {|| P_Roba(@_IdRoba),Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
  endif
  @ m_x+11,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
-
- // IF lPoNarudzbi
- //   @ m_x+12,m_y+2 SAY "Po narudzbi br." GET _brojnar WHEN {|| _idnar:=_idpartner,.t.}
- // ENDIF
 
  IF !lPoNarudzbi
    @ m_x+12+IF(lPoNarudzbi,1,0),m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0

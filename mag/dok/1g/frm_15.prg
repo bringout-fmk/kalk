@@ -10,18 +10,10 @@
  */
 
 
-/*! \file fmk/kalk/mag/dok/1g/frm_15.prg
- *  \brief Maska za unos dokumenta tipa 15
- */
- 
-
 /*! \fn Get1_15()
  *  \brief Prva strana maske za unos dokumenta tipa 15
  */
 
-
-****************************************
-****************************************
 function Get1_15()
 *{
 private aPorezi:={}
@@ -194,18 +186,18 @@ if  koncij->naz=="N1"
 endif
 
 if koncij->naz<>"N1"
- if _kolicina>0
-  @ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolMag()
- else // storno zaduzenja
-  @ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolPro()
- endif
-  @ m_x+14,col()+2  SAY "VPC :"  GET _vpc picture picdem ;
+	if _kolicina>0
+  		@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolMag()
+ 	else // storno zaduzenja
+  		@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolPro()
+ 	endif
+  	@ m_x+14,col()+2  SAY "VPC :"  GET _vpc picture picdem ;
              when {|| iif(gCijene=="2",.f.,.t.)}
 else
-  _vpc:=_fcj
-  @ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)       :"  
-  if _kolicina>0
-    @ m_x+14,m_y+50   get _fcj    picture gPicNC ;
+	_vpc:=_fcj
+  	@ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)       :"  
+  	if _kolicina>0
+    		@ m_x+14,m_y+50   get _fcj    picture gPicNC ;
                         VALID {|| V_KolMag(),;
                         _vpc:=_Fcj,.t.}
   else // storno zaduzenja prodavnice

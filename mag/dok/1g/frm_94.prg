@@ -4,20 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/frm_94.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: frm_94.prg,v $
- * Revision 1.4  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.3  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.2  2002/06/19 13:57:53  mirsad
- * no message
- *
- *
  */
  
 
@@ -135,12 +121,16 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
  private _vpcsappp:=0
 
 
- if koncij->naz<>"N1"
+ if koncij->naz<>"N1" .or. (IsPDV() .and. gPDVMagNab=="D")
 
    if koncij->naz=="P2"
       @ m_x+14+IF(lPoNarudzbi,1,0),m_y+2   SAY "PLAN. C. " GET _VPC    picture picdem
    else
-      @ m_x+14+IF(lPoNarudzbi,1,0),m_y+2   SAY "VPC      " get _VPC    picture PicDEM
+      if IsPDV()
+      	@ m_x+14+IF(lPoNarudzbi,1,0),m_y+2   SAY "PROD.CIJ " get _VPC    picture PicDEM
+      else
+      	@ m_x+14+IF(lPoNarudzbi,1,0),m_y+2   SAY "VPC      " get _VPC    picture PicDEM
+      endif
    endif
 
  if _IdVD $ "94"   // storno fakture
@@ -149,30 +139,43 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
       valid V_RabatV()
 
  _PNAP:=0
- @ m_x+16+IF(lPoNarudzbi,1,0),m_y+2    SAY "PPP (%)  " get _MPC pict "99.99" ;
-  when {|| iif(roba->tip=="V",_mpc:=0,NIL),iif(roba->tip=="V",ppp14(.f.),.t.)} ;
-  valid ppp14(.t.)
-
- @ m_x+17+IF(lPoNarudzbi,1,0),m_y+2    SAY "PRUC (%) "; qqout(transform(TARIFA->VPP,"99.99"))
-
+ if IsPDV()
+ 	_MPC := tarifa->opp
+  	@ m_x+16,m_y+2    SAY "PDV (%)  " + TRANSFORM(_MPC,"99.99")
+ else
+  	@ m_x+16+IF(lPoNarudzbi,1,0),m_y+2    SAY "PPP (%)  " get _MPC pict "99.99" ;
+  	when {|| iif(roba->tip=="V",_mpc:=0,NIL),iif(roba->tip=="V",ppp14(.f.),.t.)} ;
+  	valid ppp14(.t.)
+ endif
+ if !IsPDV()
+ 	@ m_x+17+IF(lPoNarudzbi,1,0),m_y+2    SAY "PRUC (%) "; qqout(transform(TARIFA->VPP,"99.99"))
+ endif
 
  if gVarVP=="1"
   _VPCsaPP:=0
-  @ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "VPC + PPP  "
+  if IsPDV()
+  	@ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "PC SA PDV  "
+  else
+  	@ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "VPC + PPP  "
+  endif
   @ m_x+19+IF(lPoNarudzbi,1,0),m_Y+50 GET _vpcSaPP picture picdem ;
        when {|| _VPCSAPP:=iif(_VPC<>0,_VPC*(1-_RabatV/100)*(1+_MPC/100),0),ShowGets(),.t.} ;
        valid {|| _vpcsappp:=iif(_VPCsap<>0,_vpcsap+_PNAP,_VPCSAPPP),.t.}
 
  else  // preracunate stope
   _VPCsaPP:=0
-  @ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "VPC + PPP  "
+  if IsPDV()
+  	@ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "PC SA PDV  "
+  else
+  	@ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "VPC + PPP  "
+  endif
   @ m_x+19+IF(lPoNarudzbi,1,0),m_Y+50 GET _vpcSaPP picture picdem ;
        when {|| _VPCSAPP:=iif(_VPC<>0,_VPC*(1-_RabatV/100)*(1+_MPC/100),0),ShowGets(),.t.} ;
        valid {|| _vpcsappp:=iif(_VPCsap<>0,_vpcsap+_PNAP,_VPCSAPPP),.t.}
  endif
 
 
- if gMagacin=="1"  // ovu cijenu samo prikazati ako se vodi po nabavnim cijenama
+ if !IsPDV() .and. gMagacin=="1"  // ovu cijenu samo prikazati ako se vodi po nabavnim cijenama
   _VPCSAPPP:=0
   @ m_x+20+IF(lPoNarudzbi,1,0),m_y+2 SAY "VPC + PPP + PRUC:"
   @ m_x+20+IF(lPoNarudzbi,1,0),m_Y+50 GET _vpcSaPPP picture picdem  ;

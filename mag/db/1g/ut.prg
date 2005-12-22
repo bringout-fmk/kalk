@@ -900,3 +900,12 @@ return
 *}
 
 
+function IsMagPNab()
+*{
+if (IsPDV() .and. gPDVMagNab == "D") .or. koncij->naz=="N1"
+	return .t.
+else
+	return .f.
+endif
+return
+*}

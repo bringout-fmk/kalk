@@ -216,7 +216,7 @@ IF gVarEv=="2"
 	m:="-------- ----------- ------ ------ ---------- ---------- ----------"
 
 ELSE
-	m:="-------- ----------- ------ ------ ---------- ------ ---------- ---------- ---------- ---------- ----------"
+	m:="-------- ----------- ------ ------ ---------- ---------- ---------- ---------- ----------"
  	IF cPVSS=="N".and.koncij->naz="N1"
    		m+=" ---------- ----------"
 	ENDIF
@@ -227,15 +227,15 @@ ELSE
    	  		m+=" ---------- ----------"
    		ENDIF
 	endif
-
-	if gRokTr=="D"
-		m+=" --------"
-	endif
 ENDIF
 
 private nTStrana:=0
 
-Zagl()
+if IsPDV()
+	ZaglPDV()
+else
+	Zagl()
+endif
 
 do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , idfirma+mkonto+idroba=cIdFirma+cIdKonto+cIdR)
 	if mkonto<>cIdKonto .or. idfirma<>cIdFirma
@@ -668,6 +668,74 @@ return
 *}
 
 
+static function ZaglPDV()
+*{
+select konto
+hseek cIdKonto
+Preduzece()
+P_12CPI
+?? "KARTICA MAGACIN za period",ddatod,"-",ddatdo,space(10),"Str:",str(++nTStrana,3)
+IspisNaDan(5)
+IF lPoNarudzbi .and. !EMPTY(qqIdNar)
+	?
+  	? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
+  	?
+ENDIF
+if IsPlanika() .and. !EMPTY(cK9)
+	? "Uslov po K9:", cK9
+endif
+
+if IsDomZdr() .and. !EMPTY(cKalkTip)
+	PrikTipSredstva(cKalkTip)
+endif
+
+? "Konto: ",cIdKonto,"-",konto->naz
+select kalk
+if gVarEv=="2"
+	IF lPoNarudzbi .and. cPKN=="D"
+    		P_COND
+  	ELSE
+    		P_12CPI
+  	ENDIF
+elseif koncij->naz<>"N1"
+  	IF lPoNarudzbi .and. cPKN=="D" .or. cPVSS=="N"
+    		P_COND2
+  	ELSE
+    		P_COND
+  	ENDIF
+else
+  	IF lPoNarudzbi .and. cPKN=="D" .or. cPVSS=="N"
+    		P_COND
+  	ELSE
+    		P_12CPI
+  	ENDIF
+endif
+? m
+
+
+IF gVarEv=="2"
+	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   "
+ 	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          "
+ELSE
+	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and.koncij->naz="N1","  NV dug. *  NV pot. *","")+"   NV    *"
+	if koncij->naz<>"N1"
+    		?? "  RABAT   * PROD.C.  *"+IF(cPVSS=="N","  PV dug. *  PV pot. *","")+" PROD.V.  * PROD.C. *"
+	endif
+	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and.koncij->naz="N1","          *          *","")+"         *"
+	if koncij->naz<>"N1"
+  		?? "          * BEZ PDV  *"+IF(cPVSS=="N","          *          *","")+"          * SA PDV  *"
+	endif
+ENDIF
+
+? m
+
+return (nil)
+*}
+
+
+
+
+
 
 /*! \fn Zagl()
  *  \brief Zaglavlje izvjestaja "kartica magacin"
@@ -724,25 +792,17 @@ IF gVarEv=="2"
 ELSE
 	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and.koncij->naz="N1","  NV dug. *  NV pot. *","")+"   NV    *"
 	if koncij->naz<>"N1"
-  		if koncij->naz=="P2"
-    			?? "  RABAT   *  Plan.C  *"+IF(cPVSS=="N"," PlVr dug.* PlVr pot.*","")+" Plan.Vr *  MPCSAPP *"
-  		else
-    			?? "  RABAT   *   VPC    *"+IF(cPVSS=="N"," VPV dug. * VPV pot. *","")+"   VPV   *  MPCSAPP *"
-  		endif
-	endif
-	if gRokTr=="D"
-		?? "  RokTr"
+		if koncij->naz=="P2"
+			?? "  RABAT   *  Plan.C  *"+IF(cPVSS=="N"," PlVr dug.* PlVr pot.*","")+" Plan.Vr *  MPCSAPP *"
+		else
+			?? "  RABAT   *   VPC    *"+IF(cPVSS=="N"," VPV dug. * VPV pot. *","")+"   VPV   *  MPCSAPP *"
+		endif
 	endif
 	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and.koncij->naz="N1","          *          *","")+"         *"
 	if koncij->naz<>"N1"
   		?? "          *          *"+IF(cPVSS=="N","          *          *","")+"         *          *"
 	endif
 ENDIF
-
-/*
-? cZText1
-? cZText2
-*/
 
 ? m
 

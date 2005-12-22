@@ -121,7 +121,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
  private _vpcsappp:=0
 
 
- if koncij->naz<>"N1" .or. (IsPDV() .and. gPDVMagNab=="D")
+ if !IsMagPNab()
 
    if koncij->naz=="P2"
       @ m_x+14+IF(lPoNarudzbi,1,0),m_y+2   SAY "PLAN. C. " GET _VPC    picture picdem
@@ -191,7 +191,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
   _VPC:=_nc; marza:=0
  endif
 
- if koncij->naz<>"N1"
+ if !IsMagPNab()
    VPCuSif(_vpc)
  endif
 

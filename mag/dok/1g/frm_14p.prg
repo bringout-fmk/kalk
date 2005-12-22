@@ -179,8 +179,9 @@ private cTRabat:="%"
      valid {|| PrerRab(), V_RabatV(), ctrabat $ "%AU" }
 
 _PNAP:=0
-_MPC := tarifa->opp
-
+if gPDVMagNab == "D"
+	_MPC := tarifa->opp
+endif
 if gPDVMagNab == "D"
 	@ m_x+16,m_y+2 SAY "PDV (%)  " + TRANSFORM(_MPC, "99.99")
 else

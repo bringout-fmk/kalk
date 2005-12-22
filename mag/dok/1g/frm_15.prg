@@ -92,7 +92,7 @@ if fNovi
  select roba
  _MPCSaPP:=UzmiMPCSif()
 
- if koncij->naz<>"N1"
+ if koncij->naz<>"N1" .or. gPDVMagNab == "N"
    _FCJ:=NC; _VPC:=UzmiVPCSif(_mkonto)
  else
    _FCJ:=NC; _VPC:=NC
@@ -185,7 +185,7 @@ if  koncij->naz=="N1"
   _VPC:=_NC
 endif
 
-if koncij->naz<>"N1"
+if koncij->naz<>"N1" .or. gPDVMagNab == "N"
 	if _kolicina>0
   		@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolMag()
  	else // storno zaduzenja

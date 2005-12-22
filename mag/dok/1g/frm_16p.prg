@@ -115,7 +115,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
 
  	private _vpcsappp:=0
 
-	if koncij->naz<>"N1" .or. gPDVMagNab == "D"
+	if !IsMagPNab()
    
    		private fMarza:=" "
    		@ m_x+16,m_y+36   SAY "Magacin. Marza   :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
@@ -124,7 +124,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
    		@ m_x+19,m_y+2    SAY "PROD.CJENA BEZ PDV:"
    		@ m_x+19,col()+2  get _VPC    picture PicDEM;
                     VALID {|| Marza(fMarza),.t.}
-   		if gPDVMagNab == "D"
+   		if !IsMagPNab()
     			_mpcsapp:=roba->mpc
    			// VPC se izracunava pomocu MPC cijene !!
    			@ m_x+20,m_y+2 SAY "PROD.CJENA SA PDV:"
@@ -133,7 +133,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
 		endif
    		read
 		
-		if gPDVMagNab == "D"
+		if !IsMagPNab()
      			if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
        				select roba
 				replace mpc with _mpcsapp
@@ -149,7 +149,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
   		_VPC:=_nc; marza:=0
  	endif
 
-	if koncij->naz<>"N1" .or. gPDVMagNab == "D"
+	if !IsMagPNab()
    		VPCuSif(_vpc)
  	endif
 	
@@ -227,7 +227,7 @@ IF gVarEv=="1"
 
  private _vpcsappp:=0
 
- if koncij->naz<>"N1" .or. gPDVMagNab == "D"
+ if !IsMagPNab()
 
     @ m_x+15,m_y+2   SAY "PROD. CIJ " get _VPC    picture PicDEM
 
@@ -244,7 +244,7 @@ read
 
 IF gVarEv=="1"
 
- if koncij->naz<>"N1" .or. gPDVMagNab == "D"
+ if !IsMagPNab()
    VPCuSif(_vpc)
  endif
 

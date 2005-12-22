@@ -171,7 +171,7 @@ IF gVarEv=="1"
  if !glEkonomat
    @ m_x+14,m_y+2  SAY "NAB.CJ   "  GET _NC  picture gPicNC  valid V_KolMag()
    private _vpcsappp:=0
-   if koncij->naz<>"N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+   if !IsMagPNab()
      if _vpc=0
         _vpc := KoncijVPC()        // MS 19.12.00
      endif
@@ -182,12 +182,12 @@ IF gVarEv=="1"
      endif
      _PNAP:=0
      
-     if gMagacin=="1" .and. !IsPDV()
+     if gMagacin=="1" .and. !IsPDV() 
      // ovu cijenu samo prikazati ako se vodi po nabavnim cijenama
        _VPCSAPPP:=0
      endif
      
-     if IsPDV()
+     if IsPDV() .and. gPDVMagNab == "N"
      
     	_mpcsapp:=roba->mpc
    	// VPC se izracunava pomocu MPC cijene !!
@@ -307,7 +307,7 @@ if pIzgSt  .and. _kolicina>0 .and.  lastkey()<>K_ESC // izgenerisane stavke post
      loop
   endif
   if brdok==_brdok .and. idvd==_idvd .and. val(Rbr)==nRbr
-    if koncij->naz=="N1"
+    if IsMagPNab()
       nmarza:=0
       replace vpc with pripr->nc,;
           vpcsap with  pripr->nc,;
@@ -420,7 +420,7 @@ select PRIPR
 select koncij; seek trim(pripr->mkonto);select pripr
 
 m:="--- ------------------------- ---------- ----------- ----------"
-if koncij->naz<>"N1"
+if !IsMagPNab()
  m+=" ---------- ---------- --------- ---------- ----------"
 else  // nabavne cijene
  nLijevo+=2
@@ -430,7 +430,7 @@ endif
 ?
 ? space(nLijevo),m
 ? space(nLijevo),"*R * ARTIKAL                 * Kolicina *  NABAV.  *    NV    *"
-if koncij->naz<>"N1"
+if !IsMagPNab()
   if koncij->naz=="P1"
     ?? "   MARZA   *  MARZA  *   Iznos  *  Prod.C *  Prod.Vr *"
   elseif koncij->naz=="P2"
@@ -440,7 +440,7 @@ if koncij->naz<>"N1"
   endif
 endif
 ? space(nLijevo),"*BR*                         *          *  CJENA   *          *"
-if koncij->naz<>"N1"
+if !IsMagPNab()
   if koncij->naz=="P1"
    ?? "     %     *         *    marze *         *          *"
   else
@@ -517,7 +517,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     nC1:=pcol()+1
     @ prow(),pcol()+1   SAY NC                          PICTURE PicCDEM
     @ prow(),pcol()+1 SAY nU4  pict picdem
-    if koncij->naz<>"N1"
+    if !IsMagPNab()
      @ prow(),pcol()+1 SAY IF(NC==0,0,nMarza/NC*100)    PICTURE PicProc
      @ prow(),pcol()+1 SAY nmarza pict picdem
      @ prow(),pcol()+1 SAY nu5   pict picdem
@@ -539,7 +539,7 @@ enddo
    @ prow(),nc1      SAY 0  pict "@Z "+picdem
    @ prow(),pcol()+1 SAY nTot4  pict picdem
 
-   if koncij->naz<>"N1"
+   if !IsMagPNab()
     @ prow(),pcol()+1 SAY 0  pict "@Z "+picdem
     @ prow(),pcol()+1 SAY 0  pict "@Z "+picdem
     @ prow(),pcol()+1 SAY ntot5  pict picdem
@@ -558,7 +558,7 @@ if prow()>61+gPStranica; FF; @ prow(),125 SAY "Str:"+str(++nStr,3); endif
 @ prow()+1,1+nLijevo        SAY "Ukupno:"
 @ prow(),nc1      SAY 0  pict "@Z "+picdem
 @ prow(),pcol()+1 SAY unTot4  pict picdem
-if koncij->naz<>"N1"
+if !IsMagPNab()
  @ prow(),pcol()+1 SAY 0  pict "@Z "+picdem
  @ prow(),pcol()+1 SAY 0  pict "@Z "+picdem
  @ prow(),pcol()+1 SAY untot5  pict picdem

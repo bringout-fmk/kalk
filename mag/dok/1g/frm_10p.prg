@@ -168,7 +168,7 @@ if empty(_TMarza);  _TMarza:="%" ; endif
 @ m_x+8,m_y+2     SAY "NABAVNA CJENA:"
 @ m_x+8,m_y+50    GET _NC     PICTURE gPicNC
 
-if koncij->naz<>"N1" .or. gPDVMagNab == "D" 
+if !IsMagPNab() 
 	private fMarza:=" "
   	@ m_x+10,m_y+2    SAY "Magacin. Marza            :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
   	@ m_x+10,m_y+40 GET _Marza PICTURE PicDEM
@@ -188,7 +188,7 @@ if koncij->naz<>"N1" .or. gPDVMagNab == "D"
 
   	endif
 
-  	if gPDVMagNab == "D"
+  	if !IsMagPNab()
     		_mpcsapp:=roba->mpc
    		// VPC se izracunava pomocu MPC cijene !!
        		@ m_x+16,m_y+2 SAY "PROD.CJENA SA PDV:"
@@ -199,8 +199,8 @@ if koncij->naz<>"N1" .or. gPDVMagNab == "D"
   	endif
   	read
 
-  	if gPDVMagNab == "D"
-     		if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
+  	if !IsMagPNab()
+		if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
          		select roba; replace mpc with _mpcsapp
          		select pripr
      		endif
@@ -309,7 +309,7 @@ if empty(_TSpedTr); _TSpedtr:="%"; endif
 if empty(_TZavTr);  _TZavTr:="%" ; endif
 if empty(_TMarza);  _TMarza:="%" ; endif
 
-if koncij->naz<>"N1" .or. gPDVMagNab=="D"
+if !IsMagPNab()
    private fMarza:=" "
    @ m_x+17,m_y+36   SAY "Magacin. Marza   :" GET _TMarza VALID _Tmarza $ "%AU" PICTURE "@!"
    @ m_x+17,col()+1  GET _Marza PICTURE PicDEM
@@ -317,7 +317,7 @@ if koncij->naz<>"N1" .or. gPDVMagNab=="D"
    @ m_x+19,m_y+2    SAY "PROD.CJENA BEZ PDV:"
    @ m_x+19,col()+2  get _VPC    picture PicDEM;
                     VALID {|| Marza(fMarza),.t.}
-   if gPDVMagNab == "D"
+   if !IsMagPNab()
     	_mpcsapp:=roba->mpc
    	// VPC se izracunava pomocu MPC cijene !!
    	@ m_x+20,m_y+2 SAY "PROD.CJENA SA PDV:"
@@ -327,7 +327,7 @@ if koncij->naz<>"N1" .or. gPDVMagNab=="D"
    endif
    read
 
-   if gPDVMagNab == "D"
+   if !IsMagPNab()
      	if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
        		select roba
 		replace mpc with _mpcsapp

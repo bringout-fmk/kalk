@@ -51,7 +51,7 @@ next
 
 ? m
 ?  "* Tar.*  PDV%    *    MPV   *    PDV   *   MPV   *"
-?  "*     *  PDV%    *  bez PDV *   iznos  *  sa PDV *"
+?  "*     *          *  bez PDV *   iznos  *  sa PDV *"
 ? m
 
 aPKonta:=PKontoCnt(cIdFirma+cIdvd+cBrDok)

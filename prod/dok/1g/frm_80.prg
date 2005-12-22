@@ -250,13 +250,18 @@ select PRIPR
 @ m_x+16,col()+2  GET _Marza2 PICTURE  PicDEM valid {|| _vpc:=_nc, .t.}
 @ m_x+16,col()+1 GET fMarza pict "@!"
 
-@ m_x+17,m_y+2  SAY "MALOPROD. CJENA (MPC):"
+if IsPDV()
+	@ m_x+17,m_y+2  SAY "PROD.CJENA BEZ PDV   :"
+else
+	@ m_x+17,m_y+2  SAY "MALOPROD. CJENA (MPC):"
+endif
+
 @ m_x+17,m_y+50 GET _MPC picture PicDEM WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
 	       
 SayPorezi_lv(19, aPorezi)
 
 if IsPDV()
-	@ m_x+20,m_y+2 SAY "MPC SA PDV    :"
+	@ m_x+20,m_y+2 SAY "P.CJENA SA PDV:"
 else
 	@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
 endif

@@ -234,7 +234,7 @@ private aPorezi:={}
  @ m_x+13,col()+2 SAY "Popisana Kolicina" GET _Kolicina VALID VKol() PICTURE PicKol
 
  if IsPDV()
-   @ m_x+15,m_y+2    SAY "CIJENA (MPCSAPDV)" GET _mpcsapp pict picdem
+   @ m_x+15,m_y+2    SAY "P.CIJENA (SA PDV)" GET _mpcsapp pict picdem
  else
    @ m_x+15,m_y+2    SAY "CIJENA (MPCSAPP)" GET _mpcsapp pict picdem
  endif

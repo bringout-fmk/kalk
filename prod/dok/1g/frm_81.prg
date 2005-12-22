@@ -224,16 +224,20 @@ if empty(_TMarza);  _TMarza:="%" ; endif
     valid {|| _vpc:=_nc, .t.}
 @ m_x+10,col()+1 GET fMarza pict "@!"
 
-@ m_x+12,m_y+2  SAY "MALOPROD. CJENA (MPC):"
+if IsPDV()
+	@ m_x+12,m_y+2  SAY "PROD.CJENA BEZ PDV   :"
+else
+	@ m_x+12,m_y+2  SAY "MALOPROD. CJENA (MPC):"
+endif
 
 @ m_x+12,m_y+50 GET _MPC picture PicDEM WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
 
 SayPorezi(14)
 
 if IsPDV()
-	@ m_x+16,m_y+2 SAY "MPC SA PDV    :"
+	@ m_x+16,m_y+2 SAY "P.CIJENA SA PDV:"
 else
-	@ m_x+16,m_y+2 SAY "MPC SA POREZOM:"
+	@ m_x+16,m_y+2 SAY "MPC SA POREZOM :"
 endif
 
 @ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM VALID VMpcSaPP_lv(nil, nil, aPorezi)

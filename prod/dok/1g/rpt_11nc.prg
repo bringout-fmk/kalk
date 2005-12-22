@@ -211,8 +211,8 @@ function head_11_1(lPrikPRUC, cLine)
 *{
 if IsPDV()
 	? cLine
-  	? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *" + if(gPDVMagNab == "N", "MARZA   *", "") + "  MARZA   *    MPC   *   PDV %  *   PDV    * MPC     *"
-  	? "*BR*          *          *   U VP   *   U MP   *   U MP   *" + if(gPDVMagNab == "N","   VP     *", "") + "    MP    *          *          *          * SA PDV  *"
+  	? "*R * ROBA     * Kolicina *  NAB.CJ  *  TROSAK  *  NAB.CJ  *" + if(gPDVMagNab == "N", "MARZA   *", "") + "  MARZA   * PROD.CJ  *   PDV %  *   PDV    * PROD.CJ *"
+  	? "*BR*          *          *   U VP   *   U MP   *   U MP   *" + if(gPDVMagNab == "N","   VP     *", "") + "    MP    * BEZ PDV  *          *          * SA PDV  *"
   	? "*  *          *          *          *          *          *" + if(gPDVMagNab == "N", "         *", "") + "          *          *          *          *         *"
 else
 	IF lPrikPRUC

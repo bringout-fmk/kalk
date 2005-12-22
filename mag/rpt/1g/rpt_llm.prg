@@ -269,7 +269,7 @@ m:="----- ---------- -------------------- ---"+IF(lPoNarudzbi.and.cPKN=="D"," --
 
 if gVarEv=="2"
 	m:="----- ---------- -------------------- --- ---------- ---------- ----------"
-elseif koncij->naz<>"N1"
+elseif !IsMagPNab()
  	m+=" ---------- ----------"
 else
  	m+=" ----------"
@@ -283,7 +283,7 @@ if koncij->naz $ "P1#P2"
 	cPNab:="D"
 endif // ako je magacin got proizvoda
 
-if koncij->naz<>"N1" .and. cPNab=="D"
+if !IsMagPNab() .and. cPNab=="D"
 	gaZagFix:={7+IF(lPoNarudzbi.and.!EMPTY(qqIdNar),3,0),6}
 else
   	gaZagFix:={7+IF(lPoNarudzbi.and.!EMPTY(qqIdNar),3,0),5}
@@ -556,7 +556,7 @@ if fPocStanje
                nc with (nNVU-nNVI)/(nUlaz-nIzlaz),;
                vpc with (nVPVU-nVPVI)/(nUlaz-nIzlaz)
 
-       if koncij->NAZ=="N1"
+       if IsMagPNab()
                replace vpc with nc
        endif
     endif
@@ -569,7 +569,7 @@ nCol1:=pcol()+1
 
 if gVarEv=="1"
 
-if koncij->naz=="N1"
+if IsMagPNab()
  @ prow(),pcol()+1 SAY nNVU pict gpicdem
  @ prow(),pcol()+1 SAY nNVI pict gpicdem
  @ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
@@ -617,13 +617,13 @@ if gVarEv=="1"
 if cMink<>"N" .and. nMink>0
  @ prow(),ncol0    SAY padr("min.kolic:",len(gpickol))
  @ prow(),pcol()+1 SAY nKJMJ*nMink  pict gpickol
-elseif cPNAB=="D" .and. koncij->naz<>"N1"
+elseif cPNAB=="D" .and. !IsMagPNab()
  @ prow(),ncol0    SAY space(len(gpickol))
  @ prow(),pcol()+1 SAY space(len(gpickol))
 endif
 
 
-if cPNAB=="D" .and. koncij->naz<>"N1"
+if cPNAB=="D" .and. !IsMagPNab()
   if round(nulaz-nizlaz,4)<>0
     @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
     if cNCSif=="D"
@@ -687,7 +687,7 @@ nCol1:=pcol()+1
 
 if gVarEv=="1"
 
-if koncij->naz=="N1"
+if IsMagPNab()
  @ prow(),pcol()+1 SAY ntNVU pict gpicdem
  @ prow(),pcol()+1 SAY ntNVI pict gpicdem
  @ prow(),pcol()+1 SAY ntNVU-NtNVI pict gpicdem
@@ -698,7 +698,7 @@ else
  @ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict gpicdem
 endif
 
-if cpnab=="D" .and. koncij->naz<>"N1"
+if cpnab=="D" .and. !IsMagPNab()
 @ prow()+1,nCol1 SAY ntNVU pict gpicdem
 @ prow(),pcol()+1 SAY space(len(gpicdem))
 @ prow(),pcol()+1 SAY ntNVI pict gpicdem
@@ -784,7 +784,7 @@ if gVarEv=="2"
  ? " BR. * ARTIKLA  *   NAZIV ARTIKLA    *MJ.*"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *  STANJE  "+cSC1
  ? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   "+cSC2
  ? m
-elseif koncij->naz<>"N1"
+elseif !IsMagPNab()
  ? m
  if koncij->naz=="P1"
     ? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Prod.vr D *   Rabat  *Prod.vr P*  Prod.vr *  Prod.Cj *"+cSC1

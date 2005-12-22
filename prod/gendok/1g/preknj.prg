@@ -96,6 +96,7 @@ local nUvecaj // uvecaj broj kalkulacije za
 local cBrKalk // broj kalkulacije
 local cPKonto
 local nCnt
+local cPTarifa := "PDV17 "
 
 if !IsPDV()
 	MsgBeep("Opcija raspoloziva samo za PDV rezim rada !!!")
@@ -109,7 +110,6 @@ Box(,7, 65)
 	dDateOd := CToD("")
 	dDateDo := DATE()
 	dDatPst := DATE()
-	cPTarifa := SPACE(6)
 	
 	@ 1+m_x, 2+m_y SAY "Generacija pocetnog stanja..."
 	@ 3+m_x, 2+m_y SAY "Datum od" GET dDateOd 

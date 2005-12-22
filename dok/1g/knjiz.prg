@@ -2000,7 +2000,11 @@ do while .t.
 				endif
 			endif
 		elseif cIdVD == "10" .and. IsPDV()
-			StKalk10_PDV()
+			if gPDVMagNab == "D"
+				StKalk10_1()
+			else
+				StKalk10_PDV()
+			endif
 		elseif cidvd $ "15"
 			if !IsPDV()
 				StKalk15()
@@ -2026,7 +2030,11 @@ do while .t.
 				endif
 			endif
 		elseif (cidvd $ "16#95#96#97") .and. IsPDV()
-			StKalk95_PDV()
+			if gPDVMagNab == "D"
+				StKalk95_1()
+			else
+				StKalk95_PDV()
+			endif
 		elseif (cidvd $ "95#96#97#16") .and. !IsPDV()
 			if (gVarEv=="2")
 				Stkalk95_sk()

@@ -217,11 +217,11 @@ IF gVarEv=="2"
 
 ELSE
 	m:="-------- ----------- ------ ------ ---------- ---------- ---------- ---------- ----------"
- 	IF cPVSS=="N".and.koncij->naz="N1"
+ 	IF cPVSS=="N".and. IsMagPNab()
    		m+=" ---------- ----------"
 	ENDIF
 
-	if koncij->naz<>"N1"
+	if !IsMagPNab()
 		m+=" ---------- ---------- ---------- ----------"
    		IF cPVSS=="N"
    	  		m+=" ---------- ----------"
@@ -309,12 +309,12 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
           			else
            				@ prow(),pcol()+1 SAY 0          pict pickol
           			endif
-          			IF cPVSS=="N".and.koncij->naz="N1"
+          			IF cPVSS=="N".and. IsMagPNab()
             				@ prow(),pcol()+1 SAY tnNVd          pict picdem
             				@ prow(),pcol()+1 SAY tnNVp          pict picdem
           			ENDIF
           			@ prow(),pcol()+1 SAY nNV          pict picdem
-          			if koncij->naz<>"N1"
+          			if !IsMagPNab()
             				@ prow(),pcol()+1 SAY nRabat       pict pickol
             				if round(nulaz-nizlaz,4)<>0
               					@ prow(),pcol()+1 SAY nVPV/(nulaz-nizlaz) pict piccdem
@@ -368,12 +368,12 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 
     if datdok>=ddatod
      IF gVarEv=="1"
-       IF cPVSS=="N".and.koncij->naz="N1"
+       IF cPVSS=="N".and. IsMagPNab()
          @ prow(),pcol()+1 SAY nNVd   pict picdem
          @ prow(),pcol()+1 SAY nNVp   pict picdem
        ENDIF
        @ prow(),pcol()+1 SAY nNV   pict picdem
-       if koncij->naz<>"N1"
+       if !IsMagPNab()
         @ prow(),pcol()+1 SAY 0  pict piccdem
         if koncij->naz=="P2"
              @ prow(),pcol()+1 SAY roba->plc  pict piccdem
@@ -441,12 +441,12 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
     nRabat+=vpc*rabatv/100*kolicina
     if datdok>=ddatod
       IF gVarEv=="1"
-        IF cPVSS=="N".and.koncij->naz="N1"
+        IF cPVSS=="N".and. IsMagPNab()
           @ prow(),pcol()+1 SAY nNVd   pict picdem
           @ prow(),pcol()+1 SAY nNVp   pict picdem
         ENDIF
         @ prow(),pcol()+1 SAY nnv        pict picdem
-        if koncij->naz<>"N1"
+        if !IsMagPNab()
          if koncij->naz=="P2"
             @ prow(),pcol()+1 SAY vpc*rabatv/100*kolicina  pict piccdem
             @ prow(),pcol()+1 SAY roba->plc  pict piccdem
@@ -486,7 +486,7 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
       @ prow(),pcol()+1 SAY nUlaz-nIzlaz    pict pickol
       IF gVarEv=="1"
         @ prow(),pcol()+1 SAY nc        pict piccdem
-        IF cPVSS=="N".and.koncij->naz="N1"
+        IF cPVSS=="N".and. IsMagPNab()
           @ prow(),pcol()+1 SAY nNVd   pict picdem
           @ prow(),pcol()+1 SAY nNVp   pict picdem
         ENDIF
@@ -507,7 +507,7 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
     endif
     if datdok>=ddatod
       IF gVarEv=="1"
-        if koncij->naz<>"N1"
+        if !IsMagPNab()
          @ prow(),pcol()+1 SAY 0         pict piccdem
          if koncij->naz=="P2"
             @ prow(),pcol()+1 SAY roba->plc     pict piccdem
@@ -546,8 +546,8 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
        @ prow(),pcol()+1 SAY padr("NIV   ("+ transform(kolicina,pickol)+")",len(pickol)*2+1)
        @ prow(),pcol()+1 SAY padr(" stara VPC:",len(pickol)-2)
        @ prow(),pcol()+1 SAY mpcsapp       pict piccdem  // kod ove kalk to predstavlja staru vpc
-       @ prow(),pcol()+1 SAY padr("nova VPC:",len(piccdem)+IF(cPVSS=="N".and.koncij->naz="N1",2*(len(picdem)+1),0))
-       if koncij->naz<>"N1"
+       @ prow(),pcol()+1 SAY padr("nova VPC:",len(piccdem)+IF(cPVSS=="N".and. IsMagPNab(),2*(len(picdem)+1),0))
+       if !IsMagPNab()
         @ prow(),pcol()+1 SAY vpc+mpcsapp pict piccdem
         @ prow(),pcol()+1 SAY vpc         pict piccdem
         IF cPVSS=="N"
@@ -587,12 +587,12 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
     nRabat+=vpc*rabatv/100*kolicina
     if datdok>=ddatod
       IF gVarEv=="1"
-        IF cPVSS=="N".and.koncij->naz="N1"
+        IF cPVSS=="N".and. IsMagPNab()
           @ prow(),pcol()+1 SAY nNVd   pict picdem
           @ prow(),pcol()+1 SAY nNVp   pict picdem
         ENDIF
         @ prow(),pcol()+1 SAY nnv        pict picdem
-        if koncij->naz<>"N1"
+        if !IsMagPNab()
          if koncij->naz=="P2"
             @ prow(),pcol()+1 SAY vpc*rabatv/100*kolicina  pict piccdem
             @ prow(),pcol()+1 SAY roba->plc  pict piccdem
@@ -634,12 +634,12 @@ IF gVarEv=="1"
   else
    @ prow(),pcol()+1 SAY 0          pict pickol
   endif
-  IF cPVSS=="N".and.koncij->naz="N1"
+  IF cPVSS=="N".and. IsMagPNab()
     @ prow(),pcol()+1 SAY tnNVd          pict picdem
     @ prow(),pcol()+1 SAY tnNVp          pict picdem
   ENDIF
   @ prow(),pcol()+1 SAY nNV          pict picdem
-  if koncij->naz<>"N1"
+  if !IsMagPNab()
     @ prow(),pcol()+1 SAY nRabat       pict pickol
     if round(nulaz-nizlaz,4)<>0
       @ prow(),pcol()+1 SAY nVPV/(nulaz-nizlaz) pict piccdem
@@ -697,7 +697,7 @@ if gVarEv=="2"
   	ELSE
     		P_12CPI
   	ENDIF
-elseif koncij->naz<>"N1"
+elseif !IsMagPNab()
   	IF lPoNarudzbi .and. cPKN=="D" .or. cPVSS=="N"
     		P_COND2
   	ELSE
@@ -717,12 +717,12 @@ IF gVarEv=="2"
 	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   "
  	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          "
 ELSE
-	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and.koncij->naz="N1","  NV dug. *  NV pot. *","")+"   NV    *"
-	if koncij->naz<>"N1"
+	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and. IsMagPNab(),"  NV dug. *  NV pot. *","")+"   NV    *"
+	if !IsMagPNab()
     		?? "  RABAT   * PROD.C.  *"+IF(cPVSS=="N","  PV dug. *  PV pot. *","")+" PROD.V.  * PROD.C. *"
 	endif
-	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and.koncij->naz="N1","          *          *","")+"         *"
-	if koncij->naz<>"N1"
+	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and. IsMagPNab(),"          *          *","")+"         *"
+	if !IsMagPNab()
   		?? "          * BEZ PDV  *"+IF(cPVSS=="N","          *          *","")+"          * SA PDV  *"
 	endif
 ENDIF
@@ -770,7 +770,7 @@ if gVarEv=="2"
   	ELSE
     		P_12CPI
   	ENDIF
-elseif koncij->naz<>"N1"
+elseif !IsMagPNab()
   	IF lPoNarudzbi .and. cPKN=="D" .or. cPVSS=="N"
     		P_COND2
   	ELSE
@@ -790,16 +790,16 @@ IF gVarEv=="2"
 	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   "
  	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          "
 ELSE
-	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and.koncij->naz="N1","  NV dug. *  NV pot. *","")+"   NV    *"
-	if koncij->naz<>"N1"
+	? "*Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and. IsMagPNab(),"  NV dug. *  NV pot. *","")+"   NV    *"
+	if !IsMagPNab()
 		if koncij->naz=="P2"
 			?? "  RABAT   *  Plan.C  *"+IF(cPVSS=="N"," PlVr dug.* PlVr pot.*","")+" Plan.Vr *  MPCSAPP *"
 		else
 			?? "  RABAT   *   VPC    *"+IF(cPVSS=="N"," VPV dug. * VPV pot. *","")+"   VPV   *  MPCSAPP *"
 		endif
 	endif
-	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and.koncij->naz="N1","          *          *","")+"         *"
-	if koncij->naz<>"N1"
+	? "*       *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and. IsMagPNab(),"          *          *","")+"         *"
+	if !IsMagPNab()
   		?? "          *          *"+IF(cPVSS=="N","          *          *","")+"         *          *"
 	endif
 ENDIF

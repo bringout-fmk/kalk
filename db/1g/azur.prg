@@ -204,9 +204,11 @@ else
 endif
 
 if cPametno=="D"
-	Niv_10()  // nivelacija 10,94,16
- 	Niv_11()  // nivelacija 11,81
- 	Otprema() // iz otpreme napravi ulaza
+	if !IsPDV()
+		Niv_10()  // nivelacija 10,94,16
+ 		Niv_11()  // nivelacija 11,81
+ 	endif
+	Otprema() // iz otpreme napravi ulaza
  	Iz13u11()  // prenos iz prodavnice u prodavnicu
  	InvManj()
  	lOSitInv:=.f.

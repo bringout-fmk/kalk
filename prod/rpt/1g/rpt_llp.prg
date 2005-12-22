@@ -562,14 +562,22 @@ cSC2:=""
 select kalk
 ? m
 if cPredhStanje=="D"
-	? " R.  * Artikal  *   Naziv            *jmj*"+" Predh.st *  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
-  	? " br. *          *                    *   *"+" Kol/MPV  *                     *          *          *         *          *          *"+cSC2
+	if IsPDV()
+		? " R.  * Artikal  *   Naziv            *jmj*"+" Predh.st *  ulaz       izlaz   * STANJE   *  PV.Dug. *  PV.Pot *    PV    * PC.SA PDV*"+cSC1
+  	else
+		? " R.  * Artikal  *   Naziv            *jmj*"+" Predh.st *  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
+	endif
+	? " br. *          *                    *   *"+" Kol/MPV  *                     *          *          *         *          *          *"+cSC2
   	if cPNab=="D"
   		? "     *          *                    *   *"+"          *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
   	endif
 else
-	? " R.  * Artikal  *   Naziv            *jmj*  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
-  	? " br. *          *                    *   *                     *          *          *         *          *          *"+cSC2
+	if IsPDV()
+		? " R.  * Artikal  *   Naziv            *jmj*  ulaz       izlaz   * STANJE   *  PV.Dug. *  PV.Pot *    PV    * PC.SA PDV*"+cSC1
+  	else
+		? " R.  * Artikal  *   Naziv            *jmj*  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
+	endif
+	? " br. *          *                    *   *                     *          *          *         *          *          *"+cSC2
   	if cPNab=="D"
   		? "     *          *                    *   *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
   	endif

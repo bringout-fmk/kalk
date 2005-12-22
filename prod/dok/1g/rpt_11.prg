@@ -282,11 +282,11 @@ function head_11(lPrikPRUC, cLine)
 if IsPDV()
   	? cLine
   	if koncij->naz=="P2"
-    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  *    MPC   *   PDV %  *   PDV    *  MPC     *"
+    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+"* Plan.Cj. *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA  * PROD.CJ  *   PDV %  *   PDV    * PROD.CJ  *"
   	else
-    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+ "*   " + if(gPDVMagNab == "D", " NC","VPC") + "    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   *    MPC   *   PDV %  *   PDV   *  MPC     *"
+    		? "*R * ROBA     * Kolicina "+IF(g11bezNC=="D","","*  NAB.CJ  ")+ "*   " + if(gPDVMagNab == "D", " NC","VPC") + "    *  TROSAK  *"+IF(g11bezNC=="D","","  NAB.CJ  *  MARZA   *")+"  MARZA   * PROD.CJ  *   PDV %  *   PDV   * PROD.CJ  *"
   	endif
- 	? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP     *          *          *         *  SA PDV  *"
+ 	? "*BR*          *          "+IF(g11bezNC=="D","","*   U VP   ")+"*          *   U MP   *"+IF(g11bezNC=="D","","   U MP   *   VP     *")+"   MP     * BEZ PDV  *          *         *  SA PDV  *"
   	? "*  *          *          "+IF(g11bezNC=="D","","*          ")+"*          *          *"+IF(g11bezNC=="D","","          *          *")+"          *          *          *         *          *"
 else
 	IF lPrikPRUC

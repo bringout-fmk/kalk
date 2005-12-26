@@ -89,6 +89,9 @@ endif
 DatPosljK()
 DuplRoba()
 
+altd()
+
+
 if fNovi
 	select roba
   	_VPC:=KoncijVPC()
@@ -101,8 +104,10 @@ endif
 
 if gCijene="2" .and. fNovi
 	/////// utvrdjivanje fakticke VPC
-   	faktVPC(@_VPC,_idfirma+_idkonto2+_idroba)
-   	select pripr
+   	if gPDVMagNab == "N"
+		faktVPC(@_VPC,_idfirma+_idkonto2+_idroba)
+   	endif
+	select pripr
 endif
 
 VtPorezi()
@@ -167,6 +172,9 @@ if _TBankTr<>"X" .or. lPoNarudzbi   // ako je X onda su stavke vec izgenerisane
 endif
 select PRIPR
 
+altd()
+
+
 @ m_x+13+IF(lPoNarudzbi,1,0),m_y+2    SAY "NAB.CJ   "  GET _NC  picture PicDEM      valid V_KolMag()
 
 private _vpcsappp:=0
@@ -179,9 +187,11 @@ private cTRabat:="%"
      valid {|| PrerRab(), V_RabatV(), ctrabat $ "%AU" }
 
 _PNAP:=0
+
 if gPDVMagNab == "D"
 	_MPC := tarifa->opp
 endif
+
 if gPDVMagNab == "D"
 	@ m_x+16,m_y+2 SAY "PDV (%)  " + TRANSFORM(_MPC, "99.99")
 else

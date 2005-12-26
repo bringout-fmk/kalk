@@ -271,14 +271,18 @@ private fMarza:=" "
               _marza:=_vpc/(1+_PORVT)-_fcj, .t.}
 @ m_x+16,col()+1 GET fMarza pict "@!"   VALID {|| Marza2(fMarza),fMarza:=" ",.t.}
 
-@ m_x+18,m_y+2  SAY "MALOPROD. CJENA (MPC):"
+if IsPDV()
+	@ m_x+18,m_y+2  SAY "PRODAJNA CJENA       :"
+else
+	@ m_x+18,m_y+2  SAY "MALOPROD. CJENA (MPC):"
+endif
 
 @ m_x+18,m_y+50 GET _MPC picture PicDEM valid VMpc(.f.,fMarza) when WMpc(.f.,fMarza)
 
 SayPorezi(19)
 
 if IsPDV()
-	@ m_x+20,m_y+2 SAY "MPC SA PDV    :"
+	@ m_x+20,m_y+2 SAY "PROD.C. SA PDV:"
 else
 	@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
 endif

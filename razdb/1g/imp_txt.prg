@@ -68,7 +68,6 @@ if !CheckDok()
 	return
 endif
 
-altd()
 if CheckBrFakt(@aFaktEx) == 0
 	if Pitanje(,"Preskociti ove dokumente prilikom importa (D/N)?","D")=="D"
 		lFtSkip := .t.
@@ -502,7 +501,7 @@ return
  */
 function CrePripTDbf()
 *{
-
+close all
 FErase(PRIVPATH + "PRIPT.DBF")
 FErase(PRIVPATH + "PRIPT.CDX")
 

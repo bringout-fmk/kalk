@@ -486,8 +486,13 @@ if File(cTmpTbl + ".CDX") .and. FErase(cTmpTbl + ".CDX") == -1
 endif
 
 DbCreate2(cTmpTbl, aDbf)
-create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
 
+// provjeri jesu li partneri ili dokumenti
+if aDbf[1,1] == "idpartner"
+	create_index("1","idpartner", cTmpTbl)
+else
+	create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
+endif
 return
 *}
 

@@ -444,7 +444,11 @@ ELSE
   P_COND
 ENDIF
 ? m
-? " Datum     Dokument  Tarifa  Partn "+IF(lPoNarudzbi.and.cPKN=="D","Naruc.  Broj nar. ","")+"    Ulaz      Izlaz     Stanje      NC         VPC       MPCSAPP        MPV"
+if IsPDV()
+	? " Datum     Dokument  Tarifa  Partn "+IF(lPoNarudzbi.and.cPKN=="D","Naruc.  Broj nar. ","")+"    Ulaz      Izlaz     Stanje      NC          PC      PC SA PDV        PV"
+else
+	? " Datum     Dokument  Tarifa  Partn "+IF(lPoNarudzbi.and.cPKN=="D","Naruc.  Broj nar. ","")+"    Ulaz      Izlaz     Stanje      NC         VPC       MPCSAPP        MPV"
+endif
 ? m
 return
 *}

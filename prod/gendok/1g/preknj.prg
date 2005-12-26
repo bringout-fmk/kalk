@@ -300,6 +300,8 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	select roba
 	hseek cIdRoba
 	
+	nStCijena := roba->mpc
+	
 	if lPst
 		select kalksez
 	else
@@ -386,6 +388,7 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				replace idvd with "80"
 				replace brdok with cBrKalk
 				replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
+				//replace mpcsapp with nStCijena
 				replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
 				replace vpc with nc
 				replace TMarza2 with "A"
@@ -432,7 +435,9 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			replace idvd with "80"
 			replace brdok with cBrKalk
 			replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
-			replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+			
+			replace mpcsapp with nStCijena
+			//replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
 			replace vpc with nc
 			replace TMarza2 with "A"
 			// setuj marzu i MPC

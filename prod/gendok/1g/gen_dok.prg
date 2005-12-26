@@ -26,39 +26,56 @@ AADD(opc, "1. pocetno stanje                                ")
 AADD(opcexe, {|| PocStProd()})
 AADD(opc, "2. dokument inventure")
 AADD(opcexe, {|| IP()})
-AADD(opc, "3. nivelacija prema zadatnom %")
-AADD(opcexe, {|| NivPoProc()})
-AADD(opc, "4. vrati na cijene prije posljednje nivelacije")
-AADD(opcexe, {|| VratiZadNiv()})
-AADD(opc, "5. ------------------------------------")
+AADD(opc, "3. nivelacije")
+AADD(opcexe, {|| MnuPNivel()})
+AADD(opc, "-----------------------------------------------")
 AADD(opcexe, {|| nil})
+
 if IsPDV()
-	AADD(opc, "6. generisi poc.stanja PPP->PDV17")
+	AADD(opc, "4. generisi poc.stanja PPP->PDV17")
 	AADD(opcexe, {|| GetPstPDV()})
 endif
-AADD(opc, "7. preknjizenje stanja na drugi konto")
+
+AADD(opc, "5. preknjizenje stanja na drugi konto")
 AADD(opcexe, {|| GetPreknj()})
+
 if IsPDV()
-	AADD(opc, "8. set roba tarifa PPP->PDV17")
+	AADD(opc, "6. set roba tarifa PPP->PDV17")
 	AADD(opcexe, {|| roba_pdv17()})
 endif
 
-AADD(opc, "9. generacija nivelacije za sve prodavnice")
-AADD(opcexe, {|| get_nivel_p()})
-AADD(opc, "10. pregled efekata nivelacije za sve prodavnice")
-AADD(opcexe, {|| result_nivel_p()})
-AADD(opc, "11. azuriranje nivelacije za sve prodavnice")
-AADD(opcexe, {|| obr_nivel_p()})
-
 private Izbor:=1
 Menu_SC("gdpr")
-
 
 return
 *}
 
 
+function MnuPNivel()
+*{
+private Opc:={}
+private OpcExe:={}
 
+AADD(opc, "1. nivelacija prema zadatnom %                  ")
+AADD(opcexe, {|| NivPoProc()})
+AADD(opc, "2. vrati na cijene prije posljednje nivelacije")
+AADD(opcexe, {|| VratiZadNiv()})
+AADD(opc, "---------------------------------------------")
+AADD(opcexe, {|| nil})
+AADD(opc, "3. generacija nivelacije za sve prodavnice")
+AADD(opcexe, {|| get_nivel_p()})
+AADD(opc, "4. PDV nivelacija - zadrzi cijene")
+AADD(opcexe, {|| get_zcnivel()})
+AADD(opc, "5. pregled efekata nivelacije za sve prodavnice")
+AADD(opcexe, {|| result_nivel_p()})
+AADD(opc, "6. azuriranje nivelacije za sve prodavnice")
+AADD(opcexe, {|| obr_nivel_p()})
+
+
+private Izbor:=1
+Menu_SC("pmn")
+return
+*}
 /*! \fn GenNivP()
  *  \brief Generisanje 19-ke na osnovu azuriranog dokumenta IP
  */

@@ -288,43 +288,48 @@ return
 function FaktVPC(nVPC,cseek,dDatum)
 *{
 local nOrder
-  if koncij->naz=="V2" .and. roba->(fieldpos("vpc2"))<>0
-    nVPC:=roba->vpc2
-  elseif koncij->naz=="P2"
-    nVPC:=roba->plc
-  elseif roba->(fieldpos("vpc"))<>0
-    nVPC:=roba->vpc
-  else
-    nVPC:=0
-  endif
 
-  select kalk
-  PushWa()
-  set filter to
-  //nOrder:=indexord()
-  set order to 3 //idFirma+mkonto+idroba+dtos(datdok)
-  seek cseek+"X"
-  skip -1
+if koncij->naz=="V2" .and. roba->(fieldpos("vpc2"))<>0
+	nVPC:=roba->vpc2
+elseif koncij->naz=="P2"
+	nVPC:=roba->plc
+elseif roba->(fieldpos("vpc"))<>0
+	nVPC:=roba->vpc
+else
+	nVPC:=0
+endif
 
-  do while !bof() .and. idfirma+mkonto+idroba==cseek
+select kalk
+PushWa()
+set filter to
+//nOrder:=indexord()
+set order to 3 //idFirma+mkonto+idroba+dtos(datdok)
+seek cseek+"X"
+skip -1
 
-    if dDatum<>NIL .and. dDatum<datdok
-       skip -1; loop
-    endif
-    //if mu_i=="1" //.or. mu_i=="5"
-    if idvd $ "RN#10#16#12#13"
-      if koncij->naz<>"P2"
-        nVPC:=vpc
-      endif
-      exit
-    elseif idvd=="18"
-      nVPC:=mpcsapp+vpc
-      exit
-    endif
-    skip -1
-  enddo
-  PopWa()
-  //dbsetorder(nOrder)
+altd()
+
+do while !bof() .and. idfirma+mkonto+idroba==cseek
+
+if dDatum<>NIL .and. dDatum<datdok
+	skip -1
+	loop
+endif
+
+//if mu_i=="1" //.or. mu_i=="5"
+if idvd $ "RN#10#16#12#13"
+	if koncij->naz<>"P2"
+        	nVPC:=vpc
+      	endif
+      	exit
+elseif idvd=="18"
+	nVPC:=mpcsapp+vpc
+      	exit
+endif
+skip -1
+enddo
+PopWa()
+//dbsetorder(nOrder)
 return
 *}
 
@@ -554,17 +559,18 @@ return .t.
 
 function KoncijVPC()
 *{
- // podrazumjeva da je nastimana tabela koncij
- // ------------------------------------------
- if koncij->naz=="P2"
-   return roba->plc
- elseif koncij->naz=="V2"
-   return roba->VPC2
- elseif koncij->naz=="V3"
-   return roba->VPC3
- else
-   return roba->VPC
- endif
+// podrazumjeva da je nastimana tabela koncij
+// ------------------------------------------
+if koncij->naz=="P2"
+	return roba->plc
+elseif koncij->naz=="V2"
+	return roba->VPC2
+elseif koncij->naz=="V3"
+	return roba->VPC3
+else
+	return roba->VPC
+endif
+
 return (nil)
 *}
 

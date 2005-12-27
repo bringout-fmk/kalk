@@ -191,7 +191,6 @@ function Get2_81()
 local cSPom:=" (%,A,U,R) "
 private getlist:={}
 private fMarza:=" "
-aPorezi := {}
 
 if empty(_TPrevoz); _TPrevoz:="%"; endif
 if empty(_TCarDaz); _TCarDaz:="%"; endif
@@ -232,7 +231,17 @@ endif
 
 @ m_x+12,m_y+50 GET _MPC picture PicDEM WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
 
-SayPorezi(14)
+if IsPDV()
+	@ m_x+14, m_y+2 SAY "PDV (%):"
+	@ row(),col()+2 SAY  TARIFA->OPP PICTURE "99.99" 
+else
+	@ m_x+14, m_y+2 SAY "PPP (%):"
+	@ row(),col()+2 SAY  TARIFA->OPP PICTURE "99.99" 
+	@ m_x+14,col()+8  SAY "PPU (%):"
+	@ row(),col()+2  SAY TARIFA->PPP PICTURE "99.99" 
+	@ m_x+14,col()+8  SAY "PP (%):"
+	@ row(),col()+2  SAY TARIFA->ZPP PICTURE "99.99" 
+endif
 
 if IsPDV()
 	@ m_x+16,m_y+2 SAY "P.CIJENA SA PDV:"

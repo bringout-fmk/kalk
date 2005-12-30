@@ -61,8 +61,6 @@ Box(, 2, 65)
 
 O_DOKS
 
-altd()
-
 nUvecaj := 1
 for nCnt:=1 to LEN(aProd)
 	// daj broj kalkulacije
@@ -251,6 +249,7 @@ function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs)
 local cIdFirma
 local nRbr
 local fPocStanje:=.t.
+local n_MpcBP_predhodna
 
 O_ROBA
 if lPst
@@ -366,6 +365,9 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	
 	if Round(nMPVU-nMPVI+nPMPV,4)<>0 
   		select pript
+
+		// MPC bez poreza u + stavci
+		n_MpcBP_predhodna := 0
   		if round(nUlaz-nIzlaz,4)<>0
      			if !lPst
 				// prva stavka stara tarifa
@@ -398,6 +400,8 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 					VMpc_lv(nil, nil, aPorezi)
 					VMpcSaPP_lv(nil, nil, aPorezi, .f.)
 				endif
+				// uzmi cijenu bez poreza za + stavku
+				n_MpcBP_predhodna := _mpc
 				Gather()
 			endif
 			
@@ -436,7 +440,9 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			replace brdok with cBrKalk
 			replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
 			
-			replace mpcsapp with nStCijena
+			replace mpc with n_MpcBP_predhodna := _mpc
+
+			//replace mpcsapp with nStCijena
 			//replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
 			replace vpc with nc
 			replace TMarza2 with "A"

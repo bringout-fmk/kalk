@@ -4,49 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_all.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.12 $
- * $Log: frm_all.prg,v $
- * Revision 1.12  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.11  2003/02/10 02:19:01  mirsad
- * no message
- *
- * Revision 1.10  2002/12/30 01:34:44  mirsad
- * ispravke bugova-Planika
- *
- * Revision 1.9  2002/12/26 16:08:07  mirsad
- * no message
- *
- * Revision 1.8  2002/12/19 09:32:42  mirsad
- * nova opcija u meniju ost.opcije/2 (F11) "3. pretvori maloprod.popust u smanjenje MPC"
- *
- * Revision 1.7  2002/10/17 14:37:31  mirsad
- * nova opcija prenosa dokumenata: FAKT11->KALK42
- * dorada za Vindiju (sa rabatom u MP)
- *
- * Revision 1.6  2002/08/02 13:40:58  mirsad
- * za Jerry: da se i pri promjeni artikla u ispravci stavke osvjezi sifra tarife
- *
- * Revision 1.5  2002/07/18 14:05:40  mirsad
- * izolovanje specifiènosti pomoæu IsJerry()
- *
- * Revision 1.4  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.3  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- * Revision 1.2  2002/06/19 19:48:40  ernad
- *
- *
- * ciscenje
- *
- *
  */
  
 
@@ -320,7 +277,7 @@ if _mpcsapp<>0
 endif
 
 if fRealizacija
-  if (_idvd=="47" .and. !(IsJerry().and._idvd="4"))
+  if (_idvd=="47" .and. !( IsJerry() .and. _idvd="4"))
      _nc:=_mpc
   endif
 endif
@@ -346,7 +303,7 @@ endif
 if fRealizacija
   fMarza:=" "
 endif
-if fMarza==NIL 
+if fMarza==nil 
   fMarza:=" "
 endif
 
@@ -382,12 +339,12 @@ else
    nPom:=_mpcsapp
 endif
 
-if fMarza==NIL 
+if fMarza==nil 
   fMarza:=" "
 endif
-altd()
+
 if _mpcsapp<>0 .and. empty(fMarza)
-  _mpc:=MpcBezPor(nPom, aPorezi, , _nc)
+  _mpc:= MpcBezPor (nPom, aPorezi, , _nc)
   _marza2:=0
   if fRealizacija
     Marza2R()

@@ -475,7 +475,6 @@ seek cIdFirma + cIdTipDok + "X"
 // vrati se na zadnji zapis
 skip -1
 
-altd()
 
 do while .t.
 	for i:=1 to LEN(ALLTRIM(field->brDok)) 
@@ -502,7 +501,6 @@ return cResult
 
 function IsNumeric(cString)
 *{
-altd()
 if AT(cString, "0123456789")<>0
 	lResult:=.t.
 else

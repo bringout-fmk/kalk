@@ -268,6 +268,7 @@ local nRbr
 local cIdFirma 
 local cIdVd
 local cIdRoba
+local cIdTarifa
 local nNivCijena
 local nStCijena
 
@@ -302,7 +303,8 @@ do while !EOF() .and. cIdFirma + cPKonto == field->idFirma + field->pkonto
 
 	do while !EOF() .and. cIdFirma + cPKonto + cIdRoba == field->idfirma + field->pkonto + field->idroba
 		
-		if field->datdok > dDatDok // preskoci
+		if field->datdok > dDatDok
+		        // preskoci
 			skip
 			loop
 		endif
@@ -311,20 +313,22 @@ do while !EOF() .and. cIdFirma + cPKonto == field->idFirma + field->pkonto
 			nUlaz+=kolicina-GKolicina-GKolicin2
 		elseif pu_i=="5"  .and. !(idvd $ "12#13#22")
     			nIzlaz+=kolicina
-		elseif pu_i=="5"  .and. (idvd $ "12#13#22")    // povrat
-    			nUlaz-=kolicina
-		elseif pu_i=="3"    // nivelacija
+		elseif pu_i=="5"  .and. (idvd $ "12#13#22")    
+		        // povrat
+    			nUlaz -= kolicina
+		elseif pu_i=="3"    
+		        // nivelacija
     			//nMPVU+=mpcsapp*kolicina
 		elseif pu_i=="I"
-    			nIzlaz+=gkolicin2
+    			nIzlaz += gKolicin2
   		endif
 		
 		skip
 	
-	enddo // po orderu 4
+	enddo 
 
 	// ako je Stanje <> 0 preskoci
-	if Round(nUlaz-nIzlaz,4) == 0
+	if Round (nUlaz-nIzlaz, 4) == 0
 		select kalk
 		loop
 	endif
@@ -333,22 +337,28 @@ do while !EOF() .and. cIdFirma + cPKonto == field->idFirma + field->pkonto
 	select roba
 	set order to tag "ID"
 	hseek cIdRoba
+        cIdTarifa := roba->idtarifa
 	
 	// nadji tarifu
 	select tarifa
 	set order to tag "ID"
-	hseek roba->idtarifa
+	hseek cIdTarifa
 	nTarStopa := tarifa->opp
 	
 	select kalk
 
-	// stara cijena
+	// stara cijena !!!
+	// ako KARTICA NE VALJA OVAJ DOKUMENT NECE VALJATI
+	// prije pokretanja ove nivelacije mora se provjeriti 
+	// da li ima ERR na lager listi !!!!!
+	// ako ima mora se ta greska ispraviti
 	nStCijena := roba->mpc
 	
 	// maloprodajna cijena bez poreza PP
 	nMpcbpPP := nStCijena / (1 + (nTarStopa / 100))
 	// maloprodajna cijena bez poreza PDV
 	nMpcbpPDV := nStCijena / (1 + (17 / 100))
+	
 	// razlika bez poreza
 	nCRazlbp := nMpcbpPDV - nMpcbpPP
 	// razlika sa uracunatim porezom
@@ -365,7 +375,7 @@ do while !EOF() .and. cIdFirma + cPKonto == field->idFirma + field->pkonto
 	_pkonto := cPKonto
 	_pu_i := "3"
 	_idroba := cIdRoba
-	_idtarifa := Tarifa(cPKonto, cIdRoba, @aPorezi, roba->idtarifa)
+	_idtarifa := Tarifa(cPKonto, cIdRoba, @aPorezi, cIdTarifa)
 	_idvd := "19"
 	_brdok := cBrKalk
 	_tmarza2 := "A"
@@ -374,10 +384,12 @@ do while !EOF() .and. cIdFirma + cPKonto == field->idFirma + field->pkonto
 	_datdok := dDatDok
 	_datfaktp := dDatDok
 	_datkurs := dDatDok
-	_MPCSaPP := nNivCijena - nStCijena
-	_MPC := 0
+	//_MPCSaPP := nNivCijena - nStCijena
+	//_MPC := 0
+	_MPCSaPP := nCRazlsp
 	_fcj := nStCijena
-	_mpc := MpcBezPor(nNivCijena, aPorezi, , _nc) - MpcBezPor(nStCijena, aPorezi, , _nc)
+	//_MPC := MpcBezPor(nNivCijena, aPorezi, , _nc) - MpcBezPor(nStCijena, aPorezi, , _nc)
+	_MPC := nCRazlbp 
 	_error := "0"
 	Gather()
 

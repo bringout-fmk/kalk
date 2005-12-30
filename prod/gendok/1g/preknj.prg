@@ -69,7 +69,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY "Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
 	
-	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE())
+	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE(), "1")
 	
 	++ nUvecaj
 next
@@ -101,19 +101,21 @@ if !IsPDV()
 	return
 endif
 
-Box(,7, 65)
+Box(,9, 65)
 	O_KONTO
 	O_TARIFA
 	cProdKto := SPACE(7)
 	dDateOd := CToD("")
 	dDateDo := DATE()
 	dDatPst := DATE()
+	cSetCj := "1"
 	
 	@ 1+m_x, 2+m_y SAY "Generacija pocetnog stanja..."
 	@ 3+m_x, 2+m_y SAY "Datum od" GET dDateOd 
 	@ 3+m_x, col()+m_y SAY "datum do" GET dDateDo 
 	@ 5+m_x, 2+m_y SAY "Datum pocetnog stanja" GET dDatPst 
 	@ 6+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
+	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "12"
 	read
 BoxC()
 // prekini operaciju
@@ -158,7 +160,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY "Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
 	// gen poc.st
-	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst)
+	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst, cSetCj)
 	
 	++ nUvecaj
 next
@@ -244,19 +246,21 @@ return
  *  \param cBrKalk - broj kalkulacije
  *  \param lPst - pocetno stanje
  */
-function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs)
+function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs, cCjSet)
 *{
 local cIdFirma
 local nRbr
 local fPocStanje:=.t.
 local n_MpcBP_predhodna
 
-O_ROBA
 if lPst
+	O_ROBASEZ
 	O_KALKSEZ
 else
 	O_KALK
 endif
+
+O_ROBA
 O_KONTO
 O_KONCIJ
 O_TARIFA
@@ -296,10 +300,12 @@ nRbr:=0
 do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	cIdRoba:=Idroba
 	
-	select roba
+	if lPst
+		select robasez
+	else
+		select roba
+	endif
 	hseek cIdRoba
-	
-	nStCijena := roba->mpc
 	
 	if lPst
 		select kalksez
@@ -317,13 +323,21 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	nNVU:=0
 	nNVI:=0
 	nRabat:=0
+	
 	// usluge
-	if roba->tip $ "TU"
-		skip
-		loop
+	if lPst
+		if robasez->tip $ "TU"
+			skip
+			loop
+		endif
+	else
+		if roba->tip $ "TU"
+			skip
+			loop
+		endif
 	endif
 		
-	do while !eof() .and. cIdFirma+cPKonto+cIdRoba==idFirma+pkonto+idroba .and. IspitajPrekid()
+	do while !eof() .and. cIdFirma+cPKonto+cIdRoba==idFirma+pkonto+idroba
   		
 		// provjeri datumski
 		if (field->datdok < dDatOd) .or. (field->datdok > dDatDo)
@@ -331,10 +345,17 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
       			loop
     		endif
 
-  		if roba->tip $ "TU"
-  			skip
-			loop
-  		endif
+  		if lPst
+			if robasez->tip $ "TU"
+				skip
+				loop
+			endif
+		else
+			if roba->tip $ "TU"
+  				skip
+				loop
+  			endif
+		endif
 		
   		if field->datdok >= dDatOd  // nisu predhodni podaci
   			if field->pu_i=="1"
@@ -429,21 +450,26 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				replace datdok with dDatDo
 			endif
 			replace datkurs with dDatDo
+			
 			replace idTarifa with Tarifa(cPKonto, cIdRoba, @aPorezi, cPrTarifa)
+			
 			if lPst
 				replace datfaktp with dDatPst
 			else
 				replace datfaktp with dDatDo
 			endif
+			
 			replace kolicina with nUlaz-nIzlaz
 			replace idvd with "80"
 			replace brdok with cBrKalk
 			replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
 			
-			replace mpc with n_MpcBP_predhodna := _mpc
-
-			//replace mpcsapp with nStCijena
-			//replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+			if !lPst 
+				replace mpc with n_MpcBP_predhodna := _mpc
+			else
+				replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+			endif
+			
 			replace vpc with nc
 			replace TMarza2 with "A"
 			// setuj marzu i MPC
@@ -452,10 +478,34 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				VMpc_lv(nil, nil, aPorezi)
 				VMpcSaPP_lv(nil, nil, aPorezi, .f.)
 			endif
+			
+			if lPst
+				nNMpcSaPDV := _mpcsapp
+			endif
+			
 			Gather()
+			
+			// ubaci novu mpc u sifrarnik robe
+			// ubaci novu tarifu robe
 
+			if lPst
+				select roba
+				hseek cIdRoba
+				
+				if cCjSet == "1"
+					replace mpc with nNMpcSaPDV
+				endif
+				
+				if cCjSet == "2"
+					replace mpc2 with nNMpcSaPDV
+				endif
+				
+				replace idtarifa with "PDV17 " 	
+			endif
+			
 		endif
-  		if lPst
+  		
+		if lPst
 			select kalksez
 		else
 			select kalk

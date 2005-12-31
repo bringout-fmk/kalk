@@ -84,7 +84,7 @@ for ik:=1 to 2
      			// nMPC2:=Iznos/(1+tarifa->ppp/100)
      			// nMPC1:=nMPC2/(1+tarifa->opp/100)
    		else
-     			nMPC1 := MpcBezPor( nMPCSaPP , aPorezi )
+			nMPC1 := MpcBezPor( nMPCSaPP , aPorezi )
      			nMPC2 := nMPC1 + Izn_P_PPP( nMPC1 , aPorezi )
      			// nMPC2:=nMPCSaPP/(1+tarifa->ppp/100)
      			// nMPC1:=nMPC2/(1+tarifa->opp/100)
@@ -175,8 +175,12 @@ for ik:=1 to 2
 		skip 1
 	ENDDO
 	if prow()>gnRedova-4 .and. gOstr=="D"
+		skip -1
+		
 		FF
 		ZOlPP()
+		
+		skip 1
 	endif
         // bilo:  EJECTNA0
 	? m

@@ -29,15 +29,26 @@
  *
  */
 
-function SumirajKolicinu(nUlaz, nIzlaz, nTotalUlaz, nTotalIzlaz, fPocStanje)
+function SumirajKolicinu(nUlaz, nIzlaz, nTotalUlaz, nTotalIzlaz, fPocStanje, lPrikazK2)
 *{
+
 if fPocStanje==nil
 	fPocStanje:=.f.
 endif
+
+if lPrikazK2 == nil
+	lPrikazK2 := .f.
+endif
+
 if (IsPlanika() .and. !fPocStanje)
-	if roba->k2<>PADR("X",4)
+	if lPrikazK2
 		nTotalUlaz+=nUlaz
 		nTotalIzlaz+=nIzlaz
+	else
+		if roba->k2<>PADR("X",4)
+			nTotalUlaz+=nUlaz
+			nTotalIzlaz+=nIzlaz
+		endif
 	endif
 else
 	nTotalUlaz+=nUlaz
@@ -46,6 +57,8 @@ endif
 
 return
 *}
+
+
 
 function FillPObjekti()
 *{

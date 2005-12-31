@@ -68,12 +68,13 @@ private cTU:="N"
 private cSredCij:="N"
 private cPrikazDob:="N"
 private cPlVrsta:=SPACE(1)
+private cPrikK2:="N"
 
 if IsDomZdr()
 	private cKalkTip:=SPACE(1)
 endif
 
-Box(,17+IF(IsTvin(),1,0),68)
+Box(,18+IF(IsTvin(),1,0),68)
 
 cGrupacija:=space(4)
 cPredhStanje:="N"
@@ -112,6 +113,7 @@ do while .t.
  		@ m_x+15,m_y+2 SAY "Prikaz dobavljaca (D/N) ?" GET cPrikazDob pict "@!" valid cPrikazDob $ "DN"
 		@ m_x+16,m_y+2 SAY "Prikaz po K9 (uslov)" GET cK9 pict "@!"
 		@ m_x+17,m_y+2 SAY "Prikaz po pl.vrsta (uslov)" GET cPlVrsta pict "@!"
+		@ m_x+18,m_y+2 SAY "Prikazati K2 = 'X' (D/N)" GET cPrikK2 pict "@!" valid cPrikK2$"DN"
  	endif
 	
 	if IsDomZdr()	
@@ -148,6 +150,10 @@ endif
 
 if fPocStanje
 	O_PRIPR
+endif
+lPrikK2 := .f.
+if cPrikK2 == "D"
+	lPrikK2 := .t.
 endif
 
 O_SIFK
@@ -292,18 +298,18 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
   		if cPredhStanje=="D"
     			if datdok<dDatOd
      				if pu_i=="1"
-       					SumirajKolicinu(kolicina, 0, @nPKol, 0, fPocStanje)
+       					SumirajKolicinu(kolicina, 0, @nPKol, 0, fPocStanje, lPrikK2)
        					nPMPV+=mpcsapp*kolicina
        					nPNV+=nc*(kolicina)
      				elseif pu_i=="5"
-       					SumirajKolicinu(-kolicina, 0, @nPKol, 0, fPocStanje)
+       					SumirajKolicinu(-kolicina, 0, @nPKol, 0, fPocStanje, lPrikK2)
        					nPMPV-=mpcsapp*kolicina
        					nPNV-=nc*kolicina
      				elseif pu_i=="3"    
        					// nivelacija
        					nPMPV+=field->mpcsapp*field->kolicina
      				elseif pu_i=="I"
-       					SumirajKolicinu(-gKolicin2, 0, @nPKol, 0, fPocStanje)
+       					SumirajKolicinu(-gKolicin2, 0, @nPKol, 0, fPocStanje, lPrikK2)
        					nPMPV-=mpcsapp*gkolicin2
        					nPNV-=nc*gkolicin2
      				endif
@@ -327,17 +333,17 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
   		endif
   		if DatDok>=dDatOd  // nisu predhodni podaci
   			if pu_i=="1"
-    				SumirajKolicinu(kolicina, 0, @nUlaz, 0, fPocStanje)
+    				SumirajKolicinu(kolicina, 0, @nUlaz, 0, fPocStanje, lPrikK2)
     				nCol1:=pcol()+1
     				nMPVU+=mpcsapp*kolicina
     				nNVU+=nc*(kolicina)
   			elseif pu_i=="5"
     				if idvd $ "12#13"
-     					SumirajKolicinu(-kolicina, 0, @nUlaz, 0, fPocStanje)
+     					SumirajKolicinu(-kolicina, 0, @nUlaz, 0, fPocStanje, lPrikK2)
      					nMPVU-=mpcsapp*kolicina
      					nNVU-=nc*kolicina
     				else
-     					SumirajKolicinu(0, kolicina, 0, @nIzlaz, fPocStanje)
+     					SumirajKolicinu(0, kolicina, 0, @nIzlaz, fPocStanje, lPrikK2)
      					nMPVI+=mpcsapp*kolicina
      					nNVI+=nc*kolicina
     				endif
@@ -345,7 +351,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
   			elseif pu_i=="3"    // nivelacija
     				nMPVU+=mpcsapp*kolicina
   			elseif pu_i=="I"
-    				SumirajKolicinu(0, gkolicin2, 0, @nIzlaz, fPocStanje)
+    				SumirajKolicinu(0, gkolicin2, 0, @nIzlaz, fPocStanje, lPrikK2)
     				nMPVI+=mpcsapp*gkolicin2
     				nNVI+=nc*gkolicin2
 			endif

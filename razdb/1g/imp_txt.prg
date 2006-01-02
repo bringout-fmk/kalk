@@ -1181,13 +1181,16 @@ return
 /*! \fn ObradiImport()
  *  \brief Obrada importovanih dokumenata
  */
-function ObradiImport(nPocniOd, lAsPokreni)
+function ObradiImport(nPocniOd, lAsPokreni, lStampaj)
 *{
 O_PRIPR
 O_PRIPT
 
 if lAsPokreni == nil
 	lAsPokreni := .t.
+endif
+if lStampaj == nil
+	lStampaj := .t.
 endif
 
 if nPocniOd == nil
@@ -1269,7 +1272,7 @@ do while !EOF()
 	if lAutom
 		// snimi zapis u params da znas dokle si dosao
 		SaveObrada(nPCRec)
-		ObradiDokument(cIdVd, lAsPokreni)
+		ObradiDokument(cIdVd, lAsPokreni, lStampaj)
 		SaveObrada(nPTRec)
 		O_PRIPT
 	endif
@@ -1360,7 +1363,7 @@ return
  *  \brief Obrada jednog dokumenta
  *  \param cIdVd - id vrsta dokumenta
  */
-function ObradiDokument(cIdVd, lAsPokreni)
+function ObradiDokument(cIdVd, lAsPokreni, lStampaj)
 *{
 
 // 1. pokreni asistenta
@@ -1375,6 +1378,10 @@ if lAsPokreni == nil
 	lAsPokreni := .t.
 endif
 
+if lStampaj == nil
+	lStampaj := .t.
+endif
+
 if lAsPokreni
 	// pozovi asistenta
 	KUnos(.t.)
@@ -1382,8 +1389,11 @@ else
 	OEdit()
 endif
 
-// odstampaj kalk
-StKalk(nil,nil,.t.)
+if lStampaj 
+	// odstampaj kalk
+	StKalk(nil,nil,.t.)
+endif
+
 // azuriraj kalk
 Azur(.t.)
 OEdit()
@@ -1400,7 +1410,9 @@ do while (ChkKPripr(cIdVd, @nRslt) <> 0)
 		else
 			OEdit()
 		endif
-		StKalk(nil, nil, .t.)
+		if lStampaj
+			StKalk(nil, nil, .t.)
+		endif
 		Azur(.t.)
 		OEdit()
 	endif
@@ -1416,6 +1428,7 @@ enddo
 
 return
 *}
+
 
 /*! \fn ChkKPripr(cIdVd, nRes)
  *  \brief Provjeri da li je priprema prazna

@@ -79,7 +79,7 @@ BoxC()
 MsgBeep("Zavrseno filovanje pomocne tabele pokrecem obradu!")
 // Automatska obrada dokumenata
 // 0 - kreni od 0, .f. - ne pokreci asistenta
-ObradiImport(0, .f.)
+ObradiImport(0, .f., .f.)
 
 
 return
@@ -169,8 +169,7 @@ BoxC()
 
 MsgBeep("Zavrseno filovanje pomocne tabele pokrecem obradu!")
 // Automatska obrada dokumenata
-ObradiImport(0, .f.)
-
+ObradiImport(0, .f., .f.)
 
 return
 *}

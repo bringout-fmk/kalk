@@ -4,65 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/rpt_ppp.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.14 $
- * $Log: rpt_ppp.prg,v $
- * Revision 1.14  2003/12/26 10:31:37  sasavranic
- * Ispravljen algoritam izvjestaja ako je popust u pitanju! Planika - pregled prometa
- *
- * Revision 1.13  2003/12/26 08:54:40  sasavranic
- * no message
- *
- * Revision 1.12  2003/12/24 10:38:54  sasavranic
- * Uracunaj i snizenje ako ga je bilo na pregledu prometa za vise objekata - Planika
- *
- * Revision 1.11  2003/12/08 11:08:14  sasavranic
- * Korekcije fin.obrt
- *
- * Revision 1.10  2002/12/27 18:10:17  sasa
- * dorade na izvjestaju, prikaz trenutne prodavnice
- *
- * Revision 1.9  2002/09/24 13:57:58  mirsad
- * ispravka bug-a u izvj."pregled prodaje" - sada obuhvata i dokumente "01" iz POS.DBF-a
- *
- * Revision 1.8  2002/09/09 08:09:10  sasa
- * Izbacene testne poruke
- *
- * Revision 1.7  2002/09/04 10:30:44  sasa
- * Radi pronalazenja greske uvedene linije MsgBeep(), Planika
- *
- * Revision 1.6  2002/07/03 07:31:12  ernad
- *
- *
- * planika, debug na terenu
- *
- * Revision 1.5  2002/07/01 17:49:28  ernad
- *
- *
- * formiranje finalnih build-ova (fin, kalk, fakt, pos) pred teren planika
- *
- * Revision 1.4  2002/07/01 10:46:40  ernad
- *
- *
- * oApp:lTerminate - kada je true, napusta se run metod oApp objekta
- *
- * Revision 1.3  2002/06/30 11:08:52  ernad
- *
- *
- * razrada: kalk/specif/planika/rpt_ppp.prg; pos/prikaz privatnog direktorija na vrhu; doxy
- *
- * Revision 1.2  2002/06/29 17:32:02  ernad
- *
- *
- * planika - pregled prometa prodavnice
- *
- * Revision 1.1  2002/06/29 14:43:18  ernad
- *
- *
- * prebacen rpt_dnp.prg, init rpt_ppp.prg
- *
- *
  */
 
 #define NAZIV_PROD_LEN 15

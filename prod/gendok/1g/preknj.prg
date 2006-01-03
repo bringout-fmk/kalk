@@ -13,20 +13,21 @@ local nUvecaj // uvecaj broj kalkulacije za
 local cBrKalk // broj kalkulacije
 local cPKonto
 local nCnt
-
-Box(,5, 65)
+local cAkciznaRoba := "N"
+Box(,6, 65)
 	O_KONTO
 	O_TARIFA
 	cProdKto := SPACE(7)
 	dDateOd := CToD("")
 	dDateDo := DATE()
-	cPTarifa := SPACE(6)
+	cPTarifa := PADR("PDV17", 6)
 	
 	@ 1+m_x, 2+m_y SAY "Preknjizenje prodavnickih konta"
 	@ 3+m_x, 2+m_y SAY "Datum od" GET dDateOd 
 	@ 3+m_x, col()+m_y SAY "datum do" GET dDateDo 
 	@ 4+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
 	@ 5+m_x, 2+m_y SAY "Preknjizenje na tarifu:" GET cPTarifa VALID P_Tarifa(@cPTarifa)
+	@ 6+m_x, 2+m_y SAY "Akcizna roba D/N " GET cAkciznaRoba VALID cAkciznaRoba $ "DN"  PICT "@!"
 	read
 BoxC()
 // prekini operaciju
@@ -69,8 +70,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY "Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
 	
-	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE(), "1")
-	
+	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE(), "", (cAkciznaRoba=="D") )
 	++ nUvecaj
 next
 
@@ -95,6 +95,7 @@ local cBrKalk // broj kalkulacije
 local cPKonto
 local nCnt
 local cPTarifa := "PDV17 "
+local cAkciznaRoba := "N"
 
 if !IsPDV()
 	MsgBeep("Opcija raspoloziva samo za PDV rezim rada !!!")
@@ -116,6 +117,7 @@ Box(,9, 65)
 	@ 5+m_x, 2+m_y SAY "Datum pocetnog stanja" GET dDatPst 
 	@ 6+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
 	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "1234"
+	@ 9+m_x, 2+m_y SAY "Akcizna roba D/N " GET cAkciznaRoba VALID cAkciznaRoba $ "DN"  PICT "@!"
 	read
 BoxC()
 // prekini operaciju
@@ -150,7 +152,6 @@ Box(, 2, 65)
 
 O_DOKS
 
-altd()
 
 nUvecaj := 1
 for nCnt:=1 to LEN(aProd)
@@ -160,7 +161,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY "Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
 	// gen poc.st
-	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst, cSetCj)
+	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst, cSetCj, (cAkciznaRoba=="D") )
 	
 	++ nUvecaj
 next
@@ -245,7 +246,7 @@ return
  *  \param cBrKalk - broj kalkulacije
  *  \param lPst - pocetno stanje
  */
-function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs, cCjSet)
+function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs, cCjSet, lAkciznaRoba)
 *{
 local cIdFirma
 local nRbr
@@ -258,6 +259,11 @@ if lPst
 else
 	O_KALK
 endif
+
+if lAkciznaRoba == NIL
+	lAkciznaRoba := .f.
+endif
+
 
 O_ROBA
 O_KONTO
@@ -296,6 +302,26 @@ nTNVU:=0
 nTNVI:=0
 nRbr:=0
 
+
+//nemoguca kombinacija
+cIzBrDok := "#X43432032032$#$#"
+
+if lPst
+	cBrDok := "POC.ST"
+	// izvuci iz ovog dokumenta
+ 	cIzBrDok :=  "PPP-PDV17"
+	if lAkciznaRoba
+		cBrDok := "POC.ST.AK"
+		// izbuci iz ovog dokumenta
+		cIzBrDok := "PPP-PDV.AK"
+	endif
+else
+ 	cBrDok :=  "PPP-PDV17"
+	if lAkciznaRoba
+		cBrDok := "PPP-PDV.AK"
+	endif
+endif
+
 do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 	cIdRoba:=Idroba
 	
@@ -305,13 +331,36 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 		select roba
 	endif
 	hseek cIdRoba
+
+	if FIELDPOS("ZANIV2") <> 0
+		nAkcizaPorez := zaniv2
+	else
+		nAkcizaPorez := 0
+	endif
+	
 	
 	if lPst
 		select kalksez
 	else
 		select kalk
 	endif
-	
+
+
+	if lAkciznaRoba
+		if (nAkcizaPorez == 0)
+			// samo akcizna roba
+			skip
+			loop
+		endif
+	else
+		if (nAkcizaPorez <> 0)
+			// necemo akciznu robu
+			skip
+			loop
+		endif
+		
+	endif
+
 	nPKol:=0
 	nPNV:=0
 	nPMPV:=0
@@ -338,6 +387,16 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 		
 	do while !eof() .and. cIdFirma+cPKonto+cIdRoba==idFirma+pkonto+idroba
   		
+		if  (IdVd == "80") .and. (BrFaktP == cIzBrDok) .and. (kolicina>0)
+			// pozitivna stavka 80-ke
+			pl_mpc := mpc
+			pl_mpcSaPP := mpcSaPP
+			pl_kolicina := kolicina
+			pl_nc := nc
+		endif
+			
+			
+		
 		// provjeri datumski
 		if (field->datdok < dDatOd) .or. (field->datdok > dDatDo)
       			skip
@@ -359,31 +418,33 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
   		if field->datdok >= dDatOd  // nisu predhodni podaci
   			if field->pu_i=="1"
     				SumirajKolicinu(kolicina, 0, @nUlaz, 0, .t.)
-    				nMPVU+=mpcsapp*kolicina
-    				nNVU+=nc*(kolicina)
+    				nMPVU += mpcsapp*kolicina
+    				nNVU += nc*(kolicina)
+				
   			elseif field->pu_i=="5"
     				if idvd $ "12#13"
      					SumirajKolicinu(-kolicina, 0, @nUlaz, 0, .t.)
-     					nMPVU-=mpcsapp*kolicina
-     					nNVU-=nc*kolicina
+     					nMPVU -= mpcsapp*kolicina
+     					nNVU -= nc*kolicina
     				else
      					SumirajKolicinu(0, kolicina, 0, @nIzlaz, .t.)
-     					nMPVI+=mpcsapp*kolicina
-     					nNVI+=nc*kolicina
+     					nMPVI += mpcsapp*kolicina
+     					nNVI += nc*kolicina
     				endif
 
-  			elseif field->pu_i=="3"    // nivelacija
-    				nMPVU+=mpcsapp*kolicina
+  			elseif field->pu_i=="3"   
+			        // nivelacija
+    				nMPVU += mpcsapp*kolicina
   			elseif field->pu_i=="I"
     				SumirajKolicinu(0, gkolicin2, 0, @nIzlaz, .t.)
-    				nMPVI+=mpcsapp*gkolicin2
-    				nNVI+=nc*gkolicin2
+    				nMPVI += mpcsapp*gkolicin2
+    				nNVI += nc*gkolicin2
 			endif
   		endif
 		skip
 	enddo
 	
-	if Round(nMPVU-nMPVI+nPMPV,4)<>0 
+	if Round(nMPVU-nMPVI+nPMPV,4) <> 0 
   		select pript
 
 		// MPC bez poreza u + stavci
@@ -394,7 +455,7 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				append blank
 				++ nRbr
      				replace idFirma with cIdfirma
-     				replace brfaktp with "PPP-PDV17"
+     				replace brfaktp with cBrDok
 				replace idroba with cIdRoba
 				replace rbr with RedniBroj(nRbr)
 				replace idkonto with cPKonto
@@ -420,9 +481,23 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 					VMpc_lv(nil, nil, aPorezi)
 					VMpcSaPP_lv(nil, nil, aPorezi, .f.)
 				endif
+				
 				// uzmi cijenu bez poreza za + stavku
 				n_MpcBP_predhodna := _mpc
+
+				if lAkciznaRoba
+				   n_MpcBP_predhodna := _mpc - nAkcizaPorez
+				   if (n_MpcBP_predhodna <= 0)
+				   	MsgBeep( ;
+					 "Akcizna roba :  " + cIdRoba + " nelogicno ##- mpc bez akciznog poreza < 0 :# MPC b.p:"+ ;
+					STR( n_MpcBP_predhodna, 6, 2) + "/ AKCIZA:" +;
+					STR( nAkcizaPorez, 6, 2) )
+				   endif
+				   
+				endif
+				
 				Gather()
+				
 			endif
 			
 			// resetuj poreze
@@ -432,11 +507,9 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			append blank
 			++nRbr
      			replace idFirma with cIdfirma
-			if lPst
-     				replace brfaktp with "POC.ST"
-			else
-     				replace brfaktp with "PPP-PDV17"
-			endif
+
+			
+ 			replace brfaktp with cBrDok
 			replace idroba with cIdRoba
 			replace rbr with RedniBroj(nRbr)
 			replace idkonto with cPKonto
@@ -462,11 +535,37 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			replace idvd with "80"
 			replace brdok with cBrKalk
 			replace nc with (nNVU-nNVI+nPNV)/(nUlaz-nIzlaz+nPKol)
+
 			
 			if !lPst 
-				replace mpc with n_MpcBP_predhodna := _mpc
+				//replace mpc with n_MpcBP_predhodna := _mpc
+				_mpc := n_MpcBP_predhodna
+				replace mpc with _mpc
+
+				if lAkciznaRoba
+					// i nabavna cijena je manja
+					// jer ovaj porez vise nije troskovna
+					// stavka kao sto je bio u rezimu PPP-a
+					replace nc with nc - nAkcizaPorez
+				endif
+				
 			else
-				replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+				// "sasin" algoritam - ispocetka racunaj poc.st
+				if !lAkciznaRoba
+			 		replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol)
+				else
+				        // izvuci iz 80-ke u seznoskom podrucju podatke
+					_mpc := pl_mpc
+					_mpcSaPP := pl_mpcSaPP
+					_nc := pl_nc
+					_kolicina := pl_kolicina
+					
+					replace mpcsapp with pl_mpcSaPP,;
+						mpc with pl_mpc,;
+						nc with pl_nc,;
+						kolicina with pl_kolicina
+				
+				endif
 			endif
 			
 			replace vpc with nc

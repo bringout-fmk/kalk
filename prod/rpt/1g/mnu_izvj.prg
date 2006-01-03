@@ -4,24 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/mnu_izvj.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.5 $
- * $Log: mnu_izvj.prg,v $
- * Revision 1.5  2002/07/01 17:49:28  ernad
- *
- *
- * formiranje finalnih build-ova (fin, kalk, fakt, pos) pred teren planika
- *
- * Revision 1.4  2002/06/29 17:32:02  ernad
- *
- *
- * planika - pregled prometa prodavnice
- *
- * Revision 1.3  2002/06/21 12:23:21  mirsad
- * dokumentovanje
- *
- *
  */
  
 

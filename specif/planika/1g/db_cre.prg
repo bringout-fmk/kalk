@@ -4,38 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/db_cre.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.6 $
- * $Log: db_cre.prg,v $
- * Revision 1.6  2003/01/31 13:07:40  ernad
- * planika - data width error
- *
- * Revision 1.5  2002/07/06 17:28:58  ernad
- *
- *
- * izvjestaj Trgomarket: pregled stanja po objektima
- *
- * Revision 1.4  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.3  2002/07/04 19:04:08  ernad
- *
- *
- * ciscenje sifrarnik fakt
- *
- * Revision 1.2  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.1  2002/07/03 18:37:49  ernad
- *
- *
- * razbijanje dugih funkcija, kategorizacija: planika.prg -> db_cre.prg, db_gen1.prg, db_gen2.prg
- *
  *
  */
 

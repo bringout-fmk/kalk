@@ -115,7 +115,7 @@ Box(,9, 65)
 	@ 3+m_x, col()+m_y SAY "datum do" GET dDateDo 
 	@ 5+m_x, 2+m_y SAY "Datum pocetnog stanja" GET dDatPst 
 	@ 6+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
-	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "12"
+	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "1234"
 	read
 BoxC()
 // prekini operaciju
@@ -497,6 +497,10 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				
 				if cCjSet == "2"
 					replace mpc2 with nNMpcSaPDV
+				endif
+
+				if cCjSet == "3"
+					replace mpc3 with nNMpcSaPDV
 				endif
 				
 				replace idtarifa with "PDV17 " 	

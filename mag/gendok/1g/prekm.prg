@@ -283,18 +283,19 @@ nRbr:=0
 cIzBrDok := "#X43432032032$#$#"
 
 if lPst
-	cBrDok := "POC.ST"
+	cBrDok := PADR("POC.ST",10)
 	// izvuci iz ovog dokumenta
- 	cIzBrDok :=  "PPP-PDV17"
+ 	cIzBrDok :=  PADR("PPP-PDV17",10)
+	
 	if lAkciznaRoba
-		cBrDok := "POC.ST.AK"
+		cBrDok := PADR("POC.ST.AK",10)
 		// izbuci iz ovog dokumenta
-		cIzBrDok := "PPP-PDV.AK"
+		cIzBrDok := PADR("PPP-PDV.AK",10)
 	endif
 else
- 	cBrDok :=  "PPP-PDV17"
+ 	cBrDok :=  PADR("PPP-PDV17", 10)
 	if lAkciznaRoba
-		cBrDok := "PPP-PDV.AK"
+		cBrDok := PADR("PPP-PDV.AK", 10)
 	endif
 endif
 

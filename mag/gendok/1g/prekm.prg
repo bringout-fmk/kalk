@@ -8,7 +8,7 @@ static aPorezi:={}
 function GetPreknM()
 *{
 local aMag // matrica sa magacinima
-local cMagKto // prodavnicki konto
+local cMagKto // magacinski konto
 local nUvecaj // uvecaj broj kalkulacije za
 local cBrKalk // broj kalkulacije
 local cMKonto
@@ -39,16 +39,16 @@ if Pitanje(,"Izvrsiti preknjizenje (D/N)?","D")=="N"
 	return
 endif
 
-aProd:={}
+aMag:={}
 if Empty(ALLTRIM(cMagKto))
 	// napuni matricu sa magac kontima
-	GetMagKto(@aProd)
+	GetMagKto(@aMag)
 else
-	AADD(aProd, { cMagKto })
+	AADD(aMag, { cMagKto })
 endif
 
 // provjeri velicinu matrice
-if LEN(aProd) == 0
+if LEN(aMag) == 0
 	MsgBeep("Ne postoje definisane prodavnice u KONCIJ-u!")
 	return
 endif
@@ -58,7 +58,7 @@ CrePripTDbf()
 
 // pokreni preknjizenje
 Box(, 2, 65)
-@ 1+m_x, 2+m_y SAY "Vrsim preknjizenje " + ALLTRIM(STR(LEN(aProd)))+ " magacina..."
+@ 1+m_x, 2+m_y SAY "Vrsim preknjizenje " + ALLTRIM(STR(LEN(aMag)))+ " magacina..."
 
 O_DOKS
 
@@ -68,7 +68,7 @@ for nCnt:=1 to LEN(aMag)
 	cBrKalk:=GetNextKalkDok(gFirma, "16", nUvecaj)
 	cMKonto:=aMag[nCnt, 1]
 	
-	@ 2+m_x, 2+m_y SAY "Magacin: " + ALLTRIM(cMKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
+	@ 2+m_x, 2+m_y SAY "Magacin: " + ALLTRIM(cMKonto) + "   dokument: "+ gFirma + "-16-" + ALLTRIM(cBrKalk)
 	
 	GenPreknM(cMKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE(), "", (cAkciznaRoba=="D") )
 	++ nUvecaj
@@ -86,7 +86,7 @@ return
 *}
 
 
-function GetPstMPDV()
+function GetPstPreknj()
 *{
 local aMag // matrica sa prodavnicama
 local cMagKto // prodavnicki konto
@@ -105,7 +105,7 @@ endif
 Box(,9, 65)
 	O_KONTO
 	O_TARIFA
-	cMrodKto := SPACE(7)
+	cMagKto := SPACE(7)
 	dDateOd := CToD("")
 	dDateDo := DATE()
 	dDatPst := DATE()
@@ -131,7 +131,7 @@ endif
 
 aMag:={}
 if Empty(ALLTRIM(cMagKto))
-	// napuni matricu sa prodavnckim kontima
+	// napuni matricu sa magacinskim kontima
 	GetMagKto(@aMag)
 else
 	AADD(aMag, { cMagKto })
@@ -159,7 +159,7 @@ for nCnt:=1 to LEN(aMag)
 	cBrKalk:=GetNextKalkDok(gFirma, "16", nUvecaj)
 	cMKonto:=aMag[nCnt, 1]
 	
-	@ 2+m_x, 2+m_y SAY "Magacin: " + ALLTRIM(cMKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
+	@ 2+m_x, 2+m_y SAY "Magacin: " + ALLTRIM(cMKonto) + "   dokument: "+ gFirma + "-16-" + ALLTRIM(cBrKalk)
 	// gen poc.st
 	GenPreknM(cMKonto, cMTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst, cSetCj, (cAkciznaRoba=="D") )
 	
@@ -180,7 +180,7 @@ return
 
 /*! \fn GetMagKto(aMag)
  *  \brief Vrati matricu sa magacinima   
- *  \param aProd
+ *  \param aMag
  */
 function GetMagKto(aMag)
 *{
@@ -337,10 +337,6 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 		
 	endif
 
-	//nPKol:=0
-	//nPNV:=0
-	//nPVPV:=0
-	
 	nUlaz:=0
 	nIzlaz:=0
 	
@@ -377,23 +373,23 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 			    if  (idvd $ "12#22#94")
 			     // povrat
 		             nIzlaz += -nKol
-			     nVpvI += vpv * -nKol
+			     nVpvI += vpc * -nKol
 			     nNvI += nc * -nKol
 			    else
 			     nUlaz += nKol
-			     nVpvU += vpv * nKol
+			     nVpvU += vpc * nKol
 			     nNvU += nc * nKol
 			    endif
 			  
                         elseif mu_i== "5"
 		             
 			     nIzlaz += nKol
-			     nVpvI += vpv * nKol
+			     nVpvI += vpc * nKol
 			     nNvI += nc * nKol
 		       
 			elseif mu_i == "3"
 			      // nivelacija
-			      nVpvU += vpv * nKol
+			      nVpvU += vpc * nKol
 
 			endif
   		endif
@@ -404,7 +400,7 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
   		select pript
 
 		// MPC bez poreza u + stavci
-		n_MpcBP_predhodna := 0
+		n_VpcBP_predhodna := 0
   		if round(nUlaz-nIzlaz,4)<>0
      			if !lPst
 				// prva stavka stara tarifa
@@ -424,20 +420,19 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 				replace datkurs with dDatDo
 				// promjeni predznak kolicine
 				replace kolicina with -(nUlaz-nIzlaz)
-				replace idvd with "80"
+				replace idvd with "16"
 				replace brdok with cBrKalk
 				replace nc with (nNVU-nNVI)/(nUlaz-nIzlaz)
 				
 				replace vpc with (nVPVU-nVPVI)/(nUlaz-nIzlaz)
 				
-				replace vpc with nc
 				replace marza with vpc-nc
 				replace tMarza with "A"
 				
-				n_VpBP_predhodna := _vpc
+				n_VpcBP_predhodna := vpc
 
 				if lAkciznaRoba
-				   n_VpcBP_predhodna := _vpc - nAkcizaPorez
+				   n_VpcBP_predhodna := vpc - nAkcizaPorez
 				   if (n_VpcBP_predhodna <= 0)
 				   	MsgBeep( ;
 					 "Akcizna roba :  " + cIdRoba + " nelogicno ##- mpc bez akciznog poreza < 0 :# VPC b.p:"+ ;
@@ -489,8 +484,7 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 
 			
 			if !lPst 
-				_vpc := n_VpcBP_predhodna
-				replace vpc with _vpc
+				replace vpc with n_VpcBP_predhodna
 
 				if lAkciznaRoba
 					// i nabavna cijena je manja
@@ -501,30 +495,21 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 				
 			else
 			        // izvuci iz 16-ke u sezonskom podrucju podatke
-				_vpc := pl_vpc
-				_nc := pl_nc
-				_kolicina := pl_kolicina
-					
 				replace vpc with pl_vpc,;
 					nc with pl_nc,;
 					tmarza with "A",;
-					marza with vpc - nc,;
+					marza with pl_vpc - pl_nc,;
 					kolicina with pl_kolicina
 				
 			endif
 			
-			replace TMarza2 with "A"
 			
 			if lPst
-				nNVpcBezPdv := _vpc
-			endif
+				nNVpcBezPdv := pl_vpc
 			
-			Gather()
-			
-			// ubaci novu vpc u sifrarnik robe
-			// ubaci novu tarifu robe
+     				// ubaci novu vpc u sifrarnik robe
+				// ubaci novu tarifu robe
 
-			if lPst
 				select roba
 				hseek cIdRoba
 				

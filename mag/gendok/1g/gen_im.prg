@@ -3,23 +3,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/gendok/1g/gen_im.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: gen_im.prg,v $
- * Revision 1.4  2004/01/19 13:13:55  sasavranic
- * Pri generaciji IM magacina, pita za cijene VPC ili NC
- *
- * Revision 1.3  2004/01/13 19:07:58  sasavranic
- * appsrv konverzija
- *
- * Revision 1.2  2004/01/09 14:22:35  sasavranic
- * Dorade za dom zdravlja
- *
- * Revision 1.1  2002/06/28 22:32:08  ernad
- *
- *
- * Generacija dokumenta inventure
  *
  *
  */

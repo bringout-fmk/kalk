@@ -21,17 +21,17 @@ function GenMag()
 private Opc:={}
 private opcexe:={}
 AADD(opc,"1. pocetno stanje              ")
-AADD(opcexe, "PocStMag()")
+AADD(opcexe, {|| PocStMag()})
 AADD(Opc,"2. dokument inventure")
-AADD(opcexe, "IM()")
+AADD(opcexe, {|| IM()})
 AADD(Opc,"3. nivelacija po zadatom %")
-AADD(opcexe, "MNivPoProc()")
+AADD(opcexe, {|| MNivPoProc()})
 
 AADD(Opc,"4. preknjizenje tarifa")
-AADD(opcexe, "GetPreknM()")
+AADD(opcexe, {|| GetPreknM() })
 
 AADD(Opc,"5. pocetno stanje na osnovu preknjizenja tarifa")
-AADD(opcexe, "GetPstMPDV()")
+AADD(opcexe, {|| GetPstPreknj()})
 
 private Izbor:=1
 do while .t.
@@ -41,8 +41,8 @@ Izbor:=menu("gdma",opc,Izbor,.f.)
        EXIT
      otherwise
       	 if opcexe[izbor]<>NIL
-          private xPom:=opcexe[izbor]
-	  xDummy:=&(xPom)
+          bPom:=opcexe[izbor]
+	  xDummy:=EVAL(bPom)
 	 endif  
      endcase
 enddo

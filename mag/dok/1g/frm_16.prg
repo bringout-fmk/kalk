@@ -4,25 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/frm_16.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: frm_16.prg,v $
- * Revision 1.6  2004/05/27 07:09:51  sasavranic
- * Dodao uslov za tip sredstva i na izvjestaj Fin.stanja magacina
- *
- * Revision 1.5  2004/05/25 13:53:16  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.4  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.3  2003/10/06 15:00:26  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.2  2002/06/19 13:57:53  mirsad
- * no message
- *
  *
  */
  
@@ -158,7 +139,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
 
  _PNAP:=0
  @ m_x+17+IF(lPoNarudzbi,1,0),m_y+2    SAY "PPP (%)  " get _MPC pict "99.99" ;
-  when {|| iif(roba->tip=="V",_mpc:=0,NIL),iif(roba->tip=="V",ppp14(.f.),.t.)} ;
+  when {|| iif(roba->tip=="V", _mpc:=0, NIL), iif(roba->tip=="V",ppp14(.f.),.t.)} ;
   valid ppp14(.t.)
 
  @ m_x+18+IF(lPoNarudzbi,1,0),m_y+2    SAY "PRUC (%) "; qqout(transform(TARIFA->VPP,"99.99"))
@@ -172,6 +153,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
        valid {|| _vpcsappp:=iif(_VPCsap<>0,_vpcsap+_PNAP,_VPCSAPPP),.t.}
 
  else  // preracunate stope
+ 
   _VPCsaPP:=0
   @ m_x+19+IF(lPoNarudzbi,1,0),m_y+2  SAY "VPC + PPP  "
   @ m_x+19+IF(lPoNarudzbi,1,0),m_Y+50 GET _vpcSaPP picture picdem ;
@@ -206,8 +188,9 @@ ENDIF    // kraj IF gVarEv=="1"
 nStrana:=2
 
 _marza:=_vpc-_nc
-_MKonto:=_Idkonto;_MU_I:="1"
+_MKonto:=_Idkonto; _MU_I:="1"
 _PKonto:=""; _PU_I:=""
+
 set key K_ALT_K to
 return lastkey()
 *}

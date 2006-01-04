@@ -14,7 +14,8 @@ local cBrKalk // broj kalkulacije
 local cPKonto
 local nCnt
 local cAkciznaRoba := "N"
-Box(,6, 65)
+local cZasticeneCijene := "N"
+Box(,7, 65)
 	O_KONTO
 	O_TARIFA
 	cProdKto := SPACE(7)
@@ -28,6 +29,7 @@ Box(,6, 65)
 	@ 4+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
 	@ 5+m_x, 2+m_y SAY "Preknjizenje na tarifu:" GET cPTarifa VALID P_Tarifa(@cPTarifa)
 	@ 6+m_x, 2+m_y SAY "Akcizna roba D/N " GET cAkciznaRoba VALID cAkciznaRoba $ "DN"  PICT "@!"
+	@ 7+m_x, 2+m_y SAY "Artikli sa zasticenim cijenama " GET cZasticeneCijene VALID cZasticeneCijene $ "DN" PICT "@!"
 	read
 BoxC()
 // prekini operaciju
@@ -70,7 +72,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY "Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
 	
-	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE(), "", (cAkciznaRoba=="D") )
+	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .f., DATE(), "", (cAkciznaRoba=="D"), (cZasticeneCijene=="D") )
 	++ nUvecaj
 next
 
@@ -96,13 +98,14 @@ local cPKonto
 local nCnt
 local cPTarifa := "PDV17 "
 local cAkciznaRoba := "N"
+local cZasticeneCijene := "N"
 
 if !IsPDV()
 	MsgBeep("Opcija raspoloziva samo za PDV rezim rada !!!")
 	return
 endif
 
-Box(,9, 65)
+Box(,10, 65)
 	O_KONTO
 	O_TARIFA
 	cProdKto := SPACE(7)
@@ -118,6 +121,7 @@ Box(,9, 65)
 	@ 6+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
 	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "1234"
 	@ 9+m_x, 2+m_y SAY "Akcizna roba D/N " GET cAkciznaRoba VALID cAkciznaRoba $ "DN"  PICT "@!"
+	@ 10+m_x, 2+m_y SAY "Artikli sa zasticenim cijenama " GET cZasticeneCijene VALID cZasticeneCijene $ "DN" PICT "@!"
 	read
 BoxC()
 // prekini operaciju
@@ -161,7 +165,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY "Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-80-" + ALLTRIM(cBrKalk)
 	// gen poc.st
-	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst, cSetCj, (cAkciznaRoba=="D") )
+	GenPreknj(cPKonto, cPTarifa, dDateOd, dDateDo, cBrKalk, .t., dDatPst, cSetCj, (cAkciznaRoba=="D"), (cZasticeneCijene=="D") )
 	
 	++ nUvecaj
 next
@@ -246,12 +250,14 @@ return
  *  \param cBrKalk - broj kalkulacije
  *  \param lPst - pocetno stanje
  */
-function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs, cCjSet, lAkciznaRoba)
+function GenPreknj(cPKonto, cPrTarifa, dDatOd, dDatDo, cBrKalk, lPst, dDatPs, cCjSet, lAkciznaRoba, lZasticeneCijene)
 *{
 local cIdFirma
 local nRbr
 local fPocStanje:=.t.
 local n_MpcBP_predhodna
+local nAkcizaPorez
+local nZasticenaCijena
 
 if lPst
 	O_ROBASEZ
@@ -262,6 +268,9 @@ endif
 
 if lAkciznaRoba == NIL
 	lAkciznaRoba := .f.
+endif
+if lZasticeneCijene == NIL
+	lZasticeneCijene := .f.
 endif
 
 
@@ -310,15 +319,27 @@ if lPst
 	cBrDok := PADR("POC.ST", 10)
 	// izvuci iz ovog dokumenta
  	cIzBrDok :=  PADR("PPP-PDV17", 10)
+	
 	if lAkciznaRoba
 		cBrDok := PADR("POC.ST.AK", 10)
 		// izbuci iz ovog dokumenta
 		cIzBrDok := PADR("PPP-PDV.AK", 10)
 	endif
+
+	if lZasticeneCijene
+		cBrDok := PADR("POC.ST.AZ", 10)
+		// izbuci iz ovog dokumenta
+		cIzBrDok := PADR("PPP-PDV.AZ", 10)
+	endif
+
 else
  	cBrDok :=  PADR("PPP-PDV17", 10)
 	if lAkciznaRoba
 		cBrDok := PADR("PPP-PDV.AK", 10)
+	endif
+
+	if lZasticeneCijene
+		cBrDok := PADR("PPP-PDV.AZ", 10)
 	endif
 endif
 
@@ -338,7 +359,26 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 		nAkcizaPorez := 0
 	endif
 	
-	
+	if lZasticeneCijene 
+		nZasticenaCijena := zanivel
+		if (nZasticenaCijena == 0)
+			// ovo nije zasticeni artikal
+			// posto mu nije setovana zasticena cijena
+			//
+			if lPst
+				select kalksez
+			else
+				select kalk
+			endif
+			skip
+			loop
+		endif
+
+	else
+		nZasticenaCijena := 0
+	endif
+
+
 	if lPst
 		select kalksez
 	else
@@ -485,7 +525,7 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 				// uzmi cijenu bez poreza za + stavku
 				n_MpcBP_predhodna := _mpc
 
-				if lAkciznaRoba
+				if lAkciznaRoba 
 				   n_MpcBP_predhodna := _mpc - nAkcizaPorez
 				   if (n_MpcBP_predhodna <= 0)
 				   	MsgBeep( ;
@@ -548,6 +588,14 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 					// stavka kao sto je bio u rezimu PPP-a
 					replace nc with nc - nAkcizaPorez
 				endif
+
+				// formiraj mpc bez poreza na osnovu
+				// zasticene cijene
+				if lZasticeneCijene
+					replace mpcSapp with nZasticenaCijena, ;
+						mpc with 0
+				endif
+					
 				
 			else
 				// "sasin" algoritam - ispocetka racunaj poc.st

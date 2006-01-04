@@ -359,8 +359,13 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 		nAkcizaPorez := 0
 	endif
 	
-	if lZasticeneCijene 
+	if FIELDPOS("ZANIVEL") <> 0
 		nZasticenaCijena := zanivel
+	else
+		nZasticenaCijena := 0
+	endif
+
+	if lZasticeneCijene 
 		if (nZasticenaCijena == 0)
 			// ovo nije zasticeni artikal
 			// posto mu nije setovana zasticena cijena
@@ -375,7 +380,18 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 		endif
 
 	else
-		nZasticenaCijena := 0
+		if (nZasticenaCijena <> 0)
+			// ovo je zasticeni artikal
+			// a mi sada ne zelimo preknjizenje ovih artikala
+			if lPst
+				select kalksez
+			else
+				select kalk
+			endif
+			skip
+			loop
+		endif
+
 	endif
 
 

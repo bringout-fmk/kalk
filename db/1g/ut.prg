@@ -6,56 +6,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/db/1g/ut.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.14 $
- * $Log: ut.prg,v $
- * Revision 1.14  2003/11/11 15:38:21  sasavranic
- * 10 -> 11
- *
- * Revision 1.13  2003/11/11 14:06:34  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.12  2003/11/07 08:08:24  sasavranic
- * korekcije 10->11
- *
- * Revision 1.11  2003/11/06 15:44:50  sasavranic
- * formiranje 11-ke na osnovu 10-ke
- *
- * Revision 1.10  2003/08/27 08:11:14  mirsad
- * nova opcija u pripremi: F11/4.obracun poreza pri uvozu
- *
- * Revision 1.9  2002/12/30 16:36:38  mirsad
- * no message
- *
- * Revision 1.8  2002/12/30 01:28:55  mirsad
- * ispravke bugova-Planika
- *
- * Revision 1.7  2002/11/22 10:41:45  mirsad
- * sredjivanje makroa za oblasti - ukidanje starog sistema
- *
- * Revision 1.6  2002/07/18 08:14:51  mirsad
- * uvedeno korištenje IsJerry() za specificnosti za Jerry Trade
- *
- * Revision 1.5  2002/07/12 10:15:55  ernad
- *
- *
- * debug ROBPR.DBF, ROBPR.CDX - uklonjena funkcija DodajRobPr()
- *
- * Revision 1.4  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.3  2002/06/25 15:08:46  ernad
- *
- *
- * prikaz parovno - Planika
- *
- * Revision 1.2  2002/06/18 14:02:38  mirsad
- * dokumentovanje (priprema za doxy)
- *
- *
  */
  
 /*! \file fmk/kalk/db/1g/ut.prg
@@ -65,10 +15,8 @@
 
 function ODbKalk()
 *{
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK
-   O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_TARIFA
 O_ROBA
 O_KONCIJ
@@ -1073,5 +1021,128 @@ else
 	return .f.
 endif
 return
+*}
+
+
+// set pdv cijene
+function SetPdvCijene()
+*{
+
+if !SigmaSif("SETPDVC")
+	MsgBeep("Ne cackaj!")
+	return
+endif
+
+//ppp tarifa
+cIdTarifa:=SPACE(6)
+
+cZaTarifu:=SPACE(6)
+nZaokruzenje:=2
+cPdvTarifa:=PADR("PDV17", 6)
+cSetCijena:="1"
+
+O_ROBA
+O_ROBASEZ
+O_TARIFA
+
+
+SET CURSOR ON
+Box(,5,60)
+	cUvijekUzmi := "N"
+	@ 1+m_x, 2+m_y SAY "Set cijene za tarifu  (prazno sve tarife)?" GET cZaTarifu PICT "@!" VALID  EMPTY(cZaTarifu) .or. P_Tarifa(@cZaTarifu)
+	@ 2+m_x, 2+m_y SAY "Zaokruzenje cijene na koliko decimala "  get nZaokruzenje PICT "9"
+	@ 3+m_x, 3+m_y SAY "PDV tarifa " GET cPdvTarifa VALID P_Tarifa(@cPdvTarifa)
+	@ 4+m_x, 3+m_y SAY "Set cijena MPC (1), MPC2 (2) " GET cSetCijena VALID cSetCijena $ "12"
+	READ
+	
+BoxC()
+
+if Lastkey() == K_ESC
+	closeret
+endif
+
+
+select roba
+
+set order to tag "ID"
+go top
+
+Box(,3,60)
+
+aPorezi := {}
+
+do while !eof()
+	
+	cIdRoba := roba->id
+	
+	SELECT robasez
+	set order to tag "ID"
+	hseek cIdRoba
+	
+	if !Found()
+		select roba
+		skip
+		loop
+	endif
+
+	cIdTarifa:=robasez->idtarifa
+	nMpcSaP1 := robasez->mpc
+	nMpcSaP2 := robasez->mpc2
+
+	if robasez->(FIELDPOS("zaniv2")) <> 0
+		nAkcizaPorez := robasez->zaniv2
+	else
+		nAkcizaPorez := 0
+	endif
+	
+	if !empty(cZaTarifu) .and. (cIdTarifa <> cZaTarifu)
+		select roba
+		skip
+		loop	
+	endif
+	
+	@ m_x+1,m_y+2 SAY "Roba / Tarifa : " + cIdRoba + "/" + cIdTarifa
+
+	// ako je konto prazan, onda gledaj samo sifrarnik
+	Tarifa( "", cIdRoba, @aPorezi, cIdTarifa)
+	
+	
+	// nc = 99999 jer je ne trebamo
+	nMpcBP1 := MpcBezPor( nMpcSaP1, aPorezi, , 99999)
+	nMpcBP2 := MpcBezPor( nMpcSaP2, aPorezi, , 99999)
+
+	nMpcBP1 -= nAkcizaPorez
+	nMpcBP2 -= nAkcizaPorez
+	
+	SELECT tarifa
+	SEEK cPdvTarifa
+	nPdvTarifa := tarifa->opp
+	
+	nPdvC1 := nMpcBP1 * ( 1 + nPdvTarifa/100 )
+	nPdvC1 := ROUND( nPdvC1, nZaokruzenje)
+		
+	nPdvC2 := nMpcBP2 * ( 1 + nPdvTarifa/100 )
+	nPdvC2 := ROUND( nPdvC2, nZaokruzenje)
+
+	SELECT ROBA
+
+	if cSetCijena == "1"
+		replace mpc with nPdvC1
+	endif
+
+        if cSetCijena == "2"
+		replace mpc2 with nPdvC2
+	endif
+ 	
+	skip
+	
+enddo		
+
+BoxC()
+
+MsgBeep("Formirao PDV cijene u sifrarniku Roba tekuca godina")
+
+closeret
+
 *}
 

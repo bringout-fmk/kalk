@@ -5,25 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/adm/1g/mnu_adm.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.5 $
- * $Log: mnu_adm.prg,v $
- * Revision 1.5  2003/10/07 11:48:31  sasavranic
- * Brisanje sifara za artikle koji nisu u prometu! Dorada
- *
- * Revision 1.4  2002/11/22 10:42:53  mirsad
- * omogucavanje security opcija
- *
- * Revision 1.3  2002/06/20 12:55:06  ernad
- *
- *
- * cisenja radu u sezonsko<->radno podrucje, u skladu sa novim sclib-om
- *
- * Revision 1.2  2002/06/18 14:02:38  mirsad
- * dokumentovanje (priprema za doxy)
- *
- *
  */
  
  
@@ -56,6 +37,8 @@ AADD(opc,"7. setmarza10")
 AADD(opcexe, {|| SetMarza10()})
 AADD(opc,"8. brisanje artikala koji se ne koriste")
 AADD(opcexe, {|| Mnu_BrisiSifre()})
+AADD(opc,"9. Set pdv cijene mpc/mpc2 u sifrarniku artikala")
+AADD(opcexe, {|| SetPdvCijene()})
 
 
 private Izbor:=1

@@ -504,6 +504,11 @@ select kalk
 cBrNiv:=sljedeci(gfirma,"19")
 select kalk; set order to 4
 HSEEK gFirma+cMagac
+
+Box(,6,65)
+
+@ 1+m_x, 2+m_y SAY "Generisem nivelaciju... 19-" + cBrNiv
+
 do while !eof() .and. idfirma+pkonto=gFirma+cMagac
 
 cIdRoba:=Idroba; nUlaz:=nIzlaz:=0; nVPVU:=nVPVI:=nNVU:=nNVI:=0; nRabat:=0
@@ -517,6 +522,9 @@ nUlazVPC  := UzmiMPCSif()
 nStartMPC := nUlazVPC  // od ove cijene pocinjemo
 
 nPosljVPC := nUlazVPC
+
+@ 2+m_x, 2+m_y SAY "ID roba: " + cIdRoba
+@ 3+m_x, 2+m_y SAY "Cijena u sifrarniku " + ALLTRIM(STR(nUlazVpc))
 
 do while !eof() .and. gFirma+cidkonto+cidroba==idFirma+pkonto+idroba
 
@@ -581,6 +589,7 @@ enddo
 
     if round(nRazlika,4) <> 0
       ++nRbr
+      @ 4+m_x, 2+m_y SAY "Generisao stavki: " + ALLTRIM(STR(nRbr))
       append blank
       replace idfirma with gFirma, idroba with cIdRoba, idkonto with cIdKonto,;
               datdok with dDok,;
@@ -607,6 +616,8 @@ enddo
   select kalk
 
 enddo
+
+BoxC()
 
 CLOSERET
 return

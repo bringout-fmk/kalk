@@ -498,6 +498,7 @@ function KorekMPC()
 nTUlaz:=nTIzlaz:=0
 nTVPVU:=nTVPVI:=nTNVU:=nTNVI:=0
 nTRabat:=0
+lGenerisao := .f.
 private nRbr:=0
 
 select kalk
@@ -588,6 +589,7 @@ enddo
     endif
 
     if round(nRazlika,4) <> 0
+      lGenerisao := .t.
       ++nRbr
       @ 4+m_x, 2+m_y SAY "Generisao stavki: " + ALLTRIM(STR(nRbr))
       append blank
@@ -618,6 +620,10 @@ enddo
 enddo
 
 BoxC()
+
+if lGenerisao
+	MsgBeep("Generisana nivelacija u pripremi - obradite je!")
+endif
 
 CLOSERET
 return

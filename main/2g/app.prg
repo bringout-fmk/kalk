@@ -538,5 +538,7 @@ glEvidOtpis:=(IzFmkIni("KALKSI","EvidentirajOtpis","N",KUMPATH)=="D")
 public gcSLObrazac
 gcSLObrazac:=IzFmkIni("KALK","SLObrazac","1",KUMPATH)
 
+gRobaBlock:={|Ch| RobaBlock(Ch)}
+
 return
 *}

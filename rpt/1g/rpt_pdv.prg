@@ -1,3 +1,4 @@
+#include "\dev\fmk\kalk\kalk.ch"
 
 static aHeader:={}
 static aZaglLen:={4, 6, 4, 8, 14, 8, 8, 14}
@@ -39,10 +40,10 @@ SELECT KONTO
 SEEK kalk->PKonto
 
 aHeader := {}
-AADD(aHeader( { "Popis zaliha na dan :" +  DTOC(dDate) } )
-AAAD(aHeader( { "" } )
-AADD(aHeader( { "Prodavnica :" + konto->naz } )
-AADD(aHeader( { "" } )
+AADD(aHeader, { "Popis zaliha na dan :" +  DTOC(dDate) } )
+AAAD(aHeader, { "" } )
+AADD(aHeader, { "Prodavnica :" + konto->naz } )
+AADD(aHeader, { "" } )
 
 AADD(aZagl, { "R." , "jed" , "kol", "cijena", "zaduz", "#3Porez na promet proizvoda" } )
 AADD(aZagl, { "br.", "mj", "", "", "(3 x 4)", "Prerac", "u cijeni", "Ukupno" })
@@ -129,7 +130,7 @@ for nKrug:=1 to 2
 SEEK cIdFirma + cIdVd + cBrDok
 do while !eof() .and. (IdFirma == cIdFirma) .and. (IdVd == cIdVd)  .and. (BrDok == cBrdok)
 
-+nCount
+++nCount
 
 START PRINT CRET
 
@@ -175,7 +176,7 @@ if (nKrug == 2)  .and. (kalk->kolicina > 0)
 	replace cij_pdv WITH cij_b_pdv * 1.17
 	replace uk_pdv with kol * izn_pdv
 	replace zad_pdv with kol * cij_sa_pdv
-	replace zad_ppp - zad_pdv
+	replace razlika with zad_ppp - zad_pdv
 endif
 
 
@@ -193,6 +194,7 @@ return
 
 function show_r_uio(cIdVd, cIdFirma, cBrDok, lAkciznaRoba, lZasticenaRoba)
 *{
+
 O_R_UIO
 
 START PRINT CRET
@@ -218,11 +220,11 @@ do while !eof()
   SKIP
 enddo
 
-ENDPRINT
+END PRINT
 return
 *}
 
-static uio_zagl()
+static function uio_zagl()
 
 // header
 for i:=1 to LEN(aHeader)

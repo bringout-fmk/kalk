@@ -3,29 +3,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/cdx/kalk.ch,v $
- * $Author: mirsad $ 
- * $Revision: 1.5 $
- * $Log: kalk.ch,v $
- * Revision 1.5  2002/11/22 10:41:54  mirsad
- * sredjivanje makroa za oblasti - ukidanje starog sistema
- *
- * Revision 1.4  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.3  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.2  2002/06/16 14:20:24  ernad
- *
- *
- * header
- *
- *
  */
  
 //FIN
@@ -62,6 +39,7 @@
 
 
 #xcommand O_RPT_TMP => select (F_RPT_TMP); usex (PRIVPATH+"rpt_tmp")
+#xcommand O_R_UIO => select (F_R_UIO); usex (PRIVPATH+"r_uio")
 
 #xcommand O_PRIPT => select (F_PRIPT); usex (PRIVPATH+"pript")
 #xcommand O_TEMP => select (F_TEMP); usex (PRIVPATH+"temp")

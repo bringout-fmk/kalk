@@ -5,24 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/rpt_19.prg,v $
- * $Author: mirsadsubasic $ 
- * $Revision: 1.5 $
- * $Log: rpt_19.prg,v $
- * Revision 1.5  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.4  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.3  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.2  2002/06/21 07:49:36  mirsad
- * no message
- *
  *
  */
  
@@ -65,7 +47,7 @@ HSEEK cIdPartner             // izbaciti?  19.5.00
 select KONTO
 HSEEK cidkonto               // dodano     19.5.00
 
-?  "KONTO zaduzuje :",cIdKonto,"-",naz
+?  "KONTO zaduzuje :", cIdKonto, "-", naz
 
 select PRIPR
 
@@ -78,6 +60,7 @@ if (cIdVD=="19")
 endif
 
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
+
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVd==IdVd
 
     ViseDokUPripremi(cIdd)

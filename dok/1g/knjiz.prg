@@ -5,78 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/dok/1g/knjiz.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.22 $
- * $Log: knjiz.prg,v $
- * Revision 1.22  2003/12/22 14:59:10  sasavranic
- * Uslov za sortiranje rednih brojeva u pripremi...varijanta Jerry
- *
- * Revision 1.21  2003/10/04 12:34:30  sasavranic
- * uveden security sistem
- *
- * Revision 1.20  2003/09/29 13:26:55  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.19  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.18  2003/08/30 15:42:38  mirsad
- * dvije nove opcije (F10 u pripremi): J.prenos KALK 10->11  i  K. prenos KALK 16->14
- *
- * Revision 1.17  2003/08/27 08:09:41  mirsad
- * nova opcija u pripremi: F11/4.obracun poreza pri uvozu
- *
- * Revision 1.16  2003/08/09 08:12:14  mirsad
- * dorada za vindiju: pri rasporedu troskova uveo uslov po tarifama
- *
- * Revision 1.15  2003/08/01 16:17:37  mirsad
- * no message
- *
- * Revision 1.14  2003/07/06 22:20:23  mirsad
- * prenos fakt12->kalk96 obuhvata i varijantu unosa radnog naloga u fakt12
- *
- * Revision 1.13  2003/06/25 17:48:40  mirsad
- * 1) vraæanje u f-ju 15-ke
- *
- * Revision 1.12  2003/04/12 06:56:09  mirsad
- * omogucen prenos KALK10,11,81->FAKT poput KALK->TOPS za udaljene lokacije
- *
- * Revision 1.11  2003/03/12 09:18:58  mirsad
- * brojac KALK dokumenata po kontima (koristenje sufiksa iz KONCIJ-a)
- *
- * Revision 1.10  2003/01/28 07:40:17  mirsad
- * dorada radni nalozi za pogon.knjigov.
- *
- * Revision 1.9  2002/12/19 09:32:41  mirsad
- * nova opcija u meniju ost.opcije/2 (F11) "3. pretvori maloprod.popust u smanjenje MPC"
- *
- * Revision 1.8  2002/12/18 15:45:34  mirsad
- * nova opcija u ostalim opcijama (F11): promjena umjesto popusta smanji mpcsapp
- *
- * Revision 1.7  2002/07/18 10:24:35  mirsad
- * uvedeno koristenje IsJerry() za specificnosti za Jerry Trade
- *
- * Revision 1.6  2002/07/12 14:02:47  mirsad
- * zavrsena dorada za labeliranje robe za Aden
- *
- * Revision 1.5  2002/07/10 09:45:18  ernad
- *
- *
- *
- * skeleton rlabele (Roba labele - naljepnice)
- *
- * Revision 1.4  2002/07/10 08:44:19  ernad
- *
- *
- * barkod funkcije kalk, fakt -> fmk/roba/barkod.prg
- *
- * Revision 1.3  2002/06/19 13:57:53  mirsad
- * no message
- *
- * Revision 1.2  2002/06/18 14:02:39  mirsad
- * dokumentovanje (priprema za doxy)
- *
  *
  */
 
@@ -1852,7 +1780,7 @@ return
 
 function StKalk()
 *{
-parameters fstara,cSeek,lAuto
+parameters fstara, cSeek, lAuto
 local nCol1
 local nCol2
 local nPom

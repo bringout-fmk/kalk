@@ -4,24 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/rpt/1g/proizv.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.4 $
- * $Log: proizv.prg,v $
- * Revision 1.4  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.3  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.2  2002/06/24 08:42:35  sasa
- * no message
- *
- *
  */
 
 

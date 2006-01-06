@@ -67,7 +67,7 @@ AADD(aHeader, "Popis zaliha na dan :" +  DTOC(dDate) + ", Prodavnica :" + konto-
 aZagl:={}
 AADD(aZagl, { "R." , "Vrsta robe", "jed" , "kolic", "cijena", "zaduz", "#3Porez na promet proizvoda", "", "", "Cijena", "#2 Cijena od 1.1.2006", "", "Ukupni", "Ukupno", "Razlika" } )
 AADD(aZagl, { "br.", "", " mj", "", "", "(3 x 4)", "Prer.st", "u cijeni", "Ukupno", "bez poreza", "PDV 17%", "Cijena sa PDV", "PDV", "zad 1.1.06", ""  })
-AADD(aZagl, { "(1)"  , "(2)" , "(3)", "(4)", "(5)", "(6)=(4x5)", "7", "8=(5x7)", "9=(8x4)" , "10=(5-8)", "11=(10x17%)", "12=(10+11)", "13=(4x11)", "14=(4x12)", "15=(16-6)"  })
+AADD(aZagl, { "(1)"  , "(2)" , "(3)", "(4)", "(5)", "(6)=(4x5)", "7", "8=(5x7)", "9=(8x4)" , "10=(5-8)", "11=(10x17%)", "12=(10+11)", "13=(4x11)", "14=(4x12)", "15=(6-14)"  })
 
 
 fill_uio(cIdFirma, cIdVd, cBrDok, lAkciznaRoba, lZasticeneCijene)

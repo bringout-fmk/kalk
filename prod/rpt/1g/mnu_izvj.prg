@@ -18,11 +18,6 @@
 
 function IzvjP()
 *{
-if gVodiSamoTarife=="D"
-	IzvjTar()
-	return
-endif
-
 private Opc:={}
 private opcexe:={}
 AADD(Opc, "1. kartica - prodavnica                          ")
@@ -59,6 +54,10 @@ AADD(Opc, "1. ukalkulisani porezi ")
 AADD(opcexe, {|| RekKPor()})
 AADD(Opc, "2. realizovani porezi")
 AADD(opcexe, {|| RekRPor()})
+
+AADD(Opc, "3. popis 31.12.05 i obracun pdv")
+AADD(opcexe, {|| rpt_uio()})
+
 private Izbor:=1
 Menu_SC("porp")
 return nil

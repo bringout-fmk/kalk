@@ -443,8 +443,6 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 				   
 				endif
 				
-				Gather()
-				
 			endif
 			
 			// resetuj poreze

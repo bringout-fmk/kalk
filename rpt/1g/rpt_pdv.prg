@@ -1,11 +1,14 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
 static aHeader:={}
-static aZaglLen:={5, 50, 5, 12, 15, 15, 10, 10, 15}
+static aZaglLen:={5, 50, 5, 12, 15, 15, 10, 10, 15, ;
+                  10, 10, 10, 15, 15, 15}
 static aZagl:={}
 static cij_decimala:=2
 static izn_decimala:=2
 static kol_decimala:=3
+static za_mpc_ppp:=3
+static za_mpc_pdv:=3
 static PDV_STOPA:=17
 
 // tekuca linija reporta
@@ -20,19 +23,24 @@ cIdFirma := gFirma
 cBrDok := PADR("00010", 8)
 cIdVd := "80"
 cLandscape := "D"
+cSvakaHeader := "N"
 
 dDate := CTOD("31.12.05")
-Box(, 7, 60)
+Box(, 14, 60)
   @ m_x+1, m_y+2 SAY "Dokument "
   @ m_x+2, m_y+2 SAY gFirma + " - " + cIdVd + " " GET cBrDok 
   @ m_x+3, m_y+2 SAY "Datum " GET dDate
   @ m_x+4, m_y+2 SAY PADR("-", 30, "-")
   @ m_x+5, m_y+2 SAY "Broj decimala cijena  " GET cij_decimala PICT "9"
   @ m_x+6, m_y+2 SAY "                iznos " GET izn_decimala PICT "9"
-  @ m_x+6, m_y+2 SAY "             kolicina " GET kol_decimala PICT "9"
-  @ m_x+7, m_y+2 SAY "Landscape format " GET cLandscape PICT "@!" VALID cLandscape $ "DN"
-
+  @ m_x+7, m_y+2 SAY "             kolicina " GET kol_decimala PICT "9"
   
+  @ m_x+9,  m_y+2 SAY " zaokruz. prod.cj ppp " GET za_mpc_ppp PICT "9"
+  @ m_x+10, m_y+2 SAY " zaokruz. prod.cj pdv " GET za_mpc_pdv PICT "9"
+  
+  @ m_x+12, m_y+2 SAY "Landscape format " GET cLandscape PICT "@!" VALID cLandscape $ "DN"
+  @ m_x+13, m_y+2 SAY "Zagl. na svaku stranu " GET cSvakaHeader PICT "@!" VALID cSvakaHeader $ "DN"
+
   READ
 BoxC()
 
@@ -54,16 +62,16 @@ SEEK kalk->PKonto
 
 aHeader := {}
 AADD(aHeader, "Preduzece: " + gNFirma)
-AADD(aHeader, "Popis zaliha na dan :" +  DTOC(dDate) + ", Prodavnica :" + konto->naz )
+AADD(aHeader, "Popis zaliha na dan :" +  DTOC(dDate) + ", Prodavnica :" + konto->naz + " sa obracunom PDV-a na isti dan" )
 
-AADD(aZagl, { "R." , "Vrsta robe", "jed" , "kolic", "cijena", "zaduz", "#3Porez na promet proizvoda" } )
-AADD(aZagl, { "br.", "", " mj", "", "", "(3 x 4)", "Prer.st", "u cijeni", "Ukupno" })
-//AADD(aZagl, { ""   ,  "", "" , "", "", ""       , "stopa"      , ""        ,  "" } )
-AADD(aZagl, { "(1)"  , "(2)" , "(3)", "(4)", "(5)", "(6)=(4x5)", "7", "8=(5x7)", "9=(8x4))" })
+aZagl:={}
+AADD(aZagl, { "R." , "Vrsta robe", "jed" , "kolic", "cijena", "zaduz", "#3Porez na promet proizvoda", "", "", "Cijena", "#2 Cijena od 1.1.2006", "", "Ukupni", "Ukupno", "Razlika" } )
+AADD(aZagl, { "br.", "", " mj", "", "", "(3 x 4)", "Prer.st", "u cijeni", "Ukupno", "bez poreza", "PDV 17%", "Cijena sa PDV", "PDV", "zad 1.1.06", ""  })
+AADD(aZagl, { "(1)"  , "(2)" , "(3)", "(4)", "(5)", "(6)=(4x5)", "7", "8=(5x7)", "9=(8x4)" , "10=(5-8)", "11=(10x17%)", "12=(10+11)", "13=(4x11)", "14=(4x12)", "15=(16-6)"  })
 
 
 fill_uio(cIdFirma, cIdVd, cBrDok, lAkciznaRoba, lZasticeneCijene)
-show_uio( (cLandscape=="D"), lAkciznaRoba, lZasticeneCijene )
+show_uio( (cLandscape=="D"), (cSvakaHeader=="D"), lAkciznaRoba, lZasticeneCijene )
 
 close all
 *}
@@ -109,7 +117,8 @@ get_uio_fields(@aArr)
 dbcreate2(PRIVPATH + cUioTbl, aArr)
 
 // kreiraj indexe
-CREATE_INDEX("1", "idtarifa+idRoba", PRIVPATH +  cUioTbl, .t.)
+CREATE_INDEX("ROB", "idRoba", PRIVPATH +  cUioTbl, .t.)
+CREATE_INDEX("TAR", "idTarifa+idRoba", PRIVPATH +  cUioTbl, .t.)
 
 return
 *}
@@ -127,7 +136,7 @@ t_uio_create()
 
 
 O_R_UIO
-
+set ORDER to TAG "ROB"
 
 SELECT (F_KALK)
 if !used()
@@ -171,7 +180,7 @@ cIdRoba := IdRoba
 @ m_x+1, m_y+2 SAY "Krug " + STR(nKrug,1) + " " + STR(nCount, 6)
 @ m_x+2, m_y+2 SAY cIdRoba + "/" + cIdTarifa
 SELECT r_uio
-SEEK cIdTarifa + cIdRoba
+SEEK cIdRoba
 if !found()
 	APPEND BLANK
 	replace idtarifa with cIdTarifa, idRoba with cIdRoba
@@ -189,10 +198,10 @@ endif
 // 1 krug gledam samo negativne stavke
 if (nKrug == 1) .and. (kalk->kolicina < 0)
        replace kol with ABS(kalk->kolicina),;
-               cij_ppp with kalk->mpcsapp,;
+               cij_ppp with ROUND(kalk->mpcsapp, za_mpc_ppp),;
 	       zad_ppp with kalk->mpcsapp * ABS(kalk->kolicina)
-       replace ppp_ucj with cij_ppp * ppp_pstopa
-       replace uk_ppp with kol * cij_ppp
+       replace ppp_ucj with cij_ppp * (1-1/(1+tarifa->opp/100))
+       replace uk_ppp with kol * ppp_ucj
        
 endif
 
@@ -201,7 +210,7 @@ endif
 if (nKrug == 2)  .and. (kalk->kolicina > 0)
 	replace cij_b_pdv WITH cij_ppp - ppp_ucj
 	replace izn_pdv with cij_b_pdv * PDV_STOPA / 100
-	replace cij_sa_pdv WITH cij_b_pdv * PDV_STOPA / 100
+	replace cij_sa_pdv WITH ROUND(cij_b_pdv * ( 1 + PDV_STOPA / 100 ), za_mpc_pdv)
 	replace uk_pdv with kol * izn_pdv
 	replace zad_pdv with kol * cij_sa_pdv
 	replace razlika with zad_ppp - zad_pdv
@@ -221,7 +230,7 @@ return
 *}
 
 
-function show_uio(lLandscape, lAkciznaRoba, lZasticenaRoba)
+function show_uio(lLandscape, lSvakaHeader, lAkciznaRoba, lZasticenaRoba)
 *{
 
 nCurrLine := 0
@@ -251,15 +260,25 @@ nRow := 0
 uio_zagl()
 
 SELECT r_uio
-SET ORDER TO TAG "1"
+SET ORDER TO TAG "TAR"
 go top
 nRbr := 0
+
+nUk6:=0
+nUk9:=0
+nUk13:=0
+nUk14:=0
+nUk15:=0
 
 do while !eof()
   
   cIdTarifa := idTarifa
+  
   nT6:=0
   nT9:=0
+  nT13:=0
+  nT14:=0
+  nT15:=0
   
   ++ nCurrLine
   ? "   Tarifni broj: "
@@ -273,10 +292,15 @@ do while !eof()
   
   r_linija()
   do while !eof() .and. (idTarifa == cIdTarifa)
-
+   
+   ++nCurrLine
    if nCurrLine > nPageLimit
    	FF
 	nCurrLine:=0
+	if lSvakaHeader
+		uio_zagl()
+	endif
+		
    endif
    
    nRbr ++
@@ -312,13 +336,48 @@ do while !eof()
    cPom:= ALLTRIM( STR(uk_ppp, 15, izn_decimala))
    ?? PADL(cPom,  aZaglLen[9])
    ?? " "
-  
+ 
+   cPom:= ALLTRIM( STR(cij_b_pdv, 10, cij_decimala))
+   ?? PADL(cPom,  aZaglLen[10])
+   ?? " "
+
+   cPom:= ALLTRIM( STR(izn_pdv, 10, cij_decimala))
+   ?? PADL(cPom,  aZaglLen[11])
+   ?? " "
+   
+   cPom:= ALLTRIM( STR(cij_sa_pdv, 10, cij_decimala))
+   ?? PADL(cPom,  aZaglLen[12])
+   ?? " "
+
+   cPom:= ALLTRIM( STR(uk_pdv, 15, izn_decimala))
+   ?? PADL(cPom,  aZaglLen[13])
+   ?? " "
+ 
+   cPom:= ALLTRIM( STR(zad_pdv, 15, izn_decimala))
+   ?? PADL(cPom,  aZaglLen[14])
+   ?? " "
+
+   cPom:= ALLTRIM( STR(razlika, 15, izn_decimala))
+   ?? PADL(cPom,  aZaglLen[15])
+   ?? " "
+
+
+   nT6 += zad_ppp
+   nT9 += uk_ppp
+
+   nT13 += uk_pdv
+   nT14 += zad_pdv
+   nT15 += razlika
+   
    SKIP
   enddo
 
   if (nCurrLine+3) > nPageLimit 
   	FF
 	nCurrLine:=0
+	if lSvakaHeader
+		uio_zagl()
+	endif
   endif
   
   r_linija()
@@ -328,7 +387,7 @@ do while !eof()
    ?
    ?? PADL("", aZaglLen[1]) 
    ?? " "
-   cPom := ""
+   cPom := "Ukupno tarifa " + cIdTarifa + " :"
    ?? PADR( cPom , aZaglLen[2])
    ?? " "
    ?? PADR("", aZaglLen[3])
@@ -355,13 +414,112 @@ do while !eof()
    ?? PADL(cPom,  aZaglLen[9])
    ?? " "
  
-  
+   cPom:= ""
+   ?? PADL(cPom,  aZaglLen[10])
+   ?? " "
+
+   cPom:= ""
+   ?? PADL(cPom,  aZaglLen[11])
+   ?? " "
+   
+   cPom:= ""
+   ?? PADL(cPom,  aZaglLen[12])
+   ?? " "
+
+   cPom:= ALLTRIM( STR(nT13, 15, izn_decimala))
+   ?? PADL(cPom,  aZaglLen[13])
+   ?? " "
+ 
+   cPom:= ALLTRIM( STR(nT14, 15, izn_decimala))
+   ?? PADL(cPom,  aZaglLen[14])
+   ?? " "
+
+   cPom:= ALLTRIM( STR(nT15, 15, izn_decimala))
+   ?? PADL(cPom,  aZaglLen[15])
+   ?? " "
+
+
+
   // end ukupno tarifa
   
   r_linija()
   
-  
+  nUk6 += nT6
+  nUk9 += nT9
+
+  nUk13 += nT13 
+  nUk14 += nT14
+  nUk15 += nT15 
+
 enddo
+
+if (nCurrLine+3) > nPageLimit 
+  FF
+  nCurrLine:=0
+  if lSvakaHeader
+	uio_zagl()
+  endif
+endif
+
+// ukupno sve tarife
+?
+?? PADL("", aZaglLen[1]) 
+?? " "
+cPom := "U K U P N O :"
+?? PADR( cPom , aZaglLen[2])
+?? " "
+?? PADR("", aZaglLen[3])
+?? " "
+?? PADR("", aZaglLen[4])
+?? " "
+cPom:= ""
+?? PADL(cPom, aZaglLen[5])
+?? " "
+cPom:=ALLTRIM( STR(nUk6, 17, izn_decimala) )
+?? PADL( cPom, aZaglLen[6])
+?? " "
+  
+// preracunata stopa
+cPom:= ""
+?? PADL(cPom,  aZaglLen[7])
+?? " "
+   
+cPom:= ""
+?? PADL(cPom,  aZaglLen[8])
+?? " "
+
+cPom:= ALLTRIM( STR(nUk9, 15, izn_decimala))
+?? PADL(cPom,  aZaglLen[9])
+?? " "
+ 
+cPom:= ""
+?? PADL(cPom,  aZaglLen[10])
+?? " "
+
+cPom:= ""
+?? PADL(cPom,  aZaglLen[11])
+?? " "
+   
+cPom:= ""
+?? PADL(cPom,  aZaglLen[12])
+?? " "
+
+cPom:= ALLTRIM( STR(nUk13, 15, izn_decimala))
+?? PADL(cPom,  aZaglLen[13])
+?? " "
+ 
+cPom:= ALLTRIM( STR(nUk14, 15, izn_decimala))
+?? PADL(cPom,  aZaglLen[14])
+?? " "
+
+cPom:= ALLTRIM( STR(nUk15, 15, izn_decimala))
+?? PADL(cPom,  aZaglLen[15])
+?? " "
+
+// end ukupno sve tarife
+  
+r_linija()
+  
 
 FF
 END PRINT
@@ -372,10 +530,15 @@ return
 static function uio_zagl()
 
 // header
+P_COND
+B_ON
 for i:=1 to LEN(aHeader)
  ? aHeader[i]
  ++nCurrLine
 next
+B_OFF
+
+P_COND2
 
 r_linija()
 
@@ -403,8 +566,6 @@ for i:=1 to LEN(aZagl)
 	 endif
  next
 next
-?
-
 r_linija()
 
 return

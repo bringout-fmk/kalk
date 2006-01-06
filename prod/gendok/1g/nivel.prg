@@ -11,6 +11,7 @@ local aProd // matrica sa prodavnicama
 local cProd // prodavnica
 local cPKonto
 local dDatDok
+local cGlStanje:="D"
 
 O_KONTO
 
@@ -19,6 +20,7 @@ Box(,4,70)
 	dDatDok:=date()
 	@ m_x+1,m_Y+2 SAY "Prodavnica (prazno-sve)" GET cProd VALID Empty(cProd) .or. P_Konto(@cProd)
 	@ m_x+2,m_Y+2 SAY "Datum" GET dDatDok
+	@ m_x+3,m_Y+2 SAY "Nivelisati samo robu na stanju (D/N)?" GET cGlStanje VALID cGlStanje $ "DN" PICT "@!"
 	read
 	ESC_BCR
 BoxC() 
@@ -42,6 +44,11 @@ if LEN(aProd) == 0
 	return
 endif
 
+lGlStanje := .t.
+if cGlStanje == "N"
+	lGlStanje := .f.
+endif
+
 // kreiraj tabelu PRIPT
 CrePripTDbf()
 
@@ -51,6 +58,7 @@ Box(, 2, 65)
 
 O_DOKS
 
+
 nUvecaj := 1
 for nCnt:=1 to LEN(aProd)
 	// daj broj kalkulacije
@@ -59,7 +67,7 @@ for nCnt:=1 to LEN(aProd)
 	
 	@ 2+m_x, 2+m_y SAY STR(nCnt, 3) + " Prodavnica: " + ALLTRIM(cPKonto) + "   dokument: "+ gFirma + "-19-" + ALLTRIM(cBrKalk)
 	
-	gen_nivel_p(cPKonto, dDatDok, cBrKalk)
+	gen_nivel_p(cPKonto, dDatDok, cBrKalk, lGlStanje)
 	
 	++ nUvecaj
 next
@@ -140,7 +148,7 @@ return
 
 
 
-function gen_nivel_p(cPKonto, dDatDok, cBrKalk)
+function gen_nivel_p(cPKonto, dDatDok, cBrKalk, lGledajStanje)
 *{
 local nRbr
 local cIdFirma 
@@ -218,9 +226,11 @@ do while !eof()
 
 	// ako je Stanje <> 0 preskoci
 	if Round(nUlaz-nIzlaz,4) == 0
-		select roba
-		skip
-		loop
+		if lGledajStanje
+			select roba
+			skip
+			loop
+		endif
 	endif
 
 	// upisi u pript

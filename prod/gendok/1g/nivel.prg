@@ -260,13 +260,61 @@ do while !eof()
 	
 	_error := "0"
 	
-	//Gather2()
 	Gather()
 
 	select roba
 	skip
 enddo
  
+return
+*}
+
+
+// setuj mpc iz polja zanivel nakon nivelacije
+function set_mpc_iz_zanivel()
+*{
+
+if !SigmaSif("SETMPC")
+	MsgBeep("Ne cackaj!")
+	return
+endif
+
+MsgBeep("Ova opcija se iskljucivo pokrece#nakon obradjenih nivelacija!")
+
+if Pitanje(,"Setovati nove cijene","N") == "N"
+	return
+endif
+
+if !USED(F_ROBA)
+	O_ROBA
+endif
+
+select roba
+set order to tag "ID"
+go top
+
+Box(,3, 70)
+do while !EOF()
+	if ROUND(field->zanivel, 4) == 0
+		skip
+		loop
+	endif
+	
+	@ 1+m_x, 2+m_y SAY "ID roba: " + field->id
+	
+	// sacuvaj backup u zaniv2
+	replace zaniv2 with mpc
+	// prebaci iz zanivel u mpc
+	replace mpc with zanivel
+	
+	@ 2+m_x, 2+m_y SAY "Update cijena " + ALLTRIM(STR(field->zanivel)) + " -> " + ALLTRIM(STR(field->mpc))
+	
+	skip
+enddo
+BoxC()
+
+MsgBeep("Zavrseno setovanje cijena!")
+
 return
 *}
 
@@ -449,8 +497,14 @@ if nRecP == 0
 	return
 endif
 
+lStampati := .t.
+
+if Pitanje(,"Stampati dokumente (D/N)","N") == "N"
+	lStampati := .f.
+endif
+
 // pokreni obradu pript bez asistenta
-ObradiImport(0, .f.)
+ObradiImport(0, .f., lStampati)
 
 return
 *}

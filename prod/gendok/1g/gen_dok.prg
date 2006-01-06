@@ -70,7 +70,8 @@ AADD(opc, "5. pregled efekata nivelacije za sve prodavnice")
 AADD(opcexe, {|| result_nivel_p()})
 AADD(opc, "6. azuriranje nivelacije za sve prodavnice")
 AADD(opcexe, {|| obr_nivel_p()})
-
+AADD(opc, "7. setovanje mpc nakon obradjenih nivelacija")
+AADD(opcexe, {|| set_mpc_iz_zanivel()})
 
 private Izbor:=1
 Menu_SC("pmn")

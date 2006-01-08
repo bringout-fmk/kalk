@@ -296,21 +296,16 @@ SELECT r_export
 			cij_vpc_2 WITH roba->vpc2
 	endif
 
-	if roba->(FIELDPOS("zanivel")<>0
+	if roba->(FIELDPOS("zanivel")<>0)
            replace cij_nov_1 WITH roba->zanivel ,;
 	        cij_nov_2 WITH roba->zaniv2
 	endif
 	
-//endif
-
-//if (nKrug == 1)
-
 	replace kol WITH kalk->kolicina
 	
 	if (cIdVD == "IP") .or. (cIdVd == "IM")
 		replace kol_knjiz WITH kalk->gkolicina
 	endif
-//endif
 
 SELECT KALK
 skip

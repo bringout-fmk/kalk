@@ -57,9 +57,8 @@ Box(,5,70)
 BoxC()
 
 set softseek off
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_TARIFA
 O_KALK;  set order to 6

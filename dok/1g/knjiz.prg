@@ -179,10 +179,8 @@ O_KONTO
 O_PARTN
 O_TDOK
 O_VALUTE
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 if (IsRamaGlas())
 	O_RNAL
 endif
@@ -1539,10 +1537,8 @@ return cVrati
 
 function IzbDokOLPP()
 *{
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_TARIFA
 O_PARTN

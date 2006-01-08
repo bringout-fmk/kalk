@@ -38,9 +38,8 @@ local PicProc:=gPicProc       // "999999.99%"
 local PicDEM:=gPicDEM         // "9999999.99"
 local Pickol:=gPicKol         // "999999.999"
 
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_KONTO
 O_TARIFA

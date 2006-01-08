@@ -148,9 +148,7 @@ O_KONCIJ
 O_PRIPR
 O_PRIPR2
 O_KALK
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK;O_SIFV
 O_ROBA
 
 select pripr; go top
@@ -272,9 +270,8 @@ LOCAL nStopa:=0.0, nZaokr:=1
 
 O_KONTO
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 cVarijanta:="3"
 Box(,7,60)
@@ -565,9 +562,8 @@ O_KONCIJ
 O_PRIPR
 O_PRIPR2
 O_KALK
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 select pripr; go top

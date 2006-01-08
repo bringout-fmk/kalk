@@ -4,13 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/si/1g/gen_dok.prg,v $
- * $Author: sasa $ 
- * $Revision: 1.3 $
- * $Log: gen_dok.prg,v $
- * Revision 1.3  2002/06/24 08:46:11  sasa
- * no message
- *
  *
  */
 
@@ -29,10 +22,8 @@ O_KONCIJ
 O_PRIPR
 O_PRIPR2
 O_KALK
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK
-   O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 select pripr; go top

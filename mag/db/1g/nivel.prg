@@ -39,9 +39,8 @@ O_PRIPR
 O_PRIPR2
 O_KALK
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 select pripr; go top

@@ -212,10 +212,8 @@ local nZaokr:=1
 
 O_KONTO
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 cVarijanta:="2"

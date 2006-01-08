@@ -5,22 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_ip.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.5 $
- * $Log: frm_ip.prg,v $
- * Revision 1.5  2003/10/11 09:26:52  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.4  2003/10/06 15:00:28  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.3  2003/02/24 02:41:46  mirsad
- * uveo mogucnost zabrane unosa viska na IP
- *
- * Revision 1.2  2002/06/21 07:49:36  mirsad
- * no message
- *
  *
  */
  
@@ -38,10 +22,8 @@ function IP()
 *{
 O_KONTO
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 Box(,4,50)

@@ -5,13 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/razoff/1g/pren_dok.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: pren_dok.prg,v $
- * Revision 1.2  2002/06/24 09:37:57  mirsad
- * dokumentovanje
- *
  *
  */
  
@@ -85,7 +78,6 @@ if Pitanje(,"Nulirati datoteke prenosa prije nastavka ?","D")=="D"
   use
   create (PRIVPATH+"_partn") from (PRIVPATH+"struct")
 
-  if Izfmkini('Svi','Sifk','N')=="D"
     O_SIFK
     copy structure extended to (PRIVPATH+"struct")
     use
@@ -97,7 +89,6 @@ if Pitanje(,"Nulirati datoteke prenosa prije nastavka ?","D")=="D"
     use
     create (PRIVPATH+"_SIFV") from (PRIVPATH+"struct")
 
-  endif
 
   close all
 
@@ -113,9 +104,7 @@ if Pitanje(,"Nulirati datoteke prenosa prije nastavka ?","D")=="D"
 endif
 
 fSifk:=.f.
-if Izfmkini('Svi','Sifk','N')=="D"
-   fSifk:=.t.
-endif
+fSifk:=.t.
 
 O__KALK
 O_KALK
@@ -204,10 +193,8 @@ close all
 O_ROBA
 O_PARTN
 
-if fsifk
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 
 O__ROBA
 INDEX ON id TO "_ROBATMP"  // index radi trazenja
@@ -239,9 +226,7 @@ do while !eof()
      append blank
      Gather()
     endif
-    if fsifk
-      SifkFill(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","ROBA",_KALK->idroba)
-    endif
+    SifkFill(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","ROBA",_KALK->idroba)
   endif
 
   select _partn
@@ -257,9 +242,7 @@ do while !eof()
      append blank
      Gather()
     endif
-    if fsifk
-      SifkFill(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","PARTN",_KALK->idpartner)
-    endif
+    SifkFill(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","PARTN",_KALK->idpartner)
   endif
 
   select _KALK
@@ -304,10 +287,7 @@ PRIVATE cKonvBrDok  := ""
 
 PPPDisk(.t.)
 
-fSifk:=.f.
-if Izfmkini('Svi','Sifk','N')=="D"
-   fSifk:=.t.
-endif
+fSifk:=.t.
 
 if Klevel<>"0"
     Beep(2)
@@ -377,9 +357,8 @@ ENDIF
 if cdn1=="D"
 close all
 O_ROBA
-if fsifk
-   O_SIFK;   O_SIFV
-endif
+O_SIFK
+O_SIFV
 O__ROBA
 set order to 0; go top
 Box(,1,60)

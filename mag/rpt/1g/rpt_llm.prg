@@ -60,10 +60,8 @@ if IsVindija()
 	cOpcine:=SPACE(50)
 endif
 
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-   	O_SIFV
-endif
+O_SIFK
+O_SIFV
 
 O_ROBA
 O_KONCIJ

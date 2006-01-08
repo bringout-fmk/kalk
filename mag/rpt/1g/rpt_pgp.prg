@@ -36,12 +36,9 @@ function PrometGP()
   cidKonto:=padr("1310",gDuzKonto)
   private nVPVU:=nVPVI:=nNVU:=nNVI:=0
 
-  if IzFMKIni("Svi","Sifk")=="D"
-    O_SIFK; O_SIFV
-  else
-    MsgBeep("Moraju biti omogucene dodatne karakteristike - sifrarnik SIFK !")
-    CLOSERET
-  endif
+  O_SIFK
+  O_SIFV
+
   O_ROBA
   O_KONCIJ
   O_KONTO

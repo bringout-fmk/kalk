@@ -4,19 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_rdob.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: rpt_rdob.prg,v $
- * Revision 1.4  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.3  2003/04/02 07:13:46  mirsad
- * dodan uslov za broj prethodnih sezona koje se gledaju da bi se utvrdilo koja je roba nabavljana od zadanog dobavljaca u izvj."pregled robe za dobavljaca"
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
  *
  */
  
@@ -32,10 +19,8 @@
 
 function PRobDob()
 *{
- if IzFMKIni("Svi","Sifk")=="D"
- 	O_SIFK
- 	O_SIFV
- endif
+ O_SIFK
+ O_SIFV
  O_ROBA
  O_PARTN
  O_KALK

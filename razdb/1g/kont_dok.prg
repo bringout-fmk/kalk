@@ -70,10 +70,8 @@ if (lAGen == nil)
 	lAGen := .f.
 endif
 
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 
 O_ROBA
 O_FINMAT

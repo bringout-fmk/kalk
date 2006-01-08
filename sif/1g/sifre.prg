@@ -4,38 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/sif/1g/sifre.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.9 $
- * $Log: sifre.prg,v $
- * Revision 1.9  2003/10/04 12:34:31  sasavranic
- * uveden security sistem
- *
- * Revision 1.8  2003/10/04 11:08:02  sasavranic
- * uveden security sistem
- *
- * Revision 1.7  2002/09/04 10:29:58  sasa
- * Do daljnjeg ukinuta opcija DOKS->TXT
- *
- * Revision 1.6  2002/07/06 17:28:58  ernad
- *
- *
- * izvjestaj Trgomarket: pregled stanja po objektima
- *
- * Revision 1.5  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.4  2002/06/24 08:51:19  sasa
- * no message
- *
- * Revision 1.3  2002/06/20 16:52:06  ernad
- *
- *
- * ciscenje planika, uvedeno fmk/svi/specif.prg
- *
- *
  */
  
 /*! \file fmk/kalk/sif/1g/sifre.prg
@@ -200,10 +168,8 @@ return
  
 function OSifBaze()
 *{
-if IzFMKIni("Svi","Sifk")=="D"
- O_SIFK
- O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_KONTO
 O_KONCIJ
 O_PARTN

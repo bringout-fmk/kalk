@@ -45,10 +45,8 @@ PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
 
 cIdKonto:=padr("1310",gDuzKonto)
 
-if IzFMKIni("Svi","Sifk")=="D"
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 
 O_ROBA
 O_KONCIJ

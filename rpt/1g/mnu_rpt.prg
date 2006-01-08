@@ -29,6 +29,9 @@ AADD(opc,"3. izvjestaji magacin+prodavnica")
 AADD(opcexe, {|| IzvjMaPr() } )
 AADD(opc,"4. proizvoljni izvjestaji")
 AADD(opcexe, {|| Proizv()})
+AADD(opc,"5. export dokumenata")
+AADD(opcexe, {|| rpt_export()})
+
 private Izbor:=1
 Menu_SC("izvj")
 CLOSERET

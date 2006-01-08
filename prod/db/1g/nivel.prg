@@ -5,19 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/db/1g/nivel.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.3 $
- * $Log: nivel.prg,v $
- * Revision 1.3  2002/07/12 10:15:55  ernad
- *
- *
- * debug ROBPR.DBF, ROBPR.CDX - uklonjena funkcija DodajRobPr()
- *
- * Revision 1.2  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -37,9 +24,8 @@ O_KONCIJ
 O_PRIPR
 O_PRIPR2
 O_KALK
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 
 select pripr; go top

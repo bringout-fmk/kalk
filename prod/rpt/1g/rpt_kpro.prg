@@ -5,32 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_kpro.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: rpt_kpro.prg,v $
- * Revision 1.8  2004/05/25 14:24:04  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.7  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.6  2003/12/03 15:19:39  sasavranic
- * Prikaz artikala najprometnijih kod kojih je JMJ='PAR'
- *
- * Revision 1.5  2003/11/11 14:06:34  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.4  2003/10/06 15:00:28  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.3  2003/06/23 09:31:20  sasa
- * prikaz dobavljaca
- *
- * Revision 1.2  2002/06/21 12:12:43  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -56,9 +30,8 @@ local PicDEM:= gPicDem
 local Pickol:= "@Z "+gpickol
 
 O_TARIFA
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK;O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_KONTO
 

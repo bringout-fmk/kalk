@@ -16,19 +16,34 @@
 
 
 // porez na promet proizvoda
-function RekTarPPP()
+function RekTarPPP( lVisak )
 *{
 local aPKonta
 local nIznPRuc
 private aPorezi
 
-IF prow()>55+gPStranica
+if lVisak == NIL
+	lVisak :=.f.
+endif
+
+IF prow() > 55+gPStranica
 	FF
 	@ prow(),123 SAY "Str:"+str(++nStr,3)
 endif
 nRec:=recno()
 select pripr
 set order to 2
+
+if (cIdVd == "IP")
+  ?
+  if lVisak
+    ? "Rekapitulacija IP - Visak "
+  else
+   ? "Rekapitulacija IP - Manjak "
+  endif
+  ? "------------------------------------- "
+endif
+
 seek cIdFirma+cIdVd+cBrDok
 m:="------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 ? m
@@ -36,7 +51,7 @@ m:="------ ---------- ---------- ---------- ---------- ---------- ---------- ---
 ? m
 
 aPKonta:=PKontoCnt(cIdFirma+cIdvd+cBrDok)
-nCntKonto:=len(aPKonta)
+nCntKonto:=LEN(aPKonta)
 
 aPorezi:={}
 
@@ -46,10 +61,34 @@ for i:=1 to nCntKonto
 	nTot1:=nTot2:=nTot2b:=nTot3:=nTot4:=0
 	nTot5:=nTot6:=nTot7:=0
 	do while !eof() .and. cIdFirma+cIdVd+cBrDok==idfirma+idvd+brdok
-  		if aPKonta[i]<>field->PKONTO
+  		
+		if aPKonta[i]<> PKONTO
     			skip
     			loop
   		endif
+		
+		// IP dokument ima dvije rekapitulacije
+		if cIdVd == "IP"
+				// kolicina = popisana kolicina
+				// gkolicina = knjizna kolicina
+				if lVisak 
+					// manjak
+					if kolicina < gkolicina
+						// manjak preskoci na rekap
+						// viska
+						SKIP
+						LOOP
+					endif
+				else
+					// visak
+					if (kolicina > gkolicina)
+						// visak preskoci na rekap
+						// manjka
+						SKIP
+						LOOP
+					endif
+				endif
+		endif
 
   		cIdtarifa:=idtarifa
   		// mpv
@@ -62,13 +101,36 @@ for i:=1 to nCntKonto
 		nU4:=0
 		// mpv sa porezom
 		nU5:=0
-		
+
 	  	select tarifa
 		hseek cIdtarifa
 	  	select pripr
   		do while !eof() .and. cIdfirma+cIdvd+cBrDok==idfirma+idvd+brdok .and. idTarifa==cIdTarifa
 
-	    		if aPKonta[i]<>field->PKONTO
+			// IP dokument ima dvije rekapitulacije
+			if cIdVd == "IP"
+				// kolicina = popisana kolicina
+				// gkolicina = knjizna kolicina
+				if lVisak 
+					// manjak
+					if kolicina < gkolicina
+						// manjak preskoci na rekap
+						// viska
+						SKIP
+						LOOP
+					endif
+				else
+					// visak
+					if (kolicina > gkolicina)
+						// visak preskoci na rekap
+						// manjka
+						SKIP
+						LOOP
+					endif
+				endif
+			endif
+		
+	    		if aPKonta[i] <> PKONTO
       				skip
       				loop
 	    		endif
@@ -81,8 +143,8 @@ for i:=1 to nCntKonto
 		
     			VtPorezi()
 
-			nMpc:=DokMpc(field->idvd,aPorezi)
-			if field->idvd=="19"
+			nMpc:=DokMpc(idvd, aPorezi)
+			if idvd=="19"
     				// nova cijena
     				nMpcSaPP1:=field->mpcSaPP+field->fcj
     				nMpc1:=MpcBezPor(nMpcSaPP1,aPorezi,,field->nc)
@@ -90,8 +152,8 @@ for i:=1 to nCntKonto
     
     				// stara cijena
     				nMpcSaPP2:=field->fcj
-    				nMpc2:=MpcBezPor(nMpcSaPP2,aPorezi,,field->nc)
-    				aIPor2:=RacPorezeMP(aPorezi,nMpc2,nMpcSaPP2,field->nc)
+    				nMpc2:=MpcBezPor(nMpcSaPP2, aPorezi, , nc)
+    				aIPor2:=RacPorezeMP(aPorezi, nMpc2, nMpcSaPP2, nc)
 				aIPor:={0,0,0}
 				aIPor[1]:=aIPor1[1]-aIPor2[1]
 				aIPor[2]:=aIPor1[2]-aIPor2[2]
@@ -99,7 +161,7 @@ for i:=1 to nCntKonto
 			else
 				aIPor:=RacPorezeMP(aPorezi,nMpc,field->mpcSaPP,field->nc)
 			endif
-			nKolicina:=DokKolicina(field->idvd)
+			nKolicina:= DokKolicina(idvd)
 			nU1+=nMpc*nKolicina
 			nU2+=aIPor[1]*nKolicina
 			nU3+=aIPor[2]*nKolicina
@@ -117,10 +179,16 @@ for i:=1 to nCntKonto
   
 		//nTot6+=(mpc-nc)*nKolicina
 		? cIdTarifa
-  
-		@ prow(),pcol()+1   SAY aPorezi[POR_PPP] pict picproc
-		@ prow(),pcol()+1   SAY PrPPUMP() pict picproc
-		@ prow(),pcol()+1   SAY aPorezi[POR_PP] pict picproc
+  		
+		if LEN(aPorezi) > 0
+		 @ prow(),pcol()+1   SAY aPorezi[POR_PPP] pict picproc
+		 @ prow(),pcol()+1   SAY PrPPUMP() pict picproc
+		 @ prow(),pcol()+1   SAY aPorezi[POR_PP] pict picproc
+		else
+	         @ prow(),pcol()+1   SAY 0 pict picproc
+		 @ prow(),pcol()+1   SAY 0 pict picproc
+		 @ prow(),pcol()+1   SAY 0 pict picproc
+	        endif
   
 		nCol1:=pcol()+1
 		@ prow(),pcol()+1   SAY nU1 pict picdem
@@ -130,7 +198,7 @@ for i:=1 to nCntKonto
 		@ prow(),pcol()+1   SAY nU5 pict picdem
 	enddo
 
-	if prow()>56+gPStranica
+	if prow() > 56+gPStranica
 		FF
 		@ prow(),123 SAY "Str:"+str(++nStr,3)
 	endif

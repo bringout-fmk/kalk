@@ -19,11 +19,11 @@
  *  \brief Nova funkcija RekTarife - koristi proracun poreza iz roba/tarife.prg
  * prosljedjuje se cidfirma,cidvd,cbrdok
  */
-function RekTarife()
+function RekTarife(lVisak)
 if IsPDV()
 	RekTarPDV()
 else
-	RekTarPPP()
+	RekTarPPP(lVisak)
 endif
 return
 
@@ -179,9 +179,13 @@ function DokKolicina(cIdVd)
 *{
 local nKol
 if cIdVd=="IP"
-	nKol:=field->gkolicin2
+        // kolicina = popisana kolicina
+	// gkolicina = knjizna kolicina
+	nKol:=kolicina - gkolicina
+	// stajalo je nKol := gKolicin2 ali mi je rekapitulacija davala pogresnu
+	// stvar
 else
-	nKol:=field->kolicina
+	nKol:=kolicina
 endif
 return nKol
 *}

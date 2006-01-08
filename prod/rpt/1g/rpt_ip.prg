@@ -75,8 +75,18 @@ else
 endif
 
 ? m
-nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=nTotc:=nTotd:=0
-nTotKol:=nTotGKol:=0
+nTot4:=0
+nTot5:=0
+nTot6:=0
+nTot7:=0
+nTot8:=0
+nTot9:=0
+nTota:=0
+nTotb:=0
+nTotc:=0
+nTotd:=0
+nTotKol:=0
+nTotGKol:=0
 
 
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
@@ -152,7 +162,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
 	nTotb+=fcj
 	nTotc+=kolicina*mpcsapp
-	nTot4+=  (nU4:= MPCSAPP*Kolicina-fcj)
+	nTot4+= (nU4:= MPCSAPP*Kolicina-fcj)
 	nTotKol+=kolicina
 	nTotGKol+=gkolicina
 	
@@ -193,12 +203,18 @@ endif
 @ prow(),pcol()+1 SAY nTot4  pict picdem
 ? m
 
-RekTarife()
+// Visak
+RekTarife(.t.)
+
+// Manjak
+RekTarife(.f.)
 
 if !fZaTops
 	?
 	?
-	? "Napomena: Ovaj dokument, ako se azurira smatrace se izlazom za kolicinu manjka !!!"
+	? "Napomena: Ovaj dokument ima sljedeci efekat na karticama:"
+	? "     1 - izlaz za kolicinu manjka"
+	? "     2 - storno izlaza za kolicinu viska"
 	?
 endif
 return
@@ -219,8 +235,12 @@ Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
 // iznosi troskova i marzi koji se izracunavaju u KTroskovi()
 
 nStr:=0
-cIdPartner:=IdPartner; cBrFaktP:=BrFaktP; dDatFaktP:=DatFaktP
-dDatKurs:=DatKurs; cIdKonto:=IdKonto; cIdKonto2:=IdKonto2
+cIdPartner:=IdPartner
+cBrFaktP:=BrFaktP
+dDatFaktP:=DatFaktP
+dDatKurs:=DatKurs
+cIdKonto:=IdKonto
+cIdKonto2:=IdKonto2
 
 
 P_10CPI

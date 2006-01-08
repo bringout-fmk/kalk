@@ -81,7 +81,8 @@ do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba
     nMPVI+=mpcsapp*kolicina
     nNVI+=nc*kolicina
 
-  elseif pu_i=="5"  .and. (idvd $ "12#13#22")    // povrat
+  elseif pu_i=="5"  .and. (idvd $ "12#13#22")    
+    // povrat
     nUlaz-=kolicina
     nMPVU-=mpcsapp*kolicina
     nnvu-=nc*kolicina

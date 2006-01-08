@@ -10,9 +10,10 @@ static cLauncher1 := 'start "C:\Program Files\OpenOffice.org 2.0\program\scalc.e
 // zamjeniti tarabu sa brojem
 static cLauncher2 := ""
 
-static cLauncher := "OO"
+static cLauncher := "officexp"
 
-static cKonverzija := "0"
+// 4 : 852 => US ASCII
+static cKonverzija := "4"
 
 // tekuca linija reporta
 static nCurrLine:=0
@@ -23,7 +24,7 @@ local lAkciznaRoba := .f.
 local lZasticeneCijene := .f.
 
 cIdFirma := gFirma
-cBrDok := PADR("00001", 8)
+cBrDok := PADR("00000", 8)
 cIdVd := "80"
 cLauncher := PADR(cLauncher, 70)
 cZaokruziti := "D"
@@ -325,13 +326,13 @@ else
    cKom := cLauncher + " " + PRIVPATH + "r_export.dbf"
 endif
 
-MsgBeep("Tabela " + PRIVPATH + "R_EXPORT.DBF je formirana ##" +;
-        "Sa excel / open mozete je ubaciti u excel #" +;
+MsgBeep("Tabela " + PRIVPATH + "R_EXPORT.DBF je formirana, i ima:"+ STR(nRbr, 5) + "stavki##" +;
+        "Sa opcijom Open file se ova tabela ubacuje u excel #" +;
 	"Nakon importa uradite Save as, i odaberite format fajla XLS ! ##" +;
-	"Takod dobijeni xls fajl mozete mijenjati #"+;
+	"Tako dobijeni xls fajl mozete mijenjati #"+;
 	"prema svojim potrebama ...")
 	
-if Pitanje(, "Otvoriti tabelu sa spreadsheet aplikacijom ?", "D") == "D"	
+if Pitanje(, "Odmah pokrenuti spreadsheet aplikaciju ?", "D") == "D"	
  RUN &cKom
 endif
 

@@ -34,7 +34,7 @@ mod: $(OBJS)
 	cp e.exe $(EXEDEST)/$(MODUL).EXE
 
 zip:
-	/sclib/zip.sh h:\\cs\\FMK\\binary\\$(MODUL).zip ..\\chs\\\*.chs \\dev\\fmk\\AF\\cl_AF\\svi\\\*.chs \\dev\\fmk\\AF\\cl-AF\\roba\\\*.chs $(EXEDOSDEST)\\$(MODUL).EXE 
+	/sclib/zip.sh h:\\cs\\FMK\\binary\\$(MODUL).zip ..\\chs\\\*.chs \\dev\\fmk\\AF\\cl_AF\\svi\\\*.chs \\dev\\fmk\\AF\\cl-AF\\roba\\\*.chs $(EXEDOSDEST)\\$(MODUL).EXE
 
 commit:
 	/sclib/commit.sh $(MODUL) h:\\cs\\FMK\\binary\\$(MODUL).zip
@@ -45,5 +45,5 @@ clean:
 	rm -f $(OBJS) I$(MODULH).OBJ *.bak *.BAK
 
 7exe:
-	/sclib/7exe.sh h:\\cs\\fmk\\binary\\sfx\\$(MODUL).exe ..\\chs\\\*.chs \\dev\\fmk\\af\\cl-af\\svi\\\*.chs ..\\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
+	/sclib/7exe.sh h:\\cs\\fmk\\binary\\sfx\\$(MODUL).exe ..\\chs\\\*.chs \\dev\\fmk\\af\\cl-af\\svi\\\*.chs ..\\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE 
 

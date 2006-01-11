@@ -4,38 +4,8 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/frm_im.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: frm_im.prg,v $
- * Revision 1.6  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.5  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.4  2002/06/28 23:28:32  ernad
- *
- *
- * prenos IM() -> gendok komponentu
- *
- * Revision 1.3  2002/06/26 17:53:45  ernad
- *
- *
- * ciscenje, inventura magacina
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
  */
  
-
-/*! \file fmk/kalk/mag/dok/1g/frm_im.prg
- *  \brief Unos dokumenta inventure magacina (tip dokumenta IM)
- */
-
-
 
 /*! \fn Get1_IM()
  *  \brief Prva strana maske za unos dokumenta tipa IM

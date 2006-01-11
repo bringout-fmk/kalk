@@ -6,12 +6,6 @@
  * ----------------------------------------------------------------
  */
  
-
-/*! \file fmk/kalk/mag/gendok/1g/gen_dok.prg
- *  \brief Generisanje magacinskih dokumenata
- */
-
-
 /*! \fn GenMag()
  *  \brief Generisanje magacinskih dokumenata
  */
@@ -20,36 +14,38 @@ function GenMag()
 *{
 private Opc:={}
 private opcexe:={}
-AADD(opc,"1. pocetno stanje              ")
+AADD(opc,"1. pocetno stanje                                ")
 AADD(opcexe, {|| PocStMag()})
-AADD(Opc,"2. dokument inventure")
-AADD(opcexe, {|| IM()})
+AADD(Opc,"2. inventure")
+AADD(opcexe, {|| MnuMInv()})
 AADD(Opc,"3. nivelacija po zadatom %")
 AADD(opcexe, {|| MNivPoProc()})
-
 AADD(Opc,"4. preknjizenje tarifa")
 AADD(opcexe, {|| GetPreknM() })
-
 AADD(Opc,"5. pocetno stanje na osnovu preknjizenja tarifa")
 AADD(opcexe, {|| GetPstPreknj()})
 
 private Izbor:=1
-do while .t.
-Izbor:=menu("gdma",opc,Izbor,.f.)
-   do case
-     case Izbor==0
-       EXIT
-     otherwise
-      	 if opcexe[izbor]<>NIL
-          bPom:=opcexe[izbor]
-	  xDummy:=EVAL(bPom)
-	 endif  
-     endcase
-enddo
+Menu_SC("mmg")
 return
 *}
 
+// menij sa inventurama
+function MnuMInv()
+*{
+private Opc:={}
+private opcexe:={}
 
+AADD(Opc,"1. dokument inventure                       ")
+AADD(opcexe, {|| IM()})
+AADD(Opc,"2. inventura-razlika prema postojecoj IM    ")
+AADD(opcexe, {|| gen_im_razlika()})
+
+private Izbor:=1
+Menu_SC("mmi")
+
+return
+*}
 
 
 /*! \fn Iz12u97()

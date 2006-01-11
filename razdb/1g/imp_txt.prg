@@ -512,6 +512,7 @@ select pripr
 copy structure to (PRIVPATH+"struct")
 create (PRIVPATH + "pript") from (PRIVPATH + "struct")
 create_index("1","idfirma+idvd+brdok", PRIVPATH+"pript")
+create_index("2","idfirma+idvd+brdok+idroba", PRIVPATH+"pript")
 
 return
 *}

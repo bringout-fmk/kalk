@@ -24,8 +24,8 @@ private opcexe:={}
 
 AADD(opc, "1. pocetno stanje                                ")
 AADD(opcexe, {|| PocStProd()})
-AADD(opc, "2. dokument inventure")
-AADD(opcexe, {|| IP()})
+AADD(opc, "2. inventure    ")
+AADD(opcexe, {|| MnuPInv()})
 AADD(opc, "3. nivelacije")
 AADD(opcexe, {|| MnuPNivel()})
 AADD(opc, "-----------------------------------------------")
@@ -77,6 +77,26 @@ private Izbor:=1
 Menu_SC("pmn")
 return
 *}
+
+
+function MnuPInv()
+*{
+private Opc:={}
+private OpcExe:={}
+
+AADD(opc, "1. dokument inventure                       ")
+AADD(opcexe, {|| IP()})
+AADD(opc, "2. inventura-razlika prema postojecoj IP ")
+AADD(opcexe, {|| gen_ip_razlika()})
+
+
+private Izbor:=1
+Menu_SC("pmi")
+return
+*}
+
+
+
 /*! \fn GenNivP()
  *  \brief Generisanje 19-ke na osnovu azuriranog dokumenta IP
  */

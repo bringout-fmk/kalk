@@ -1,20 +1,10 @@
 #include "\dev\fmk\kalk\kalk.ch"
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- *
- */
- 
-/*! \fn IM()
- *  \brief Generisanje dokumenta tipa IM
- */
 
+
+// generisanje dokumenta tipa IM
 function IM()
 *{
 lOsvjezi := .f.
-
 O_PRIPR
 GO TOP
 IF idvd=="IM"
@@ -133,6 +123,126 @@ return
 *}
 
 
+// generisanje dokumenta tipa IM razlike na osnovu postojece inventure
+function gen_im_razlika()
+*{
+O_KONTO
+
+Box(,8,70)
+	cIdFirma:=gFirma
+ 	cIdKonto:=padr("1310",gDuzKonto)
+ 	dDatDok:=date()
+	cArtikli:=SPACE(30)
+	cPosition:="2"
+	cCijenaTIP:="1"
+	cOldBrDok:=SPACE(8)
+ 	@ m_x+1,m_Y+2 SAY "Magacin:" GET  cIdKonto valid P_Konto(@cIdKonto)
+ 	@ m_x+2,m_Y+2 SAY "Datum:  " GET  dDatDok
+ 	@ m_x+3,m_Y+2 SAY "Uslov po grupaciji robe" 
+ 	@ m_x+4,m_Y+2 SAY "(prazno-sve):" GET cArtikli 
+ 	@ m_x+5,m_Y+2 SAY "(Grupacija broj mjesta) :" GET cPosition
+ 	@ m_x+6,m_Y+2 SAY "Cijene (1-VPC, 2-NC) :" GET cCijenaTIP VALID cCijenaTIP$"12"
+ 	@ m_x+8,m_Y+2 SAY "Na osnovu dokumenta " + cIdFirma + "-IM" GET cOldBrDok
+	read
+ 	ESC_BCR
+BoxC()
+
+if Pitanje(,"Generisati inventuru magacina (D/N)","D") == "N"
+	return
+endif
+
+cIdVd := "IM"
+
+// kopiraj postojecu IM u pript
+if cp_dok_pript(cIdFirma, cIdVd, cOldBrDok) == 0
+	return
+endif
+
+O_TARIFA
+O_SIFK
+O_SIFV
+O_ROBA
+O_PRIPR
+O_PRIPT
+O_KONCIJ
+O_DOKS
+O_KALK
+
+private cBrDok:=SljBroj(cIdFirma, "IM", 8)
+
+select kalk
+set order to 3
+
+nRbr:=0
+
+MsgO("Generacija dokumenta IM - "+cBrdok)
+
+
+select koncij
+seek trim(cIdKonto)
+
+SELECT kalk
+hseek cIdFirma+cIdKonto
+
+do while !EOF() .and. cIdFirma+cIdKonto==field->idfirma+field->mkonto
+	
+	cIdRoba:=field->idRoba
+	
+	select pript
+	set order to tag "2"
+	hseek cIdFirma+cIdVd+cOldBrDok+cIdRoba
+	
+	// ako sam nasao prekoci ovaj zapis
+	if Found()
+		select kalk
+		skip
+		loop
+	endif
+	
+	select kalk	
+	
+	if !EMPTY(cArtikli) .and. AT(SubSTR(cIdRoba, 1, VAL(cPosition)), ALLTRIM(cArtikli))==0
+		skip 
+		loop
+	endif
+	
+	nUlaz:=0
+	nIzlaz:=0
+	nVPVU:=0
+	nVPVI:=0
+	nNVU:=0
+	nNVI:=0
+	nRabat:=0
+	do while !EOF() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba
+	  	if dDatdok<field->datdok
+	      		skip
+	      		loop
+	  	endif
+		RowVpvRabat(@nVpvU, @nVpvI, @nRabat)
+		if cCijenaTIP=="2"
+			RowNC(@nNVU, @nNVI)
+		endif
+		RowKolicina(@nUlaz, @nIzlaz)
+	  	skip
+	enddo
+
+	if (ROUND(nUlaz-nIzlaz,4)<>0) .or. (ROUND(nVpvU-nVpvI,4)<>0)
+		SELECT roba
+		HSEEK cIdroba
+		SELECT pripr
+		DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, @nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI, .t.)
+			
+		select kalk
+	endif
+enddo
+
+MsgC()
+closeret
+
+return
+*}
+
+
 function AzurPostojece(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI)
 *{
 
@@ -183,8 +293,12 @@ endif
 return
 *}
 
-static function DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNcU, nNcI)
+
+static function DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNcU, nNcI, lKolNula)
 *{			
+if lKolNula == nil
+	lKolNula := .f.
+endif
 
 Scatter()
 APPEND NCNL
@@ -198,6 +312,11 @@ _IdVd:="IM"
 _Brdok:=cBrdok
 _RBr:=RedniBroj(++nRbr)
 _kolicina:=_gkolicina:=nUlaz-nIzlaz
+
+if lKolNula // ako je lKolNula setuj na 0 popisanu kolicinu
+	_kolicina := 0
+endif
+
 _datdok:=dDatDok
 _DatFaktP:=dDatdok
 _ERROR:=""

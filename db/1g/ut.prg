@@ -1143,6 +1143,36 @@ BoxC()
 MsgBeep("Formirao PDV cijene u sifrarniku Roba tekuca godina")
 
 closeret
-
 *}
+
+
+// kopiraj stavke u pript tabelu iz KALK
+function cp_dok_pript(cIdFirma, cIdVd, cBrDok)
+*{
+// kreiraj pript
+crepriptdbf()
+O_PRIPT
+O_KALK
+select kalk
+set order to tag "1"
+hseek cIdFirma+cIdVd+cBrDok
+if Found()
+	MsgO("Kopiram dokument u pript...")
+	do while !EOF() .and. (kalk->(idfirma+idvd+brdok) == cIdFirma+cIdVd+cBrDok) 
+		Scatter()
+		select pript
+		append blank
+		Gather()
+		select kalk
+		skip
+	enddo
+	MsgC()
+else
+	MsgBeep("Dokument " + cIdFirma + "-" + cIdVd + "-" + ALLTRIM(cBrDok) + " ne postoji !!!")
+	return 0
+endif
+
+return 1
+*}
+
 

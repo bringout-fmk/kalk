@@ -129,6 +129,145 @@ return
 *}
 
 
+// generacija inventure - razlike postojece inventure
+function gen_ip_razlika()
+*{
+O_KONTO
+
+Box(,4,50)
+	cIdFirma:=gFirma
+	cIdkonto:=padr("1320",7)
+	dDatDok:=date()
+	cOldBrDok:=SPACE(8)
+	cIdVd := "IP"
+	@ m_x+1,m_Y+2 SAY "Prodavnica:" GET cIdKonto valid P_Konto(@cIdKonto)
+	@ m_x+2,m_Y+2 SAY "Datum do  :" GET dDatDok
+	@ m_x+3,m_y+2 SAY "Dokument " + cIdFirma + "-" + cIdVd GET cOldBrDok
+	read
+	ESC_BCR
+BoxC()
+
+if Pitanje(,"Generisati inventuru (D/N)","D") == "N"
+	return
+endif
+
+// prvo izvuci postojecu inventuru u PRIPT
+if cp_dok_pript(cIdFirma, cIdVd, cOldBrDok) == 0
+	return
+endif
+
+O_TARIFA
+O_SIFK
+O_SIFV
+O_ROBA
+O_KONCIJ
+O_PRIPR
+O_PRIPT
+O_KALK
+
+private cBrDok:=SljBroj(cIdFirma, "IP", 8)
+
+nRbr:=0
+set order to 4
+
+MsgO("Generacija dokumenta IP - " + cBrDok)
+
+select koncij
+seek trim(cIdKonto)
+select kalk
+hseek cIdFirma + cIdKonto
+do while !eof() .and. cIdFirma + cIdKonto == idfirma + pkonto
+	cIdRoba:=Idroba
+	
+	select pript
+	set order to tag "2"
+	hseek cIdFirma+"IP"+cOldBrDok+cIdRoba
+	
+	// ako nadjes dokument u pript prekoci ga u INVENTURI!!!	
+	if Found()
+		select kalk
+		skip
+		loop
+	endif
+	
+	nUlaz:=nIzlaz:=0
+	nMPVU:=nMPVI:=nNVU:=nNVI:=0
+	nRabat:=0
+	select roba
+	hseek cidroba
+	select kalk
+	do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba
+		if ddatdok<datdok  // preskoci
+      			skip
+      			loop
+  		endif
+  		if roba->tip $ "UT"
+      			skip
+      			loop
+  		endif
+		
+		if pu_i=="1"
+    			nUlaz+=kolicina-GKolicina-GKolicin2
+    			nMPVU+=mpcsapp*kolicina
+    			nNVU+=nc*kolicina
+  		elseif pu_i=="5"  .and. !(idvd $ "12#13#22")
+    			nIzlaz+=kolicina
+    			nMPVI+=mpcsapp*kolicina
+    			nNVI+=nc*kolicina
+  		elseif pu_i=="5"  .and. (idvd $ "12#13#22")    
+    			// povrat
+    			nUlaz-=kolicina
+    			nMPVU-=mpcsapp*kolicina
+    			nnvu-=nc*kolicina
+  		elseif pu_i=="3"    // nivelacija
+   			nMPVU+=mpcsapp*kolicina
+		elseif pu_i=="I"
+    			nIzlaz+=gkolicin2
+    			nMPVI+=mpcsapp*gkolicin2
+    			nNVI+=nc*gkolicin2
+  		endif
+  		skip
+	enddo
+
+	if (round(nulaz-nizlaz,4)<>0) .or. (round(nmpvu-nmpvi,4)<>0)
+		select roba
+		hseek cidroba
+ 		select pripr
+ 		scatter()
+ 		append ncnl
+ 		_idfirma:=cidfirma
+		_idkonto:=cidkonto
+		_pkonto:=cidkonto
+		_pu_i:="I"
+ 		_idroba:=cidroba
+		_idtarifa:=roba->idtarifa
+ 		_idvd:="IP"
+		_brdok:=cbrdok
+		_rbr:=RedniBroj(++nrbr)
+		// kolicinu odmah setuj na 0
+		_kolicina:=0
+		// popisana kolicina je trenutno stanje
+		_gkolicina:=nUlaz-nIzlaz
+		_datdok:=_DatFaktP:=ddatdok
+		_ERROR:=""
+		_fcj:=nmpvu-nmpvi // stanje mpvsapp
+ 		if round(nulaz-nizlaz,4)<>0
+  			_mpcsapp:=round((nMPVU-nMPVI)/(nulaz-nizlaz),3)
+  			_nc:=round((nnvu-nnvi)/(nulaz-nizlaz),3)
+ 		else
+  			_mpcsapp:=0
+ 		endif
+ 		Gather2()
+ 		select kalk
+	endif
+enddo
+MsgC()
+
+closeret
+return
+*}
+
+
 
 
 

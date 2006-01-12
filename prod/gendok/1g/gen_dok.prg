@@ -88,6 +88,8 @@ AADD(opc, "1. dokument inventure                       ")
 AADD(opcexe, {|| IP()})
 AADD(opc, "2. inventura-razlika prema postojecoj IP ")
 AADD(opcexe, {|| gen_ip_razlika()})
+AADD(opc, "3. na osnovu IP generisi 80-ku ")
+AADD(opcexe, {|| gen_ip_80()})
 
 
 private Izbor:=1
@@ -1070,5 +1072,73 @@ CLOSERET
 return
 *}
 
+
+// generisi 80-ku na osnovu IP-a
+function gen_ip_80()
+*{
+local cIdFirma := gFirma
+local cTipDok := "IP"
+local cIpBrDok := SPACE(8)
+local dDat80 := DATE()
+local nCnt:=0
+local cNxt80:=SPACE(8)
+
+Box(,5,65)
+	@ 1+m_x, 2+m_y SAY "Postojeci dokument IP -> " + cIdFirma + "-" + cTipDok + "-" GET cIpBrDok VALID !Empty(cIpBrDok)
+	@ 2+m_x, 2+m_y SAY "Datum dokumenta" GET dDat80 VALID !Empty(dDat80)
+	read
+BoxC()
+
+if LastKey()==K_ESC
+	return
+endif
+
+if Pitanje(,"Generisati 80-ku (D/N)?","D") == "N"
+	return
+endif
+
+// kopiraj dokument u pript
+if cp_dok_pript(cIdFirma, cTipDok, cIpBrDok) == 0
+	return
+endif
+
+O_DOKS
+O_KALK
+O_PRIPR
+
+cNxt80 := GetNextKalkDok(gFirma, "80")
+
+// obradi dokument u pripremu -> konvertuj u 80
+select pript
+set order to tag "2"
+go top
+
+Box(,1,30)
+do while !EOF()
+	Scatter()
+	select pripr
+	append blank
+	
+	_gkolicina := 0
+	_gkolicin2 := 0
+	_idvd := "80"
+	_error := "0"
+	_tmarza2 := "A"
+	_datdok := dDat80
+	_datfaktp := dDat80
+	_datkurs := dDat80
+	_brdok := cNxt80
+	
+	Gather()
+	
+	++ nCnt
+	@ 1+m_x, 2+m_y SAY ALLTRIM(STR(nCnt))
+	
+	select pript
+	skip
+enddo
+BoxC()
+return
+*}
 
 

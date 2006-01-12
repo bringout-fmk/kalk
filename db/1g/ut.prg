@@ -1028,10 +1028,11 @@ return
 function SetPdvCijene()
 *{
 
-if !SigmaSif("SETPDVC")
-	MsgBeep("Ne cackaj!")
-	return
+if SigmaSif("SETPDVC")
+   MsgBeep("Ne cackaj!")
+   return
 endif
+
 
 //ppp tarifa
 cIdTarifa:=SPACE(6)
@@ -1144,6 +1145,88 @@ MsgBeep("Formirao PDV cijene u sifrarniku Roba tekuca godina")
 
 closeret
 *}
+
+
+// set pdv cijene
+function SetPomnoziCijene()
+*{
+
+local cIdTarifa:=SPACE(6)
+local cZaTarifu:=SPACE(6)
+local nZaokruzenje:=2
+cSetCijena:="1"
+
+
+if !SigmaSif("SETCPOFA")
+   MsgBeep("Ne cackaj!")
+   return
+endif
+
+
+O_ROBA
+O_TARIFA
+
+nFaktor := 1.17
+SET CURSOR ON
+Box(,5,60)
+	cUvijekUzmi := "N"
+	@ 1+m_x, 2+m_y SAY "Set cijene za tarifu  (prazno sve tarife)?" GET cZaTarifu PICT "@!" VALID  EMPTY(cZaTarifu) .or. P_Tarifa(@cZaTarifu)
+	@ 2+m_x, 2+m_y SAY "Zaokruzenje cijene na koliko decimala "  get nZaokruzenje PICT "9"
+	@ 4+m_x, 3+m_y SAY "Set cijena MPC (1), MPC2 (2) " GET cSetCijena VALID cSetCijena $ "12"
+	@ 5+m_x, 3+m_y SAY "Faktor sa kojim se cijena mnozi ?" GET nFaktor PICT  "999999.99999"
+	READ
+	
+BoxC()
+
+if Lastkey() == K_ESC
+	closeret
+endif
+
+
+select roba
+
+set order to tag "ID"
+go top
+
+Box(,3,60)
+
+aPorezi := {}
+
+do while !eof()
+	
+	cIdRoba := roba->id
+	cIdTarifa := roba->idtarifa
+	
+	@ m_x+1,m_y+2 SAY "Roba / Tarifa : " + cIdRoba + "/" + cIdTarifa
+
+	// ako je konto prazan, onda gledaj samo sifrarnik
+	//Tarifa( "", cIdRoba, @aPorezi, cIdTarifa)
+	
+	
+
+	SELECT ROBA
+
+	if cSetCijena == "1"
+	        nNovaCj := ROUND( mpc * nFaktor, nZaokruzenje)
+		replace mpc with nNovaCj
+	endif
+
+        if cSetCijena == "2"
+	        nNovaCj := ROUND( mpc2 * nFaktor, nZaokruzenje)
+		replace mpc2 with nNovaCj
+	endif
+ 	
+	skip
+	
+enddo		
+
+BoxC()
+
+MsgBeep("Formirao nove cijene, pomnozio sa faktorom !")
+
+closeret
+*}
+
 
 
 // kopiraj stavke u pript tabelu iz KALK

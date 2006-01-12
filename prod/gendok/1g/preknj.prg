@@ -119,7 +119,7 @@ Box(,10, 65)
 	@ 3+m_x, col()+m_y SAY "datum do" GET dDateDo 
 	@ 5+m_x, 2+m_y SAY "Datum pocetnog stanja" GET dDatPst 
 	@ 6+m_x, 2+m_y SAY "Prodavnicki konto (prazno-svi):" GET cProdKto VALID Empty(cProdKto) .or. P_Konto(@cProdKto)
-	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "1234"
+	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (0-nista/1-mpc/2-mpc2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "0123"
 	@ 9+m_x, 2+m_y SAY "Akcizna roba D/N " GET cAkciznaRoba VALID cAkciznaRoba $ "DN"  PICT "@!"
 	@ 10+m_x, 2+m_y SAY "Artikli sa zasticenim cijenama " GET cZasticeneCijene VALID cZasticeneCijene $ "DN" PICT "@!"
 	read
@@ -653,6 +653,10 @@ do while !eof() .and. cIdFirma+cPKonto==idfirma+pkonto .and. IspitajPrekid()
 			if lPst
 				select roba
 				hseek cIdRoba
+
+				if cCjSet == "0"
+					// nista - cijene se ne diraju		
+				endif
 				
 				if cCjSet == "1"
 					replace mpc with nNMpcSaPDV

@@ -39,6 +39,8 @@ AADD(opc,"8. brisanje artikala koji se ne koriste")
 AADD(opcexe, {|| Mnu_BrisiSifre()})
 AADD(opc,"9. Set pdv cijene mpc/mpc2 u sifrarniku artikala")
 AADD(opcexe, {|| SetPdvCijene()})
+AADD(opc,"A. Pomnozi sa faktorom mpc/mpc2 u sifrarniku artikala")
+AADD(opcexe, {|| SetPomnoziCijene()})
 
 
 private Izbor:=1

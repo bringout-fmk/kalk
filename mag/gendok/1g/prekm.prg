@@ -116,7 +116,7 @@ Box(,9, 65)
 	@ 3+m_x, col()+m_y SAY "datum do" GET dDateDo 
 	@ 5+m_x, 2+m_y SAY "Datum pocetnog stanja" GET dDatPst 
 	@ 6+m_x, 2+m_y SAY "Magacinski konto (prazno-svi):" GET cMagKto VALID Empty(cMagKto) .or. P_Konto(@cMagKto)
-	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "1234"
+	@ 8+m_x, 2+m_y SAY "Ubaciti set cijena (0-nista/1/2) " GET cSetCj VALID !Empty(cSetCj) .and. cSetCj $ "01234"
 	@ 9+m_x, 2+m_y SAY "Akcizna roba D/N " GET cAkciznaRoba VALID cAkciznaRoba $ "DN"  PICT "@!"
 	read
 BoxC()

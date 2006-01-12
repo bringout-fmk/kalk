@@ -31,8 +31,12 @@ Box(,4,50)
 cIdFirma:=gFirma
 cIdkonto:=padr("1320",7)
 dDatDok:=date()
+cNulirati:="N"
+
 @ m_x+1,m_Y+2 SAY "Prodavnica:" GET  cidkonto valid P_Konto(@cidkonto)
 @ m_x+2,m_Y+2 SAY "Datum     :  " GET  dDatDok
+@ m_x+3,m_Y+2 SAY "Nulirati lager (D/N)" GET cNulirati VALID cNulirati $ "DN" PICT "@!"
+
 read
 ESC_BCR
 
@@ -109,6 +113,9 @@ if (round(nulaz-nizlaz,4)<>0) .or. (round(nmpvu-nmpvi,4)<>0)
 
  _rbr:=RedniBroj(++nrbr)
  _kolicina:=_gkolicina:=nUlaz-nIzlaz
+ if cNulirati == "D"
+   _kolicina := 0
+ endif
  _datdok:=_DatFaktP:=ddatdok
  _ERROR:=""
  _fcj:=nmpvu-nmpvi // stanje mpvsapp

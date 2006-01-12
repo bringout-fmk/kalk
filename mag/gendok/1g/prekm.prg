@@ -356,17 +356,22 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 			pl_nc := nc
 			pl_vpc := vpc
 			pl_kolicina := kolicina
+		else
+			if lPst
+			  SKIP
+			  LOOP
+			endif
 		endif
 			
 			
 		
 		// provjeri datumski
-		if (field->datdok < dDatOd) .or. (field->datdok > dDatDo)
+		if (datdok < dDatOd) .or. (datdok > dDatDo)
       			skip
       			loop
     		endif
 
-  		if field->datdok >= dDatOd  // nisu predhodni podaci
+  		if datdok >= dDatOd  // nisu predhodni podaci
 
 			nKol := kolicina-gkolicina-gkolicin2
 			
@@ -494,34 +499,37 @@ do while !eof() .and. cIdFirma+cMKonto==idfirma+Mkonto .and. IspitajPrekid()
 				
 			else
 			        // izvuci iz 16-ke u sezonskom podrucju podatke
-				replace vpc with pl_vpc,;
+				if pl_kolicina > 0
+				    replace vpc with pl_vpc,;
 					nc with pl_nc,;
 					tmarza with "A",;
 					marza with pl_vpc - pl_nc,;
 					kolicina with pl_kolicina
+				endif
 				
 			endif
 			
 			
 			if lPst
-				nNVpcBezPdv := pl_vpc
+				if ROUND(pl_kolicina,4) <> 0
+  				  nNVpcBezPdv := pl_vpc
 			
-     				// ubaci novu vpc u sifrarnik robe
-				// ubaci novu tarifu robe
+     				  // ubaci novu vpc u sifrarnik robe
+				  // ubaci novu tarifu robe
 
-				select roba
-				hseek cIdRoba
+				  select roba
+				  hseek cIdRoba
 				
-				if cCjSet == "1"
+				  if cCjSet == "1"
 					replace vpc with nNVpcBezPdv
-				endif
+				  endif
 				
-				if cCjSet == "2"
+				  if cCjSet == "2"
 					replace vpc2 with nNVpcBezPdv
-				endif
+				  endif
 
-				
-				replace idtarifa with "PDV17 " 	
+				  replace idtarifa with "PDV17 " 	
+				endif
 			endif
 			
 		endif

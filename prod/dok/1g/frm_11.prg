@@ -5,37 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_11.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.9 $
- * $Log: frm_11.prg,v $
- * Revision 1.9  2004/05/25 13:53:17  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.8  2003/10/11 09:26:51  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.7  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.6  2003/09/08 13:18:52  mirsad
- * vratio trosak MP u 11-ki
- *
- * Revision 1.5  2003/08/01 16:19:23  mirsad
- * tvin, debug, 11-ka i 12-ka, kontrola stanja robe pri unosu
- *
- * Revision 1.4  2003/03/13 15:44:47  mirsad
- * ispravka bug-a - Tvin (po narudzbama)
- *
- * Revision 1.3  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.2  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -257,7 +226,7 @@ if fnovi
 endif
 
 if nRBr==1 .or. !fNovi // prva stavka
-	@ m_x+15, m_y+2 SAY "MP trosak (A,R):" GET _tPrevoz VALID _tPrevoz $ "AR"
+	@ m_x+15, m_y+2 SAY "MP trosak (A,R):" GET _TPrevoz VALID _tPrevoz $ "AR"
 	@ m_x+15,col()+2 GET _prevoz PICT PICDEM
 else
 	@ m_x+15,m_y+2 SAY "MP trosak:"; ?? "("+_tPrevoz+") "; ?? _prevoz

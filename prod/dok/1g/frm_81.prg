@@ -9,28 +9,6 @@ static aPorezi:={}
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_81.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: frm_81.prg,v $
- * Revision 1.6  2004/05/25 13:53:17  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.5  2003/10/11 09:26:52  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.4  2003/10/06 15:00:28  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.3  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.2  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -83,11 +61,6 @@ endif
 
 @ m_x+12,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
 
-IF lPoNarudzbi
-  @ m_x+13,m_y+2 SAY "Po narudzbi br." GET _brojnar
-  @ m_x+13,col()+2 SAY "za narucioca" GET _idnar pict "@!" valid empty(_idnar) .or. P_Firma(@_idnar,13,50)
-ENDIF
-
 read
 ESC_RETURN K_ESC
 
@@ -104,12 +77,10 @@ select PRIPR  // napuni tarifu
 _PKonto:=_Idkonto
 DatPosljP()
 
-// IF !lPoNarudzbi
-  @ m_x+13+IF(lPoNarudzbi,1,0),m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
-// ENDIF
+  @ m_x+13, m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
 
  IF IsDomZdr()
-   @ m_x+14+IF(lPoNarudzbi,1,0),m_y+2   SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
+   @ m_x+14, m_y+2   SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
  ENDIF
 
 
@@ -127,21 +98,23 @@ endif
 
 select PRIPR
 
-@ m_x+15+IF(lPoNarudzbi,1,0),m_y+2   SAY "F.CJ.(DEM/JM):"
-@ m_x+15+IF(lPoNarudzbi,1,0),m_y+50  GET _FCJ PICTURE PicDEM    valid _fcj>0  when VKol()
+@ m_x+15, m_y+2   SAY "F.CJ.(DEM/JM):"
+@ m_x+15, m_y+50  GET _FCJ PICTURE PicDEM    valid _fcj>0  when VKol()
 
-@ m_x+17+IF(lPoNarudzbi,1,0),m_y+2   SAY "KASA-SKONTO(%):"
-@ m_x+17+IF(lPoNarudzbi,1,0),m_y+40 GET _Rabat PICTURE PicDEM when DuplRoba()
+@ m_x+17, m_y+2   SAY "KASA-SKONTO(%):"
+@ m_x+17, m_y+40 GET _Rabat PICTURE PicDEM when DuplRoba()
 
 if gNW<>"X"
- @ m_x+18+IF(lPoNarudzbi,1,0),m_y+2   SAY "Transport. kalo:"
- @ m_x+18+IF(lPoNarudzbi,1,0),m_y+40  GET _GKolicina PICTURE PicKol
+ @ m_x+18, m_y+2   SAY "Transport. kalo:"
+ @ m_x+18, m_y+40  GET _GKolicina PICTURE PicKol
 
- @ m_x+19+IF(lPoNarudzbi,1,0),m_y+2   SAY "Ostalo kalo:    "
- @ m_x+19+IF(lPoNarudzbi,1,0),m_y+40  GET _GKolicin2 PICTURE PicKol
+ @ m_x+19, m_y+2   SAY "Ostalo kalo:    "
+ @ m_x+19, m_y+40  GET _GKolicin2 PICTURE PicKol
 endif
 
-read; ESC_RETURN K_ESC
+read
+
+ESC_RETURN K_ESC
 _FCJ2:=_FCJ*(1-_Rabat/100)
 
 return lastkey()
@@ -229,11 +202,15 @@ else
 	@ m_x+12,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 endif
 
-@ m_x+12,m_y+50 GET _MPC picture PicDEM WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
+@ m_x+12,m_y+50 GET _MPC picture PicDEM WHEN W_MPC_("81", (fMarza == "F"), @aPorezi) VALID V_Mpc_ ("81", (fMarza=="F"), @aPorezi)
 
 if IsPDV()
 	@ m_x+14, m_y+2 SAY "PDV (%):"
-	@ row(),col()+2 SAY  TARIFA->OPP PICTURE "99.99" 
+	@ row(),col()+2 SAY  TARIFA->OPP PICTURE "99.99"
+	if glUgost
+	  @ m_x+14,col()+8  SAY "PP (%):"
+	  @ row(),col()+2  SAY TARIFA->ZPP PICTURE "99.99"
+	endif
 else
 	@ m_x+14, m_y+2 SAY "PPP (%):"
 	@ row(),col()+2 SAY  TARIFA->OPP PICTURE "99.99" 
@@ -249,18 +226,25 @@ else
 	@ m_x+16,m_y+2 SAY "MPC SA POREZOM :"
 endif
 
-@ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM VALID VMpcSaPP_lv(nil, nil, aPorezi)
+@ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM WHEN {|| fMarza:=" ", _Marza2:=0, .t.} VALID V_MpcSaPP_( "81", .f., @aPorezi, .t.)
 
-read; ESC_RETURN K_ESC
+read
+ESC_RETURN K_ESC
 
-select koncij; seek trim(_idkonto)
+select koncij
+seek trim(_idkonto)
 
 StaviMPCSif(_mpcsapp,.t.)
 
 select pripr
 
-_PKonto:=_Idkonto; _PU_I:="1"
-_MKonto:="";_MU_I:=""
+_PKonto:=_Idkonto
+
+_PU_I:="1"
+
+_MKonto:=""
+_MU_I:=""
+
 nStrana:=3
 return lastkey()
 *}

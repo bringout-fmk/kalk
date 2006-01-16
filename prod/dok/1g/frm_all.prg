@@ -116,7 +116,7 @@ return .t.
  *  \param fMarza -
  */
 
-function VMpcSaPP(fRealizacija,fMarza)
+function VMpcSaPP(fRealizacija, fMarza)
 *{
 local nRabat
 
@@ -135,7 +135,9 @@ if fMarza==NIL
 endif
 
 if _mpcsapp<>0 .and. empty(fMarza)
+	
 	_mpc:=MpcBezPor(_mpcsapp, aPorezi, nRabat, _nc)
+	
 	_marza2:=0
 	if fRealizacija
 		Marza2R()
@@ -166,6 +168,10 @@ function SayPorezi(nRow)
 if IsPDV()
 	@ m_x+nRow,m_y+2  SAY "PDV (%):"
 	@ row(),col()+2 SAY aPorezi[POR_PPP] PICTURE "99.99"
+	if glUgost
+	  @ m_x+nRow,col()+8  SAY "PP (%):"
+	   @ row(),col()+2  SAY aPorezi[POR_PP] PICTURE "99.99"
+	endif
 else
 	@ m_x+nRow,m_y+2  SAY "PPP (%):"
 	@ row(),col()+2 SAY  aPorezi[POR_PPP] PICTURE "99.99"
@@ -238,7 +244,7 @@ Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40)
 
 if fNovi .or. IsJerry()
   // nadji odgovarajucu tarifu regiona
-  cTarifa:=Tarifa(_IdKonto,_IdRoba,@aPorezi)
+  cTarifa:=Tarifa(_IdKonto,_IdRoba, @aPorezi)
 else
   // za postojece dokumente uzmi u obzir unesenu tarifu
   SELECT TARIFA
@@ -253,6 +259,23 @@ return .t.
 *}
 
 
+function W_Mpc_ (cIdVd, lNaprijed, aPorezi)
+
+// formiraj cijenu naprijed
+if lNaprijed
+  // postavi _Mpc bez poreza
+  MarzaMP(cIdVd, .t. , aPorezi) 
+endif
+
+// postoji MPC, idi unazad
+if !lNaprijed .and. _MpcSapp<>0
+  _Marza2 := 0
+  _Mpc:=MpcBezPor(_MpcSaPP, aPorezi, , _Nc)
+endif
+
+
+return .t.
+
 
 /*! \fn WMpc_lv(fRealizacija, fMarza, aPorezi)
  *  \brief When blok za unos MPC
@@ -263,6 +286,9 @@ return .t.
 
 function WMpc_lv(fRealizacija, fMarza, aPorezi)
 *{
+
+// legacy
+
 if fRealizacija==nil
   fRealizacija:=.f.
 endif
@@ -271,9 +297,9 @@ if fRealizacija
    fMarza:=" "
 endif
 
-if _mpcsapp<>0
+if _MpcSapp<>0
   _marza2:=0
-  _mpc:=MpcBezPor(_mpcsapp, aPorezi, , _nc)
+  _Mpc:=MpcBezPor(_MpcSaPP, aPorezi, , _nc)
 endif
 
 if fRealizacija
@@ -297,7 +323,7 @@ return .t.
 
 function VMpc_lv(fRealizacija, fMarza, aPorezi)
 *{
-if fRealizacija==NIL
+if fRealizacija==nil
   fRealizacija:=.f.
 endif
 if fRealizacija
@@ -308,11 +334,27 @@ if fMarza==nil
 endif
 
 Marza2(fMarza)
-if _mpcsapp==0
- _MPCSaPP:=round(MpcSaPor(_mpc, aPorezi),2)
+if (_mpcsapp == 0)
+ _MPCSaPP:=round( MpcSaPor(_mpc, aPorezi), 2 )
 endif
 return .t.
 *}
+
+
+/*! \fn V_Mpc_(cIdVd, lNaprijed, aPorezi)
+ */
+
+function V_Mpc_( cIdVd, lNaprijed, aPorezi)
+*{
+
+MarzaMp(cIdVd, lNaprijed, aPorezi)
+if (_Mpcsapp == 0)
+ _MPCSaPP:= ROUND( MpcSaPor(_mpc, aPorezi), 2 )
+endif
+return .t.
+*}
+
+
 
 
 /*! \fn VMpcSaPP_lv(fRealizacija, fMarza, aPorezi)
@@ -364,6 +406,42 @@ return .t.
 *}
 
 
+/*! \fn V_MpcSaPP_( cIdVd, lNaprijed, aPorezi, lShowGets)
+ */
+
+function V_MpcSaPP_( cIdVd, lNaprijed, aPorezi, lShowGets)
+*{
+local nPom
+
+if lShowGets == nil
+	lShowGets := .t.
+endif
+
+nPom:=_mpcsapp
+
+if _Mpcsapp<>0 .and. !lNaprijed
+  
+  _mpc:= MpcBezPor (nPom, aPorezi, , _nc)
+  _marza2:=0
+  
+  MarzaMP(cIdVd, lNaprijed, aPorezi)
+  
+  if lShowGets
+  	ShowGets()
+  endif
+  
+  if cIdVd $ "41#42"
+     DuplRoba()
+  endif
+
+endif
+
+return .t.
+*}
+
+
+
+
 /*! \fn SayPorezi_lv(nRow, aPorezi)
  *  \brief Ispisuje poreze
  *  \param nRow - relativna kooordinata reda u kojem se ispisuju porezi
@@ -375,6 +453,11 @@ function SayPorezi_lv(nRow, aPorezi)
 if IsPDV()
 	@ m_x+nRow,m_y+2  SAY "PDV (%):"
 	@ row(),col()+2 SAY  aPorezi[POR_PPP] PICTURE "99.99"
+	
+	if glUgost
+	  @ m_x+nRow,col()+8  SAY "PP (%):"
+	  @ row(),col()+2  SAY aPorezi[POR_PP] PICTURE "99.99"
+	endif
 else
 	@ m_x+nRow,m_y+2  SAY "PPP (%):"
 	@ row(),col()+2 SAY  aPorezi[POR_PPP] PICTURE "99.99"

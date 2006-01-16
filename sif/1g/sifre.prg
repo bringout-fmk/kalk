@@ -79,7 +79,6 @@ function RobaBlock(Ch)
 *{
 LOCAL cSif:=ROBA->id, cSif2:=""
 
-altd()
 if Ch==K_CTRL_T .and. gSKSif=="D"
 
  // provjerimo da li je sifra dupla

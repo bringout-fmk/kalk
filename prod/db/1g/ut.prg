@@ -11,6 +11,60 @@
 /*! \file fmk/kalk/prod/db/1g/ut.prg
  *  \brief Razne funkcije
  */
+function MarzaMP(cIdVd, lNaprijed, aPorezi)
+
+local nPrevMP
+
+// ako je prevoz u MP rasporedjen uzmi ga u obzir
+if  (cIdVd $ "11#12#13") .and. (_TPrevoz=="A")
+	nPrevMP:=_Prevoz
+else
+	nPrevMP:=0
+endif
+
+if (_FCj==0)
+	_FCj:=_mpc
+endif
+
+if  (_Marza2==0) .and. !lNaprijed
+
+	nMarza2:= _MPC - _VPC - nPrevMP
+	
+	if _TMarza2=="%"
+		if round( _VPC,5 ) <>0
+			_Marza2:=100*( _MPC / (_VPC+nPrevMP) - 1)
+		else
+			_Marza2:=0
+		endif
+		
+	elseif _TMarza2=="A"
+		_Marza2:=nMarza2
+		
+	elseif _TMarza2=="U"
+		_Marza2:=nMarza2*(_Kolicina)
+	endif
+
+elseif (_MPC==0) .or. lNaprijed
+
+	if _TMarza2=="%"
+		nMarza2 := _Marza2/100 * (_VPC + nPrevMP)
+	elseif _TMarza2=="A"
+		nMarza2 := _Marza2
+	elseif _TMarza2 == "U"
+		nMarza2 := _Marza2/(_Kolicina)
+	endif
+	
+	_MPC:=round(nMarza2 + _VPC, 2)
+
+        _MpcSaPP := round( MpcSaPor( _mpc, aPorezi), 2)
+
+else
+	nMarza2:= _MPC - _VPC - nPrevMP
+endif
+
+AEVAL(GetList,{|o| o:display()})
+return
+
 
 
 /*! \fn Marza2(fMarza)
@@ -18,6 +72,74 @@
  */
 
 function Marza2(fMarza)
+
+local nPrevMP, nPPP
+
+if IsPdv()
+
+if fMarza==nil
+	fMarza:=" "
+endif
+
+// ako je prevoz u MP rasporedjen uzmi ga u obzir
+if _TPrevoz=="A"
+	nPrevMP:=_Prevoz
+else
+	nPrevMP:=0
+endif
+
+if _FCj==0
+	_FCj:=_mpc
+endif
+
+if  _Marza2==0 .and. empty(fmarza)
+	nMarza2:=_MPC - _VPC - nPrevMP
+	
+	if _TMarza2=="%"
+		if round(_vpc,5)<>0
+			_Marza2:=100*( _MPC / (_VPC+nPrevMP) - 1)
+		else
+			_Marza2:=0
+		endif
+		
+	elseif _TMarza2=="A"
+		_Marza2:=nMarza2
+		
+	elseif _TMarza2=="U"
+		_Marza2:=nMarza2*(_Kolicina)
+	endif
+
+elseif _MPC==0 .or. !empty(fMarza)
+
+	if _TMarza2=="%"
+		nMarza2:=_Marza2 / 100 * (_VPC + nPrevMP)
+	elseif _TMarza2=="A"
+		nMarza2:=_Marza2
+	elseif _TMarza2=="U"
+		nMarza2:=_Marza2 / (_Kolicina)
+	endif
+	_MPC:=round(nMarza2+_VPC, 2)
+	
+	if !empty(fMarza)
+	     _MpcSaPP := round( MpcSaPor(_mpc, aPorezi), 2)
+	endif
+
+else
+	nMarza2:=_MPC-_VPC-nPrevMP
+endif
+
+AEVAL(GetList,{|o| o:display()})
+return
+
+else
+
+// PPP obracun
+return Marza2O(fMarza)
+
+endif
+
+
+function Marza2O(fMarza)
 *{
 local nPrevMP, nPPP
 

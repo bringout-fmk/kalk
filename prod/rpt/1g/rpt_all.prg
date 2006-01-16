@@ -31,11 +31,12 @@ return
 // PDV obracun
 function RekTarPDV()
 *{
+local nKolona
 local aPKonta
 local nIznPRuc
 private aPorezi
 
-IF prow()>55+gPStranica
+IF prow()> 55 + gPStranica
 	FF
 	@ prow(),123 SAY "Str:"+str(++nStr,3)
 endif
@@ -45,13 +46,25 @@ select pripr
 set order to 2
 seek cIdFirma+cIdVd+cBrDok
 m:="------ ----------"
-for i:=1 to 3
+
+nKolona :=3
+
+if glUgost
+	nKolona += 2
+endif
+
+for i:=1 to nKolona
  m += " ----------" 
 next
 
 ? m
-?  "* Tar.*  PDV%    *    MPV   *    PDV   *   MPV   *"
-?  "*     *          *  bez PDV *   iznos  *  sa PDV *"
+if !glUgost
+ ?  "* Tar.*  PDV%    *    MPV   *    PDV   *   MPV   *"
+ ?  "*     *          *  bez PDV *   iznos  *  sa PDV *"
+else
+ ?  "* Tar.*   PDV    *  Por potr *   MPV   *    PDV   *  Porez   *   MPV   *"
+ ?  "*     *   (%)    *    (%)    * bez PDV *   iznos  *  na potr.*  sa PDV *"
+endif
 ? m
 
 aPKonta:=PKontoCnt(cIdFirma+cIdvd+cBrDok)
@@ -62,8 +75,15 @@ aPorezi:={}
 for i:=1 to nCntKonto
 	seek cIdFirma+cIdVd+cBrdok
 
-	nTot1:=nTot2:=nTot2b:=nTot3:=nTot4:=0
-	nTot5:=nTot6:=nTot7:=0
+	nTot1:=0
+	nTot2:=0
+	nTot2b:=0
+	nTot3:=0
+	nTot4:=0
+	
+	nTot5:=0
+	nTot6:=0
+	nTot7:=0
 	do while !eof() .and. cIdFirma+cIdVd+cBrDok==idfirma+idvd+brdok
   		if aPKonta[i]<>field->PKONTO
     			skip
@@ -76,6 +96,11 @@ for i:=1 to nCntKonto
 		
 		// pdv
 		nU2:=0
+
+		if glUgost
+		  // porez na potrosnju
+		  nU2b:=0
+		endif
 		
 		// mpv sa porezom
 		nU3:=0
@@ -101,7 +126,7 @@ for i:=1 to nCntKonto
     				// nova cijena
     				nMpcsaPdv1:=field->mpcSaPP+field->fcj
     				nMpc1:=MpcBezPor(nMpcsaPdv1,aPorezi,,field->nc)
-    				aIPor1:=RacPorezeMP(aPorezi,nMpc1,nMpcsaPdv1,field->nc)
+    				aIPor1:=RacPorezeMP(aPorezi, nMpc1, nMpcsaPdv1, field->nc)
     
     				// stara cijena
     				nMpcsaPdv2:=field->fcj
@@ -115,6 +140,9 @@ for i:=1 to nCntKonto
 			nKolicina:=DokKolicina(field->idvd)
 			nU1+=nMpc*nKolicina
 			nU2+=aIPor[1]*nKolicina
+			if glUgost
+			 nU2b+=aIPor[3]*nKolicina
+			endif
     			nU3+=field->mpcSaPP*nKolicina
 			// ukupna bruto marza
 			nTot6+=(nMpc-pripr->nc)*nKolicina
@@ -122,15 +150,24 @@ for i:=1 to nCntKonto
 	  	enddo
 		nTot1+=nU1
 		nTot2+=nU2
+		if glUgost
+		 nTot2b += nU2b
+		endif
 		nTot3+=nU3
   
 		? cIdTarifa
   
 		@ prow(),pcol()+1   SAY aPorezi[POR_PPP] pict picproc
+		if glUgost
+		    @ prow(),pcol()+1   SAY aPorezi[POR_PP] pict picproc
+		endif
   
 		nCol1:=pcol()+1
 		@ prow(),pcol()+1   SAY nU1 pict picdem
 		@ prow(),pcol()+1   SAY nU2 pict picdem
+		if glUgost
+		  @ prow(),pcol()+1   SAY nU2b pict picdem
+		endif
 		@ prow(),pcol()+1   SAY nU3 pict picdem
 	enddo
 
@@ -143,6 +180,9 @@ for i:=1 to nCntKonto
 	? "UKUPNO "+aPKonta[i]
 	@ prow(),nCol1      SAY nTot1 pict picdem
 	@ prow(),pcol()+1   SAY nTot2 pict picdem
+	if glUgost
+	   @ prow(),pcol()+1   SAY nTot2b pict picdem
+	endif
 	@ prow(),pcol()+1   SAY nTot3 pict picdem
 	? m
 next
@@ -196,7 +236,7 @@ function DokMpc(cIdVd,aPorezi)
 *{
 local nMpc
 if cIdVd=="IP"
-	nMpc:=MpcBezPor(field->mpcSaPP,aPorezi,,field->nc)
+	nMpc:=MpcBezPor(mpcSaPP, aPorezi, , nc)
 else
 	nMpc:=field->mpc
 endif

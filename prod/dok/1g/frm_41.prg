@@ -4,32 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_41.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: frm_41.prg,v $
- * Revision 1.8  2003/10/11 09:26:52  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.7  2003/10/06 15:00:28  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.6  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.5  2003/07/24 14:25:44  mirsad
- * omogucio unos procenta popusta na KALK 41 i 42
- *
- * Revision 1.4  2003/07/18 07:24:54  mirsad
- * stavio u f-ju kontrolu stanja za varijantu po narudzbama za izlazne dokumente (14,41,42)
- *
- * Revision 1.3  2002/07/18 14:05:45  mirsad
- * izolovanje specifiènosti pomoæu IsJerry()
- *
- * Revision 1.2  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -86,8 +60,9 @@ endif
 _idkonto2:=""
 _idzaduz2:=""
 read
+
 ESC_RETURN K_ESC
-//@ m_x+10,m_y+2   SAY "R.br" GET nRBr PICT '999' valid {|| CentrTxt("",24),.t.}
+
 @ m_x+10,m_y+66 SAY "Tarif.br->"
 if lKoristitiBK
 	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!S10" when {|| _IdRoba:=PADR(_idroba,VAL(gDuzSifIni)),.t.} valid VRoba()
@@ -114,15 +89,12 @@ if lKoristitiBK
 	_idRoba:=Left(_idRoba,10)
 endif
 
-if lVoSaTa
-  _Fcj:=0
-  _nc:=0
-  _Tmarza2:="A"
-  _Marza2:=0
-endif
 
-select TARIFA; hseek _IdTarifa  // postavi TARIFA na pravu poziciju
-select koncij; seek trim(_idkonto)
+select TARIFA
+hseek _IdTarifa 
+select koncij
+
+seek trim(_idkonto)
 select PRIPR  // napuni tarifu
 
 _PKonto:=_Idkonto
@@ -136,8 +108,10 @@ _GKolicin2:=0
 
 if fNovi
  if !lVoSaTa
-  select koncij; seek trim(_idkonto)
-  select ROBA; HSEEK _IdRoba
+  select koncij
+  seek trim(_idkonto)
+  select ROBA
+  HSEEK _IdRoba
   _MPCSaPP:=UzmiMPCSif()
 
   if gMagacin=="2"
@@ -150,19 +124,28 @@ if fNovi
  endif
 
  select PRIPR
- _Marza2:=0; _TMarza2:="A"
+ _Marza2:=0
+ _TMarza2:="A"
 endif
 
+if IsPdv()
+   if (gCijene=="2" .and. _MpcSAPP==0)
+      FaktMPC(@_MPCSAPP,_idfirma+_idkonto+_idroba)
+   endif
+else
+   // ppp varijanta
+   // ovo dole do daljnjeg ostavljamo
 if ((_idvd<>'47'.or.(IsJerry().and._idvd="4")) .and. !fnovi .and. gcijene=="2" .and. roba->tip!="T" .and. _mpcsapp=0)
    // uzmi mpc sa kartice
    FaktMPC(@_MPCSAPP,_idfirma+_idkonto+_idroba)
 endif
-
+endif
 
 if roba->(fieldpos("PLC"))<>0  // stavi plansku cijenu
  _vpc:=roba->plc
 endif
-VTPorezi()
+
+SetStPor_()
 
 if ((_idvd<>'47'.or.(IsJerry().and._idvd="4")) .and. roba->tip!="T")
 //////// kalkulacija nabavne cijene
@@ -200,11 +183,8 @@ if !empty(gMetodaNC) .or. lPoNarudzbi
 endif
 endif
 
-IF !lPoNarudzbi
   @ m_x+12,m_y+30   SAY "Ukupno na stanju "; @ m_x+12,col()+2 SAY nkols pict pickol
-ENDIF
 
-if !lVoSaTa
   @ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture picdem ;
                valid {|| V_KolPro(),;
                       _tprevoz:="A",_prevoz:=0,;
@@ -213,7 +193,6 @@ if !lVoSaTa
  @ m_x+15,m_y+40   SAY "MP marza:" GET _TMarza2  VALID _Tmarza2 $ "%AU" PICTURE "@!"
  @ m_x+15,col()+1  GET _Marza2 PICTURE  PicDEM
 
-endif
 
 endif
 
@@ -238,19 +217,9 @@ endif
 read
 ESC_RETURN K_ESC
 
-if lPoNarudzbi
-	_PKonto:=_Idkonto
-	_PU_I:="5"     // izlaz iz prodavnice
-	_MKonto:=""
-	_MU_I:=""
-	nRet:= GenStPoNarudzbi(lGenStavke)
-	if nRet==K_ESC
-		return K_ESC
-	endif
-endif
-
+// izlaz iz prodavnice
 _PKonto:=_Idkonto
-_PU_I:="5"     // izlaz iz prodavnice
+_PU_I:="5"     
 nStrana:=2
 
 FillIzgStavke(pIzgSt)

@@ -8,7 +8,7 @@
 	#include "sc.ch"
 #endif
 
-#define D_KA_VERZIJA "02.27"
+#define D_KA_VERZIJA "02.28"
 #define D_KA_PERIOD  "11.94-18.01.06"
 
 

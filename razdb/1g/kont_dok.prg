@@ -1173,6 +1173,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
             REPLACE porpot WITH round(PRIPR->(aIPor[3]*(Kolicina-GKolicina-GKolicin2)),gZaokr)
           endif
 
+	  
           if !(pripr->IdVD $ "IM#IP")
                 // bug opresa 19.01.2001
                 // kod dokumenta IM FCj sadrzi ustvari knjiznu vrijednost
@@ -1186,12 +1187,14 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
           endif
 
           if  idvd $ "14#94"
-               if roba->tip<>"X"  // kod nafte ne diraj MPVSAPP
-                 replace  MPVSaPP   with  Pripr->( VPC*(1-RabatV/100)*(Kolicina-GKolicina-GKolicin2) )
-               endif
-               if  gVarVP=="2"  // unazad VPC - preracunata stopa
+               replace  MPVSaPP   with  Pripr->( VPC*(1-RabatV/100)*(Kolicina-GKolicina-GKolicin2) )
+
+	       if !IsPdv()
+	         /// ppp porezi
+                 if  gVarVP=="2"  // unazad VPC - preracunata stopa
                   replace POREZV with round(TARIFA->VPP/100/(1+tarifa->vpp/100)*iif(nMarza<0,0,nMarza)*Kolicina,gZaokr)
-               endif
+                 endif
+	       endif
           endif
 	  
           if  !empty(pripr->mu_i)
@@ -1220,6 +1223,15 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
           if PRIPR->IDVD $ "18#19"
                 replace Kolicina with 0
           endif
+
+	  if (pripr->IdVD $ "41#42")
+	        // popust maloprodaje se smjesta ovdje
+	  	REPLACE Rabat WITH pripr->RabatV * pripr->kolicina
+		if ALLTRIM(gnFirma) == "TEST FIRMA"
+		   MsgBeep("Popust MP = finmat->rabat " + STR(Rabat, 10,2))
+		endif
+	  endif
+
           select ROBA  // azuriraj NC,VPC,MPC
 
           HSEEK PRIPR->idroba

@@ -24,8 +24,12 @@ nMarza:=nMarza2:=nPRUC:=0
 aPorezi:={}
 
 nStr:=0
-cIdPartner:=IdPartner; cBrFaktP:=BrFaktP; dDatFaktP:=DatFaktP
-dDatKurs:=DatKurs; cIdKonto:=IdKonto; cIdKonto2:=IdKonto2
+cIdPartner:=IdPartner
+cBrFaktP:=BrFaktP
+dDatFaktP:=DatFaktP
+dDatKurs:=DatKurs
+cIdKonto:=IdKonto
+cIdKonto2:=IdKonto2
 
 P_10CPI
 Naslov4x()
@@ -194,12 +198,24 @@ seek cIdfirma+cIdvd+cBrdok
 
 m:="------ ---------- ---------- ---------- ---------- ----------"
 
+if glUgost
+  m += " ---------- ----------"
+endif
+
 ? m
+if glUgost
+?  "* Tar *  PDV%    *  P.P %   *   MPV    *    PDV   *   P.Potr *  Popust  * MPVSAPDV*"
+else
 ?  "* Tar *  PDV%    *   MPV    *    PDV   *  Popust  * MPVSAPDV*"
+endif
 ? m
 
+
 nTot1:=0
+
 nTot2:=0
+nTot2b:=0
+
 nTot3:=0
 nTot4:=0
 nTot5:=0
@@ -230,17 +246,22 @@ do while !eof() .and. cIdfirma+cIdvd+cBrDok==idfirma+idvd+brdok
 		select roba
 		hseek pripr->idroba
 		select pripr
-		VtPorezi()
+		SetStPor_()
 	
 		Tarifa(pripr->pkonto, pripr->idRoba, @aPorezi)
     
     		// mpc bez poreza
 		nU1+=pripr->mpc*kolicina
 
-		aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
+		aIPor:=RacPorezeMP (aPorezi, mpc, mpcSaPP, nc)
 
     		// PDV
     		nU2+=aIPor[1]*kolicina
+		
+		// ugostiteljstvo porez na potr
+		if glUgost
+    		 nU2b+=aIPor[3]*kolicina
+		endif
 
 		nU5+= pripr->MpcSaPP * kolicina
     		nUP+= rabatv*kolicina
@@ -252,16 +273,25 @@ do while !eof() .and. cIdfirma+cIdvd+cBrDok==idfirma+idvd+brdok
   
   	nTot1+=nU1
   	nTot2+=nU2
+	if glUgost
+  	   nTot2b+=nU2b
+	endif
   	nTot5+=nU5
   	nTotP+=nUP
   
   	? cIdtarifa
 
   	@ prow(),pcol()+1 SAY aPorezi[POR_PPP] pict picproc
+	if glUgost
+  	  @ prow(),pcol()+1 SAY aPorezi[POR_PP] pict picproc
+	endif
   
   	nCol1:=pcol()
   	@ prow(),nCol1 +1   SAY nU1 pict picdem
   	@ prow(),pcol()+1   SAY nU2 pict picdem
+	if glUgost
+  	  @ prow(),pcol()+1   SAY nU2b pict picdem
+	endif
   	@ prow(),pcol()+1   SAY nUp pict picdem
   	@ prow(),pcol()+1   SAY nU5 pict picdem
 enddo
@@ -273,6 +303,9 @@ DokNovaStrana(125, @nStr, 4)
 
 @ prow(),nCol1+1    SAY nTot1 pict picdem
 @ prow(),pcol()+1   SAY nTot2 pict picdem
+if glUgost
+  @ prow(),pcol()+1   SAY nTot2b pict picdem
+endif
 // popust
 @ prow(),pcol()+1   SAY nTotP pict picdem  
 @ prow(),pcol()+1   SAY nTot5 pict picdem
@@ -285,5 +318,4 @@ endif
 
 return
 *}
-
 

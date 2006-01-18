@@ -38,7 +38,8 @@ if nRbr==1  .or. !fnovi
  if gNW<>"X"
    @ m_x+10,m_y+35  SAY "Zaduzuje: "   GET _IdZaduz  pict "@!" valid empty(_idZaduz) .or. P_Firma(@_IdZaduz,24)
  endif
- read; ESC_RETURN K_ESC
+ read
+ ESC_RETURN K_ESC
  _DatKurs:=_DatFaktP
 else
  @  m_x+6,m_y+2   SAY "DOBAVLJAC: "; ?? _IdPartner
@@ -71,7 +72,8 @@ endif
 //select TARIFA
 //hseek _IdTarifa  // postavi TARIFA na pravu poziciju
 
-select koncij; seek trim(_idkonto)
+select koncij
+seek trim(_idkonto)
 select PRIPR  // napuni tarifu
 
 _PKonto:=_Idkonto
@@ -202,7 +204,9 @@ else
 	@ m_x+12,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 endif
 
-@ m_x+12,m_y+50 GET _MPC picture PicDEM WHEN W_MPC_("81", (fMarza == "F"), @aPorezi) VALID V_Mpc_ ("81", (fMarza=="F"), @aPorezi)
+@ m_x+12,m_y+50 GET _MPC picture PicDEM ;
+     WHEN W_MPC_("81", (fMarza == "F"), @aPorezi) ;
+     VALID V_Mpc_ ("81", (fMarza=="F"), @aPorezi)
 
 if IsPDV()
 	@ m_x+14, m_y+2 SAY "PDV (%):"
@@ -226,7 +230,9 @@ else
 	@ m_x+16,m_y+2 SAY "MPC SA POREZOM :"
 endif
 
-@ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM WHEN {|| fMarza:=" ", _Marza2:=0, .t.} VALID V_MpcSaPP_( "81", .f., @aPorezi, .t.)
+@ m_x+16,m_y+50 GET _MPCSaPP  picture PicDEM ;
+    WHEN {|| fMarza:=" ", _Marza2:=0, .t.} ;
+    VALID V_MpcSaPP_( "81", .f., @aPorezi, .t.)
 
 read
 ESC_RETURN K_ESC

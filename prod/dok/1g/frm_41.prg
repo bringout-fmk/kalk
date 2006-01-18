@@ -20,6 +20,8 @@
 //                        42-kesh
 //                        43-izlaz iz prodavnice-komisiona
 //                        49-izlaz po ostalim osnovama
+
+// 47 izbaciti ???
 //                        47-pregled prodaje - ne interesuje me stanja
 //                           na lageru, nabavna cijena
 //                           izuzev u varijanti "Jerry"
@@ -28,7 +30,6 @@ function Get1_41()
 *{
 pIzgSt:=.f.   // izgenerisane stavke jos ne postoje
 private aPorezi:={}
-lVoSaTa := ( gVodiSamoTarife =="D" )
 
 IF fNovi
   _DatFaktP:=_datdok
@@ -36,17 +37,12 @@ ENDIF
 altd()
 if _idvd=="41"
 
- if !lVoSaTa
    @  m_x+6,  m_y+2 SAY "KUPAC:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,5,30)
    @  m_x+7,  m_y+2 SAY "Faktura Broj:" get _BrFaktP
- endif
 
  @  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
 elseif _idvd=="43"
  @  m_x+6,  m_y+2 SAY "DOBAVLJAC KOMIS.ROBE:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,5,30)
-elseif lVoSaTa .and. _idvd=="42"
- @  m_x+7,  m_y+2 SAY "Faktura Broj:" get _BrFaktP
- @  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
 else
  _idpartner:=""
  _brfaktP:=""
@@ -70,17 +66,9 @@ else
 	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!" valid VRoba()
 endif
 
-@ m_x+11,m_y+70 GET _IdTarifa when gPromTar=="N".and.!lVoSaTa valid P_Tarifa(@_IdTarifa)
+@ m_x+11,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
 
-if lVoSaTa
- if fnovi
-    _kolicina:=1
- endif
-else
- IF !lPoNarudzbi
-   @ m_x+12,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
- ENDIF
-endif
+@ m_x+12,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
 
 read
 ESC_RETURN K_ESC
@@ -107,7 +95,6 @@ _GKolicina:=0
 _GKolicin2:=0
 
 if fNovi
- if !lVoSaTa
   select koncij
   seek trim(_idkonto)
   select ROBA
@@ -121,7 +108,6 @@ if fNovi
    _FCJ:=NC
    _VPC:=0
   endif
- endif
 
  select PRIPR
  _Marza2:=0
@@ -130,7 +116,7 @@ endif
 
 if IsPdv()
    if (gCijene=="2" .and. _MpcSAPP==0)
-      FaktMPC(@_MPCSAPP,_idfirma+_idkonto+_idroba)
+      FaktMPC(@_MPCSAPP, _idfirma+ _idkonto+ _idroba)
    endif
 else
    // ppp varijanta
@@ -152,34 +138,20 @@ if ((_idvd<>'47'.or.(IsJerry().and._idvd="4")) .and. roba->tip!="T")
 //////// nKolZN:=kolicina koja je na stanju a porijeklo je od zadnje nabavke
 nKolS:=0;nKolZN:=0;nc1:=nc2:=0;dDatNab:=ctod("")
 lGenStavke:=.f.
-if _TBankTr<>"X" .or. lPoNarudzbi   // ako je X onda su stavke vec izgenerisane
-if !empty(gMetodaNC) .or. lPoNarudzbi
- IF lPoNarudzbi
-   private aNabavke:={}
-   IF !fNovi
-     AADD( aNabavke , {0,_nc,_kolicina,_idnar,_brojnar} )
-   ENDIF
-   KalkNab3p(_idfirma,_idroba,_idkonto,aNabavke,@nKolS)
-   IF LEN(aNabavke)>1; lGenStavke:=.t.; ENDIF
-   IF LEN(aNabavke)>0
-     // - tekuca -
-     i:=LEN(aNabavke)
-     _fcj := _nc := aNabavke[i,2]
-     _kolicina := aNabavke[i,3]
-     _idnar    := aNabavke[i,4]
-     _brojnar  := aNabavke[i,5]
-     // ----------
-   ENDIF
-   @ m_x+12,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol when .f.
-   @ row(),col()+2 SAY IspisPoNar(,,.t.)
- ELSE
+
+// ako je X onda su stavke vec izgenerisane
+if _TBankTr<>"X"  
+if !empty(gMetodaNC) 
    nc1:=nc2:=0
    MsgO("Racunam stanje u prodavnici")
     KalkNabP(_idfirma,_idroba,_idkonto,@nKolS,@nKolZN,@nc1,@nc2,@_RokTr)
    MsgC()
    if dDatNab>_DatDok; Beep(1);Msg("Datum nabavke je "+dtoc(dDatNab),4);endif
-   if gMetodaNC $ "13"; _fcj:=nc1; elseif gMetodaNC=="2"; _fcj:=nc2; endif
- ENDIF
+   if gMetodaNC $ "13"
+       _fcj:=nc1
+   elseif gMetodaNC=="2"
+       _fcj:=nc2
+   endif
 endif
 endif
 
@@ -198,7 +170,9 @@ endif
 
 @ m_x+17,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 
-@ m_x+17,m_y+50 GET _MPC picture PicDEM WHEN WMpc(.t.) VALID VMpc(.t.)
+@ m_x+17,m_y+50 GET _MPC picture PicDEM ;
+     WHEN W_MPC_(IdVd, .f., @aPorezi) ;
+     VALID V_Mpc_ (_IdVd, .f., @aPorezi)
 
 SayPorezi(18)
 
@@ -212,7 +186,8 @@ else
 	@ m_x+20,m_y+2 SAY "MPC SA POREZOM:"
 endif
 
-@ m_x+20,m_y+50 GET _MPCSaPP  picture PicDEM  VALID VMpcSapp(.t.)
+@ m_x+20,m_y+50 GET _MPCSaPP  picture PicDEM ;
+     VALID V_MpcSaPP_( _IdVd, .f., @aPorezi, .t.)
 	     
 read
 ESC_RETURN K_ESC

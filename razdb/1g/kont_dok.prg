@@ -213,7 +213,8 @@ do while !eof()    // datoteka finmat
      else
           select koncij; hseek finmat->idkonto
      endif
-     select roba; hseek finmat->idroba
+     select roba
+     hseek finmat->idroba
 
          select trfp
          seek cIdVD+koncij->shema
@@ -906,7 +907,7 @@ if pcount()==0
 	fstara:=.f.
 endif
 
-lVoSaTa := (gVodiSamoTarife=="D")
+lVoSaTa := .f.
 
 
 
@@ -1062,7 +1063,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 			endif
 		endif
 			
-		if gmagacin<>"1" .and. ( !lVoSaTa .and. idpartner+brfaktp+idkonto+idkonto2<>cidd .or. lVoSaTa .and. idpartner+idkonto+idkonto2<>cidd )
+		if gMagacin<>"1" .and. ( !lVoSaTa .and. idpartner+brfaktp+idkonto+idkonto2<>cidd .or. lVoSaTa .and. idpartner+idkonto+idkonto2<>cidd )
       			set device to screen
       			if ! ( (idvd $ "16#80" )  .and. !empty(idkonto2)  )
        				if !idvd $ "24"
@@ -1096,7 +1097,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 		HSEEK PRIPR->idtarifa
         	select PRIPR
 
-		Tarifa(pkonto,idroba,@aPorezi)
+		Tarifa(pkonto, idroba, @aPorezi)
         	KTroskovi()
 
         	if cidvd=="24"
@@ -1124,7 +1125,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 
         	VtPorezi()
 	
-		aIPor:=RacPorezeMP(aPorezi, field->mpc, field->mpcSaPP, field->nc)
+		aIPor:=RacPorezeMP(aPorezi, mpc, mpcSaPP, nc)
 
         	select FINMAT
         	append blank
@@ -1155,15 +1156,21 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
                 VPV       with round(PRIPR->(VPC*(Kolicina-GKolicina-GKolicin2)),gZaokr)        // vpv se formira nad stvarnom kolicinom
 		
            replace RABATV  with round(PRIPR->(RabatV/100*VPC*Kolicina),gZaokr),;
-                POREZV    with round(PRIPR->(TARIFA->VPP/100*(iif(nMarza<0,0,nMarza)*Kolicina)),gZaokr),;
                 VPVSAP    with round(PRIPR->(VPCSaP*Kolicina),gZaokr),;
                 Marza2    with round(PRIPR->(nMarza2*(Kolicina-GKolicina-GKolicin2)),gZaokr),;
                 MPV       with round(iif(pripr->idvd $ "14#94",Pripr->(VPC*(1-RabatV/100)*MPC/100*Kolicina),PRIPR->(MPC*(Kolicina-GKolicina-GKolicin2))),gZaokr) 
 		
-        replace Porez     with round(PRIPR->(aIPor[1]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;
-                Porez2    with round(PRIPR->(aIPor[2]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;
-                MPVSaPP   with round(PRIPR->(MPCSaPP*(Kolicina-GKolicina-GKolicin2)),gZaokr)
+	  // PDV
+          replace Porez     with round(PRIPR->(aIPor[1]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  
+	
+	  // ugostiteljstvo porez na potr
+          replace Porez2    with round(PRIPR->(aIPor[3]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  
+	
+          replace MPVSaPP   with round(PRIPR->(MPCSaPP*(Kolicina-GKolicina-GKolicin2)),gZaokr)
 		
+          // porezv je aIPor[2] koji se ne koristi
+          replace Porezv    with round(PRIPR->(aIPor[2]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  
+	  
           replace idroba    with PRIPR->idroba,;
                   Kolicina  with PRIPR->(Kolicina-GKolicina-GKolicin2)
 

@@ -5,17 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/param/1g/params.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.3 $
- * $Log: params.prg,v $
- * Revision 1.3  2003/04/12 06:58:24  mirsad
- * omogucen prenos KALK10,11,81->FAKT poput KALK->TOPS za udaljene lokacije
- *
- * Revision 1.2  2002/06/20 13:14:08  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -104,7 +93,7 @@ private  GetList:={}
   endif
   @ m_x+10,m_y+2 SAY "Varijanta FAKT13->KALK11 ( 1-mpc iz sifrarnika, 2-mpc iz FAKT13)" GET  gVar13u11  pict "@!" valid gVar13u11 $ "12"
   @ m_x+12,m_y+2 SAY "Varijanta KALK 11 bez prikaza NC i storna RUC-a (D/N)" GET  g11bezNC  pict "@!" valid g11bezNC $ "DN"
-  @ m_x+13,m_y+2 SAY "Pri ulaznoj kalkulaciji pomoc sa MPC (D/N)" GET  gMPCPomoc pict "@!" valid gMPCPomoc $ "DN"
+  @ m_x+13,m_y+2 SAY "Pri ulaznoj kalkulaciji pomoc sa C.sa PDV (D/N)" GET  gMPCPomoc pict "@!" valid gMPCPomoc $ "DN"
 
   @ m_x+15,m_y+2 SAY "80 - var.rek.po tarifama ( 1 -samo ukupno / 2 -prod.1,prod.2,ukupno)" GET  g80VRT pict "9" valid g80VRT $ "12"
   @ m_x+17,m_y+2 SAY "Kolicina za nivelaciju iz FAKT-a " GET  gKolicFakt valid gKolicFakt $ "DN"  pict "@!"

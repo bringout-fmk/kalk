@@ -102,7 +102,8 @@ if fNovi
  select roba
  _MPCSaPP:=UzmiMPCSif()
 
- if koncij->naz=="N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+
+ if koncij->naz=="N1" .or. (IsPDVMagNab() .or. IsMagSNab())
    _FCJ:=NC
    _VPC:=NC
  else
@@ -110,13 +111,16 @@ if fNovi
    _VPC:=UzmiVPCSif(_mkonto)
  endif
 
- select koncij; seek trim(_pkonto); select roba
+ select koncij
+ seek trim(_pkonto)
+ select roba
  if gcijene=="2"
    FaktMPC(@_MPCSAPP,_idfirma+_Pkonto+_idroba)
  endif
 
  select PRIPR
- _Marza2:=0; _TMarza2:="A"
+ _Marza2:=0
+ _TMarza2:="A"
 endif
 
 if gcijene=="2" .OR. ROUND(_VPC,3)=0 // uvijek nadji
@@ -129,7 +133,10 @@ VTPorezi()
 
 //////// kalkulacija nabavne cijene u magacinu
 //////// nKolZN:=kolicina koja je na stanju a porijeklo je od zadnje nabavke
-nKolS:=0;nKolZN:=0;nc1:=nc2:=0
+nKolS:=0
+nKolZN:=0
+nc1:=0
+nc2:=0
 lGenStavke:=.f.
 if _TBankTr<>"X" .or. lPoNarudzbi   // ako je X onda su stavke vec izgenerisane
 if !empty(gMetodaNC) .or. lPoNarudzbi
@@ -181,35 +188,30 @@ if !empty(gMetodaNC) .or. lPoNarudzbi
 endif
 endif
 
-if !lPoNarudzbi
  if _kolicina>0
   @ m_x+12,m_y+30   SAY "Na stanju magacin "; @ m_x+12,col()+2 SAY nkols pict pickol
  else
   @ m_x+12,m_y+30   SAY "Na stanju prodavn "; @ m_x+12,col()+2 SAY nkols pict pickol
  endif
-endif
 
 select koncij
 seek trim(_idkonto2)
 select pripr
 
-if  koncij->naz == "N1" .or. (IsPDV() .and. gPDVMagNab == "D")
-	_VPC:=_NC
-endif
-
-if koncij->naz == "N1" .or. (IsPDV() .and. gPDVMagNab == "D")
+if IsPDvMagNab() .or. IsMagSNab()
+        //_VPC:=_NC
 	_vpc:=_fcj
   	@ m_x+14,m_y+2    SAY "NABAVNA CIJENA (NC)       :"  
   	if _kolicina>0
-    		@ m_x+14,m_y+50   get _fcj    picture gPicNC ;
-                        VALID {|| V_KolMag(),;
-                        _vpc:=_Fcj,.t.}
+    		@ m_x+14,m_y+50   get _FCj    picture gPicNC ;
+                        VALID {|| V_KolMag(), _vpc:=_Fcj, .t.}
   	else // storno zaduzenja prodavnice
     		@ m_x+14,m_y+50   get _FCJ    picture PicDEM;
                      VALID {|| V_KolPro(),;
                                _vpc:=_fcj, .t.}
   	endif
 else
+        // ima vpc
 	if _kolicina>0
   		@ m_x+14,m_y+2    SAY "NC  :"  GET _fcj picture gPicNC valid V_KolMag()
  	else // storno zaduzenja
@@ -219,9 +221,12 @@ else
              when {|| iif(gCijene=="2",.f.,.t.)}
 endif
 
-select koncij; seek trim(_idkonto); select pripr
+// prodavnica
+select koncij
+seek trim(_idkonto)
+select pripr
 
-if fnovi
+if fNovi
 	_TPrevoz:="R"
 endif
 
@@ -265,17 +270,13 @@ seek trim(_idkonto)
 StaviMPCSif(_mpcsapp,.t.)       // .t. znaci sa upitom
 select pripr
 
-IF lPoNarudzbi
-  _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
-  _PKonto:=_Idkonto; _PU_I:="1"     // ulaz u prodavnicu
-  nRet:=GenStPoNarudzbi(lGenStavke)
-  if nRet==K_ESC
-      return K_ESC
-  endif
-ENDIF
+// izlaz iz magacina
+_MKonto:=_Idkonto2
+_MU_I:="5"     
 
-_MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
-_PKonto:=_Idkonto; _PU_I:="1"     // ulaz u prodavnicu
+// ulaz u prodavnicu
+_PKonto:=_Idkonto
+_PU_I:="1"     
 
 nStrana:=2
 

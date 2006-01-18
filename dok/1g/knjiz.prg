@@ -1913,6 +1913,7 @@ do while .t.
 			if (gVarEv=="2")
 				StKalk10_sk()
 			elseif (gMagacin=="1")
+			        // samo po nabavnim
 				StKalk10_1()
 			else
 				if (c10Var=="1")
@@ -1924,9 +1925,11 @@ do while .t.
 				endif
 			endif
 		elseif cIdVD == "10" .and. IsPDV()
-			if gPDVMagNab == "D"
+			if (gMagacin == "1")
+			        // samo po nabavnim
 				StKalk10_1()
 			else
+				// PDV ulazna kalkulacija
 				StKalk10_PDV()
 			endif
 		elseif cidvd $ "15"

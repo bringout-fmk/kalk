@@ -39,13 +39,28 @@ HSEEK cIdKonto
 
 ?  "MAGACINSKI KONTO zaduzuje :",cIdKonto,"-",naz
 
-m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+if (gMpcPomoc == "D")
+ m += " ---------- ----------"
+endif
 
 ? m
 
+
+if gMpcPomoc == "D"
+  // prikazi mpc
 ? "*R * ROBA     *  FCJ     * NOR.KALO * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     *  MARZA   * PROD.CIJ.*   PDV%   * PROD.CIJ.*"
-? "*BR* TARIFA   *  KOLICINA* PRE.KALO * SKONTO   *          *          *          *          *          *          *          * BEZ.PDV  *   PDV    * SA PDV   *"
-? "*  *          *    ä     *    ä     *   ä      *    ä     *    ä     *     ä    *    ä     *    ä     *    ä     *    ä     *    ä     *    ä     *     ä    *"
+  ? "*BR* TARIFA   *  KOLICINA* PRE.KALO * SKONTO   *          *          *          *          *          *          *          * BEZ.PDV  *   PDV    * SA PDV   *"
+
+  ? "*  *          *    ä     *    ä     *   ä      *    ä     *    ä     *     ä    *    ä     *    ä     *    ä     *    ä     *    ä     *    ä     *     ä    *"
+else
+  // prikazi samo do neto cijene - bez pdv-a
+  ? "*R * ROBA     *  FCJ     * NOR.KALO * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     *  MARZA   * PROD.CIJ.*"
+  ? "*BR* TARIFA   *  KOLICINA* PRE.KALO * SKONTO   *          *          *          *          *          *          *          * BEZ.PDV  *"
+
+  ? "*  *          *    ä     *    ä     *   ä      *    ä     *    ä     *     ä    *    ä     *    ä     *    ä     *    ä     *    ä     *"
+
+endif
 
 ? m
 
@@ -121,8 +136,11 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	@ prow(),pcol()+1 SAY NC                    PICTURE PicCDEM
     	@ prow(),pcol()+1 SAY nMarza/NC*100         PICTURE PicProc
     	@ prow(),pcol()+1 SAY VPC                   PICTURE PicCDEM
-    	@ prow(),pcol()+1 SAY nPDVStopa         PICTURE PicProc
-    	@ prow(),pcol()+1 SAY MPCsaPP           PICTURE PicCDEM
+
+	if gMpcPomoc == "D"
+       	  @ prow(),pcol()+1 SAY nPDVStopa         PICTURE PicProc
+    	  @ prow(),pcol()+1 SAY MPCsaPP           PICTURE PicCDEM
+	endif
 
 	// 2. DRUGI RED
     	@ prow()+1,4 SAY IdTarifa
@@ -136,8 +154,10 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	@ prow(),pcol()+1 SAY nZavTr               PICTURE PicCDEM
     	@ prow(),pcol()+1 SAY 0                    PICTURE PicDEM
     	@ prow(),pcol()+1 SAY nMarza               PICTURE PicCDEM
-    	@ prow(),pcol()+1 SAY 0  		   PICTURE PicCDEM
-    	@ prow(),pcol()+1 SAY nPDV  		   PICTURE PicCDEM
+	if gMpcPomoc == "D"
+          @ prow(),pcol()+1 SAY 0  		   PICTURE PicCDEM
+    	  @ prow(),pcol()+1 SAY nPDV  		   PICTURE PicCDEM
+	endif
 
 	// 3. TRECI RED
 	@ prow()+1,nCol1   SAY nU          picture         PICDEM
@@ -151,8 +171,10 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	@ prow(),pcol()+1  SAY nU8         picture         PICDEM
     	@ prow(),pcol()+1  SAY nU9         picture         PICDEM
     	@ prow(),pcol()+1  SAY nUA         picture         PICDEM
-    	@ prow(),pcol()+1  SAY nUP         picture         PICDEM
-    	@ prow(),pcol()+1  SAY nUM         picture         PICDEM
+	if gMpcPomoc == "D"
+    	  @ prow(),pcol()+1  SAY nUP         picture         PICDEM
+    	  @ prow(),pcol()+1  SAY nUM         picture         PICDEM
+	endif
 
   	skip
 enddo
@@ -172,16 +194,18 @@ DokNovaStrana(125, @nStr, 5)
 @ prow(),pcol()+1  SAY nTot8         picture         PICDEM
 @ prow(),pcol()+1  SAY nTot9         picture         PICDEM
 @ prow(),pcol()+1  SAY nTotA         picture         PICDEM
-@ prow(),pcol()+1  SAY nTotP         picture         PICDEM
-@ prow(),pcol()+1  SAY nTotM         picture         PICDEM
+
+if (gMpcPomoc == "D")
+  @ prow(),pcol()+1  SAY nTotP         picture         PICDEM
+  @ prow(),pcol()+1  SAY nTotM         picture         PICDEM
+endif
 
 ? m
-? "Magacin se zaduzuje po nabavnoj vrijednosti " + ALLTRIM(TRANSFORM(nTot8,picdem))
+? "Magacin se zaduzuje po nabavnoj vrijednosti " + ALLTRIM(TRANSFORM(nTot8, picdem))
+
 ? m
 
 return
 *}
-
-
 
 

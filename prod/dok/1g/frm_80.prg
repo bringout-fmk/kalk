@@ -5,34 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_80.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: frm_80.prg,v $
- * Revision 1.8  2004/05/25 13:53:17  sasavranic
- * Mogucnost evidentiranja tipa sredstva (donirano i kupljeno)
- *
- * Revision 1.7  2003/10/11 09:26:52  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.6  2003/10/07 11:48:31  sasavranic
- * Brisanje sifara za artikle koji nisu u prometu! Dorada
- *
- * Revision 1.5  2003/10/06 15:00:28  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.4  2003/09/29 13:26:55  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.3  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.2  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -95,17 +67,10 @@ endif
 
 VTPorezi()
 
-IF lPoNarudzbi
-  @ m_x+13,m_y+2 SAY "Po narudzbi br." GET _brojnar
-  @ m_x+13,col()+2 SAY "za narucioca" GET _idnar pict "@!" valid empty(_idnar) .or. P_Firma(@_idnar,13,50)
-ENDIF
-
-// IF !lPoNarudzbi
-  @ m_x+13+IF(lPoNarudzbi,1,0),m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
-// ENDIF
+  @ m_x+13, m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
 
 IF IsDomZdr()
-   @ m_x+13+IF(lPoNarudzbi,1,0),m_y+2   SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
+   @ m_x+13, m_y+2   SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
 ENDIF
 
 read
@@ -145,27 +110,27 @@ endif
 
 select PRIPR
 
-@ m_x+14+IF(lPoNarudzbi,1,0),m_y+2     SAY "NABAVNA CJENA:"
-@ m_x+14+IF(lPoNarudzbi,1,0),m_y+50    GET _NC     PICTURE PicDEM when VKol()
+@ m_x+14, m_y+2     SAY "NABAVNA CJENA:"
+@ m_x+14, m_y+50    GET _NC     PICTURE PicDEM when VKol()
 
-@ m_x+16+IF(lPoNarudzbi,1,0),m_y+2 SAY "Marza:" GET _TMarza2  VALID _Tmarza2 $ "%AU" PICTURE "@!"
-@ m_x+16+IF(lPoNarudzbi,1,0),col()+2  GET _Marza2 PICTURE  PicDEM ;
+@ m_x+16, m_y+2 SAY "Marza:" GET _TMarza2  VALID _Tmarza2 $ "%AU" PICTURE "@!"
+@ m_x+16, col()+2  GET _Marza2 PICTURE  PicDEM ;
     valid {|| _vpc:=_nc, .t.}
-@ m_x+16+IF(lPoNarudzbi,1,0),col()+1 GET fMarza pict "@!"
+@ m_x+16, col()+1 GET fMarza pict "@!"
 
-@ m_x+17+IF(lPoNarudzbi,1,0),m_y+2  SAY "MALOPROD. CJENA (MPC):"
-@ m_x+17+IF(lPoNarudzbi,1,0),m_y+50 GET _MPC picture PicDEM;
+@ m_x+17, m_y+2  SAY "MALOPROD. CJENA (MPC):"
+@ m_x+17, m_y+50 GET _MPC picture PicDEM;
            WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
 
 SayPorezi_lv(19, aPorezi)
 
 if IsPDV()
-	@ m_x+20+IF(lPoNarudzbi,1,0),m_y+2 SAY "MPC SA PDV    :"
+	@ m_x+20, m_y+2 SAY "MPC SA PDV    :"
 else
-	@ m_x+20+IF(lPoNarudzbi,1,0),m_y+2 SAY "MPC SA POREZOM:"
+	@ m_x+20, m_y+2 SAY "MPC SA POREZOM:"
 endif
 
-@ m_x+20+IF(lPoNarudzbi,1,0),m_y+50 GET _MPCSaPP  picture PicDEM ;
+@ m_x+20, m_y+50 GET _MPCSaPP  picture PicDEM ;
            valid VMpcSaPP_lv(nil, nil, aPorezi)
 
 read
@@ -174,12 +139,14 @@ ESC_RETURN K_ESC
 select koncij
 seek trim(_idkonto)
 
-StaviMPCSif(_mpcsapp,.t.)
+StaviMPCSif(_mpcsapp, .t.)
 
 select pripr
 
-_PKonto:=_Idkonto; _PU_I:="1"
-_MKonto:="";_MU_I:=""
+_PKonto:=_Idkonto
+_PU_I:="1"
+_MKonto:=""
+_MU_I:=""
 
 nStrana:=3
 return lastkey()
@@ -198,14 +165,15 @@ return lastkey()
 
 function Get1_80b()
 *{
-local cSvedi:=" "
+local cSvedi:="M"
 private aPorezi:={}
 
 fnovi:=.t.
-private PicDEM:="9999999.99999999",PicKol:="999999.999"
+private PicDEM:="9999999.99999999" 
+PicKol:="999999.999"
 Beep(1)
-@ m_x+2,m_Y+2 SAY "PROTUSTAVKA   (svedi na staru vrijednost - kucaj S):"
-@ m_x+2,col()+2 GET cSvedi valid csvedi $ " S" pict "@!"
+@ m_x+2,m_Y+2 SAY "PROTUSTAVKA   ( S-svedi M-mpc sifr i ' '-ne diraj):"
+@ m_x+2,col()+2 GET cSvedi valid csvedi $ " SM" pict "@!"
 read
 
 @ m_x+11,m_y+66 SAY "Tarif.br->"
@@ -217,7 +185,7 @@ read
 ESC_RETURN K_ESC
 select koncij
 seek trim(_idkonto)
-select PRIPR  // napuni tarifu
+select PRIPR 
 
 _PKonto:=_Idkonto
 DatPosljP()
@@ -231,7 +199,8 @@ select koncij
 seek trim(_idkonto)
 select ROBA
 HSEEK _IdRoba
-if _mpcsapp=0  // ako nije popunjeno
+
+if _mpcsapp == 0  // ako nije popunjeno
  _MPCSapp:=UzmiMPCSif()
 endif
 
@@ -297,7 +266,15 @@ return lastkey()
 
 function Svedi(cSvedi)
 *{
-if csvedi=="S"
+if cSvedi=="M"
+
+    select koncij
+    seek trim(_idkonto)
+    select ROBA
+    HSEEK _IdRoba
+    _MPCSapp:=UzmiMPCSif()
+    
+elseif csvedi=="S"
    if _mpcsapp<>0
     _kolicina:=-round(_oldval/_mpcsapp,4)
    else

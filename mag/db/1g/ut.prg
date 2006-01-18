@@ -5,20 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/db/1g/ut.prg,v $
- * $Author: ernadhusremovic $ 
- * $Revision: 1.4 $
- * $Log: ut.prg,v $
- * Revision 1.4  2003/11/04 02:13:28  ernadhusremovic
- * Planika Kranj - Robno poslovanje
- *
- * Revision 1.3  2003/07/18 07:24:54  mirsad
- * stavio u f-ju kontrolu stanja za varijantu po narudzbama za izlazne dokumente (14,41,42)
- *
- * Revision 1.2  2002/06/19 13:57:53  mirsad
- * no message
- *
- *
  */
 
 
@@ -203,6 +189,53 @@ select pripr
 return
 *}
 
+function MarzaVP(cIdVd, lNaprijed)
+*{
+local SKol:=0
+
+
+if (_nc==0)
+  _nc:=9999
+endif
+
+if gKalo=="1" .and. cIdvd=="10"
+ Skol:=_Kolicina-_GKolicina-_GKolicin2
+else
+ Skol:=_Kolicina
+endif
+
+if  _Marza==0 .or. _VPC<>0 .and. !lNaprijed
+  // unazad formiraj marzu
+  nMarza:=_VPC - _NC
+  if _TMarza=="%"
+     _Marza:=100*(_VPC/_NC-1)
+  elseif _TMarza=="A"
+    _Marza:=nMarza
+  elseif _TMarza=="U"
+    _Marza:=nMarza*SKol
+  endif
+
+elseif round(_VPC,4)==0  .or. lNaprijed
+  // formiraj marzu "unaprijed" od nc do vpc
+  if _TMarza=="%"
+     nMarza:=_Marza/100*_NC
+  elseif _TMarza=="A"
+     nMarza:=_Marza
+  elseif _TMarza=="U"
+     nMarza:=_Marza/SKol
+  endif
+  _VPC:=round((nMarza+_NC), 2)
+  
+else
+  if cIdvd $ "14#94"
+     nMarza:=_VPC * (1-_Rabatv/100) - _NC
+  else
+   nMarza:=_VPC - _NC
+  endif
+endif
+AEVAL(GetList,{|o| o:display()})
+return
+*}
 
 
 /*! \fn Marza(fmarza)
@@ -915,3 +948,24 @@ else
 endif
 return
 *}
+
+
+// magacin samo po nabavnim cijenama
+function IsMagSNab()
+*{
+if (gMagacin == "1") .or. koncij->naz == "N1"
+	return .t.
+else
+	return .f.
+endif
+*}
+
+// znaci magacin robe - PDV je po nab cjenama
+function IsPDVMagNab()
+
+if (IsPDV() .and. gPDVMagNab == "D")
+   return .t.
+else
+   return .f.
+endif
+

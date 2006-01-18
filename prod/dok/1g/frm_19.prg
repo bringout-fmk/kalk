@@ -5,36 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/frm_19.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: frm_19.prg,v $
- * Revision 1.8  2003/10/11 09:26:52  sasavranic
- * Ispravljen bug pri unosu izlaznih kalkulacija, na stanju uvije 0 robe, varijanta barkod
- *
- * Revision 1.7  2003/10/06 15:00:27  sasavranic
- * Unos podataka putem barkoda
- *
- * Revision 1.6  2003/09/29 13:26:55  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.5  2002/12/26 16:08:07  mirsad
- * no message
- *
- * Revision 1.4  2002/07/12 10:15:55  ernad
- *
- *
- * debug ROBPR.DBF, ROBPR.CDX - uklonjena funkcija DodajRobPr()
- *
- * Revision 1.3  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.2  2002/06/20 14:03:09  mirsad
- * dokumentovanje
- *
- *
  */
  
 

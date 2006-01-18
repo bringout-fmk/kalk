@@ -5,31 +5,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/dok/1g/rpt_11.prg,v $
- * $Author: mirsadsubasic $ 
- * $Revision: 1.7 $
- * $Log: rpt_11.prg,v $
- * Revision 1.7  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.6  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.5  2003/09/08 08:41:43  ernad
- * porezi u ugostiteljstvu
- *
- * Revision 1.4  2002/07/19 13:57:23  mirsad
- * lPrikPRUC ubacio kao globalnu varijablu
- *
- * Revision 1.3  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.2  2002/06/21 07:49:36  mirsad
- * no message
- *
- *
  */
  
 
@@ -257,17 +232,25 @@ ENDIF
 nTot5:=nTot6:=nTot7:=0
 RekTarife()
 
+
+if !IsPdvMagNab()
+
 ? "RUC:"
 @ prow(),pcol()+1 SAY nTot6 pict picdem
-if cidvd=="11" .and. g11bezNC!="D"
+if cidvd=="11" .and. g11bezNC != "D"
 	@ prow(),pcol()+2 SAY "Od toga storno RUC u VP:"
 	@ prow(),pcol()+1 SAY nMarzaVP pict picdem
+	
 elseif cidvd$"12#13" .and. g11bezNC!="D"
 	@ prow(),pcol()+2 SAY "Od toga prenijeti RUC u VP:"
 	@ prow(),pcol()+1 SAY nMarzaVP pict picdem
 endif
 
 ? m
+
+endif
+
+
 
 if fZaTops
 	g11BezNC:=n11BezNC

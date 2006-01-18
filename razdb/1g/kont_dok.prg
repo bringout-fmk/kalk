@@ -4,47 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/razdb/1g/kont_dok.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.13 $
- * $Log: kont_dok.prg,v $
- * Revision 1.13  2004/03/02 18:37:28  sasavranic
- * no message
- *
- * Revision 1.12  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.11  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.10  2003/06/25 17:48:21  mirsad
- * debug: opis stavki u FIN-nalogu ako je u shemi definisano zaokr. pomocu ";9"  prociscen od ovih spec.simbola
- *
- * Revision 1.9  2003/05/28 05:42:46  mirsad
- * debug kalk->fin - porezi u ugost.var."T"
- *
- * Revision 1.8  2003/05/27 00:37:56  mirsad
- * debug kalk->fin - porezi u ugost.var."T"
- *
- * Revision 1.7  2003/01/08 03:15:25  mirsad
- * omogucen parametar trfp->dokument=="R" za izbor prenosa radnog naloga u broj veze
- *
- * Revision 1.6  2003/01/06 15:28:15  mirsad
- * ispravka BUG-a pri KALK->FIN
- *
- * Revision 1.5  2002/11/21 13:29:03  mirsad
- * ispravka bug-a: zaokruženje krajnjih iznosa u FIN-nalogu sada mora biti minimalno na 2 decimale
- *
- * Revision 1.4  2002/07/22 14:17:04  mirsad
- * ispravio bug: sada kontira PRUCMP (pruc - ugostiteljstvo)
- *
- * Revision 1.3  2002/07/19 14:00:29  mirsad
- * lPrikPRUC je sada globalna
- *
- * Revision 1.2  2002/06/24 09:19:02  mirsad
- * dokumentovanje
- *
- *
  */
  
 
@@ -638,7 +597,7 @@ return
  *  \return 0
  */
 
-function Konto(nBroj,cDef,cTekst)
+function Konto(nBroj, cDef, cTekst)
 *{
 private GetList:={}
 
@@ -667,6 +626,36 @@ endif
 return 0
 *}
 
+
+// Primjer SetKonto(1, IsInoDob(finmat->IdPartner) , "30", "31")
+//
+function SetKonto(nBroj, lValue, cTrue , cFalse)
+*{
+local cPom
+
+
+if (nBroj==1 .and. len(cKonto1)<>0) .or. ;
+   (nBroj==2 .and. len(cKonto2)<>0) .or. ;
+   (nBroj==3 .and. len(cKonto3)<>0)
+  return 0
+endif
+
+    if lValue
+    	cPom := cTrue
+    else
+    	cPom := cFalse
+    endif
+    
+    if nBroj==1
+      cKonto1:=cPom
+    elseif nBroj==2
+      cKonto2:=cPom
+    else
+      cKonto3:=cPom
+    endif
+
+return 0
+*}
 
 
 
@@ -911,11 +900,15 @@ local nCol1:=nCol2:=nCol3:=0
 private aPorezi
 aPorezi:={}
 
+dummy()
+
 if pcount()==0
 	fstara:=.f.
 endif
 
 lVoSaTa := (gVodiSamoTarife=="D")
+
+
 
 fprvi:=.t.  // prvi prolaz
 do while  .t.
@@ -928,10 +921,6 @@ O_ROBA
 O_TARIFA
 
 if fstara
-	#ifdef CAX
- 		select (F_PRIPR)
-		use
-	#endif
  	O_SKALK   // alias pripr
 else
  	O_PRIPR
@@ -1107,10 +1096,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 		HSEEK PRIPR->idtarifa
         	select PRIPR
 
-	// if !glPoreziLegacy
 		Tarifa(pkonto,idroba,@aPorezi)
-	// endif
-
         	KTroskovi()
 
         	if cidvd=="24"
@@ -1138,7 +1124,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 
         	VtPorezi()
 	
-		aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
+		aIPor:=RacPorezeMP(aPorezi, field->mpc, field->mpcSaPP, field->nc)
 
         	select FINMAT
         	append blank
@@ -1157,28 +1143,32 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
                 DatDok    with PRIPR->DatDok,;
                 DatKurs   with PRIPR->DatKurs,;
                 GKV       with round(PRIPR->(GKolicina*FCJ2),gZaokr),;   // vrijednost transp.kala
-                GKV2      with round(PRIPR->(GKolicin2*FCJ2),gZaokr),;   // vrijednost ostalog kala
-                Prevoz    with round(PRIPR->(nPrevoz*SKol),gZaokr) ,;
+                GKV2      with round(PRIPR->(GKolicin2*FCJ2),gZaokr)   // vrijednost ostalog kala
+	
+        replace Prevoz    with round(PRIPR->(nPrevoz*SKol),gZaokr) ,;
                 CarDaz    with round(PRIPR->(nCarDaz*SKol),gZaokr) ,;
                 BankTr    with round(PRIPR->(nBankTr*SKol),gZaokr) ,;
                 SpedTr    with round(PRIPR->(nSpedTr*SKol),gZaokr) ,;
                 ZavTr     with round(PRIPR->(nZavTr*SKol),gZaokr)  ,;
                 NV        with round(PRIPR->(NC*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;
                 Marza     with round(PRIPR->(nMarza*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;           // marza se ostvaruje nad stvarnom kolicinom
-                VPV       with round(PRIPR->(VPC*(Kolicina-GKolicina-GKolicin2)),gZaokr),;         // vpv se formira nad stvarnom kolicinom
-                RABATV    with round(PRIPR->(RabatV/100*VPC*Kolicina),gZaokr),;
+                VPV       with round(PRIPR->(VPC*(Kolicina-GKolicina-GKolicin2)),gZaokr)        // vpv se formira nad stvarnom kolicinom
+		
+           replace RABATV  with round(PRIPR->(RabatV/100*VPC*Kolicina),gZaokr),;
                 POREZV    with round(PRIPR->(TARIFA->VPP/100*(iif(nMarza<0,0,nMarza)*Kolicina)),gZaokr),;
                 VPVSAP    with round(PRIPR->(VPCSaP*Kolicina),gZaokr),;
                 Marza2    with round(PRIPR->(nMarza2*(Kolicina-GKolicina-GKolicin2)),gZaokr),;
-                MPV       with round(iif(pripr->idvd $ "14#94",Pripr->(VPC*(1-RabatV/100)*MPC/100*Kolicina),PRIPR->(MPC*(Kolicina-GKolicina-GKolicin2))),gZaokr) ,;
-                Porez     with round(PRIPR->(aIPor[1]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;
+                MPV       with round(iif(pripr->idvd $ "14#94",Pripr->(VPC*(1-RabatV/100)*MPC/100*Kolicina),PRIPR->(MPC*(Kolicina-GKolicina-GKolicin2))),gZaokr) 
+		
+        replace Porez     with round(PRIPR->(aIPor[1]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;
                 Porez2    with round(PRIPR->(aIPor[2]*(Kolicina-GKolicina-GKolicin2)),gZaokr)  ,;
-                MPVSaPP   with round(PRIPR->(MPCSaPP*(Kolicina-GKolicina-GKolicin2)),gZaokr),;
-                idroba    with PRIPR->idroba,;
-                Kolicina  with PRIPR->(Kolicina-GKolicina-GKolicin2)
+                MPVSaPP   with round(PRIPR->(MPCSaPP*(Kolicina-GKolicina-GKolicin2)),gZaokr)
+		
+          replace idroba    with PRIPR->idroba,;
+                  Kolicina  with PRIPR->(Kolicina-GKolicina-GKolicin2)
 
 
-          if glUgost
+          if !IsPdv() .and. glUgost
             REPLACE prucmp WITH round(PRIPR->(aIPor[2]*(Kolicina-GKolicina-GKolicin2)),gZaokr)
             REPLACE porpot WITH round(PRIPR->(aIPor[3]*(Kolicina-GKolicina-GKolicin2)),gZaokr)
           endif
@@ -1190,19 +1180,6 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
                        Rabat     with round(PRIPR->(nFV*Rabat/100),gZaokr)
           endif
 
-          if  pripr->mu_i $ "13" .and. roba->tip $ "VK" // ulaz u magacin, vt
-                replace Porez     with round(PRIPR->(TARIFA->OPP/100*(nc+nMarza)*(Kolicina-GKolicina-GKolicin2)),gZaokr)
-          endif
-          if  pripr->mu_i $ "13" .and. roba->tip="X" // ulaz u magacin, vt
-                replace Porez     with round(PRIPR->(mpcsapp/(1+tarifa->opp/100)*TARIFA->OPP/100*(Kolicina-GKolicina-GKolicin2)),gZaokr)
-          endif
-
-          if  idvd $ "11#12#13#14#96#94" // porez vt koji se realizuje iz magacina
-                                   // samo ako je roba tip K
-               replace porvt with  round(pripr->(vpc/(1+_opp)*_opp*kolicina),gZaokr)
-          endif
-
-          // verzija 03.24
           if  idvd == "IP"
                replace  GKV2  with round(PRIPR->((Gkolicina-Kolicina)*MPcSAPP),gZaokr),;
                         GKol2 with Pripr->(Gkolicina-Kolicina)
@@ -1312,7 +1289,6 @@ else
 	cidvd:=idvd
 	cBrdok:=brdok
 	close all
-	altd()
 	
 	Kontnal(.f.)
 endif
@@ -1326,5 +1302,12 @@ endif
 
 closeret
 return
+
 *}
 
+static function dummy()
+  
+if (1==2)
+	IsPdvObveznik("XYZ")
+endif
+return nil

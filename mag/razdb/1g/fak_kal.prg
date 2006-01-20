@@ -43,6 +43,7 @@ CLOSERET
  
 function Prenos()
 *{
+local nRabat:=0
 local cIdFirma:=gFirma
 local cIdTipDok:="10"
 local cBrDok:=SPACE(8)
@@ -105,7 +106,9 @@ do while .t.
   @ m_x+6,col()+2 SAY "- "+cidtipdok
   @ m_x+6,col()+2 SAY "-" GET cBrDok
   read
-  if lastkey()==K_ESC; exit; endif
+  if lastkey()==K_ESC
+  	exit
+  endif
 
   select xfakt
   seek cFaktFirma+cIdTipDok+cBrDok
@@ -150,7 +153,9 @@ do while .t.
       loop
      endif
      go bottom
-     if brdok==cBrKalk; nRbr:=val(Rbr); endif
+     if brdok==cBrKalk
+     nRbr:=val(Rbr)
+     endif
      select xfakt
      IF !ProvjeriSif("!eof() .and. '"+cFaktFirma+cIdTipDok+cBrDok+"'==IdFirma+IdTipDok+BrDok","IDROBA",F_ROBA)
        MsgBeep("U ovom dokumentu nalaze se sifre koje ne postoje u tekucem sifrarniku!#Prenos nije izvrsen!")
@@ -174,13 +179,24 @@ do while .t.
      endif
 
      do while !eof() .and. cFaktFirma+cIdTipDok+cBrDok==IdFirma+IdTipDok+BrDok
-       select ROBA; hseek xfakt->idroba
+       select ROBA
+       hseek xfakt->idroba
 
-       select tarifa; hseek roba->idtarifa
+       select tarifa
+       hseek roba->idtarifa
+
+       if (RobaZastCijena(roba->idTarifa) .and. !IsPdvObveznik(cIdPartner))
+            // nije pdv obveznik
+	    // roba ima zasticenu cijenu
+       	    nRabat := 0
+       else
+	    nRabat:= xfakt->rabat
+       endif
 
        select xfakt
        if alltrim(podbr)=="."  .or. roba->tip $ "UY"
-          skip; loop
+          skip
+	  loop
        endif
 
        select PRIPR
@@ -202,7 +218,7 @@ do while .t.
                idroba with xfakt->idroba,;
                nc  with ROBA->nc,;
                vpc with xfakt->cijena,;
-               rabatv with xfakt->rabat,;
+               rabatv with nRabat,;
                mpc with xfakt->porez
        select xfakt
        skip

@@ -4,13 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/razdb/1g/fak_kal.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: fak_kal.prg,v $
- * Revision 1.2  2002/06/21 14:08:29  mirsad
- * dokumentovanje
- *
  *
  */
  

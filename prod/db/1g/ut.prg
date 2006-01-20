@@ -252,6 +252,50 @@ return
 *}
 
 
+/*! \fn Marza2R()
+ *  \brief Marza pri realizaciji prodavnice 
+ */
+
+function MarzaMpR()
+*{
+local nPPP
+
+nPPP:=1/(1+tarifa->opp/100)
+
+if _nc==0
+   _nc:=_mpc
+endif
+
+nMpcSaPop := _MPC - RabatV
+
+if  (_Marza2==0)
+  nMarza2:= nMpcSaPop - _NC
+
+  if _TMarza2=="%"
+    _Marza2:=100*(nMpcSaPop/_NC-1)
+  elseif _TMarza2=="A"
+    _Marza2:=nMarza2
+  elseif _TMarza2=="U"
+    _Marza2:=nMarza2*(_Kolicina)
+  endif
+elseif (_MPC==0)
+  if _TMarza2=="%"
+     nMarza2:=_Marza2/100*_NC
+  elseif _TMarza2=="A"
+     nMarza2:=_Marza2
+  elseif _TMarza2=="U"
+     nMarza2:=_Marza2/(_Kolicina)
+  endif
+  
+  _MPC := nMarza2+ _NC + _RabatV
+  
+else
+ nMarza2:= nMpcSaPop -_NC
+endif
+AEVAL(GetList,{|o| o:display()})
+return
+*}
+
 
 
 /*! \fn FaktMPC(nMPC,cseek,dDatum)

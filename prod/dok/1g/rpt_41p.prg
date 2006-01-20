@@ -61,6 +61,7 @@ nTot4a:=0
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
 
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
+
 	IF idpartner+brfaktp+idkonto+idkonto2<>cidd
      		set device to screen
      		Beep(2)
@@ -73,18 +74,25 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
    	RptSeekRT()
 
     	// izracunaj nMarza2
-    	Marza2R()   
+        MarzaMPR()
+
     	KTroskovi()
   
 	Tarifa(pkonto, idRoba, @aPorezi)
-	aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
+	
+	if IsPdv()
+	   // uracunaj i popust
+           aIPor:=RacPorezeMP(aPorezi, mpc, mpcSaPP-RabatV, field->nc)
+	else
+           aIPor:=RacPorezeMP(aPorezi, mpc, mpcSaPP, field->nc)
+	endif
 	nPor1:=aIPor[1]
 	
 	VTPorezi()
 
     	DokNovaStrana(125, @nStr, 2)
 
-    	nTot3+=  (nU3:= IF(ROBA->tip="U",0,NC)*kolicina )
+    	nTot3+=  (nU3:= IF(ROBA->tip="U", 0, NC)*kolicina )
     	nTot4+=  (nU4:= nMarza2*Kolicina )
     	nTot5+=  (nU5:= MPC*Kolicina )
     
@@ -196,7 +204,10 @@ select pripr
 set order to 2
 seek cIdfirma+cIdvd+cBrdok
 
-m:="------ ---------- ---------- ---------- ---------- ----------"
+m:="------ " 
+for i:= 1 to 6
+ m += REPLICATE("-", 10) + " "
+next
 
 if glUgost
   m += " ---------- ----------"
@@ -206,7 +217,8 @@ endif
 if glUgost
 ?  "* Tar *  PDV%    *  P.P %   *   MPV    *    PDV   *   P.Potr *  Popust  * MPVSAPDV*"
 else
-?  "* Tar *  PDV%    *   MPV    *    PDV   *  Popust  * MPVSAPDV*"
+?  "* Tar *  PDV%    *   MPV    *    PDV   * MPV-Pop. *  Popust  *  MPV    *"
+?  "*     *          *  bez PDV *    PDV   *  sa PDV  *          * sa PDV  *"
 endif
 ? m
 
@@ -253,7 +265,8 @@ do while !eof() .and. cIdfirma+cIdvd+cBrDok==idfirma+idvd+brdok
     		// mpc bez poreza
 		nU1+=pripr->mpc*kolicina
 
-		aIPor:=RacPorezeMP (aPorezi, mpc, mpcSaPP, nc)
+
+		aIPor:=RacPorezeMP (aPorezi, mpc, mpcSaPP-RabatV, nc)
 
     		// PDV
     		nU2+=aIPor[1]*kolicina
@@ -287,12 +300,18 @@ do while !eof() .and. cIdfirma+cIdvd+cBrDok==idfirma+idvd+brdok
 	endif
   
   	nCol1:=pcol()
+	// mpv bez pdv
   	@ prow(),nCol1 +1   SAY nU1 pict picdem
+	// PDV
   	@ prow(),pcol()+1   SAY nU2 pict picdem
 	if glUgost
   	  @ prow(),pcol()+1   SAY nU2b pict picdem
 	endif
+	// mpv - popust
+  	@ prow(),pcol()+1   SAY nU5-nUp pict picdem
+	// popust
   	@ prow(),pcol()+1   SAY nUp pict picdem
+	// mpv
   	@ prow(),pcol()+1   SAY nU5 pict picdem
 enddo
 
@@ -307,6 +326,7 @@ if glUgost
   @ prow(),pcol()+1   SAY nTot2b pict picdem
 endif
 // popust
+@ prow(),pcol()+1   SAY nTot5-nTotP pict picdem  
 @ prow(),pcol()+1   SAY nTotP pict picdem  
 @ prow(),pcol()+1   SAY nTot5 pict picdem
 ? m

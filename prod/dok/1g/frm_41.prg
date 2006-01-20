@@ -171,7 +171,7 @@ endif
 @ m_x+17,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 
 @ m_x+17,m_y+50 GET _MPC picture PicDEM ;
-     WHEN W_MPC_(IdVd, .f., @aPorezi) ;
+     WHEN W_MPC_ (IdVd, .f., @aPorezi) ;
      VALID V_Mpc_ (_IdVd, .f., @aPorezi)
 
 SayPorezi(18)

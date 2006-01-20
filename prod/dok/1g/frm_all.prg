@@ -267,10 +267,17 @@ if lNaprijed
   MarzaMP(cIdVd, .t. , aPorezi) 
 endif
 
+if cIdVd $ "41#42#47"
+     nMpcSaPDV := _MpcSaPP - _RabatV
+else
+     nMpcSaPDV := _MpcSapp
+endif
+
+
 // postoji MPC, idi unazad
 if !lNaprijed .and. _MpcSapp<>0
   _Marza2 := 0
-  _Mpc:=MpcBezPor(_MpcSaPP, aPorezi, , _Nc)
+  _Mpc:=MpcBezPor(nMpcSaPDV, aPorezi, , _Nc)
 endif
 
 
@@ -346,10 +353,18 @@ return .t.
 
 function V_Mpc_( cIdVd, lNaprijed, aPorezi)
 *{
+local nPopust
+
+if cIdVd $ "41#42#47"
+     nPopust := _RabatV
+else
+     nPopust := 0
+endif
+
 
 MarzaMp(cIdVd, lNaprijed, aPorezi)
 if (_Mpcsapp == 0)
- _MPCSaPP:= ROUND( MpcSaPor(_mpc, aPorezi), 2 )
+ _MPCSaPP := ROUND( MpcSaPor(_mpc, aPorezi), 2 ) + nPopust
 endif
 return .t.
 *}
@@ -417,7 +432,11 @@ if lShowGets == nil
 	lShowGets := .t.
 endif
 
-nPom:=_mpcsapp
+if cIdvd $ "41#42"
+  nPom := _MpcSaPP - _RabatV
+else
+  nPom:=_mpcsapp
+endif
 
 if _Mpcsapp<>0 .and. !lNaprijed
   

@@ -1028,7 +1028,7 @@ return
 function SetPdvCijene()
 *{
 
-if SigmaSif("SETPDVC")
+if !SigmaSif("SETPDVC")
    MsgBeep("Ne cackaj!")
    return
 endif

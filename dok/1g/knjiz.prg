@@ -2091,6 +2091,7 @@ endif
 
 if (fFaktD .and. !fstara .and. gFakt!="0 ")
 	start print cret
+	OEdit()
 	select PRIPR
 	set order to 1
 	go top

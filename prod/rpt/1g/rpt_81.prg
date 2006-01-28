@@ -49,6 +49,10 @@ if !fZaTops
 
  m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 
+if IsPDV()
+ m+=" -----------"
+endif
+
  IF lPrikPRUC
    m += " ----------"
    ? m
@@ -56,10 +60,17 @@ if !fZaTops
    ? "*BR* TARIFA   *  KOLICINA* OST.KALO * SKONTO   *          *          *          *          *          *          *          *   MARZU  *          *         *"
    ? "*  *          *          *          *          *          *          *          *          *          *          *          *          *          *         *"
  ELSE
-   ? m
-   ? "*R * ROBA     *  FCJ     * TRKALO   * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     * MARZA.   *   MPC    * MPCSaPP *"
-   ? "*BR* TARIFA   *  KOLICINA* OST.KALO * SKONTO   *          *          *          *          *          *          *          *          *         *"
-   ? "*  *          *          *          *          *          *          *          *          *          *          *          *          *         *"
+   if !IsPDV()  
+     ? m
+     ? "*R * ROBA     *  FCJ     * TRKALO   * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     * MARZA.   *   MPC    * MPCSaPP *"
+     ? "*BR* TARIFA   *  KOLICINA* OST.KALO * SKONTO   *          *          *          *          *          *          *          *          *         *"
+     ? "*  *          *          *          *          *          *          *          *          *          *          *          *          *         *"
+   else
+      ? m
+     ? "*R * ROBA     *  FCJ     * TRKALO   * KASA-    * "+c10T1+" * "+c10T2+" * "+c10T3+" * "+c10T4+" * "+c10T5+" *   NC     * MARZA.   *    PC    *   PDV(%) *   PC     *"
+     ? "*BR* TARIFA   *  KOLICINA* OST.KALO * SKONTO   *          *          *          *          *          *          *          *  bez PDV *   PDV    *  sa PDV  *"
+     ? "*  *          *          *          *          *          *          *          *          *          *          *          *           *         *          *"
+   endif
  ENDIF
  ? m
 
@@ -68,15 +79,20 @@ else
  m:="--- ---------- ---------- ---------- ----------"
 
  ? m
+if !IsPDV()
  ? "*R * ROBA     * Kolicina *   MPC    * MPCSaPP *"
+else
+ ? "*R * ROBA     * Kolicina *    PC    *PC sa PDV*"
+endif
  ? "*BR* TARIFA   *          *          *         *"
  ? "*  *          *          *          *         *"
  ? m
 
 endif
 
-nTot:=nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTotA:=nTotb:=0
+nTot:=nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTotA:=nTotb:=nTotC:=0
 nTot9a:=0
+nUC:=0
 
 select pripr
 
@@ -102,6 +118,8 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     Tarifa(field->pkonto,field->idRoba,@aPorezi)
     aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
 
+    nPor1:=aIPor[1]
+    
     IF lPrikPRUC
       nPRUC:=aIPor[2]
       nMarza2:=nMarza2-nPRUC
@@ -134,7 +152,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     ENDIF
     nTotA+= (nUA:=MPC   * (Kolicina-Gkolicina-GKolicin2) )
     nTotB+= (nUB:=MPCSAPP* (Kolicina-Gkolicina-GKolicin2) )
+    nTotC+= (nUC:=nPor1 * (Kolicina-Gkolicina-GKolicin2) )
 
+    // prvi red
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),4 SAY  ""; ?? trim(ROBA->naz),"(",ROBA->jmj,")"
     @ prow()+1,4 SAY IdRoba
@@ -157,8 +177,12 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
      @ prow(),pcol()+1 SAY Kolicina             PICTURE PicCDEM
     endif
     @ prow(),pcol()+1 SAY MPC                   PICTURE PicCDEM
+    if IsPDV()
+       @ prow(),pcol()+1 SAY aPorezi[POR_PPP] PICTURE PicProc
+    endif
     @ prow(),pcol()+1 SAY MPCSaPP               PICTURE PicCDEM
 
+    // drugi red
     @ prow()+1,4 SAY IdTarifa
     if !fzatops
      @ prow(),nCol1    SAY Kolicina             PICTURE PicCDEM
@@ -173,9 +197,15 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
      @ prow(),pcol()+1 SAY nMarza2              PICTURE PicCDEM
      IF lPrikPRUC
        @ prow(),pcol()+1 SAY nPRUC                PICTURE PicCDEM
+     else
+       @ prow(),pcol()+1 SAY SPACE(LEN(PicCDEM))
      ENDIF
+     if IsPDV()
+       @ prow(),pcol()+1 SAY nPor1 PICTURE PicCDEM
+     endif
     endif
 
+    // treci red
     if !fzatops
      @ prow()+1,nCol1   SAY nU          picture         PICDEM
      @ prow(),pcol()+1  SAY nU1         picture         PICDEM
@@ -194,6 +224,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
      @ prow()+1,nCol1-1   SAY space(len(picdem))
     endif
     @ prow(),pcol()+1  SAY nUA         picture         PICDEM
+    if IsPDV()
+    	@ prow(),pcol()+1  SAY nUC  picture PICDEM
+    endif
     @ prow(),pcol()+1  SAY nUB         picture         PICDEM
   skip
 enddo
@@ -224,6 +257,9 @@ else
   @ prow()+1,nCol1-1   SAY space(len(picdem))
 endif
   @ prow(),pcol()+1  SAY nTotA         picture         PICDEM
+  if IsPDV()
+  	@ prow(),pcol()+1 SAY nTotC picture PICDEM
+  endif
   @ prow(),pcol()+1  SAY nTotB         picture         PICDEM
 
 ? m
@@ -278,9 +314,15 @@ select KONTO; HSEEK cIdKonto
 ?  "KONTO zaduzuje :",cIdKonto,"-",naz
 
  m:="---- ---------- ---------- ---------- ---------- ---------- ---------- ----------"+;
-    IF(lPrikPRUC," ----------","")+" ---------- -----------"
+    IF(lPrikPRUC," ----------","")+" ---------- -----------" 
+
+if IsPDV()
+ m+= " ----------"
+endif
 
  ? m
+ 
+if !IsPDV() 
  IF lPrikPRUC
    ? "*R * ROBA     *  FCJ     * RABAT    *  FCJ-RAB  * TROSKOVI *    NC    * MARZA.   * POREZ NA *   MPC    * MPCSaPP  *"
    ? "*BR* TARIFA   *  KOLICINA* DOBAVLJ  *           *          *          *          *   MARZU  *          *          *"
@@ -290,9 +332,24 @@ select KONTO; HSEEK cIdKonto
    ? "*BR* TARIFA   *  KOLICINA* DOBAVLJ  *           *          *          *          *          *          *"
    ? "*  *          *    ä     *   ä      *     ä     *          *          *    ä     *    ä     *    ä     *"
  ENDIF
+else
+ IF lPrikPRUC
+   ? "*R * ROBA     *  FCJ     * RABAT    *  FCJ-RAB  * TROSKOVI *    NC    * MARZA.   * POREZ NA *   MPC    * MPCSaPDV *"
+   ? "*BR* TARIFA   *  KOLICINA* DOBAVLJ  *           *          *          *          *   MARZU  *          *          *"
+   ? "*  *          *    ä     *   ä      *     ä     *          *          *    ä     *    ä     *    ä     *    ä     *"
+ ELSE
+   ? "*R * ROBA     *  FCJ     * RABAT    *  FCJ-RAB  * TROSKOVI *    NC    * MARZA.   *    PC    *  PDV(%)  *    PC    *"
+   ? "*BR* TARIFA   *  KOLICINA* DOBAVLJ  *           *          *          *          *  BEZ PDV *  PDV     *  SA PDV  *"
+   ? "*  *          *    ä     *   ä      *     ä     *          *          *    ä     *    ä     *    ä     *          *"
+ ENDIF
+
+endif
+
  ? m
  nTot:=nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTotA:=nTotb:=0
  nTot9a:=0
+ nTotC:=nUC:=0
+ nPor1:=0
 
 select pripr
 
@@ -300,12 +357,11 @@ aPorezi:={}
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
-    // !!!!!!!!!!!!!!!
     if idpartner+brfaktp+idkonto+idkonto2<>cidd
-     set device to screen
-     Beep(2)
-     Msg("Unutar kalkulacije se pojavilo vise dokumenata !",6)
-     set device to printer
+     	set device to screen
+     	Beep(2)
+     	Msg("Unutar kalkulacije se pojavilo vise dokumenata !",6)
+    	set device to printer
     endif
 
     KTroskovi()
@@ -318,7 +374,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     select PRIPR
 
     aIPor:=RacPorezeMP(aPorezi,field->mpc,field->mpcSaPP,field->nc)
-
+    
+    nPor1:=aIPor[1]
+    
     IF lPrikPRUC
       	nPRUC:=aIPor[2]
       	nMarza2:=nMarza2-nPRUC
@@ -354,7 +412,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     ENDIF
     nTotA+= (nUA:=MPC   * (Kolicina-Gkolicina-GKolicin2) )
     nTotB+= (nUB:=MPCSAPP* (Kolicina-Gkolicina-GKolicin2) )
+    nTotC+= (nUC:=nPor1 * (Kolicina-Gkolicina-GKolicin2) )
 
+    // prvi red
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),4 SAY  ""; ?? trim(ROBA->naz),"(",ROBA->jmj,")"
     if gRokTr=="D"; ?? space(4),"Rok Tr.:",RokTr; endif
@@ -373,8 +433,12 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       @ prow(),pcol()+1 SAY aPorezi[POR_PRUCMP] PICTURE PicProc
     ENDIF
     @ prow(),pcol()+1 SAY MPC                   PICTURE PicCDEM
+    if IsPDV()
+    	@ prow(),pcol()+1 SAY aPorezi[POR_PPP] PICTURE PicProc
+    endif
     @ prow(),pcol()+1 SAY MPCSaPP               PICTURE PicCDEM
-
+    
+    // drugi red
     @ prow()+1,4 SAY IdTarifa
     @ prow(),nCol1    SAY Kolicina             PICTURE PicCDEM
     @ prow(),pcol()+1 SAY -Rabat/100*FCJ       PICTURE PicCDEM
@@ -385,7 +449,11 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     IF lPrikPRUC
       @ prow(),pcol()+1 SAY nPRUC              PICTURE PicCDEM
     ENDIF
-
+    if IsPDV()
+      @ prow(),pcol()+1 SAY SPACE(LEN(picdem))
+      @ prow(),pcol()+1 SAY nPor1  PICTURE PicCDEM
+    endif
+    // treci red
     @ prow()+1,nCol1   SAY nU          picture         PICDEM
     @ prow(),pcol()+1  SAY nU2         picture         PICDEM
     @ prow(),pcol()+1  SAY nu+nU2         picture         PICDEM
@@ -393,9 +461,12 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow(),pcol()+1  SAY nU8         picture         PICDEM
     @ prow(),pcol()+1  SAY nU9         picture         PICDEM
     IF lPrikPRUC
-      @ prow(),pcol()+1  SAY nU9a         picture         PICDEM
+      	@ prow(),pcol()+1  SAY nU9a         picture         PICDEM
     ENDIF
     @ prow(),pcol()+1  SAY nUA         picture         PICDEM
+    if IsPDV()
+      	@ prow(),pcol()+1 SAY nUC  picture  PICDEM
+    endif
     @ prow(),pcol()+1  SAY nUB         picture         PICDEM
 
   skip
@@ -415,6 +486,11 @@ if prow()>61+gPStranica; FF; @ prow(),125 SAY "Str:"+str(++nStr,3); endif
     @ prow(),pcol()+1  SAY nTot9a        picture         PICDEM
   ENDIF
   @ prow(),pcol()+1  SAY nTotA         picture         PICDEM
+
+  if IsPDV()
+    @ prow(),pcol()+1  SAY nTotC  picture         PICDEM
+  endif
+
   @ prow(),pcol()+1  SAY nTotB         picture         PICDEM
 
 ? m

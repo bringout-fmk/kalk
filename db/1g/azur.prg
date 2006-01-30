@@ -206,8 +206,10 @@ endif
 if cPametno=="D"
 	if !IsPDV()
 		Niv_10()  // nivelacija 10,94,16
- 		Niv_11()  // nivelacija 11,81
- 	endif
+	endif
+	
+	Niv_11()  // nivelacija 11,81
+
 	Otprema() // iz otpreme napravi ulaza
  	Iz13u11()  // prenos iz prodavnice u prodavnicu
  	InvManj()

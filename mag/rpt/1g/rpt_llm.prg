@@ -41,6 +41,7 @@ private nNVI:=0
 if IsPlanika()
 	cPlVrsta:=SPACE(1)
 	private cK9:=SPACE(3)
+	private cK1:=SPACE(4)
 endif
 
 if IsDomZdr()
@@ -138,6 +139,7 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  			@ m_x+15,m_y+2 SAY "Prikaz dobavljaca (D/N) ?" GET cPrikazDob PICT "@!" VALID cPrikazDob$"DN"
  			@ m_x+16,m_y+2 SAY "Prikaz po pl.vrsta (uslov)" GET cPlVrsta PICT "@!"
  			@ m_x+17,m_y+2 SAY "Prikaz po K9" GET cK9 PICT "@!"
+ 			@ m_x+17,m_y+20 SAY "Prikaz po K1" GET cK1 PICT "@!"
  		endif
  		if IsVindija()
  			@ m_x+17,m_y+2 SAY "Uslov po opcinama:" GET cOpcine PICT "@!S40"
@@ -332,6 +334,12 @@ if (IsPlanika() .and. !EMPTY(cPlVrsta))
 endif
 // uslov po roba->k9
 if (IsPlanika() .and. !EMPTY(cK9) .and. roba->k9 <> cK9) 
+	select kalk
+	skip
+	loop
+endif
+
+if (IsPlanika() .and. !EMPTY(cK1) .and. roba->k1 <> cK1)
 	select kalk
 	skip
 	loop

@@ -103,20 +103,22 @@ if fNovi
  _MPCSaPP:=UzmiMPCSif()
 
 
- if koncij->naz=="N1" .or. (IsPDVMagNab() .or. IsMagSNab())
+if (IsPDVMagNab() .or. IsMagSNab())
    _FCJ:=NC
    _VPC:=NC
- else
+else
    _FCJ:=NC
    _VPC:=UzmiVPCSif(_mkonto)
- endif
 
- select koncij
- seek trim(_pkonto)
- select roba
- if gcijene=="2"
-   FaktMPC(@_MPCSAPP,_idfirma+_Pkonto+_idroba)
- endif
+   select koncij
+   seek trim(_pkonto)
+   select roba
+   if gcijene=="2"
+      FaktMPC(@_MPCSAPP,_idfirma+_Pkonto+_idroba)
+   endif
+
+endif
+
 
  select PRIPR
  _Marza2:=0

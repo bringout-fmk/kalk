@@ -4,39 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/db_gen1.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: db_gen1.prg,v $
- * Revision 1.6  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.5  2002/07/09 13:05:41  ernad
- *
- *
- * debug planika - sitnice
- *
- * Revision 1.4  2002/07/06 17:28:58  ernad
- *
- *
- * izvjestaj Trgomarket: pregled stanja po objektima
- *
- * Revision 1.3  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.2  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.1  2002/07/03 18:37:49  ernad
- *
- *
- * razbijanje dugih funkcija, kategorizacija: planika.prg -> db_cre.prg, db_gen1.prg, db_gen2.prg
- *
- *
  */
  
 *string tbl_roba_k2;
@@ -91,7 +58,7 @@
  *  \sa PreglKret, ObrazInv 
  */
  
-function GenRekap1(aUsl1, aUsl2, aUslR, cKartica, cVarijanta, cKesiraj, fSMark, cK7, cK9, cIdKPovrata, aUslSez)
+function GenRekap1(aUsl1, aUsl2, aUslR, cKartica, cVarijanta, cKesiraj, fSMark,  cK1, cK7, cK9, cIdKPovrata, aUslSez)
 *{
 local nSec
 
@@ -101,6 +68,10 @@ endif
 
 if (fSMark==nil)
 	fSMark:=.f.
+endif
+
+if (cK1==nil)
+	cK1:="9999"
 endif
 
 if (cK7==nil)
@@ -160,7 +131,14 @@ do while !EOF()
 		skip
 		loop
 	endif
-	
+
+
+	if (cK1<>"9999" .and. !Empty(cK1) .and. roba->k1<>cK1)
+		select kalk
+		skip
+		loop
+	endif
+
 	if (cK9<>"999" .and. !Empty(cK9) .and. roba->k9<>cK9)
 		select kalk
 		skip

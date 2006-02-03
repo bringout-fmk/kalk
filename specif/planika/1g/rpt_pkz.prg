@@ -4,59 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/rpt_pkz.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.13 $
- * $Log: rpt_pkz.prg,v $
- * Revision 1.13  2004/05/19 12:16:56  sasavranic
- * no message
- *
- * Revision 1.12  2003/12/22 10:44:52  sasavranic
- * Dodata jos 3 reda pri stampi pregleda kretanja zaliha varijanta papira A4L
- *
- * Revision 1.11  2003/12/06 13:41:38  sasavranic
- * Stampa pregleda kretanja zaliha na A4 - planika
- *
- * Revision 1.10  2003/12/04 14:47:43  sasavranic
- * Uveden filter po polju pl.vrsta na izvjestajima za planiku
- *
- * Revision 1.9  2003/11/14 08:46:12  sasavranic
- * Uslov po K9 na llp i pkz (planika)
- *
- * Revision 1.8  2003/06/23 09:32:02  sasa
- * prikaz dobavljaca
- *
- * Revision 1.7  2003/05/09 12:23:15  ernad
- * planika pregled kretanja zaliha - prog. promjena
- *
- * Revision 1.6  2002/08/19 10:04:24  ernad
- *
- *
- * podesenja CLIP
- *
- * Revision 1.5  2002/07/30 17:40:59  ernad
- * SqlLog funkcije - Fin modul
- *
- * Revision 1.4  2002/07/06 17:28:58  ernad
- *
- *
- * izvjestaj Trgomarket: pregled stanja po objektima
- *
- * Revision 1.3  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.2  2002/07/03 18:37:49  ernad
- *
- *
- * razbijanje dugih funkcija, kategorizacija: planika.prg -> db_cre.prg, db_gen1.prg, db_gen2.prg
- *
- * Revision 1.1  2002/06/26 08:11:21  ernad
- *
- *
- * razbijanje prg-ova
- *
  *
  */
  
@@ -84,6 +31,7 @@ private qqRoba:=SPACE(60)
 private qqSezona:=SPACE(60)
 private cIdKPovrata:=SPACE(7)
 private cK7:="N"
+private cK1:=SPACE(4)
 private cK9:=SPACE(3)
 private cPrikazDob:="N"
 private cKartica 
@@ -113,7 +61,7 @@ O_ROBA
 O_K1
 O_OBJEKTI
 
-if (GetVars(@cNObjekat, @dDatOd, @dDatDo, @cIdKPovrata, @cRekPoRobama, @cRekPoDobavljacima, @cRekPoGrupamaRobe, @cK7, @cK9, @cPlVrsta, @cPapir, @cPrikazDob, @aUsl1, @aUsl2, @aUslR, @aUslSez )==0)
+if (GetVars(@cNObjekat, @dDatOd, @dDatDo, @cIdKPovrata, @cRekPoRobama, @cRekPoDobavljacima, @cRekPoGrupamaRobe, @cK1, @cK7, @cK9, @cPlVrsta, @cPapir, @cPrikazDob, @aUsl1, @aUsl2, @aUslR, @aUslSez )==0)
 	return
 endif
 
@@ -136,7 +84,7 @@ O_OBJEKTI
 O_KALK
 O_REKAP1
 
-GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "1", cKesiraj, fSMark, cK7, cK9, cIdKPovrata, aUslSez)
+GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "1", cKesiraj, fSMark, cK1, cK7, cK9, cIdKPovrata, aUslSez)
 
 SetLinija(@cLinija, @nUkObj)
 
@@ -772,7 +720,7 @@ enddo
 return nil
 *}
 
-static function GetVars(cNObjekat, dDatOd, dDatDo, cIdKPovrata, cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, cK7, cK9, cPlVrsta, cPapir, cPrikazDob,  aUsl1, aUsl2, aUslR, aUslSez)
+static function GetVars(cNObjekat, dDatOd, dDatDo, cIdKPovrata, cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, cK1, cK7, cK9, cPlVrsta, cPapir, cPrikazDob,  aUsl1, aUsl2, aUslR, aUslSez)
 *{
 
 O_PARAMS
@@ -792,7 +740,7 @@ RPar("fP",@cPapir)
 cKartica:="N" 
 cNObjekat:=space(20)
 
-Box(,18,70)
+Box(,19,70)
  set cursor on
  SET KEY K_F2 to Izmj_cPrSort()
  SET KEY K_F1 to PaperFormatHelp()
@@ -809,9 +757,10 @@ Box(,18,70)
   @ m_x+11,m_Y+2 SAY "Rekapitulacija po grupama robe? (D/N)" GET cRekPoGrupamaRobe pict "@!" valid cRekPoGrupamaRobe $ "DN"
   @ m_x+12,m_Y+2 SAY "Prikaz za k7='*'              ? (D/N)" GET cK7 pict "@!" valid cK7 $ "DN"
   @ m_x+13,m_Y+2 SAY "Prikaz dobavljaca ? (D/N)" GET cPrikazDob pict "@!" valid cPrikazDob $ "DN"
-  @ m_x+16,m_Y+2 SAY "Uslov po K9 " GET cK9
-  @ m_x+17,m_Y+2 SAY "Uslov po pl.vrsta " GET cPlVrsta PICT "@!"
-  @ m_x+18,m_Y+2 SAY "Format papira " GET cPapir VALID !Empty(cPapir)
+  @ m_x+16,m_Y+2 SAY "Uslov po K1 " GET cK1
+  @ m_x+17,m_Y+2 SAY "Uslov po K9 " GET cK9
+  @ m_x+18,m_Y+2 SAY "Uslov po pl.vrsta " GET cPlVrsta PICT "@!"
+  @ m_x+19,m_Y+2 SAY "Format papira " GET cPapir VALID !Empty(cPapir)
   ?? " <F1> Formati papira - legenda"
   READ
   if (LASTKEY()==K_ESC)

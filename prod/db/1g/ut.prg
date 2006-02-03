@@ -15,6 +15,14 @@ function MarzaMP(cIdVd, lNaprijed, aPorezi)
 
 local nPrevMP
 
+// za svaki slucaj setujemo ovo ako slucajno u dokumentu nije ispranvo
+if IsPDVMagNab() .or. IsMagSNab() .and. cIdVD $ "11#12#13"
+	// inace je _fcj kod ovih dokumenata  = nabavnoj cijeni
+	// _nc u ovim dokumentima moze biti uvecana za troskove prevoza
+	_VPC := _FCJ
+endif
+
+
 // ako je prevoz u MP rasporedjen uzmi ga u obzir
 if  (cIdVd $ "11#12#13") .and. (_TPrevoz=="A")
 	nPrevMP:=_Prevoz
@@ -25,6 +33,8 @@ endif
 if (_FCj==0)
 	_FCj:=_mpc
 endif
+
+
 
 if  (_Marza2==0) .and. !lNaprijed
 
@@ -77,9 +87,23 @@ local nPrevMP, nPPP
 
 if IsPdv()
 
+// za svaki slucaj setujemo ovo ako slucajno u dokumentu nije ispranvo
+if IsPDVMagNab() .or. IsMagSNab() .and. _IdVD $ "11#12#13"
+	// inace je _fcj kod ovih dokumenata  = nabavnoj cijeni
+	// _nc u ovim dokumentima moze biti uvecana za troskove prevoza
+	_VPC := _FCJ
+endif
+
+
 if fMarza==nil
 	fMarza:=" "
 endif
+
+// za svaki slucaj setujemo ovo ako slucajno u dokumentu nije ispranvo
+if IsPDVMagNab() .or. IsMagSNab()
+	_VPC := _FCJ
+endif
+
 
 // ako je prevoz u MP rasporedjen uzmi ga u obzir
 if _TPrevoz=="A"

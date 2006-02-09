@@ -4,7 +4,8 @@
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
  */
- 
+
+
 //FIN
 #xcommand FO_PRIPR   => select (F_FIPRIPR);   usex (SezRad(gDirFin)+"PRIPR") ; set order to 1
 #xcommand FO_SUBAN   => select (F_SUBAN);  use  (SezRad(gDirFik)+"SUBAN")   ; set order to 1

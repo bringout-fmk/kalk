@@ -48,10 +48,11 @@ else
 endif
 
 @ m_x+10,m_y+66 SAY "Tarif.brĿ"
+
 if lKoristitiBK
  	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!S10" when {|| _IdRoba:=PADR(_idroba,VAL(gDuzSifIni)),.t.} valid  {|| P_Roba(@_IdRoba),Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
 else
- 	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!" valid  {|| P_Roba(@_IdRoba),Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
+ 	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!" valid  {|| P_Roba(@_IdRoba), Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40), _IdTarifa:=iif(fnovi,ROBA->idtarifa, _IdTarifa),.t.}
 endif
 
 @ m_x+11,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
@@ -96,13 +97,12 @@ if fNovi
 	select roba
   	_VPC:=KoncijVPC()
   	_NC:=NC
-  	if roba->tip="X"
-   		_MPCSAPP:=roba->mpc   // pohraniti za naftu MPC !!!!
-  	endif
+
   	select pripr
 endif
 
 if gCijene="2" .and. fNovi
+
 	/////// utvrdjivanje fakticke VPC
    	if gPDVMagNab == "N"
 		faktVPC(@_VPC,_idfirma+_idkonto2+_idroba)
@@ -111,10 +111,6 @@ if gCijene="2" .and. fNovi
 endif
 
 VtPorezi()
-
-if roba->tip="X" .and. _MPCSAPP=0
-	_MPCSAPP:=roba->mpc   // pohraniti za naftu MPC !!!!
-endif
 
 _GKolicina:=0
 
@@ -188,7 +184,7 @@ private cTRabat:="%"
 
 _PNAP:=0
 
-if gPDVMagNab == "D"
+if IsPdv()
 	_MPC := tarifa->opp
 endif
 

@@ -494,7 +494,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,;
   skip
 enddo
 
-if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagSNab()), round(nNVU-nNVI,gZaokr)<>0, round(nVPVU-nVPVI,gZaokr)<>0))) .or. (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
+if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagSNab()), round(nNVU-nNVI,4)<>0, round(nVPVU-nVPVI,4)<>0))) .or. (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
 	if cMink=="O" .and. nMink==0 .and. round(nUlaz-nIzlaz,4)==0
   		loop
 	endif

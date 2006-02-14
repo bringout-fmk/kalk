@@ -421,7 +421,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,;
   	skip
 	loop
   endif
-
+  
   if mu_i=="1"
     if !(idvd $ "12#22#94")
      nKolicina:=field->kolicina-field->gkolicina-field->gkolicin2
@@ -579,7 +579,7 @@ if IsMagPNab()
  @ prow(),pcol()+1 SAY nNVU pict gpicdem
  @ prow(),pcol()+1 SAY nNVI pict gpicdem
  @ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
- if (nUlaz-nIzlaz)<>0
+ if round(nUlaz-nIzlaz,4)<>0
    @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
  endif
 else

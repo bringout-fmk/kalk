@@ -113,9 +113,14 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		@ m_x+5,m_y+2 SAY "Vrste dokumenata  " GET qqIDVD pict "@!S30"
  		@ m_x+6,m_y+2 SAY "Partneri          " GET qqIdPartner pict "@!S30"
  		@ m_x+7,m_y+2 SAY "Prikaz Nab.vrijednosti D/N" GET cPNab  valid cpnab $ "DN" pict "@!"
- 		@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je VPV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
- 		@ m_x+9,m_y+2 SAY "Prikaz 'ERR' ako je VPV/Kolicina<>VPC " GET cErr pict "@!" valid cErr $ "DN"
- 		@ m_x+10,m_y+2 SAY "Datum od " GET dDatOd
+ 		if (IsPDV() .and. (IsMagPNab() .or. IsMagSNab()))
+			@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je NV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
+ 			@ m_x+9,m_y+2 SAY "Prikaz 'ERR' ako je NV/Kolicina<>NC " GET cErr pict "@!" valid cErr $ "DN"
+		else
+			@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je VPV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
+ 			@ m_x+9,m_y+2 SAY "Prikaz 'ERR' ako je VPV/Kolicina<>VPC " GET cErr pict "@!" valid cErr $ "DN"
+ 		endif
+		@ m_x+10,m_y+2 SAY "Datum od " GET dDatOd
  		@ m_x+10,col()+2 SAY "do" GET dDatDo
  		@ m_x+12,m_y+2 SAY "Postaviti srednju NC u sifrarnik" GET cNCSif pict "@!" valid ((cpnab=="D" .and. cncsif=="D") .or. cNCSif=="N")
  		@ m_x+14,m_y+2 SAY "Prikaz samo kriticnih zaliha (D/N/O) ?" GET cMinK pict "@!" valid cMink$"DNO"
@@ -489,16 +494,13 @@ do while !eof() .and. iif(fSint.and.lSabKon,;
   skip
 enddo
 
-if (cMink<>"D" .and. (cNula=="D" .or. round(nVPVU-nVPVI,4)<>0)) .or. ; //ne prikazuj stavke 0
-   (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
-
-if cMink=="O" .and. nMink==0 .and. round(nUlaz-nIzlaz,4)==0
-  loop
-endif
-
-if cMink=="O" .and.  nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0
-   B_ON
-endif
+if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagSNab()), round(nNVU-nNVI,gZaokr)<>0, round(nVPVU-nVPVI,gZaokr)<>0))) .or. (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
+	if cMink=="O" .and. nMink==0 .and. round(nUlaz-nIzlaz,4)==0
+  		loop
+	endif
+	if cMink=="O" .and.  nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0
+   		B_ON
+	endif
 
 aNaz:=Sjecistr(roba->naz,20)
 NovaStrana(bZagl)
@@ -590,17 +592,30 @@ else
 if round(nUlaz-nIzlaz,4)<>0
  @ prow(),pcol()+1 SAY (nVPVU-nVPVI)/(nUlaz-nIzlaz) pict gpiccdem
  if !(koncij->naz="P")
-  if cErr=="D" .and. round((nVPVU-nVPVI)/(nUlaz-nIzlaz),4)<>round(KoncijVPC(),4)
-    ?? " ERR"
+  if IsPDV() .and. ( IsMagPNab() .or. IsMagSNab() )
+  	if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
+    		?? " ERR"
+  	endif
+  else
+   	if cErr=="D" .and. round((nVPVU-nVPVI)/(nUlaz-nIzlaz),4)<>round(KoncijVPC(),4)
+    		?? " ERR"
+  	endif
   endif
  endif
 else
  @ prow(),pcol()+1 SAY 0 pict gpicdem
 
- if (cErr=="D" .or. fPocstanje) .and. round((nVPVU-nVPVI),4)<>0
+ if IsPDV() .and. (IsMagPNab() .or. IsMagSNab())
+  if (cErr=="D" .or. fPocstanje) .and. round((nNVU-nNVI),4)<>0
    fImaGresaka:=.t.
    ?? " ERR"
- endif
+  endif
+ else
+  if (cErr=="D" .or. fPocstanje) .and. round((nVPVU-nVPVI),4)<>0
+   fImaGresaka:=.t.
+   ?? " ERR"
+  endif
+ endif 
 endif
 endif // koncij
 

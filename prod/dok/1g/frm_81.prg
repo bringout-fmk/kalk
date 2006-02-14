@@ -87,8 +87,10 @@ DatPosljP()
 
 
 if fNovi
- select koncij; seek trim(_idkonto)
- select ROBA; HSEEK _IdRoba
+ select koncij 
+ seek trim(_idkonto)
+ select ROBA
+ HSEEK _IdRoba
  _MPCSapp:=UzmiMPCSif()
  _TMarza2:="%"
  if Carina<>0
@@ -194,12 +196,14 @@ if empty(_TMarza);  _TMarza:="%" ; endif
 @ m_x+8,m_y+50    GET _NC     PICTURE PicDEM
 
 @ m_x+10,m_y+2 SAY "Marza:" GET _TMarza2  VALID _Tmarza2 $ "%AU" PICTURE "@!"
-@ m_x+10,col()+2  GET _Marza2 PICTURE  PicDEM ;
-    valid {|| _vpc:=_nc, .t.}
+@ m_x+10,col()+2  GET _Marza2 ;
+	PICTURE  PicDEM ;
+	valid {|| _vpc:=_nc, .t.}
+	
 @ m_x+10,col()+1 GET fMarza pict "@!"
 
 if IsPDV()
-	@ m_x+12,m_y+2  SAY "PROD.CJENA BEZ PDV   :"
+	@ m_x+12,m_y+2  SAY "          PC BEZ PDV :"
 else
 	@ m_x+12,m_y+2  SAY "MALOPROD. CJENA (MPC):"
 endif
@@ -225,7 +229,7 @@ else
 endif
 
 if IsPDV()
-	@ m_x+16,m_y+2 SAY "P.CIJENA SA PDV:"
+	@ m_x+16,m_y+2 SAY "    PC SA PDV  :"
 else
 	@ m_x+16,m_y+2 SAY "MPC SA POREZOM :"
 endif

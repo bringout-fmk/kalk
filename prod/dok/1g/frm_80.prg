@@ -111,35 +111,46 @@ endif
 select PRIPR
 
 @ m_x+14, m_y+2     SAY "NABAVNA CJENA:"
-@ m_x+14, m_y+50    GET _NC     PICTURE PicDEM when VKol()
 
-@ m_x+16, m_y+2 SAY "Marza:" GET _TMarza2  VALID _Tmarza2 $ "%AU" PICTURE "@!"
-@ m_x+16, col()+2  GET _Marza2 PICTURE  PicDEM ;
-    valid {|| _vpc:=_nc, .t.}
+@ m_x+14, m_y+50    GET _NC ;
+       when VKol() ;
+       PICTURE PicDEM 
+
+@ m_x+16, m_y+2 SAY "Marza:" GET _TMarza2  ;
+         VALID _Tmarza2 $ "%AU" ;
+	 PICTURE "@!"
+	 
+@ m_x+16, col()+2  GET _Marza2  ;
+       PICTURE  PicDEM ;
+       valid {|| _vpc:=_nc, .t.}
+       
 @ m_x+16, col()+1 GET fMarza pict "@!"
 
 @ m_x+17, m_y+2  SAY "MALOPROD. CJENA (MPC):"
-@ m_x+17, m_y+50 GET _MPC picture PicDEM;
-           WHEN WMpc_lv(nil, nil, aPorezi) VALID VMpc_lv(nil, nil, aPorezi)
+@ m_x+17, m_y+50 GET _MPC ;
+        picture PicDEM;
+	WHEN W_MPC_("80", (fMarza == "F"), @aPorezi) ;
+     	VALID V_Mpc_ ("80", (fMarza=="F"), @aPorezi)
 
 SayPorezi_lv(19, aPorezi)
 
 if IsPDV()
-	@ m_x+20, m_y+2 SAY "MPC SA PDV    :"
+	@ m_x+20, m_y+2 SAY "PC SA PDV     :"
 else
 	@ m_x+20, m_y+2 SAY "MPC SA POREZOM:"
 endif
 
 @ m_x+20, m_y+50 GET _MPCSaPP  picture PicDEM ;
-           valid VMpcSaPP_lv(nil, nil, aPorezi)
+    	   VALID V_MpcSaPP_( "80", .f., @aPorezi, .t.)
 
 read
 ESC_RETURN K_ESC
 
+
 select koncij
 seek trim(_idkonto)
 
-StaviMPCSif(_mpcsapp, .t.)
+StaviMPCSif(_MpcSapp, .t.)
 
 select pripr
 

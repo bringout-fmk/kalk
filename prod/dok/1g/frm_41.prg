@@ -17,14 +17,8 @@
  */
 
 //realizacija prodavnice  41-fakture maloprodaje
-//                        42-kesh
-//                        43-izlaz iz prodavnice-komisiona
-//                        49-izlaz po ostalim osnovama
+//                        42-gotovina
 
-// 47 izbaciti ???
-//                        47-pregled prodaje - ne interesuje me stanja
-//                           na lageru, nabavna cijena
-//                           izuzev u varijanti "Jerry"
 
 function Get1_41()
 *{
@@ -115,16 +109,18 @@ if fNovi
 endif
 
 if IsPdv()
-   if (gCijene=="2" .and. _MpcSAPP==0)
+   if (gCijene=="2" .and. (_MpcSAPP==0 .or. fNovi) )
       FaktMPC(@_MPCSAPP, _idfirma+ _idkonto+ _idroba)
    endif
 else
+
    // ppp varijanta
    // ovo dole do daljnjeg ostavljamo
-if ((_idvd<>'47'.or.(IsJerry().and._idvd="4")) .and. !fnovi .and. gcijene=="2" .and. roba->tip!="T" .and. _mpcsapp=0)
-   // uzmi mpc sa kartice
-   FaktMPC(@_MPCSAPP,_idfirma+_idkonto+_idroba)
-endif
+   if ((_idvd<>'47'.or.(IsJerry().and._idvd="4")) .and. !fnovi .and. gcijene=="2" .and. roba->tip!="T" .and. _MpcSapp=0)
+      // uzmi mpc sa kartice
+      FaktMPC(@_MPCSAPP,_idfirma+_idkonto+_idroba)
+   endif
+
 endif
 
 if roba->(fieldpos("PLC"))<>0  // stavi plansku cijenu

@@ -22,6 +22,11 @@ if IsPDVMagNab() .or. IsMagSNab() .and. cIdVD $ "11#12#13"
 	_VPC := _FCJ
 endif
 
+if IsPDVMagNab() .or. IsMagSNab() .and. cIdVD $ "80"
+	_vpc := _nc
+	_fcj := _nc
+endif
+
 
 // ako je prevoz u MP rasporedjen uzmi ga u obzir
 if  (cIdVd $ "11#12#13") .and. (_TPrevoz=="A")
@@ -29,11 +34,6 @@ if  (cIdVd $ "11#12#13") .and. (_TPrevoz=="A")
 else
 	nPrevMP:=0
 endif
-
-if (_FCj==0)
-	_FCj:=_mpc
-endif
-
 
 
 if  (_Marza2==0) .and. !lNaprijed
@@ -383,84 +383,66 @@ return nCV
 
 
 
+// ------------------------------------
+// StaviMPCSif(nCijena, lUpit)
+// ------------------------------------
+function StaviMPCSif(nCijena, lUpit)
+local lAzuriraj
+local lRet := .f.
+local lIsteCijene
 
-/*! \fn StaviMPCSif(nCijena,lUpit)
- *  \brief
- */
+IF lUpit==nil
+ 	lUpit:=.f.
+ENDIF
+ 
+private cMpc := ""
+do case 
+  case koncij->naz=="M2"
+      cMpc := "mpc2"
+  case koncij->naz=="M3"
+      cMpc := "mpc3"
+  case koncij->naz=="M4"
+      cMpc := "mpc4"
+  case koncij->naz=="M5"
+      cMpc := "mpc5"
+  case koncij->naz=="M6"
+      cMpc := "mpc6"
+  otherwise
+      cMpc := "mpc"
+endcase
 
-function StaviMPCSif(nCijena,lUpit)
-*{
- IF lUpit==NIL; lUpit:=.f.; ENDIF
- if koncij->naz=="M2" .and. roba->(fieldpos("mpc2"))<>0
-   IF lUpit
-     if roba->mpc2==0
-      if Pitanje(,"Staviti MPC2 u sifrarnik ?","D")=="D"
-        select roba
-        replace mpc2 with nCijena
-      endif
-     endif
-   ELSE
-     replace mpc2 with nCijena
-   ENDIF
- elseif koncij->naz=="M3" .and. roba->(fieldpos("mpc3"))<>0
-   IF lUpit
-     if roba->mpc3==0
-      if Pitanje(,"Staviti MPC3 u sifrarnik ?","D")=="D"
-        select roba
-        replace mpc3 with nCijena
-      endif
-     endif
-   ELSE
-     replace mpc3 with nCijena
-   ENDIF
- elseif koncij->naz=="M4" .and. roba->(fieldpos("mpc4"))<>0
-   IF lUpit
-     if roba->mpc4==0
-      if Pitanje(,"Staviti MPC4 u sifrarnik ?","D")=="D"
-        select roba
-        replace mpc4 with nCijena
-      endif
-     endif
-   ELSE
-     replace mpc4 with nCijena
-   ENDIF
- elseif koncij->naz=="M5" .and. roba->(fieldpos("mpc5"))<>0
-   IF lUpit
-     if roba->mpc5==0
-      if Pitanje(,"Staviti MPC5 u sifrarnik ?","D")=="D"
-        select roba
-        replace mpc5 with nCijena
-      endif
-     endif
-   ELSE
-     replace mpc5 with nCijena
-   ENDIF
- elseif koncij->naz=="M6" .and. roba->(fieldpos("mpc6"))<>0
-   IF lUpit
-     if roba->mpc6==0
-      if Pitanje(,"Staviti MPC6 u sifrarnik ?","D")=="D"
-        select roba
-        replace mpc6 with nCijena
-      endif
-     endif
-   ELSE
-     replace mpc6 with nCijena
-   ENDIF
- elseif roba->(fieldpos("mpc"))<>0
-   IF lUpit
-     if roba->mpc==0
-      if Pitanje(,"Staviti MPC u sifrarnik ?","D")=="D"
-        select roba
-        replace mpc with nCijena
-      endif
-     endif
-   ELSE
-     replace mpc with nCijena
-   ENDIF
- endif
-return nil
-*}
 
+if roba->(fieldpos(cMpc)) == 0
+	return .f.
+endif
+
+
+lIsteCijene := (ROUND(roba->(&cMpc), 4) == ROUND(nCijena, 4))
+	
+if lIsteCijene
+	// iste cijene nemam sta mijenjati
+	return .f.
+endif
+
+if lUpit
+	if Pitanje(,"Staviti " + cMpc + " u sifrarnik ?", "D") == "D"
+		lAzuriraj := .t.
+	else
+		lAzuriraj := .f.
+	endif
+else
+	lAzuriraj := .t.
+endif
+
+if lAzuriraj
+	PushWa()
+	SELECT ROBA
+	replace &cMpc with nCijena
+	PopWa()
+	lRet := .t.
+endif
+
+return lRet
 
 
 

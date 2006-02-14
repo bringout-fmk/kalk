@@ -204,8 +204,15 @@ else
 endif
 
 if cPametno=="D"
-	if !IsPDV()
-		Niv_10()  // nivelacija 10,94,16
+
+	if !(IsMagPNab() .or. IsMagSNab())
+		// ako nije slucaj da je
+		// 1. pdv rezim magacin po nabavnim cijenama
+		// ili
+		// 2. magacin samo po nabavnim cijenama
+		
+		// nivelacija 10,94,16
+		Niv_10()  
 	endif
 	
 	Niv_11()  // nivelacija 11,81
@@ -227,7 +234,10 @@ aOstaju:={}
 
 do while !eof()
 
-cIdFirma:=idfirma; cidvd:=idvd; cbrdok:=brdok
+cIdFirma:=idfirma
+cIdVd:=idvd
+cBrDok:=brdok
+
 do while !eof() .and. cidfirma==idfirma .and. cidvd==idvd .and. cbrdok==brdok
  if idvd=="11".and.vpc==0
   Beep(1)

@@ -12,17 +12,18 @@
  *  \brief Razne funkcije
  */
 function MarzaMP(cIdVd, lNaprijed, aPorezi)
-
 local nPrevMP
 
+altd()
+
 // za svaki slucaj setujemo ovo ako slucajno u dokumentu nije ispranvo
-if IsPDVMagNab() .or. IsMagSNab() .and. cIdVD $ "11#12#13"
+if (IsPDVMagNab() .or. IsMagSNab()) .and. cIdVD $ "11#12#13"
 	// inace je _fcj kod ovih dokumenata  = nabavnoj cijeni
 	// _nc u ovim dokumentima moze biti uvecana za troskove prevoza
 	_VPC := _FCJ
 endif
 
-if IsPDVMagNab() .or. IsMagSNab() .and. cIdVD $ "80"
+if (IsPDVMagNab() .or. IsMagSNab()) .and. cIdVD $ "80"
 	_vpc := _nc
 	_fcj := _nc
 endif

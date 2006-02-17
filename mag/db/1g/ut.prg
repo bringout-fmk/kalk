@@ -941,7 +941,8 @@ return
 
 function IsMagPNab()
 *{
-if (IsPDV() .and. gPDVMagNab == "D") .or. koncij->naz=="N1"
+
+if (IsPDV() .and. gPDVMagNab == "D") 
 	return .t.
 else
 	return .f.
@@ -949,16 +950,28 @@ endif
 return
 *}
 
-
+// -------------------------------------
 // magacin samo po nabavnim cijenama
+// -------------------------------------
 function IsMagSNab()
-*{
-if (gMagacin == "1") .or. koncij->naz == "N1"
+local lN1 := .f.
+
+PushWa()
+
+// da li je uopste otvoren koncij
+SELECT F_KONCIJ
+if used()
+	if koncij->naz == "N1"
+		lN1 := .t.
+	endif
+endif
+PopWa()
+
+if (gMagacin == "1") .or. lN1
 	return .t.
 else
 	return .f.
 endif
-*}
 
 // znaci magacin robe - PDV je po nab cjenama
 function IsPDVMagNab()

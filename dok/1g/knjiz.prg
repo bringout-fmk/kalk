@@ -975,7 +975,11 @@ elseif _idvd == "81"
 elseif _idvd == "80"
    	return GET1_80()
 elseif _idvd=="24"
-   	return GET1_24()
+ 	if IsPDV()
+		return GET1_24PDV()
+	else
+   		return GET1_24()
+	endif
 elseif _idvd $ "95#96#97"
    	return GET1_95()
 elseif _idvd $  "94#16"    // storno fakture, storno otpreme, doprema

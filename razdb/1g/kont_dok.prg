@@ -1154,9 +1154,14 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
      		m:="---- -------------- -------------- -------------- -------------- -------------- ---------- ---------- ---------- ---------- ----------"
      		P_COND2
      		? m
-     		? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     * POREZ    *  POREZ   *   FV     * PRIHOD  *"
-     		? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ POR  *   %      *          * SA POR   *         *"
-     		? m
+     		if IsPDV()
+			? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     *   PDV    *   PDV    *   FV     * PRIHOD  *"
+     			? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ PDV  *   %      *          * SA PDV   *         *"
+     		else
+			? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     * POREZ    *  POREZ   *   FV     * PRIHOD  *"
+     			? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ POR  *   %      *          * SA POR   *         *"
+		endif
+		? m
    	endif
 
    	IF lVoSaTa
@@ -1222,7 +1227,13 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
          		@ prow(),pcol()+5 SAY n4:=cardaz    pict picdem
          		@ prow(),pcol()+5 SAY n5:=zavtr     pict picdem
          		@ prow(),pcol()+1 SAY n6:=fcj       pict picdem
-         		@ prow(),pcol()+1 SAY tarifa->vpp   pict picproc
+			
+			if IsPDV()
+				@ prow(),pcol()+1 SAY tarifa->opp   pict picproc
+			else
+				@ prow(),pcol()+1 SAY tarifa->vpp   pict picproc
+			endif
+			
          		@ prow(),pcol()+1 SAY n7:=nc-fcj    pict picdem
          		@ prow(),pcol()+1 SAY n8:=nc        pict picdem
          		@ prow(),pcol()+1 SAY n9:=marza     pict picdem
@@ -1329,8 +1340,12 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
                select tarifa
 	       hseek roba->idtarifa
 	       select finmat
-               replace UPOREZV with  round(pripr->(nMarza*kolicina*TARIFA->VPP/100/(1+TARIFA->VPP/100)),gZaokr)
-               select tarifa
+               if IsPDV()
+	       	replace UPOREZV with  round(pripr->(nMarza*kolicina*TARIFA->OPP/100/(1+TARIFA->OPP/100)),gZaokr)
+	       else
+	       	replace UPOREZV with  round(pripr->(nMarza*kolicina*TARIFA->VPP/100/(1+TARIFA->VPP/100)),gZaokr)
+               endif
+	       select tarifa
 	       hseek roba->idtarifa
 	       select finmat
           endif

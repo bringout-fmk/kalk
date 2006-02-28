@@ -18,6 +18,7 @@ static cKonverzija := "4"
 // tekuca linija reporta
 static nCurrLine:=0
 
+
 function rpt_export()
 
 local lAkciznaRoba := .f.
@@ -89,6 +90,7 @@ fill_exp(cIdFirma, cIdVd, cBrDok, (cVpcCij == "D") , (cMpcCij == "D") )
 
 close all
 *}
+
 
 static function set_launcher(cLauncher)
 local cPom

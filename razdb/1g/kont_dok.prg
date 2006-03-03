@@ -137,6 +137,8 @@ if lAMat .or. lAMat2
 	
 endif
 
+altd()
+
 select FINMAT
 go top
 
@@ -979,8 +981,6 @@ local lViseKalk := .f.
 private aPorezi
 aPorezi:={}
 
-altd()
-
 dummy()
 
 if pcount()==0
@@ -1105,8 +1105,6 @@ if fStara
   	ENDIF
 endif
 
-altd()
-
 if cIdVd=="24"
 	START PRINT CRET
 endif
@@ -1212,7 +1210,12 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 		HSEEK PRIPR->idtarifa
         	select PRIPR
 
-		Tarifa(pkonto, idroba, @aPorezi)
+		if cIdVd == "24"
+			Tarifa(pkonto, idroba, @aPorezi, pripr->idtarifa)
+		else
+			Tarifa(pkonto, idroba, @aPorezi)
+		endif
+		
         	KTroskovi()
 
         	if cidvd=="24"

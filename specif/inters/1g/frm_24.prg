@@ -95,9 +95,10 @@ read
 ESC_RETURN K_ESC
 
 _kolicina:=1
-_idtarifa:=padr(IzFMKINI("KALK","T24","PDV17"), len(_idtarifa))
-select tarifa
-hseek _idtarifa
+
+if EMPTY(_idtarifa)
+	_idtarifa := "PDV17 "
+endif
 
 select pripr
 _tprevoz:=_tbanktr:=_tspedtr:=_tcardaz:=_tzavtr:="U"
@@ -113,7 +114,9 @@ private nTroskovi:=0
 @ m_x+12,m_y+40  SAY c24T6 GET  _mpc     pict picdem
 @ m_x+13,m_y+2   SAY c24T7 GET  _mpcsapp pict picdem valid {|| nTroskovi:=_prevoz+_banktr+_spedtr+_cardaz+_zavtr+_mpc+_mpcsapp, devpos(m_X+15,m_Y+40), qqout("Ukupno troskovi:",nTroskovi), .t. }
 
-@ m_x+16,m_y+2  SAY "Tarifni stav:"  GET _IdTarifa valid {|| P_Tarifa(@_IdTarifa),devpos(m_x+16,m_y+40), qqout("PDV (%): ",tarifa->opp),.t.}
+//@ m_x+16,m_y+2  SAY "Tarifni stav:"  GET _IdTarifa valid {|| P_Tarifa(@_IdTarifa),devpos(m_x+16,m_y+40), qqout("PDV (%): ",tarifa->opp),.t.}
+
+@ m_x+16,m_y+2  SAY "Tarifni stav:" GET _IdTarifa valid {|| P_Tarifa(@_IdTarifa), ShowTar(_idtarifa), .t.}
 
 @ m_x+17,m_y+2  SAY "Fakturna vrijednost bez PDV:" GET _fcj pict picdem valid {|| _nc:=iif(_fcj==0,_nc, nTroskovi +(_fcj - nTroskovi) * (1 + tarifa->opp/100)),.t. }
 
@@ -131,4 +134,15 @@ nStrana:=3
 return lastkey()
 *}
 
+
+static function ShowTar(idtarifa)
+*{
+select tarifa
+hseek idtarifa
+select pripr
+
+devpos(m_x+16, m_y+40)
+qqout("PDV (%): ", tarifa->opp)
+return
+*}
 

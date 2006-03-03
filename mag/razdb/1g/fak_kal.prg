@@ -80,8 +80,8 @@ if glBrojacPoKontima
 		read
 	BoxC()
 	cSufiks:=SufBrKalk(cIdKonto2)
-	//cBrKalk:=SljBrKalk("14",cIdFirma,cSufiks)
-	cBrKalk:=GetNextKalkDoc(cIdFirma, "14")
+	cBrKalk:=SljBrKalk("14", cIdFirma, cSufiks)
+	//cBrKalk:=GetNextKalkDoc(cIdFirma, "14")
 else
 	//******* izbaceno koristenje stare funkcije !!!
 	//cBrKalk:=SljBrKalk("14",cIdFirma)
@@ -295,8 +295,8 @@ if glBrojacPoKontima
 		read
 	BoxC()
 	cSufiks:=SufBrKalk(cIdKonto)
-	//cBrKalk:=SljBrKalk(cTipKalk,cIdFirma,cSufiks)
-	cBrKalk:=GetNextKalkDoc(cIdFirma, cTipKalk)
+	cBrKalk:=SljBrKalk(cTipKalk, cIdFirma, cSufiks)
+	//cBrKalk:=GetNextKalkDoc(cIdFirma, cTipKalk)
 else
 	//cBrKalk:=SljBrKalk(cTipKalk,cIdFirma)
 	cBrKalk:=GetNextKalkDoc(cIdFirma, cTipKalk)
@@ -433,8 +433,9 @@ closeret
 return
 *}
 
-//******** funkcija se vise ne koristi uvedena GetNextKalkDoc()
-function SljBrKalk(cTipKalk,cIdFirma,cSufiks)
+// ------------------------------------------------
+// ------------------------------------------------
+function SljBrKalk(cTipKalk, cIdFirma, cSufiks)
 *{
 local cBrKalk:=space(8)
 if cSufiks==nil
@@ -451,7 +452,7 @@ if gBrojac=="D"
 		seek cIdFirma+cTipKalk+"X"
 	endif
 	skip -1
-	if cTipKalk<>field->idVD .or. glBrojacPoKontima.and.right(field->brDok,3)<>cSufiks
+	if cTipKalk<>field->idVD .or. glBrojacPoKontima .and. right(field->brDok,3)<>cSufiks
 		cBrKalk:=SPACE(5)+cSufiks
 	else
 		cBrKalk:=field->brDok
@@ -477,7 +478,8 @@ select (nArr)
 return cSufiks
 *}
 
-
+// --------------------------------------------------
+// --------------------------------------------------
 function GetNextKalkDoc(cIdFirma, cIdTipDok, nUvecaj)
 *{
 if nUvecaj == nil
@@ -487,6 +489,7 @@ lIdiDalje:=.f.
 //select kalk
 select doks
 set order to 1
+
 seek cIdFirma + cIdTipDok + "X"
 // vrati se na zadnji zapis
 skip -1
@@ -514,7 +517,8 @@ cResult:=UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, 5, RIGHT(cResult,3))
 return cResult
 *}
 
-
+// --------------------------
+// --------------------------
 function IsNumeric(cString)
 *{
 if AT(cString, "0123456789")<>0

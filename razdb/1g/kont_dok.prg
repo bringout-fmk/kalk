@@ -1285,9 +1285,15 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 	   nPom := round(nPom, gZaokr)
 	   replace RABATV  with nPom
 
-	   nPom := PRIPR->(VPCSaP*Kolicina)
-	   nPom := round(nPom, gZaokr)
-           replace VPVSAP with  nPom
+	   if IsPDV() .and.  pripr->idvd == "24"
+	     nPom := PRIPR->(FCJ3 * Skol)
+	     nPom := round(nPom, gZaokr)
+	     replace VPVSAP with nPom
+	   else
+	     nPom := PRIPR->(VPCSaP*Kolicina)
+	     nPom := round(nPom, gZaokr)
+             replace VPVSAP with  nPom
+	   endif
 	   
 	   nPom := PRIPR->(nMarza2*(Kolicina-GKolicina-GKolicin2))
 	   nPom := round(nPom, gZaokr)

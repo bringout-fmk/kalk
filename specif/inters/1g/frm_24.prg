@@ -112,9 +112,8 @@ private nTroskovi:=0
 @ m_x+11,m_y+40  SAY c24T4 GET  _cardaz pict picdem
 @ m_x+12,m_y+2   SAY c24T5 GET  _zavtr  pict picdem
 @ m_x+12,m_y+40  SAY c24T6 GET  _mpc     pict picdem
-@ m_x+13,m_y+2   SAY c24T7 GET  _mpcsapp pict picdem valid {|| nTroskovi:=_prevoz+_banktr+_spedtr+_cardaz+_zavtr+_mpc+_mpcsapp, devpos(m_X+15,m_Y+40), qqout("Ukupno troskovi:",nTroskovi), .t. }
-
-//@ m_x+16,m_y+2  SAY "Tarifni stav:"  GET _IdTarifa valid {|| P_Tarifa(@_IdTarifa),devpos(m_x+16,m_y+40), qqout("PDV (%): ",tarifa->opp),.t.}
+@ m_x+13,m_y+2   SAY c24T7 GET  _mpcsapp pict picdem 
+@ m_x+13,m_y+40   SAY c24T8 GET  _fcj3 pict picdem valid {|| nTroskovi:=_prevoz+_banktr+_spedtr+_cardaz+_zavtr+_mpc+_mpcsapp+_fcj3, devpos(m_X+15,m_Y+40), qqout("Ukupno troskovi:",nTroskovi), .t. }
 
 @ m_x+16,m_y+2  SAY "Tarifni stav:" GET _IdTarifa valid {|| P_Tarifa(@_IdTarifa), ShowTar(_idtarifa), .t.}
 

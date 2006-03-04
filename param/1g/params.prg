@@ -474,6 +474,7 @@ private  GetList:={}
   @ m_x+3,m_y+2  SAY "T 5:" GET c24T5
   @ m_x+3,m_y+40 SAY "T 6:" GET c24T6
   @ m_x+4,m_y+2  SAY "T 7:" GET c24T7
+  @ m_x+4,m_y+40 SAY "T 8:" GET c24T8
   read
  BoxC()
 
@@ -485,6 +486,7 @@ private  GetList:={}
   WPar("25",c24T5)
   WPar("26",c24T6)
   WPar("27",c24T7)
+  WPar("28",c24T8)
  endif
 
 return nil

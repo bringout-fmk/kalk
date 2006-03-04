@@ -1110,7 +1110,7 @@ if cIdVd=="24"
 endif
 
 nStr:=0
-nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=0
+nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTota:=nTotb:=nTotC:=0
 
 do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
 	cBrDok:=BrDok
@@ -1154,7 +1154,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
      		? m
      		if IsPDV()
 			? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     *   PDV    *   PDV    *   FV     * PRIHOD  *"
-     			? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ PDV  *   %      *          * SA PDV   *         *"
+     			? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+left(c24T8,12)+" * "+space(12)+" * "+space(12)+" * BEZ PDV  *   %      *          * SA PDV   *         *"
      		else
 			? "*R. * "+left(c24T1,12)+" * "+left(c24T2,12)+" * "+left(c24T3,12)+" * "+left(c24T4,12)+" * "+left(c24T5,12)+" *   FV     * POREZ    *  POREZ   *   FV     * PRIHOD  *"
      			? "*Br.* "+left(c24T6,12)+" * "+left(c24T7,12)+" * "+space(12)+" * "+space(12)+" * "+space(12)+" * BEZ POR  *   %      *          * SA POR   *         *"
@@ -1242,9 +1242,10 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
          		@ prow(),pcol()+1 SAY n9:=marza     pict picdem
          		@ prow()+1,nCol1  SAY nA:=mpc       pict picdem
          		@ prow(),pcol()+5 SAY nB:=mpcsapp pict picdem
+         		@ prow(),pcol()+5 SAY nJCI:=fcj3 pict picdem
          		nTot1+=n1; nTot2+=n2; nTot3+=n3; nTot4+=n4
          		nTot5+=n5; nTot6+=n6; nTot7+=n7; nTot8+=n8
-         		nTot9+=n9; nTotA+=na; nTotB+=nB
+         		nTot9+=n9; nTotA+=na; nTotB+=nB; nTotC+=nJCI
         	endif
 
         	VtPorezi()
@@ -1445,6 +1446,7 @@ do whilesc !eof() .and. cIdFirma==idfirma .and. cidvd==idvd
   @ prow(),pcol()+1  SAY  nTot9        picture   picdem
   @ prow()+1,nCol1   SAY  nTota         picture   picdem
   @ prow(),pcol()+5  SAY  nTotb         picture   picdem
+  @ prow(),pcol()+5  SAY  nTotC         picture   picdem
  endif
 
  if cidvd=="24"

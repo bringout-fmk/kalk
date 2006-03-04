@@ -303,6 +303,7 @@ public c24T4:=padr("Tr 4",15)
 public c24T5:=padr("Tr 5",15)
 public c24T6:=padr("Tr 6",15)
 public c24T7:=padr("Tr 7",15)
+public c24T8:=padr("Tr 8",15)
 
 public c10T1:="PREVOZ.T"
 public c10T2:="AKCIZE  "
@@ -363,6 +364,7 @@ RPar("24",@c24T4)
 RPar("25",@c24T5)
 RPar("26",@c24T6)
 RPar("27",@c24T7)
+RPar("28",@c24T8)
 Rpar("Bv",@gBaznaV)
 RPar("af",@gAFin)
 RPar("am",@gAMat)

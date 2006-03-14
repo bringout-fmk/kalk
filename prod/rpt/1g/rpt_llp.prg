@@ -460,15 +460,18 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 		nTRabat+=nRabat
 		nTPMPV+=nPMPV
 		nTPNV+=nPNV
+
+		if (IsPlanika() .and. cPrikazDob=="D")
+		   ? PrikaziDobavljaca(cIdRoba, 6) 
+		endif
+
+		if lKoristitiBK
+		   ? SPACE(6) + roba->barkod
+		endif
+		
 	endif //cNula
 
-	if (IsPlanika() .and. cPrikazDob=="D")
-		? PrikaziDobavljaca(cIdRoba, 6) 
-	endif
-
-	if lKoristitiBK
-		? SPACE(6) + roba->barkod
-	endif
+	
 enddo
 
 ? m

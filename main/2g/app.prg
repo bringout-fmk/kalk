@@ -94,6 +94,7 @@ method mMenu()
 
 private Izbor
 
+say_fmk_ver()
 
 if gSql=="D"
 	O_Log()

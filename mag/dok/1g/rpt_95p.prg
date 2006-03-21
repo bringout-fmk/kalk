@@ -13,6 +13,11 @@
 
 function StKalk95_PDV()
 *{
+local cKto1
+local cKto2
+local cIdZaduz2
+local cPom
+
 local nCol1:=0
 local nCol2:=0
 local nPom:=0
@@ -33,27 +38,50 @@ P_COND2
 
 @ prow(),125 SAY "Str:"+str(++nStr,3)
 
+?
 if cidvd=="16"  // doprema robe
-	select konto; hseek cidkonto
- 	?
  	? "PRIJEM U MAGACIN (INTERNI DOKUMENT)"
- 	?
 elseif cidvd=="96"
- 	?
  	? "OTPREMA IZ MAGACINA (INTERNI DOKUMENT):"
- 	?
 elseif cidvd=="97"
- 	?
  	? "PREBACIVANJE IZ MAGACINA U MAGACIN (INTERNI DOKUMENT):"
- 	?
 elseif cidvd=="95"
- 	?
  	? "OTPIS MAGACIN"
- 	?
+endif
+?
+
+
+if cIdVd $ "95#96#97"
+	cPom:= "Razduzuje:"
+	cKto1:= cIdKonto2
+	cKto2:= cIdKonto
+else
+	cPom:= "Zaduzuje:"
+	cKto1:= cIdKonto
+	cKto2:= cIdKonto2
 endif
 
-select KONTO
-HSEEK cIdKonto
+select konto
+hseek cKto1
+
+
+? PADL(cPom, 14), cKto1 + "- " + konto->naz
+
+if !empty(cKto2)
+
+	if cIdVd $ "95#96#97"
+		cPom:= "Zaduzuje:"
+	else
+		cPom:= "Razduzuje:"
+	endif
+
+	select konto
+	hseek cKto2
+        ? PADL(cPom, 14), cKto2 + "- " + konto->naz
+endif
+?
+
+
 
 select PRIPR
 

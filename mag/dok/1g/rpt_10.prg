@@ -4,30 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/rpt_10.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.6 $
- * $Log: rpt_10.prg,v $
- * Revision 1.6  2003/08/01 16:18:12  mirsad
- * no message
- *
- * Revision 1.5  2003/04/12 06:57:08  mirsad
- * omogucen prenos KALK10,11,81->FAKT poput KALK->TOPS za udaljene lokacije
- *
- * Revision 1.4  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.3  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- * Revision 1.2  2002/06/17 14:48:21  ernad
- *
- *
- * ciscenje
- *
- *
  */
  
 
@@ -241,7 +217,11 @@ select KONCIJ; seek trim(cIdKonto); lNC:=.t.
 IF naz<>"N1"; lNc:=.f.; ENDIF
 select KONTO; HSEEK cIdKonto
 ?  "MAGACINSKI KONTO zaduzuje :",cIdKonto,"-",naz
-if !empty(pripr->Idzaduz2); ?? " Rad.nalog:",pripr->Idzaduz2; endif
+
+
+if !empty(pripr->Idzaduz2) 
+	?? " Rad.nalog:", pripr->Idzaduz2
+endif
 
 if lBezNC
 

@@ -17,7 +17,7 @@ local nCol1:=0
 local nCol2:=0
 local nPom:=0
 
-private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
+private nPrevoz, nCarDaz, nZavTr, nBankTr, nSpedTr, nMarza, nMarza2
 
 nStr:=0
 cIdPartner:=IdPartner
@@ -64,7 +64,17 @@ m:="--- ---------- ---------- ---------- ---------- ---------- ---------- ------
 ? "*  * KONTO    *    ä     *    ä     *    ä     *    ä     *    ä     *     ä    *"
 ? m
 
-nTot:=nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=nTot8:=nTot9:=nTotA:=0
+nTot:=0 
+nTot1:=0 
+nTot2:=0 
+nTot3:=0
+nTot4:=0 
+nTot5:=0
+nTot6:=0
+nTot7:=0 
+nTot8:=0
+nTot9:=0
+nTotA:=0
 nTotB:=nTotP:=nTotM:=0
 
 select pripr
@@ -90,21 +100,17 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	nTot9+= (nU9:=round(nMarza* (Kolicina-Gkolicina-GKolicin2),gZaokr) )
     	nTotA+= (nUA:=round(VPC   * (Kolicina-Gkolicina-GKolicin2),gZaokr) )
 
-    	if gVarVP=="1"
-      		nTotB+= round(nU9*tarifa->vpp/100 ,gZaokr) // porez na razliku u cijeni
-    	else
-      		private cistaMar:=round(nU9/(1+tarifa->vpp/100) ,gZaokr)
-      		nTotB+=round( cistaMar*tarifa->vpp/100,gZaokr)  // porez na razliku u cijeni
-    	endif
     	// total porez
 	nTotP+=(nUP:=nPDV * kolicina)
+	
     	// total mpcsapp
 	nTotM+=(nUM:=MPCsaPP * kolicina)
    
     	// 1. PRVI RED
 	@ prow()+1,0 SAY  Rbr PICTURE "999"
     	@ prow(),4 SAY  ""
-	?? trim(ROBA->naz),"(",ROBA->jmj,")"
+	?? trim(ROBA->naz), "(", ROBA->jmj,")"
+	
     	@ prow()+1,4 SAY IdRoba
     	nCol1:=pcol()+1
     	@ prow(),pcol()+1 SAY Kolicina             PICTURE PicKol
@@ -152,5 +158,4 @@ endif
 ? m
 
 return
-*}
 

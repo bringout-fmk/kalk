@@ -561,7 +561,7 @@ return .t.
  *  \brief Utvrdi varijablu VPC. U sifrarnik staviti novu vrijednost
  */
 
-function SetujVPC(nNovaVrijednost,fUvijek)
+function SetujVPC(nNovaVrijednost, fUvijek)
 *{
  private cPom:="VPC" ,  nVal
  if koncij->naz=="P2"

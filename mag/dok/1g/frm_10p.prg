@@ -190,7 +190,7 @@ if !IsMagSNab()
      		endif
   	endif
 
-  	SetujVPC(_VPC , .f. )  
+  	SetujVPC(_VPC , .t. )  
 	// .f. - setuj samo ako je vpc u sifraniku 0
 else
 	read

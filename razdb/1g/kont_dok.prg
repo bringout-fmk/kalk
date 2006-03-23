@@ -69,16 +69,17 @@ if !used()
 	O_KONCIJ
 endif
 
-SELECT F_VALUTE
-if !used()
-	O_VALUTE
-endif
-
 IF FIELDPOS("IDRJ")<>0
 	lPoRj:=.t.
 ELSE
   	lPoRj:=.f.
 ENDIF
+
+SELECT F_VALUTE
+if !used()
+	O_VALUTE
+endif
+
 
 
 if fAuto==NIL

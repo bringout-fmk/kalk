@@ -106,7 +106,7 @@ ENDIF
 hseek cidfirma
 EOF CRET
 
-private M:="   -------------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+private M:="   -------------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------" + IF(!IsPDV(), " ----------","")
 
 START PRINT CRET
 
@@ -211,17 +211,24 @@ DO WHILE !EOF() .and. idfirma==cidfirma .and. cidkonto=mkonto .and. IspitajPreki
     loop
   endif
 
-  if prow()>61; FF; ZaglRPartn(); endif
-  select partn; hseek cidpartner; select kalk
-  ? space(2),cIdPartner, partn->naz
-  ncol1:=pcol()+1
+  if prow()>61
+  	FF
+ 	ZaglRPartn()
+  endif
+  select partn
+  hseek cIdPartner
+  select kalk
+  ? space(2), cIdPartner, PADR(partn->naz, 25)
+  ncol1 := pcol()+1
   @ prow(), nCol1    SAY nPaNV   pict gpicdem
   @ prow(), pcol()+1 SAY nPaRUC  pict gpicdem
-  @ prow(),pcol()+1  SAY nPaPRuc pict gpicdem
+  if !IsPDV()
+  	@ prow(), pcol()+1 SAY nPaPRuc pict gpicdem
+  endif
   @ prow(), pcol()+1 SAY nPaZarada pict gpicdem
   @ prow(), pcol()+1 SAY nPaVPV  pict gpicdem
   @ prow(), pcol()+1 SAY nPaRabat pict gpicdem
-  @ prow(),pcol()+1  SAY nPaPP  pict gpicdem
+  @ prow(), pcol()+1 SAY nPaPP  pict gpicdem
   @ prow(), pcol()+1 SAY nPaVPV-nPaRabat+nPaPP  pict gpicdem
 
 
@@ -236,10 +243,12 @@ ENDDO // eof
 
 if prow()>59; FF; ZaglRPartn(); endif
 ? m
-? "  Ukupno:"
+? "   Ukupno:"
 @ prow(), nCol1    SAY nNV   pict gpicdem
 @ prow(), pcol()+1 SAY nRUC  pict gpicdem
-@ prow(), pcol()+1 SAY nPRuc pict gpicdem
+if !IsPDV()
+	@ prow(), pcol()+1 SAY nPRuc pict gpicdem
+endif
 @ prow(), pcol()+1 SAY nZarada pict gpicdem
 @ prow(), pcol()+1 SAY nVPV  pict gpicdem
 @ prow(), pcol()+1 SAY nRabat pict gpicdem
@@ -256,7 +265,11 @@ P_12CPI
 ? replicate("=",45)
 ?
 ? "--------------------------------- ---------- --------"
-? "                        Nab.vr.       VPV      Ruc%"
+if IsPDV()
+	? "                        Nab.vr.    Prod.vr     Ruc%"
+else
+	? "                        Nab.vr.       VPV      Ruc%"
+endif
 ? "--------------------------------- ---------- --------"
 ?
 
@@ -304,7 +317,11 @@ endif
 endif
 
 ?
-? "**** IZLAZI (VPV-Rabat) **"
+if IsPDV()
+	? "**** IZLAZI (Prod.vr.-Rabat) **"
+else
+	? "**** IZLAZI (VPV-Rabat) **"
+endif
 ? "-      realizacija :  "
 @ prow(),pcol()+1 SAY nNV pict gpicdem
 @ prow(),pcol()+1 SAY nVPV-nRabat pict gpicdem
@@ -363,8 +380,14 @@ P_COND
 if ftabela
 ?
 ? m
-? "   *           Partner            *    NV     *   RUC    *   PRUC   *   NETO   *   VPV    *  Rabat   *   PP     *  Ukupno *"
-? "   *                              *           *          *          *  ZARADA  *          *          *          *         *"
+if IsPDV()
+	? "   *           Partner            *    NV     *   RUC    *   NETO   * Prod.vr  *  Rabat   *   PDV    *  Ukupno *"
+else
+	? "   *           Partner            *    NV     *   RUC    *   PRUC   *   NETO   *   VPV    *  Rabat   *   PP     *  Ukupno *"
+endif
+
+? "   *                              *           *          *          *  ZARADA  *          *          *          *" + IF(!IsPDV(), "         *", "")
+
 ? m
 endif
 

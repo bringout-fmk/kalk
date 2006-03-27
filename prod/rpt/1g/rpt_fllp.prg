@@ -127,12 +127,23 @@ AADD(aRFLLP, {11, " Broj", "dokumenta"})
 AADD(aRFLLP, {LEN(PicDem), "  NV", " duguje"})
 AADD(aRFLLP, {LEN(PicDem), "  NV", " potraz."})
 AADD(aRFLLP, {LEN(PicDem), "  NV", " ukupno"})
-AADD(aRFLLP, {LEN(PicDem), "  MPV", " duguje"})
-AADD(aRFLLP, {LEN(PicDem), "  MPV", " potraz."})
-AADD(aRFLLP, {LEN(PicDem), "  MPV", " ukupno"})
-AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " duguje"})
-AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " potraz."})
-AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " ukupno"})
+
+if IsPDV()
+	AADD(aRFLLP, {LEN(PicDem), "   PV", " duguje"})
+	AADD(aRFLLP, {LEN(PicDem), "   PV", " potraz."})
+	AADD(aRFLLP, {LEN(PicDem), "   PV", " ukupno"})
+	AADD(aRFLLP, {LEN(PicDem), " PV sa PDV", " duguje"})
+	AADD(aRFLLP, {LEN(PicDem), " PV sa PDV", " potraz."})
+	AADD(aRFLLP, {LEN(PicDem), " Popust", ""})
+	AADD(aRFLLP, {LEN(PicDem), " PV sa PDV", " ukupno"})
+else
+	AADD(aRFLLP, {LEN(PicDem), "  MPV", " duguje"})
+	AADD(aRFLLP, {LEN(PicDem), "  MPV", " potraz."})
+	AADD(aRFLLP, {LEN(PicDem), "  MPV", " ukupno"})
+	AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " duguje"})
+	AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " potraz."})
+	AADD(aRFLLP, {LEN(PicDem), " MPV sa PP", " ukupno"})
+endif
 
 private cLine:=SetRptLineAndText(aRFLLP, 0)
 private cText1:=SetRptLineAndText(aRFLLP, 1, "*")
@@ -147,7 +158,8 @@ private aPorezi:={}
 Eval(bZagl)
 nTUlaz:=nTIzlaz:=0
 ntMPVBU:=ntMPVBI:=ntMPVU:=ntMPVI:=ntNVU:=ntNVI:=0
-// nTRabat:=0
+ntPopust:=0
+
 nCol1:=nCol0:=10
 private nRbr:=0
 
@@ -186,6 +198,8 @@ do while CMNEOF .and. cidfirma==idfirma .and.  IspitajPrekid()
 
 nUlaz:=nIzlaz:=0
 nMPVBU:=nMPVBI:=nMPVU:=nMPVI:=nNVU:=nNVI:=0
+nPopust:=0
+
 // nRabat:=0
 
 dDatDok:=datdok
@@ -217,10 +231,12 @@ do while CMNEOF  .and. cidfirma+dtos(ddatdok)+cbroj==idFirma+dtos(datdok)+idvd+"
      nMPVBU-=mpc*kolicina
      nMPVU-=mpcsapp*kolicina
      nNVU-=nc*kolicina
+     nPopust-=rabatv
     else
      nMPVBI+=mpc*kolicina
      nMPVI+=mpcsapp*kolicina
      nNVI+=nc*kolicina
+     nPopust+=rabatv
     endif
   elseif pu_i=="3"    // nivelacija
     nMPVBU+=mpc*kolicina
@@ -255,6 +271,7 @@ nCol1:=pcol()+1
 ntNVU+=nNVU; ntNVI+=nNVI
 ntMPVBU+=nMPVBU; ntMPVBI+=nMPVBI
 ntMPVU+=nMPVU; ntMPVI+=nMPVI
+ntPopust+=nPopust
 
  @ prow(),pcol()+1 SAY nNVU pict picdem
  @ prow(),pcol()+1 SAY nNVI pict picdem
@@ -264,6 +281,9 @@ ntMPVU+=nMPVU; ntMPVI+=nMPVI
  @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict picdem
  @ prow(),pcol()+1 SAY nMPVU pict picdem
  @ prow(),pcol()+1 SAY nMPVI pict picdem
+ if IsPDV()
+ 	@ prow(),pcol()+1 SAY nPopust pict picdem
+ endif
  @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict picdem
 
 enddo
@@ -279,6 +299,9 @@ enddo
  @ prow(),pcol()+1 SAY ntMPVBU-ntMPVBI pict picdem
  @ prow(),pcol()+1 SAY ntMPVU pict picdem
  @ prow(),pcol()+1 SAY ntMPVI pict picdem
+ if IsPDV()
+ 	@ prow(),pcol()+1 SAY ntPopust pict picdem
+ endif
  @ prow(),pcol()+1 SAY ntMPVU-ntMPVI pict picdem
 
 ? cLine

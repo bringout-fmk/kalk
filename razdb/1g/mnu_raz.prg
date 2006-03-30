@@ -26,7 +26,7 @@ AADD(opcexe,{|| Rekapk(.t.)})
 AADD(opc,"2. iz FAKT generisi KALK dokumente")
 AADD(opcexe, {|| Faktkalk()})
 AADD(opc,"3. iz TOPS generisi KALK dokumente")
-AADD(opcexe, {|| UzmiIzTOPSa()})
+AADD(opcexe, {|| r_tops_kalk()})
 AADD(opc,"4. sifrarnik KALK prebaci u TOPS")
 AADD(opcexe, {|| SifKalkTOPS()} )
 AADD(opc,"5. iz KALK generisi TOPS dokumente")
@@ -46,6 +46,23 @@ private Izbor:=1
 Menu_SC("rmod")
 
 CLOSERET
+
+return
+*}
+
+
+function r_tops_kalk()
+*{
+private Opc:={}
+private opcexe:={}
+private Izbor:=1
+
+AADD(opc,"1. prenos tops->kalk                      ")
+AADD(opcexe, {|| UzmiIzTOPSa()})
+AADD(Opc,"2. tops->kalk 96 po normativima za period ")
+AADD(opcexe,{|| tops_nor_96() })
+
+Menu_SC("rpka")
 
 return
 *}

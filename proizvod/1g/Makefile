@@ -5,7 +5,7 @@ include /sclib/Makefile_clipper
 
 SRCDOSROOT=c:\\dev\\fmk\\kalk\\proizvod\\1g\\
 
-PRGS=fak_kal.prg frm_pr.prg frm_rn.prg frmg_rn.prg gen_dok.prg rpt_pr.prg rpt_rn.prg
+PRGS=fak_kal.prg frm_pr.prg frm_rn.prg frmg_rn.prg gen_dok.prg rpt_pr.prg rpt_rn.prg tops_ka.prg
 
 CS=
 ASMS=

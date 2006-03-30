@@ -8,10 +8,6 @@
  */
  
 
-/*! \file fmk/kalk/proizvod/1g/fak_kal.prg
- *  \brief Prenos dokumenata FAKT->KALK za proizvode
- */
-
 
 /*! \fn FaKaProizvodnja()
  *  \brief Meni opcija za prenos dokumenata FAKT->KALK za proizvode
@@ -29,9 +25,6 @@ private Izbor:=1
 Menu_SC("fkno")
 return
 *}
-
-
-
 
 
 /*! \fn PrenosNo()
@@ -296,4 +289,8 @@ Boxc()
 closeret
 return
 *}
+
+
+
+
 

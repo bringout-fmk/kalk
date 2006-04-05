@@ -460,7 +460,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,;
       nVPVI+=round( vpc*kolicina , gZaokr)
     endif
     nRabat+=round(  rabatv/100*vpc*kolicina , gZaokr)
-    nNVI+=nc*kolicina
+    nNVI+=ROUND(nc*kolicina, gZaokr)
   elseif mu_i=="3"    
     // nivelacija
     nVPVU+=round( vpc*kolicina , gZaokr)
@@ -474,7 +474,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,;
        nVPVI+=round( vpc*(-kolicina) , gZaokr)
      endif
      nRabat+=round(  rabatv/100*vpc*(-kolicina) , gZaokr)
-     nNVI+=nc*(-kolicina)
+     nNVI+=ROUND(nc*(-kolicina), gZaokr)
      
      nKolicina:=-field->kolicina
      nUlaz+=nKolicina

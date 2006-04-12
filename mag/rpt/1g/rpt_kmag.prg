@@ -61,6 +61,10 @@ if IsDomZdr()
 	private cKalkTip:=SPACE(1)
 endif
 
+if !Empty(cRNT1)
+	private cRNalBroj := PADR("", 40)
+endif
+
 cIdPArtner:=space(6)
 cPVSS:="D"  // D-Prikaz Vrijednosti Samo u Saldu  (N-duguje,potrazuje,saldo)
 
@@ -97,6 +101,11 @@ if cIdKonto==NIL
     		else
     			@ m_x+ 3,m_y+2 SAY "Artikal" GET cIdRoba  pict "@!" valid empty(cIdRoba) .or. right(trim(cIdRoba),1) $ ";>" .or. P_ROBA(@cIdRoba)
     		endif
+		
+		if !EMPTY(cRNT1)
+    			@ m_x+ 4,m_y+2 SAY "Broj radnog naloga:" GET cRNalBroj PICT "@S20"
+		endif
+		
     		@ m_x+ 5,m_y+2 SAY "Partner (prazno-svi)"  GET cIdPArtner  valid empty(cIdPartner) .or. P_Firma(@cIdPartner)  pict "@!"
     		@ m_x+ 7,m_y+2 SAY "Datum od " GET dDatOd
     		@ m_x+ 7,col()+2 SAY "do" GET dDatDo
@@ -123,10 +132,16 @@ if cIdKonto==NIL
 		
    		READ
     		ESC_BCR
-    		if lPoNarudzbi
+    		
+		if lPoNarudzbi
      			aUslN:=Parsiraj(qqIdNar,"idnar")
     		endif
-    		if (!lPoNarudzbi.or.aUslN<>NIL)
+		
+		if !EMPTY(cRnT1) .and. !EMPTY(cRNalBroj)
+			private aUslRn:=Parsiraj(cRNalBroj, "idzaduz2")
+		endif
+		
+    		if (!lPoNarudzbi.or.aUslN<>NIL) .and. (EMPTY(cRNT1) .or. EMPTY(cRNalBroj) .or. aUslRn<>NIL)
       			exit
     		endif
   	enddo
@@ -194,6 +209,10 @@ endif
 
 if IsDomZdr() .and. !Empty(cKalkTip)
 	cFilt+=".and. tip==" + Cm2Str(cKalkTip)
+endif
+
+if !EMPTY(cRNT1) .and. !EMPTY(cRNalBroj)
+	cFilt += ".and." + aUslRn
 endif
 
 if !(cFilt==".t.")
@@ -690,6 +709,7 @@ if IsDomZdr() .and. !EMPTY(cKalkTip)
 endif
 
 ? "Konto: ",cIdKonto,"-",konto->naz
+
 select kalk
 if gVarEv=="2"
 	IF lPoNarudzbi .and. cPKN=="D"

@@ -96,10 +96,12 @@ private cErr:="N"
 private cNCSif:="N"
 private cMink:="N"
 private cSredCij:="N"
-
+if !Empty(cRNT1)
+	private cRNalBroj:=PADR("", 40)
+endif
 cArtikalNaz:=SPACE(30)
 
-Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
+Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 	do while .t.
  		if gNW $ "DX"
    			@ m_x+1,m_y+2 SAY "Firma "
@@ -162,7 +164,11 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		endif
 
  		@ m_x+18,m_y+2 SAY "Naziv artikla sadrzi"  GET cArtikalNaz
-
+ 		
+ 		if !Empty(cRNT1)
+			@ m_x+19,m_y+2 SAY "Broj radnog naloga:"  GET cRNalBroj PICT "@S20"
+		endif
+		
 		read
 		ESC_BCR
  
@@ -177,7 +183,12 @@ Box(,18+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		if lPoNarudzbi
    			aUslN:=Parsiraj(qqIdNar,"idnar")
  		endif
- 		if aUsl1<>NIL .and. aUsl2<>NIL .and. aUsl3<>NIL .and. aUsl4<>NIL .and. (!lPoNarudzbi.or.aUslN<>NIL)
+ 		
+		if !EMPTY(cRnT1) .and. !EMPTY(cRNalBroj)
+			private aUslRn := Parsiraj(cRNalBroj,"idzaduz2")
+		endif
+		
+		if aUsl1<>NIL .and. aUsl2<>NIL .and. aUsl3<>NIL .and. aUsl4<>NIL .and. (!lPoNarudzbi.or.aUslN<>NIL) .and. (EMPTY(cRnT1) .or. EMPTY(cRNalBroj) .or. aUslRn<>NIL)
    			exit
  		endif
 	enddo
@@ -237,6 +248,11 @@ endif
 if IsDomZdr() .and. !Empty(cKalkTip)
 	cFilt+=".and. tip=" + Cm2Str(cKalkTip)
 endif
+
+if !Empty(cRNT1) .and. !EMPTY(cRNalBroj)
+	cFilt+=".and." + aUslRn
+endif
+
 if cFilt==".t."
 	set filter to
 else
@@ -772,6 +788,7 @@ select konto; hseek cidkonto
 set century on
 ?? "KALK: LAGER LISTA  ZA PERIOD",dDatOd,"-",dDatdo,"  na dan", date(), space(12),"Str:",str(++nTStrana,3)
 
+
 IF lPoNarudzbi .and. !EMPTY(qqIdNar)
   ?
   ? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
@@ -788,7 +805,10 @@ if IsDomZdr() .and. !Empty(cKalkTip)
 	PrikTipSredstva(cKalkTip)
 endif
 
-? "Magacin:", cIdkonto, "-", konto->naz
+? "Magacin:", cIdkonto, "-", ALLTRIM(konto->naz)
+if !Empty(cRNT1) .and. !EMPTY(cRNalBroj)
+	?? ", uslov radni nalog: " + ALLTRIM(cRNalBroj)
+endif
 
 if cSredCij=="D"
 	cSC1:="*Sred.cij.*"

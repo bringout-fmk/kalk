@@ -75,6 +75,7 @@ OTblPPProd()
 
 //formiraj pomocnu tabelu
 if (ScanKoncij(dDatumOd, dDatumDo)==0)
+	MsgBeep("Ne postoje podaci, ili podesenja nisu korektna!")
 	return
 endif
 
@@ -328,7 +329,7 @@ static function ScanKoncij(dDatumOd, dDatumDo)
 local cTSifPath
 local nSifPath
 local cTKumPath
-
+local nCnt
 local nMpcBp
 local aPorezi
 
@@ -345,6 +346,8 @@ endif
 GO TOP
 
 Box(,3,60)
+
+nCnt := 0
 
 do while (!EOF())
 	
@@ -384,6 +387,8 @@ do while (!EOF())
 	ScanPos(dDatumOd, dDatumDo, cTKumPath)
 	ScanPromVp(dDatumOd, dDatumDo, cTKumPath)
 	
+	++ nCnt
+	
 	SELECT roba
 	USE
 
@@ -391,6 +396,11 @@ do while (!EOF())
 	SKIP 1
 enddo
 BoxC()
+
+if nCnt == 0
+	return 0
+endif
+
 return 1
 *}
 

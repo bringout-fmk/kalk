@@ -153,8 +153,7 @@ if gTops<>"0 " .and. Pitanje(,"Izgenerisati datoteku KATOPS","N")=="D"
        // donja for-next pelja otvara baze i , ako postoje, gleda da li je
        // u njih pohranjen isti dokument
        for i:=1 to 41
-
-          bErr:=ERRORBLOCK({|o| MyErrH(o)})
+       	  bErr:=ERRORBLOCK({|o| MyErrH(o)})
           begin sequence
             if i>21
               usex ( strtran(cTopsDbf,"KATOPS",cDestMod+"U"+CHR(i%21+64)) ) new alias otops
@@ -162,8 +161,9 @@ if gTops<>"0 " .and. Pitanje(,"Izgenerisati datoteku KATOPS","N")=="D"
               usex ( strtran(cTopsDbf,"KATOPS",cDestMod+chr(64+i)) ) new alias otops
             endif
             // OD A-C
-            if ntops->brdok==otops->brdok
-              fIzadji:=.t.
+	    
+            if ( ntops->brdok == otops->brdok )
+                fIzadji:=.t.
             endif
             use
           recover

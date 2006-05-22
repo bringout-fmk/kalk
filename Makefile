@@ -80,4 +80,11 @@ cleanall:
 	make -C proizvod/1g clean
 
 
-kalk:  cleanall liball 
+kalk:  start_time cleanall liball end_time 
+
+
+start_time:
+	$(shell echo start `date`  > /tmp/make_info)
+ 
+end_time:
+	$(shell echo end `date`  >> /tmp/make_info)

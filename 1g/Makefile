@@ -13,4 +13,4 @@ MODUL_LIBS=ka_1adm.lib ka_1bk.lib ka_1db.lib ka_1dok.lib ka_1gd.lib  ka_1ma.lib 
 
 #ka_1ks.lib
 
-include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper_linux
+include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper

@@ -1,5 +1,4 @@
-
-all: 
+liball: 
 	make -C adm/1g
 	make -C barkod/1g
 	make -C mag/db/1g
@@ -38,9 +37,9 @@ all:
 	make -C primpak/1g
 	make -C si/1g
 	make -C proizvod/1g
-	make -C 1g
+	make -C 1g exe
 	
-clean:	
+cleanall:
 	cd adm/1g; make clean
 	cd barkod/1g; make clean
 	cd mag/db/1g; make clean
@@ -81,9 +80,5 @@ clean:
 	make -C proizvod/1g clean
 	make -C 1g  clean
 
-zip:
-	cd 1g; make zip; make 7exe
 
-commit:
-	cd 1g; make commit
-
+kalk:  cleanall liball 

@@ -78,7 +78,6 @@ cleanall:
 	cd primpak/1g; make clean
 	cd si/1g; make clean
 	make -C proizvod/1g clean
-	make -C 1g  clean
 
 
 kalk:  cleanall liball 

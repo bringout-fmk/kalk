@@ -1,7 +1,6 @@
 VERZIJA=CDX
 MODUL=ka_m1dok
 
-include /sclib/Makefile_clipper
 
 SRCDOSROOT=c:\\dev\\fmk\\kalk\\mag\\dok\\1g\\
 
@@ -10,20 +9,5 @@ PRGS=frm_10.prg frm_10p.prg frm_14.prg frm_14p.prg frm_16.prg frm_16p.prg frm_18
 CS=
 ASMS=
 
-OBJS=$(OBJPRGS) $(OBJCS) $(OBJASMS)
-
-all: $(OBJS)
-	rm -f $(MODUL).lib 
-	$(LIBEXE) $(MODUL) $(LIBCMD) ,,
-	cp $(MODUL).lib $(LIB_DEST)
-
-	
-clean:
-	rm -f *~
-	rm -f *.xref
-	rm -f *.xrefs
-	rm -f *.html
-	rm -f *.OBJ *.obj
-	rm -f xref_files
-	rm -f $(OBJS) *.bak *.BAK
+include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper
 

@@ -7,6 +7,6 @@ PRGS=barkod.prg
 CS=
 ASMS=
 
-include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper_linux
+include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper
 
 

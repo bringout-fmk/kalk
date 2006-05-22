@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "..\..\kalk.ch"
 /*
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
@@ -17,18 +17,12 @@
  */
 
 function TKalkModNew()
-*{
 local oObj
 
-#ifdef CLIP
-
-#else
-	oObj:=TKalkMod():new()
-#endif
+oObj:=TKalkMod():new()
 
 oObj:self:=oObj
 return oObj
-*}
 
 
 #ifdef CPP
@@ -119,7 +113,7 @@ use
 #endif
 
 gRobaBlock:={|Ch| RobaBlock(Ch)}
-KalksInit()
+//KalksInit()
 @ 1,2 SAY padc(gTS+": "+gNFirma,50,"*")
 
 cPom:=gVodiSamoTarife

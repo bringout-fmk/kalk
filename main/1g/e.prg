@@ -20,19 +20,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/main/1g/e.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.5 $
- * $Log: e.prg,v $
- * Revision 1.5  2002/06/25 08:44:24  ernad
- *
- *
- * ostranicavanje planika, doxy - grupa: Planika
- *
- * Revision 1.4  2002/06/24 07:33:48  mirsad
- * no message
- *
- *
  */
  
 
@@ -40,10 +27,6 @@
  *  \brief
  */
 
-
-#ifndef CPP
-EXTERNAL RIGHT,LEFT,FIELDPOS
-#endif
 
 #ifdef LIB
 

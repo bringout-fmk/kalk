@@ -1,24 +1,10 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*! \defgroup ini Parametri rada programa - fmk.ini
- *  @{
- *  @}
- */
- 
-/*! \defgroup params Parametri rada programa - *param.dbf
- *  @{
- *  @}
- */
-
-/*! \defgroup TblZnacenjePolja Tabele - znacenje pojedinih polja
- *  @{
- *  @}
- */
-
+external RIGHT
 
 /*
  * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
+ *                          Copyright Sigma-com software 1994-2006 
  * ----------------------------------------------------------------
  */
  

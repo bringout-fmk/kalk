@@ -1,7 +1,8 @@
 VERZIJA=CDX
 MODUL=KALK
 
-PRGS=../main/1g/e.prg
+EOBJCOPY=echo nista za kopirati
+PRGS=e.prg
 CS=
 ASMS=
 

@@ -141,7 +141,7 @@
  *
  */
 
-function GenRekap2(lK2X, cC, lMarkiranaRoba)
+function GenRekap2(lK2X, cC, lVpRab, lMarkiranaRoba)
 *{
 local lMagacin
 local lProdavnica
@@ -149,8 +149,13 @@ local lProdavnica
 if (lK2X==nil)
    lK2X:=.f.
 endif
+
 if (cC==nil)
 	cC:="P"
+endif
+
+if (lVpRab == nil) 
+	lVpRab := .t.
 endif
 
 if (lMarkiranaRoba==nil)
@@ -196,7 +201,7 @@ do while !EOF()
 	lMagacin:=.t.
 	SELECT rekap2
 
-	Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lMagacin)
+	Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lMagacin, lVpRab)
 	Sca2PKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lProdavnica)
 
 	@ m_x+1,m_y+2 SAY ++nStavki pict "99999"
@@ -212,7 +217,7 @@ BoxC()
 return
 *}
 
-function Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, lMagacin)
+function Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, lMagacin, lVpRabat)
 *{
 local nPomKolicina
 local nTC
@@ -312,8 +317,13 @@ elseif (kalk->mu_i=="5")
 				field->prodajak+=kalk->kolicina
 			endif
 			if (cC=="P")
-				field->prodajaf+=kalk->(kolicina*nTC*(1-RabatV/100))
-				field->orucf+=kalk->(kolicina*(nTC*(1-RabatV/100)-nc))
+				if lVpRabat
+					field->prodajaf+=kalk->(kolicina*nTC*(1-RabatV/100))
+					field->orucf+=kalk->(kolicina*(nTC*(1-RabatV/100)-nc))
+				else
+					field->prodajaf+=kalk->(kolicina*nTC)
+					field->orucf+=kalk->(kolicina*(nTC-nc))
+				endif
 			else
 				field->prodajaf+=kalk->(kolicina*nTC)
 			endif

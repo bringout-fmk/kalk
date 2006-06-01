@@ -83,6 +83,7 @@ private cIdKPovrata:=space(7)
 private ck7:="N"
 // P-prodajna (bez poreza), N-nabavna
 private cCijena:="P" 
+private cVpRab:="N"
 if IsPlanika()
 	private cPlVrsta:=SPACE(1)
 	private cK9:=SPACE(3)
@@ -104,6 +105,7 @@ RPar("c2",@qqKonto)
 RPar("c4",@cCijena)
 RPar("d1",@dDatOd)
 RPar("d2",@dDatDo)
+RPar("d3",@cVpRab)
 
 cLegenda:="D"
 cKolDN:="N"
@@ -121,6 +123,7 @@ Box(,16,75)
   @ m_x+6,m_y+2 SAY "Magacin u koji se vrsi povrat rekl. robe:" GET cIdKPovrata pict "@!"
   @ m_x+8,m_y+2 SAY "Prikaz kolicina:" GET cKolDN pict "@!" valid cKolDN $"DN"
   @ m_x+9, m_y+2 SAY "Cijena (P-prodajna,N-nabavna):" GET cCijena pict "@!" valid cCijena $"PN"
+  @ m_x+10, m_y+2 SAY "VP sa uracunatim rabatom (D/N)?" GET cVpRab pict "@!" valid cVpRab $ "DN"
   read
   nKorekcija:= 12/(month(dDatDo)-month(dDatOd)+1)
   @ m_x+11,m_y+2 SAY "Korekcija (12/broj radnih mjeseci):" GET nKorekcija pict "999.99"
@@ -147,13 +150,15 @@ BoxC()
   WPar("c1",cidKPovrata)
   WPar("c2",qqKonto)
   WPar("c4",cCijena)
-  WPar("d1",dDatOd); WPar("d2",dDatDo)
+  WPar("d1",dDatOd)
+  WPar("d2",dDatDo)
+  WPar("d3",cVpRab)
  endif
  SELECT params
  use
  
-
 private fSMark:=.f.
+
 if right(trim(qqRoba),1)="*"
   fSMark:=.t.
 endif
@@ -170,7 +175,12 @@ O_KALK
 O_K1
 O_OBJEKTI
 
-GenRekap2(.t., cCijena , fSMark )
+lVpRabat := .f.
+if cVpRab == "D"
+	lVpRabat := .t.
+endif
+
+GenRekap2(.t., cCijena, lVpRabat, fSMark )
 
 // setuj liniju za izvjestaj
 aLineArgs:={}

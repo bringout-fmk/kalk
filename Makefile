@@ -27,7 +27,6 @@ liball:
 	make -C prod/gendok/1g
 	make -C prod/razdb/1g
 	make -C prod/rpt/1g
-	make -C sql/1g
 	make -C vt/1g
 	make -C gendok/1g
 	make -C param/1g
@@ -65,7 +64,6 @@ cleanall:
 	cd prod/gendok/1g; make clean
 	cd prod/razdb/1g; make clean
 	cd prod/rpt/1g; make clean
-	cd sql/1g; make clean
 	cd ut/1g; make clean 
 	cd vt/1g; make clean
 	cd gendok/1g; make clean

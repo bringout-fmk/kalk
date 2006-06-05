@@ -90,10 +90,6 @@ private Izbor
 
 say_fmk_ver()
 
-if gSql=="D"
-	O_Log()
-endif
-
 SETKEY(K_SH_F1,{|| Calc()})
 Izbor:=1
 

@@ -112,17 +112,7 @@ gRobaBlock:={|Ch| RobaBlock(Ch)}
 //KalksInit()
 @ 1,2 SAY padc(gTS+": "+gNFirma,50,"*")
 
-cPom:=gVodiSamoTarife
-if !(cPom=="D")
-  	if glEkonomat
-		mMenuEkonomat()
-	else
-		::mMenuStandard()
-	endif
-else
-	//mMenuTar()
-endif
-
+::mMenuStandard()
 ::quit()
 
 return nil

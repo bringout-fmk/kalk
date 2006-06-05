@@ -20,7 +20,6 @@ liball:
 	make -C specif/inters/1g
 	make -C specif/planika/1g
 	make -C specif/tvin/1g
-	make -C specif/opze/1g
 	make -C specif/vindija/1g
 	make -C prod/db/1g
 	make -C prod/dok/1g
@@ -57,7 +56,6 @@ cleanall:
 	cd specif/inters/1g; make clean
 	cd specif/planika/1g; make clean
 	cd specif/tvin/1g; make clean
-	cd specif/opze/1g; make clean
 	cd specif/vindija/1g; make clean
 	cd prod/db/1g; make clean
 	cd prod/dok/1g; make clean

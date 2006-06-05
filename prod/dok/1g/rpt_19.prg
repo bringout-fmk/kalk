@@ -180,6 +180,7 @@ Box(,2,60)
 BoxC()
 
 START PRINT CRET
+?
 Preduzece()
 
 P_10CPI

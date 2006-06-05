@@ -543,7 +543,7 @@ set order to tag "1"
 go top
 
 START PRINT CRET
-
+?
 ? "Prikaz efekata nivelacije za sve prodavnice, na dan " + DToC(DATE())
 ?
 

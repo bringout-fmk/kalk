@@ -1108,6 +1108,7 @@ endif
 
 if cIdVd=="24"
 	START PRINT CRET
+	?
 endif
 
 nStr:=0

@@ -529,7 +529,7 @@ aPomFakt := FaktExist()
 if LEN(aPomFakt) > 0
 
 	START PRINT CRET
-	
+	?	
 	? "Kontrola azuriranih dokumenata:"
 	? "-------------------------------"
 	? "Broj fakture => kalkulacija"

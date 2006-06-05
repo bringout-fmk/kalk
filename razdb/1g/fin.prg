@@ -126,9 +126,12 @@ DO WHILE !EOF()
    endif	
 
    HSEEK cIdFirma+cIdVN+cBrNal
-   if eof(); closeret2; endif
+   if eof()
+   	closeret2
+   endif
 
    START PRINT CRET
+   ?
    nStr:=0
    nUkDug:=nUkPot:=0
    b2:={|| cIdFirma==IdFirma .AND. cIdVN==IdVN .AND. cBrNal==BrNal}

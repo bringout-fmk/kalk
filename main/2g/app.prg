@@ -124,7 +124,7 @@ if !(cPom=="D")
 		::mMenuStandard()
 	endif
 else
-	mMenuTar()
+	//mMenuTar()
 endif
 
 ::quit()

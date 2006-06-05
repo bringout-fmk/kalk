@@ -1,22 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
- 
 
-/*! \file fmk/kalk/mag/rpt/1g/rpt_rdob.prg
- *  \brief Izvjestaj "pregled robe za dobavljaca"
- */
-
-
-/*! \fn PRobDob()
- *  \brief Izvjestaj "pregled robe za dobavljaca"
- */
-
+// pregled robe za dobavljaca
 function PRobDob()
 *{
  O_SIFK
@@ -70,7 +55,8 @@ function PRobDob()
    // kao lager lista
    // ---------------
    START PRINT CRET
-
+   ?
+   
    gnLMarg:=0; gTabela:=1; gOstr:="D"
    PRIVATE cRoba:="", nUlaz:=0, nStanje:=0, lImaVP:=.f., nNC:=0, nVPC:=0
 
@@ -82,7 +68,8 @@ function PRobDob()
            { "Poslj.NC"     , {|| nNC      }, .f., "N-", 10, 3, 1, 4},;
            { "VPC"          , {|| nVPC     }, .f., "N-", 10, 2, 1, 5} }
 
-   ?? space(gnLMarg); ?? "KALK: Izvjestaj na dan",date()
+   ?? space(gnLMarg)
+   ?? "KALK: Izvjestaj na dan", date()
    ? space(gnLMarg); IspisFirme("")
    ?
    ? "PREGLED ROBE OD DOBAVLJACA ZA PERIOD OD",dOD,"DO",dDo
@@ -129,43 +116,23 @@ function PRobDob()
 
 CLOSERET
 return
-*}
 
 
-
-
-/*! \fn TekRec2()
- *  \brief Prikaz toka filterisanja glavne baze
- */
-
+// Prikaz toka filterisanja glavne baze
 function TekRec2()
-*{
- nSlog++
- @ m_x+1, m_y+2 SAY PADC(ALLTRIM(STR(nSlog))+"/"+ALLTRIM(STR(nUkupno)),20)
- @ m_x+2, m_y+2 SAY "Obuhvaceno: "+STR(cmxKeysIncluded())
+nSlog++
+@ m_x+1, m_y+2 SAY PADC(ALLTRIM(STR(nSlog))+"/"+ALLTRIM(STR(nUkupno)),20)
+@ m_x+2, m_y+2 SAY "Obuhvaceno: "+STR(cmxKeysIncluded())
 return (nil)
-*}
 
 
-/*! \fn FSvakiPRD()
- *  \brief Predvidjeno za dodatnu obradu slogova - koristi je StampaTabele()
- */
-
+// Predvidjeno za dodatnu obradu slogova - koristi je StampaTabele()
 function FSvakiPRD()
-*{
 return
-*}
 
-
-
-
-/*! \fn FForPRD1()
- *  \brief Obrada podataka - koristi je StampaTabele()
- *  \return .t. ako se slog prikazuje, .f. - ako se ne prikazuje u tabeli
- */
-
+// Obrada podataka - koristi je StampaTabele()
+// return .t. ako se slog prikazuje, .f. - ako se ne prikazuje u tabeli
 function FForPRD1()
-*{
 local cIdR
 local dLastNab
 
@@ -217,18 +184,11 @@ if nUlaz=0 .and. nPrSez>0
 	lIzProsleGod:=ImaUProsGod(nPrSez,cIdPartner,cIdR,@nNC)
 endif
 return (nUlaz<>0.or.lIzProsleGod)
-*}
 
 
-
-
-/*! \fn FForPRD2()
- *  \brief Obrada podataka - koristi je StampaTabele()
- *  \return .t. ako se slog prikazuje, .f. - ako se ne prikazuje u tabeli
- */
-
+// Obrada podataka - koristi je StampaTabele()
+// return .t. ako se slog prikazuje, .f. - ako se ne prikazuje u tabeli
 function FForPRD2()
-*{
  LOCAL cIdR
   cDokum := idfirma+"-"+idvd+"-"+brdok
   nUlaz := nUlaz2 := nIzlaz := 0
@@ -264,12 +224,9 @@ function FForPRD2()
 
   nStanje += (nUlaz2-nIzlaz)
 return .t.
-*}
-
 
 
 function ImaUProsGod(nPrSez,cIdPartner,cIdRoba,nNC)
-*{
 local lIma
 local cPom
 local cSez
@@ -319,5 +276,4 @@ for i:=1 to nPrSez
 next
 select (nArr)
 return lIma
-*}
 

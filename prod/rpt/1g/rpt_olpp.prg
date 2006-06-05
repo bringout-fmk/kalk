@@ -1,33 +1,14 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_olpp.prg
- *  \brief Izvjestaj "obracunski list poreza na promet" (OLPP)
- */
-
-
-/*! \fn StOLPP()
- *  \brief Izvjestaj "obracunski list poreza na promet" (OLPP)
- */
-
+// obracunski list poreza na promet
 function StOLPP()
-*{
-// sada je to StOLPDV()
+// => stolpdv()
 StOLPDV()
 return
-*}
 
 
-// obracunski list pdv-a
+// obracunski list poreza na dodanu vrijednost
 function StOLPDV()
-*{
 local ik
 local cPrviKTO
 local nUkPDV:=0
@@ -53,13 +34,13 @@ nC3:=40
 nC4:=0
 nC5:=0
 
-
 // radi 80-ke prodji 2 puta
 for ik:=1 to 2
 	START PRINT RET
+	?
 	nU1:=nU2:=nU3:=0
-	if ik=2 // drugi konto
-  		// dodji do drugog konta
+	if ik=2 
+		// drugi konto
    		HSEEK cIdFirma+cIdVD+cBrDok
    		do while !eof()  .and. pkonto==cPrviKTO
      			skip
@@ -89,7 +70,8 @@ for ik:=1 to 2
 
    		nMpCSaPP := mpcsapp
 
-   		if .f. // kolicina==0   // nivelacija:TNAM
+   		if .f. 
+			// kolicina==0   // nivelacija:TNAM
      			nMPC1 := MpcBezPor( iznos , aPorezi )
      			nMPC2 := nMPC1 + Izn_P_PPP( nMPC1 , aPorezi )
    		else
@@ -179,10 +161,12 @@ for ik:=1 to 2
         // bilo:  EJECTNA0
 	? m
  	? "Ukupno :"
- 	@ prow(),nC1 SAY nU1 pict picdem // mpc bez pdv
- 	@ prow(),nC4 SAY nTotPDV pict "999999.99" // total pdv
- 	@ prow(),nC2 SAY nU2 pict picdem // mpc sa pdv
- 	// @ prow(),nC3 SAY nU3 pict picdem // ???
+ 	@ prow(),nC1 SAY nU1 pict picdem 
+	// mpc bez pdv
+ 	@ prow(),nC4 SAY nTotPDV pict "999999.99" 
+	// total pdv
+ 	@ prow(),nC2 SAY nU2 pict picdem 
+	// mpc sa pdv
  	? STRTRAN(m," ","Ä")
  	?
 	
@@ -226,24 +210,18 @@ for ik:=1 to 2
 	select (nArr)
 	FF
 	END PRINT
-	if cIdVd<>"80"    // ako nije 80-ka samo jednom prodji
+	if cIdVd<>"80"    
+		// ako nije 80-ka samo jednom prodji
 		exit
 	endif
 
-next  // ik
+next  
 
 return
-*}
 
 
-
-/*! \fn ZOLPDV()
- *  \brief Zaglavlje izvjestaja "obracunski list poreza na promet" (OLPDV)
- */
-
+// zaglavlje izvjestaja stolpdv
 function ZOLPDV()
-*{
-
 local cNaslov:=StrKZN("OBRA^UNSKI LIST PDV-A","7",gKodnaS),cPom1,cPom2,c
 
 ZagFirma()
@@ -258,9 +236,10 @@ select pripr
 
 @ prow()+1,20 SAY "Po dokumentu: "+idvd+"-"+brdok
 
-?? StrKZN("Sjedi{te:","7",gKodnaS)
+?? StrKZN("Sjedi{te:", "7", gKodnaS)
 
-@ prow()+1,33 SAY "Broj: "; ?? brfaktp,"od:",SrediDat(datfaktp)
+@ prow()+1,33 SAY "Broj: "
+?? brfaktp, "od:", SrediDat(datfaktp)
 
 P_COND2
 
@@ -276,7 +255,5 @@ c:="³R.³       Naziv        ³jed³ koli~ina ³   bez PDV-a           ³            
 ? StrKZN("ÀÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÙ","7",gKodnaS)
 
 return
-*}
-
 
 

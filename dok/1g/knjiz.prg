@@ -1890,7 +1890,8 @@ do while .t.
 	endif
 
 	START PRINT CRET
-	
+	?
+
 	do while .t.
 	
 		if (cidvd=="10".and.!((gVarEv=="2").or.(gmagacin=="1")).or.(cidvd $ "11#12#13")).and.(c10Var=="3")

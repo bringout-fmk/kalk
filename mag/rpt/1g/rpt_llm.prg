@@ -8,16 +8,7 @@
  */
  
 
-/*! \file fmk/kalk/mag/rpt/1g/rpt_llm.prg
- *  \brief Izvjestaj "lager lista magacina"
- */
-
-
-/*! \fn LLM()
- *  \brief Izvjestaj "lager lista magacina"
- *  \param fPocStanje - .t. generisi pocetno stanje, .f. samo izvjestaj
- */
-
+// izvjestaj - lager lista magacina
 function LLM()
 *{
 parameters fPocStanje
@@ -311,6 +302,7 @@ else
 endif
 
 start print cret
+?
 
 private nTStrana:=0
 private bZagl:={|| ZaglLLM()}
@@ -434,83 +426,81 @@ if cMink=="O"; cNula:="D"; endif
 
 aNabavke:={}
 
-do while !eof() .and. iif(fSint.and.lSabKon,;
-        cidfirma+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cidroba==idFirma+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba,;
-        cidfirma+cidkonto+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cidroba==idFirma+mkonto+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba) .and.  IspitajPrekid()
+do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cIdRoba==idFirma+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba,cIdFirma+cIdKonto+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cIdRoba==idFirma+mkonto+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba) .and. IspitajPrekid()
 
-  if roba->tip $ "TU"
+	if roba->tip $ "TU"
+  		skip
+		loop
+  	endif
+  
+  	if mu_i=="1"
+    		if !(idvd $ "12#22#94")
+     			nKolicina:=field->kolicina-field->gkolicina-field->gkolicin2
+     			nUlaz+=nKolicina
+     			SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
+     			nCol1:=pcol()+1
+     			if koncij->naz=="P2"
+      				nVPVU+=round(roba->plc*(kolicina-gkolicina-gkolicin2), gZaokr)
+     			else
+      				nVPVU+=round( vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+     			endif
+     			nNVU+=round( nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+   		else
+     			nKolicina:=-field->kolicina
+     			nIzlaz+=nKolicina
+     			SumirajKolicinu(0, nKolicina, @nTUlazP, @nTIzlazP)
+     			if koncij->naz=="P2"
+        			nVPVI-=round( roba->plc*kolicina , gZaokr)
+     			else
+        			nVPVI-=round( vpc*kolicina , gZaokr)
+     			endif
+     			nNVI-=round( nc*kolicina , gZaokr)
+    		endif
+  	elseif mu_i=="5"
+    		nKolicina:=field->kolicina
+    		nIzlaz+=nKolicina
+    		SumirajKolicinu(0, nKolicina, @nTUlazP, @nTIzlazP)
+    		if koncij->naz=="P2"
+      			nVPVI+=round( roba->plc*kolicina , gZaokr)
+    		else
+      			nVPVI+=round( vpc*kolicina , gZaokr)
+    		endif
+    		nRabat+=round(  rabatv/100*vpc*kolicina , gZaokr)
+    		nNVI+=ROUND(nc*kolicina, gZaokr)
+  	elseif mu_i=="3"    
+    		// nivelacija
+    		nVPVU+=round( vpc*kolicina , gZaokr)
+  	elseif mu_i=="8"
+     		nKolicina:=-field->kolicina
+     		nIzlaz+=nKolicina
+     		SumirajKolicinu(0, nKolicina , @nTUlazP, @nTIzlazP)
+     		if koncij->naz=="P2"
+       			nVPVI+=round( roba->plc*(-kolicina) , gZaokr)
+     		else
+       			nVPVI+=round( vpc*(-kolicina) , gZaokr)
+     		endif
+     		nRabat+=round(  rabatv/100*vpc*(-kolicina) , gZaokr)
+     		nNVI+=ROUND(nc*(-kolicina), gZaokr)
+   		nKolicina:=-field->kolicina
+     		nUlaz+=nKolicina
+     		SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
+     		if koncij->naz=="P2"
+      			nVPVU+=round(-roba->plc*(kolicina-gkolicina-gkolicin2), gZaokr)
+     		else
+      			nVPVU+=round(-vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+     		endif
+     		nNVU+=round(-nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+  	endif
+  
+  	if fPocStanje .and. glEkonomat
+    		KreDetNC(aNabavke)
+  	endif
+
   	skip
-	loop
-  endif
-  
-  if mu_i=="1"
-    if !(idvd $ "12#22#94")
-     nKolicina:=field->kolicina-field->gkolicina-field->gkolicin2
-     nUlaz+=nKolicina
-     SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
-     nCol1:=pcol()+1
-     if koncij->naz=="P2"
-      nVPVU+=round(roba->plc*(kolicina-gkolicina-gkolicin2), gZaokr)
-     else
-      nVPVU+=round( vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
-     endif
-     nNVU+=round( nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
-   else
-     nKolicina:=-field->kolicina
-     nIzlaz+=nKolicina
-     SumirajKolicinu(0, nKolicina, @nTUlazP, @nTIzlazP)
-     if koncij->naz=="P2"
-        nVPVI-=round( roba->plc*kolicina , gZaokr)
-     else
-        nVPVI-=round( vpc*kolicina , gZaokr)
-     endif
-     nNVI-=round( nc*kolicina , gZaokr)
-    endif
-  elseif mu_i=="5"
-    nKolicina:=field->kolicina
-    nIzlaz+=nKolicina
-    SumirajKolicinu(0, nKolicina, @nTUlazP, @nTIzlazP)
-    if koncij->naz=="P2"
-      nVPVI+=round( roba->plc*kolicina , gZaokr)
-    else
-      nVPVI+=round( vpc*kolicina , gZaokr)
-    endif
-    nRabat+=round(  rabatv/100*vpc*kolicina , gZaokr)
-    nNVI+=ROUND(nc*kolicina, gZaokr)
-  elseif mu_i=="3"    
-    // nivelacija
-    nVPVU+=round( vpc*kolicina , gZaokr)
-  elseif mu_i=="8"
-     nKolicina:=-field->kolicina
-     nIzlaz+=nKolicina
-     SumirajKolicinu(0, nKolicina , @nTUlazP, @nTIzlazP)
-     if koncij->naz=="P2"
-       nVPVI+=round( roba->plc*(-kolicina) , gZaokr)
-     else
-       nVPVI+=round( vpc*(-kolicina) , gZaokr)
-     endif
-     nRabat+=round(  rabatv/100*vpc*(-kolicina) , gZaokr)
-     nNVI+=ROUND(nc*(-kolicina), gZaokr)
-     
-     nKolicina:=-field->kolicina
-     nUlaz+=nKolicina
-     SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
-     if koncij->naz=="P2"
-      nVPVU+=round(-roba->plc*(kolicina-gkolicina-gkolicin2), gZaokr)
-     else
-      nVPVU+=round(-vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
-     endif
-     nNVU+=round(-nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
-  endif
-  
-  if fPocStanje .and. glEkonomat
-    KreDetNC(aNabavke)
-  endif
-
-  skip
 enddo
 
 if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagSNab()), round(nNVU-nNVI,4)<>0, round(nVPVU-nVPVI,4)<>0))) .or. (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
+	
 	if cMink=="O" .and. nMink==0 .and. round(nUlaz-nIzlaz,4)==0
   		loop
 	endif
@@ -518,130 +508,126 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
    		B_ON
 	endif
 
-aNaz:=Sjecistr(roba->naz,20)
-NovaStrana(bZagl)
-? str(++nrbr,4)+".", cIdRoba
-nCr:=pcol()+1
-@ prow(),pcol()+1 SAY aNaz[1]
+	aNaz:=Sjecistr(roba->naz,20)
+	NovaStrana(bZagl)
+	
+	// rbr, idroba, naziv...
+	
+	? str(++nrbr,4)+".", cIdRoba
+	nCr:=pcol()+1
+	@ prow(),pcol()+1 SAY aNaz[1]
 
-cJMJ:=ROBA->JMJ
+	cJMJ:=ROBA->JMJ
+	
+	IF lSvodi
+  		nKJMJ  := SJMJ(1 ,cIdRoba,@cJMJ)
+  		cJMJ:=PADR(cJMJ,LEN(ROBA->JMJ))
+	ELSE
+  		nKJMJ  := 1
+	ENDIF
 
-IF lSvodi
-  nKJMJ  := SJMJ(1 ,cIdRoba,@cJMJ)
-  cJMJ:=PADR(cJMJ,LEN(ROBA->JMJ))
-ELSE
-  nKJMJ  := 1
-ENDIF
+	@ prow(),pcol()+1 SAY cJMJ
 
-@ prow(),pcol()+1 SAY cJMJ
+	IF lPoNarudzbi .and. cPKN=="D"
+  		@ prow(),pcol()+1 SAY cIdNar
+	ENDIF
 
-IF lPoNarudzbi .and. cPKN=="D"
-  @ prow(),pcol()+1 SAY cIdNar
-ENDIF
+	nCol0:=pcol()+1
 
-nCol0:=pcol()+1
+	// ulaz, izlaz, stanje
+	@ prow(),pcol()+1 SAY nKJMJ*nUlaz          pict gpickol
+	@ prow(),pcol()+1 SAY nKJMJ*nIzlaz         pict gpickol
+	@ prow(),pcol()+1 SAY nKJMJ*(nUlaz-nIzlaz) pict gpickol
 
+	if fPocStanje
+  		select pripr
+  		if glEkonomat
+    			FOR i:=LEN(aNabavke) TO 1 STEP -1
+      				IF !(ROUND(aNabavke[i,1],8)<>0)
+        				ADEL(aNabavke,i)
+        				ASIZE(aNabavke,LEN(aNabavke)-1)
+      				ENDIF
+    			NEXT
+    			FOR i:=1 TO LEN(aNabavke)
+       				append blank
+       				replace idfirma with cidfirma, idroba with cIdRoba,;
+               			idkonto with cIdKonto,;
+               			datdok with dDatDo+1,;
+               			idtarifa with roba->idtarifa,;
+               			datfaktp with dDatDo+1,;
+               			idvd with "16", brdok with cBRPST ,;
+               			kolicina with aNabavke[i,1],;
+               			nc with aNabavke[i,2]
+       				replace vpc with nc
+    			NEXT
+  		else
+    			if round(nUlaz-nIzlaz,4)<>0
+       				append blank
+       				replace idfirma with cidfirma, idroba with cIdRoba,;
+               			idkonto with cIdKonto,;
+               			datdok with dDatDo+1,;
+               			idtarifa with roba->idtarifa,;
+               			datfaktp with dDatDo+1,;
+               			kolicina with nUlaz-nIzlaz,;
+               			idvd with "16", brdok with cBRPST ,;
+               			nc with (nNVU-nNVI)/(nUlaz-nIzlaz),;
+               			vpc with (nVPVU-nVPVI)/(nUlaz-nIzlaz)
+				if IsMagPNab()
+               				replace vpc with nc
+       				endif
+    			endif
+  		endif
+  		select kalk
+	endif
 
-@ prow(),pcol()+1 SAY nKJMJ*nUlaz          pict gpickol
-@ prow(),pcol()+1 SAY nKJMJ*nIzlaz         pict gpickol
-@ prow(),pcol()+1 SAY nKJMJ*(nUlaz-nIzlaz) pict gpickol
+	nCol1:=pcol()+1
 
-if fPocStanje
-  select pripr
-  if glEkonomat
-    FOR i:=LEN(aNabavke) TO 1 STEP -1
-      IF !(ROUND(aNabavke[i,1],8)<>0)
-        ADEL(aNabavke,i)
-        ASIZE(aNabavke,LEN(aNabavke)-1)
-      ENDIF
-    NEXT
-    FOR i:=1 TO LEN(aNabavke)
-       append blank
-       replace idfirma with cidfirma, idroba with cIdRoba,;
-               idkonto with cIdKonto,;
-               datdok with dDatDo+1,;
-               idtarifa with roba->idtarifa,;
-               datfaktp with dDatDo+1,;
-               idvd with "16", brdok with cBRPST ,;
-               kolicina with aNabavke[i,1],;
-               nc with aNabavke[i,2]
-       replace vpc with nc
-    NEXT
-  else
-    if round(nUlaz-nIzlaz,4)<>0
-       append blank
-       replace idfirma with cidfirma, idroba with cIdRoba,;
-               idkonto with cIdKonto,;
-               datdok with dDatDo+1,;
-               idtarifa with roba->idtarifa,;
-               datfaktp with dDatDo+1,;
-               kolicina with nUlaz-nIzlaz,;
-               idvd with "16", brdok with cBRPST ,;
-               nc with (nNVU-nNVI)/(nUlaz-nIzlaz),;
-               vpc with (nVPVU-nVPVI)/(nUlaz-nIzlaz)
-
-       if IsMagPNab()
-               replace vpc with nc
-       endif
-    endif
-  endif
-  select kalk
+	if gVarEv=="1"
+	   if IsMagPNab()
+ 		@ prow(),pcol()+1 SAY nNVU pict gpicdem
+ 		@ prow(),pcol()+1 SAY nNVI pict gpicdem
+ 		@ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
+ 		if round(nUlaz-nIzlaz,4)<>0
+   		   @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
+ 		endif
+	   else
+             @ prow(),pcol()+1 SAY nVPVU pict gpicdem
+             @ prow(),pcol()+1 SAY nRabat pict gpicdem
+             @ prow(),pcol()+1 SAY nVPVI pict gpicdem
+             @ prow(),pcol()+1 SAY nVPVU-NVPVI pict gpicdem
+             if round(nUlaz-nIzlaz,4)<>0
+                @ prow(),pcol()+1 SAY (nVPVU-nVPVI)/(nUlaz-nIzlaz) pict gpiccdem
+                if !(koncij->naz="P")
+                     if IsPDV() .and. ( IsMagPNab() .or. IsMagSNab() )
+  	                 if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
+    		             ?? " ERR"
+  	                 endif
+                     else
+   	                 if cErr=="D" .and. round((nVPVU-nVPVI)/(nUlaz-nIzlaz),4)<>round(KoncijVPC(),4)
+    		             ?? " ERR"
+  	                 endif
+                     endif
+               endif
+            else
+               	@ prow(),pcol()+1 SAY 0 pict gpicdem
+		if IsPDV() .and. (IsMagPNab() .or. IsMagSNab())
+  			if (cErr=="D" .or. fPocstanje) .and. round((nNVU-nNVI),4)<>0
+   				fImaGresaka:=.t.
+   				?? " ERR"
+  			endif
+ 		else
+  			if (cErr=="D" .or. fPocstanje) .and. round((nVPVU-nVPVI),4)<>0
+   				fImaGresaka:=.t.
+   				?? " ERR"
+  			endif
+ 		endif 
+	   endif
+     endif
 endif
-
-
-nCol1:=pcol()+1
-
-if gVarEv=="1"
-
-if IsMagPNab()
- @ prow(),pcol()+1 SAY nNVU pict gpicdem
- @ prow(),pcol()+1 SAY nNVI pict gpicdem
- @ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
- if round(nUlaz-nIzlaz,4)<>0
-   @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
- endif
-else
- @ prow(),pcol()+1 SAY nVPVU pict gpicdem
- @ prow(),pcol()+1 SAY nRabat pict gpicdem
- @ prow(),pcol()+1 SAY nVPVI pict gpicdem
- @ prow(),pcol()+1 SAY nVPVU-NVPVI pict gpicdem
-if round(nUlaz-nIzlaz,4)<>0
- @ prow(),pcol()+1 SAY (nVPVU-nVPVI)/(nUlaz-nIzlaz) pict gpiccdem
- if !(koncij->naz="P")
-  if IsPDV() .and. ( IsMagPNab() .or. IsMagSNab() )
-  	if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
-    		?? " ERR"
-  	endif
-  else
-   	if cErr=="D" .and. round((nVPVU-nVPVI)/(nUlaz-nIzlaz),4)<>round(KoncijVPC(),4)
-    		?? " ERR"
-  	endif
-  endif
- endif
-else
- @ prow(),pcol()+1 SAY 0 pict gpicdem
-
- if IsPDV() .and. (IsMagPNab() .or. IsMagSNab())
-  if (cErr=="D" .or. fPocstanje) .and. round((nNVU-nNVI),4)<>0
-   fImaGresaka:=.t.
-   ?? " ERR"
-  endif
- else
-  if (cErr=="D" .or. fPocstanje) .and. round((nVPVU-nVPVI),4)<>0
-   fImaGresaka:=.t.
-   ?? " ERR"
-  endif
- endif 
-endif
-endif // koncij
-
-endif
-
 
 if cSredCij=="D"
 	@ prow(), pcol()+1 SAY (nNVU-nNVI+nVPVU-nVPVI)/(nUlaz-nIzlaz)/2 PICT "9999999.99"
 endif
-
 
 // novi red
 @ prow()+1,0 SAY ""

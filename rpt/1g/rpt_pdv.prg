@@ -247,6 +247,8 @@ if !used()
 endif
 
 START PRINT CRET
+?
+
 P_COND2
 
 if lLandscape

@@ -1,23 +1,5 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/inters/1g/frm_24.prg,v $
- * $Author: sasa $ 
- * $Revision: 1.2 $
- * $Log: frm_24.prg,v $
- * Revision 1.2  2002/06/24 08:54:38  sasa
- * no message
- *
- *
- */
-
-
-/*! \file fmk/kalk/specif/inters/1g/frm_24.prg
- *  \brief Funkcije za obradu kalkulacija usluga - specificno za Intersped
- */
 
 /*! \fn Get1_24()
  *  \brief Obradjuje kalkulacije usluga
@@ -71,15 +53,10 @@ read
 
 nStrana:=3
 return lastkey()
-*}
-
-
-
 
 
 // PDV verzija
 function Get1_24PDV()
-*{
 
 _DatFaktP:=_datdok
 
@@ -131,11 +108,9 @@ read
 
 nStrana:=3
 return lastkey()
-*}
 
 
 static function ShowTar(idtarifa)
-*{
 select tarifa
 hseek idtarifa
 select pripr
@@ -143,5 +118,4 @@ select pripr
 devpos(m_x+16, m_y+40)
 qqout("PDV (%): ", tarifa->opp)
 return
-*}
 

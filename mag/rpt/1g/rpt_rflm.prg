@@ -1,47 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_rflm.prg,v $
- * $Author: enespivic $ 
- * $Revision: 1.5 $
- * $Log: rpt_rflm.prg,v $
- * Revision 1.5  2004/03/17 13:15:40  enespivic
- * Na izvjestaju "rekapitulacija fin. stanja po magacinima" nakon ispisa
- * podataka za odgovarajuci konto ispisuje se u novom redu puni naziv konta.
- *
- * Revision 1.4  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.3  2002/06/25 15:08:46  ernad
-*
- *
- * prikaz parovno - Planika
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/rpt/1g/rpt_rflm.prg
- *  \brief Izvjestaj "rekapitulacija finansijskog stanja po magacinima"
- */
-
-
-/*! \fn RFLLM()
- *  \brief Izvjestaj "rekapitulacija finansijskog stanja po magacinima"
- */
-
+// rekapitulacija finansijskog stanja po magacinima
 function RFLLM()
-*{
-
 local nKolUlaz
 local nKolIzlaz
 
@@ -106,9 +66,6 @@ select kalk
 EOF CRET
 
 nLen:=1
-//m:="----- ----------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
-
-//? "R.br *    Konto    *  NV.Dug. *  NV.Pot  *    NV    *  VPV Dug.*  VPV Pot *   VPV    *  Rabat  *"
 
 aRFLLM:={}
 AADD(aRFLLM, {5, " R.br"})
@@ -124,11 +81,10 @@ private cLine:=SetRptLineAndText(aRFLLM, 0)
 private cText1:=SetRptLineAndText(aRFLLM, 1, "*")
 
 start print cret
+?
 
 private nTStrana:=0
-
 private bZagl:={|| ZaglRFLLM()}
-
 
 Eval(bZagl)
 nTUlaz:=nTIzlaz:=0
@@ -264,35 +220,25 @@ endif
 FF
 end print
 
-#ifdef CAX
- if gKalks
- 	select kalk
- 	use
- endif
-#endif
 closeret
 return
 *}
 
 
-
-/*! \fn ZaglRFLLM()
- *  \brief Zaglavlje izvjestaja "rekapitulacija finansijskog stanja po magacinima"
- */
-
+// zaglavlje izvjestaja rekap.fin.stanja
 function ZaglRFLLM()
-*{
 Preduzece()
 P_12CPI
 select konto
 hseek cidkonto
-?? space(60)," DATUM "; ?? date(), space(5),"Str:",str(++nTStrana,3)
+?? space(60)," DATUM "
+?? date(), space(5),"Str:",str(++nTStrana,3)
 ?
 ?
 ? "KALK: Rekapitulacija fin. stanja po magacinima za period",dDatOd,"-",dDatDo
 ?
 ?
-? "Magacin:",cidkonto,"-",konto->naz
+? "Magacin:", cIdKonto, "-", konto->naz
 ?
 if aUsl1<>'.t.'
   ? "Kriterij za konta  :",trim(qqKonto)

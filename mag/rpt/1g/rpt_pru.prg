@@ -1,30 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_pru.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: rpt_pru.prg,v $
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/rpt/1g/rpt_pru.prg
- *  \brief Izvjestaj "pregled poreza na RUC"
- */
-
-
-/*! \fn RekPorMag()
- *  \brief Izvjestaj "pregled poreza na RUC"
- */
-
+// pregled poreza na RUC
 function RekPorMag()
 *{
 local nT1:=nT4:=nT5:=nT6:=nT7:=0
@@ -53,7 +30,9 @@ Box(,5,75)
   aUsl1:=Parsiraj(qqKonto,"MKonto")
   aUsl2:=Parsiraj(qqRoba,"IdRoba")
   aUsl3:=Parsiraj(qqPartn,"IdPartner")
-  if aUsl1<>NIL; exit; endif
+  if aUsl1<>NIL
+      exit
+  endif
  enddo
 BoxC()
 
@@ -62,8 +41,8 @@ O_SIFK
 O_SIFV
 O_ROBA
 O_TARIFA
-O_KALK;  set order to 6
-//CREATE_INDEX("6","idFirma+IDTarifa+idroba",KUMPATH+"KALK")
+O_KALK
+set order to 6
 
 private cFilt1:=""
 
@@ -78,16 +57,7 @@ IF !(cFilt1==".t.")
   SET FILTER TO &cFilt1
 ENDIF
 
-go top   // samo  zaduz prod. i povrat iz prod.
-
-//M:="------------ ------------- ------------- ------------- ---------- ---------- ---------- ----------"
-// if gVarVP=="1"
-//"*     TARIF *      NV     *   VPV - RAB *  VPV - NV   *  POREZ   *  POREZ   *RUC-PRUC *   VPV    *"
-//"*     BROJ  *             *             *    (RUC)    *     %    *  (PRUC)  *         *  SA POR  *"
-//  else
-//"*     TARIF *      NV     *   VPV - RAB *  POREZ      *   RUC    *  POREZ   *RUC+PRUC *   VPV    *"
-//"*     BROJ  *             *             *     %       *          *  (PRUC)  *(VPV-NV) *          *"
- // endif
+go top
  
 aMRUP:={}
 AADD(aMRUP, {15, " TARIF", " BROJ"})
@@ -108,6 +78,7 @@ cText1:=SetRptLineAndText(aMRUP, 1, "*")
 cText2:=SetRptLineAndText(aMRUP, 2, "*")
 
 START PRINT CRET
+?
 
 n1:=n2:=n3:=n5:=n5b:=n6:=0
 

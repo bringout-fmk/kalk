@@ -1,106 +1,27 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/rpt/1g/rpt_spo.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: rpt_spo.prg,v $
- * Revision 1.4  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.3  2003/06/23 09:32:24  sasa
- * prikaz dobavljaca
- *
- * Revision 1.2  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.1  2002/07/06 17:28:58  ernad
- *
- *
- * izvjestaj Trgomarket: pregled stanja po objektima
- *
- *
- */
-
-
-*string
 static nCol1:=0
-*;
-
-*string
 static cPicCDem
-*;
-
-*string
 static cPicProc
-*;
-
-*string
 static cPicDem
-*;
-
-*string
 static cPicKol
-*;
-
-*string
 static cStrRedova2:=62
-*;
-
-*string
 static cPrikProd:="N"
-*;
-
-
-*string
 static qqKonto
-*;
-
-*string
 static qqRoba
-*;
-
-*string
 static cUslov1
-*;
-
-*string
 static cUslov2
-*;
-
-*string
 static cUslovRoba
-*;
-
-*string
 static cK9
-*;
-
-*int
 static cNObjekat
-*;
-
-*string
 static cLinija
-*;
-
-*string
 static cPrikazDob
-*;
 
 #define ROBAN_LEN 40
 #define KOLICINA_LEN 10
 
 function StanjePoObjektima()
-*{
 // kao djon cu iskoristiti pregled kretanja zaliha
-
-*{
 local i
 local nT1
 local nT4
@@ -118,15 +39,10 @@ local n5
 local n6
 local n7
 local nRecno
-
 local cPodvuci
-
 local lMarkiranaRoba
-
-
 private dDatOd
 private dDatDo
-
 private aUTar:={}
 private nUkObj:=0
 private nITar:=0
@@ -134,7 +50,6 @@ private aUGArt:={}
 private cPrSort:="SUBSTR(cIdRoba,3,3)"
 
 cPodvuci:="N"
-
 
 O_SIFK
 O_SIFV
@@ -182,7 +97,7 @@ go top
 SetGaZagSpo()
 
 START PRINT CRET
-
+?
 
 if (gPrinter="R")
 	cStrRedova2:=40
@@ -200,15 +115,10 @@ FillPObjekti()
 
 select rekap1
 nRbr:=0
-
 nRecno:=0
 fFilovo:=.f.
 do while !eof()
-
-	
 	cG1:=rekap1->g1
-	
-
 	select pobjekti    
 	// inicijalizuj polja
 	go top
@@ -287,7 +197,6 @@ do while !eof()
 		SELECT rekap1
 		// pozicioniraj se na sljedeci artikal
 		SEEK cG1+cIdTarifa+cIdroba+CHR(255) 
-
 	enddo
 
 	if !fFilGr
@@ -304,21 +213,7 @@ do while !eof()
 	SELECT k1
 	HSEEK cG1
 	SELECT rekap1
-
-	/*
-		? "Ukupno grupa",cG1,"-",k1->naz
-
-		// zaliha grupe
-		PrintZalGr()
-		if (cPrikProd=="D")
-			PrintProdGr()
-		endif
-
-	*/
-	
-	SELECT rekap1
 	STRTRAN(cLinija,"-","=")
-
 enddo                        
 
 if (PROW()>cStrRedova2)
@@ -328,19 +223,10 @@ endif
 
 FF
 end print
-#ifdef CAX
-close all
-#endif
-
 closeret
-
 return
-*}
-
-
 
 function SetK1K2(cG1, cIdTarifa, cIdRoba, nK1, nK2)
-*{		
 nK2:=0
 nK1:=0
 select pobjekti
@@ -355,12 +241,9 @@ do while (!EOF()  .and. field->id<"99")
 enddo
 
 return
-*}
-
 
 
 static function SetLinSpo()
-*{
 local nObjekata
 
 cLinija:=REPLICATE("-",4)+" "+REPLICATE("-",10)+" "+REPLICATE("-",ROBAN_LEN)
@@ -372,13 +255,9 @@ do while !eof()
 	++nObjekata
 	skip
 enddo
-
-
 return
-*}
 
 static function ZaglSPo(nStr) 
-*{
 local nObjekata
 
 ? gTS+":",gNFirma,space(40),"Strana:"+str(++nStr,3)
@@ -418,15 +297,11 @@ enddo
 ? cLinija
 
 return nil
-*}
 
 static function GetVars(cNObjekat)
-*{
-
 cUslov1:=""
 cUslov2:=""
 cUslovR:=""
-
 dDatOd:=DATE()
 dDatDo:=DATE()
 
@@ -493,29 +368,9 @@ select params
 use
 
 return 1
-*}
 
 static function SetGaZagSpo()
-*{
-
-/*
-if cRekPoRobama=="D"
-	// 7.red fajla, 4 reda ukupno (7.,8.,9. i 10.) (ovi redovi su zaglavlje ovog izvjestaja i fiksno se prikazuju na ekranu)
-	gaZagFix:={ 7, 4}    
-	// 6.kolona, 38 kolona ukupno, od 7.reda ispisuj
-	gaKolFix:={ 1, 58, 7 }   
-
-elseif cRekPoDobavljacima=="D"
-	gaZagFix:={15, 4}
-	gaKolFix:={ 1, 58, 15 }
-elseif cRekPoGrupamaRobe=="D"
-	gaZagFix:={15, 4}
-	gaKolFix:={ 1, 58, 15 }
-endif
-*/
-
 return
-*}
 
 static function PrintZal(cG1, cIdTarifa, cIdRoba)
 *{
@@ -535,7 +390,6 @@ do while (!eof() .and. field->id<"99")
 enddo
 // ispis kolone "SVI"
 @ prow(),pcol()+1 SAY nK2 pict cPicKol
-
 
 // ispisi kolone za pojedine objekte
 select pobjekti    
@@ -567,12 +421,8 @@ if (roba->k2<>"X")
 endif
 
 return
-*}
-
-
 
 static function PrintProd(cG1, cIdTarifa, cIdRoba)
-*{
 local nK1
 
 select pobjekti    
@@ -622,12 +472,7 @@ endif
 
 return
 
-*}
-
-
 static function PrintZalGr()
-*{
-
 select pobjekti
 // idi na "objekat" 99 (SVI)
 go bottom 
@@ -640,13 +485,9 @@ do while (!eof() .and. pobjekti->id<"99")
 	++i
 	skip
 enddo
-
 return
-*}
 
 static function PrintProdGr()	
-*{
-
 select pobjekti
 go bottom 
 // idi na "objekat" 99 (SVI)
@@ -659,6 +500,4 @@ do while (!eof()  .and. field->id<"99")
 	++i
 	skip
 enddo
-
-*}
 

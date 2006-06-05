@@ -1,56 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_rup.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.10 $
- * $Log: rpt_rup.prg,v $
- * Revision 1.10  2004/01/07 13:43:27  sasavranic
- * Korekcija algoritama za tarife, ako je bilo promjene tarifa
- *
- * Revision 1.9  2004/01/06 18:06:12  sasavranic
- * no message
- *
- * Revision 1.8  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.7  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.6  2003/09/08 08:41:43  ernad
- * porezi u ugostiteljstvu
- *
- * Revision 1.5  2003/02/10 02:19:34  mirsad
- * no message
- *
- * Revision 1.4  2002/12/30 01:30:13  mirsad
- * ispravke bugova-Planika
- *
- * Revision 1.3  2002/07/22 14:16:12  mirsad
- * dodao proracun poreza u ugostiteljstvu (varijante "M" i "J")
- *
- * Revision 1.2  2002/06/21 12:12:12  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_rup.prg
- *  \brief Izvjestaj "ukalkulisani porez prodavnice"
- */
-
-
-/*! \fn RekKPor()
- *  \brief Izvjestaj "ukalkulisani porez prodavnice"
- */
-
+// ukalkulisani porez prodavnice
 function RekKPor()
-*{
 local  i:=0
 local nT1:=0
 local nT4:=0
@@ -76,12 +27,6 @@ local PicProc:=gPicProc
 local PicDEM:=REPLICATE("9", VAL(gFPicDem)) + gPicDEM         
 local Pickol:=gPicKol         
 local aPorezi
-
-/*
-if glPoreziLegacy
-	RekKPorLegacy()
-endif
-*/
 
 dDat1:=dDat2:=ctod("")
 cVDok:="99"
@@ -150,6 +95,7 @@ cText1:=SetRptLineAndText(aRUP, 1, "*")
 cText2:=SetRptLineAndText(aRUP, 2, "*")
 
 START PRINT CRET
+?
 
 n1:=0
 n4:=0
@@ -157,7 +103,7 @@ n5:=0
 n5a:=0
 n6:=0
 n7:=0
-altd()
+
 aPorezi:={}
 DO WHILE !EOF() .and. IspitajPrekid()
   B:=0
@@ -208,7 +154,6 @@ DO WHILE !EOF() .and. IspitajPrekid()
      
      cIdTarifa:=Tarifa(pkonto, idRoba, @aPorezi, cIdTarifa)
      
-     
      nMPV:=0
      nMPVSaPP:=0
      nNV:=0
@@ -235,7 +180,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
       AADD(aTarife,{cIdTarifa,nMPVSAPP})
      endif
      if prow()>62+gPStranica
-     	ff
+     	FF
      endif
      
  	// porez na promet
@@ -252,35 +197,29 @@ DO WHILE !EOF() .and. IspitajPrekid()
 		// posebni porez
 		nPorez3:=Izn_P_PP( nMpv, aPorezi )
 	endif
-    
-     
 
-     @ prow()+1,0        SAY space(6)+cIdTarifa
+     @ prow()+1,0 SAY space(6)+cIdTarifa
      nCol1:=pcol()+4
-     @ prow(),pcol()+4   SAY n1:=nMPV     PICT   PicDEM
-     
-     @ prow(),pcol()+1   SAY aPorezi[POR_PPP] PICT   PicProc
-	
+     @ prow(),pcol()+4 SAY n1:=nMPV PICT PicDEM
+     @ prow(),pcol()+1 SAY aPorezi[POR_PPP] PICT PicProc
      if glUgost
-  		@ prow(),pcol()+1   SAY aPorezi[POR_PRUCMP] pict picproc
+  		@ prow(),pcol()+1 SAY aPorezi[POR_PRUCMP] pict picproc
      else	
-		@ prow(),pcol()+1   SAY aPorezi[POR_PPU] pict picproc
+		@ prow(),pcol()+1 SAY aPorezi[POR_PPU] pict picproc
      endif
-     @ prow(),pcol()+1   SAY aPorezi[POR_PP] pict picproc
-       
-     
-     @ prow(),pcol()+1   SAY n4:=nPorez   PICT   PicDEM
-     @ prow(),pcol()+1   SAY n5:=nPorez2  PICT   PicDEM
-     @ prow(),pcol()+1   SAY n5a:=nPorez3 PICT   PicDEM
-     @ prow(),pcol()+1   SAY n6:=nPorez+nPorez2+nPorez3  PICTURE   PicDEM
-     @ prow(),pcol()+1   SAY n7:=nMPVSAPP PICTURE   PicDEM
+     @ prow(),pcol()+1 SAY aPorezi[POR_PP] pict picproc
+     @ prow(),pcol()+1 SAY n4:=nPorez PICT PicDEM
+     @ prow(),pcol()+1 SAY n5:=nPorez2 PICT PicDEM
+     @ prow(),pcol()+1 SAY n5a:=nPorez3 PICT PicDEM
+     @ prow(),pcol()+1 SAY n6:=nPorez+nPorez2+nPorez3 PICTURE PicDEM
+     @ prow(),pcol()+1 SAY n7:=nMPVSAPP PICTURE PicDEM
      nT1+=n1
      nT4+=n4
      nT5+=n5
      nT5a+=n5a
      nT6+=n6
      nT7+=n7
-  ENDDO // konto
+  ENDDO 
 
   if prow()>60+gPStranica
   	FF
@@ -313,41 +252,35 @@ DO WHILE !EOF() .and. IspitajPrekid()
     ? cLine
   endif
 
-ENDDO // eof
+ENDDO 
 
 ?
 FF
-
 END PRINT
-
 set softseek on
 
-#ifdef CAX
- if gKalks
- 	select kalk
-	use
- endif
-#endif
 closeret
 return
-*}
-
 
 
 /*
+// ??? rekapitulacija poreza legacy
 function RekKPorLegacy()
-local  i:=nT1:=nT4:=nT5:=nT5a:=nT6:=nT7:=0
-local  nTT1:=nTT4:=nTT5:=nTT5a:=nTT6:=nTT7:=0
-local  n1:=n4:=n5:=n5a:=n6:=n7:=0
-local  nCol1:=0
-local   PicCDEM:=gPicCDEM       // "999999.999"
-local   PicProc:=gPicProc       // "999999.99%"
-local   PicDEM:=gPicDEM         // "9999999.99"
-local   Pickol:=gPicKol         // "999999.999"
+local i:=nT1:=nT4:=nT5:=nT5a:=nT6:=nT7:=0
+local nTT1:=nTT4:=nTT5:=nTT5a:=nTT6:=nTT7:=0
+local n1:=n4:=n5:=n5a:=n6:=n7:=0
+local nCol1:=0
+local PicCDEM:=gPicCDEM       
+// "999999.999"
+local PicProc:=gPicProc       
+// "999999.99%"
+local PicDEM:=gPicDEM         
+// "9999999.99"
+local Pickol:=gPicKol         
+// "999999.999"
 
 private aPorezi
 aPorezi:={}
-
 dDat1:=dDat2:=ctod("")
 cVDok:="99"
 cStope:="N"
@@ -395,7 +328,7 @@ EOF CRET
 M:="------------ ------------- ---------- ----------- ----------- --------- --------- ---------- ---------- ----------"
 
 START PRINT CRET
-
+?
 
 n1:=n4:=n5:=n5a:=n6:=n7:=0
 
@@ -495,9 +428,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
 	     ELSE
 	     	nPorez3:=nPP/100*(nMPVSaPP-nPorez2)
 	     ENDIF
-
      else
-
 	     if glUgost
 		     nPorez:=Izn_P_PPP(nMpv,aPorezi,,nMPVSaPP)
 		     nPorez2:=Izn_P_PRugost(nMPVSaPP,nMpv,nNV,aPorezi)
@@ -523,8 +454,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
      @ prow(),pcol()+1   SAY n7:=nMPVSAPP PICTURE   PicDEM
      nT1+=n1;  nT4+=n4;  nT5+=n5;  nT5a+=n5a;  nT6+=n6
      nT7+=n7
-  ENDDO // konto
-
+  ENDDO 
   if prow()>60+gPStranica
 	  FF
   endif
@@ -555,25 +485,15 @@ DO WHILE !EOF() .and. IspitajPrekid()
     next
     ? m
   endif
-
-ENDDO // eof
+ENDDO 
 
 ?
 FF
 
 END PRINT
-
 set softseek on
 
-#ifdef CAX
-	if gKalks
-		select kalk
-		use
-	endif
-#endif
 closeret
 return
-*}
 */
-
 

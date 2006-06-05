@@ -1,55 +1,16 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/jerry/1g/jerry.prg,v $
- * $Author: mirsadsubasic $ 
- * $Revision: 1.7 $
- * $Log: jerry.prg,v $
- * Revision 1.7  2003/09/29 13:26:57  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.6  2003/09/20 07:37:07  mirsad
- * sredj.koda za poreze u MP
- *
- * Revision 1.5  2002/10/07 14:15:59  mirsad
- * novi parametar: broj decimala za prikaz iznosa stavki KALK 4x varijanta Jerry
- *
- * Revision 1.4  2002/08/02 13:46:27  mirsad
- * no message
- *
- * Revision 1.3  2002/07/19 14:01:43  mirsad
- * ubacivanje zakasnjelih dorada
- *
- * Revision 1.2  2002/06/24 09:01:02  sasa
- * no message
- *
- *
- */
 
 
-/*! \file fmk/kalk/specif/jerry/1g/jerry.prg
- *  \brief Specifikacije specificne za Jerry
- */
+// ingroup Jerry
+// var *string FmkIni_KumPath_KALK_Jerry_KALK4x_SvediDatum
+// brief Koji se datum svodi na datum posljednje stavke
+// param F - datum fakture, default vrijednost
+// param K - datum kalkulacije
+// FmkIni_KumPath_KALK_Jerry_KALK4x_SvediDatum;
 
-
-/*! \ingroup Jerry
-  * \var *string FmkIni_KumPath_KALK_Jerry_KALK4x_SvediDatum
-  * \brief Koji se datum svodi na datum posljednje stavke
-  * \param F - datum fakture, default vrijednost
-  * \param K - datum kalkulacije
-  */
-*string FmkIni_KumPath_KALK_Jerry_KALK4x_SvediDatum;
-
-
-/*! \fn StKalk19J()
- *  \brief Stampa kalkulacije 19 "Jerry"
- */
 
 function StKalk19J()
-*{
 local nCol1:=nCol2:=0,npom:=0
 
 Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2,aPorezi
@@ -88,7 +49,6 @@ endif
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
-    // !!!!!!!!!!!!!!!
     if idpartner+brfaktp+idkonto+idkonto2<>cidd
      set device to screen
      Beep(2)
@@ -159,14 +119,10 @@ P_10CPI
 ? padl("3. ___________________",75)
 ?
 RETURN
-*}
 
 
-/*! \fn JerryMP()
- *  \brief Svodjenje datuma u svim stavkama na datum posljednje stavke
- */
+// Svodjenje datuma u svim stavkama na datum posljednje stavke
 function JerryMP()
-*{
 local dLast
 local cDok
 local cSvediDatFakt
@@ -189,17 +145,11 @@ if (field->idvd="4")
 	enddo
 endif
 return nil
-*}
 
 
 
-/*! \fn StKalk47J()
- *  \brief Stampa kalkulacije 47 / izlaz iz prodavnice
- *  \param
- */
- 
+// Stampa kalkulacije 47 / izlaz iz prodavnice
 function StKalk47J()
-*{
 local nCol0:=nCol1:=nCol2:=0,npom:=0
 local cPicI, nIznosDec
 
@@ -207,7 +157,6 @@ lPrikazNC := ( IzFMKINI("KALK","Jerry_KALK47_PrikazatiNC","D",KUMPATH)=="D" )
 
 Private nMarza,nMarza2,nPRUC
 nMarza:=nMarza2:=nPRUC:=0
-
 private aPorezi
 aPorezi:={}
 
@@ -239,7 +188,6 @@ nTot6a:=nTot6b:=nTot6c:=0
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
-	// !!!!!!!!!!!!!!!
 	IF idpartner+brfaktp+idkonto+idkonto2<>cidd
 		set device to screen
 		Beep(2)
@@ -346,17 +294,10 @@ RekTar41(cIdFirma, cIdVd, cBrDok, @nStr)
 set order to 1
 go nRec
 RETURN
-*}
 
 
-
-
-/*! \fn StKalk81J()
- *  \brief Stampa kalkulacije 81 / direktno zaduzenje prodavnice
- */
- 
+// Stampa kalkulacije 81 / direktno zaduzenje prodavnice
 function StKalk81J()
-*{
 local nCol1:=nCol2:=0,npom:=0
 
 Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2,nPRUC,aPorezi
@@ -548,6 +489,5 @@ RekTarife()
 ? "RUC:";  @ prow(),pcol()+1 SAY nTot6 pict picdem
 ? m
 return
-*}
 
 

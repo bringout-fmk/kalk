@@ -19,7 +19,6 @@ liball:
 	make -C sif/1g
 	make -C specif/jerry/1g
 	make -C specif/inters/1g
-	make -C specif/opresa/tar/1g
 	make -C specif/planika/1g
 	make -C specif/tvin/1g
 	make -C specif/opze/1g
@@ -59,7 +58,6 @@ cleanall:
 	cd rpt/1g; make clean
 	cd sif/1g; make clean
 	cd specif/inters/1g; make clean
-	cd specif/opresa/tar/1g; make clean
 	cd specif/planika/1g; make clean
 	cd specif/tvin/1g; make clean
 	cd specif/opze/1g; make clean

@@ -166,6 +166,7 @@ private cLine:=SetRptLineAndText(aFLLM, 0)
 private cText1:=SetRptLineAndText(aFLLM, 1, "*")
 
 start print cret
+?
 
 if cPapir=="2"
 	P_COND2

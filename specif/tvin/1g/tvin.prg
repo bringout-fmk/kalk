@@ -1,33 +1,5 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/tvin/1g/tvin.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.5 $
- * $Log: tvin.prg,v $
- * Revision 1.5  2003/08/01 16:19:23  mirsad
- * tvin, debug, 11-ka i 12-ka, kontrola stanja robe pri unosu
- *
- * Revision 1.4  2003/07/29 15:56:24  mirsad
- * ispravka: pri izlazu više ne razdvaja nabavke po cijeni veæ samo po narudžbi i naruèiocu
- *
- * Revision 1.3  2003/07/18 07:24:54  mirsad
- * stavio u f-ju kontrolu stanja za varijantu po narudzbama za izlazne dokumente (14,41,42)
- *
- * Revision 1.2  2002/06/24 09:33:35  sasa
- * no message
- *
- *
- */
-
-
-/*! \file fmk/kalk/specif/tvin/1g/tvin.prg
- *  \brief Izvjestaji tvin
- */
-
 /*! \fn IspisPoNar(lPartner,lString,lMVar)
  *  \brief Prikaz narucioca ako je razlicit od kupca
  *  \param lPartner

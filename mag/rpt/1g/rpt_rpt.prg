@@ -1,32 +1,8 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_rpt.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: rpt_rpt.prg,v $
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/rpt/1g/rpt_rpt.prg
- *  \brief Izvjestaj "rekapitulacija prometa u magacinu po tarifama"
- */
-
-
-/*! \fn RekMagTar()
- *  \brief Izvjestaj "rekapitulacija prometa u magacinu po tarifama"
- */
-
+// Izvjestaj "rekapitulacija prometa u magacinu po tarifama"
 function RekMagTar()
-*{
 local nT1:=nT4:=nT5:=nT6:=nT7:=0
 local nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
 local n1:=n4:=n5:=n6:=n7:=0
@@ -61,8 +37,9 @@ O_SIFK
 O_SIFV
 O_ROBA
 O_TARIFA
-O_KALK;  set order to 6
-//CREATE_INDEX("6","idFirma+IDTarifa+idroba",KUMPATH+"KALK")
+O_KALK
+set order to 6
+//"idFirma+IDTarifa+idroba"
 
 private cFilt1:=""
 
@@ -76,7 +53,8 @@ IF !(cFilt1==".t.")
   SET FILTER TO &cFilt1
 ENDIF
 
-go top   // samo  zaduz prod. i povrat iz prod.
+go top   
+// samo  zaduz prod. i povrat iz prod.
 
 aRpt:={}
 AADD(aRpt, {12, " TARIF", " BROJ"})
@@ -93,6 +71,7 @@ cText1:=SetRptLineAndText(aRpt, 1, "*")
 cText2:=SetRptLineAndText(aRpt, 2, "*")
 
 START PRINT CRET
+?
 
 n1:=n2:=n3:=n5:=n5b:=n6:=0
 
@@ -124,7 +103,8 @@ DO WHILE !EOF() .and. IspitajPrekid()
   DO WHILE !EOF() .AND. cIdFirma==KALK->IdFirma .and. IspitajPrekid()
      cIdKonto:=IdKonto
      cIdTarifa:=IdTarifa
-     select tarifa; hseek cidtarifa
+     select tarifa
+     hseek cIdTarifa
      select kalk
      nVPP:=TARIFA->VPP
      nNVD:=nNVP:=0
@@ -134,7 +114,9 @@ DO WHILE !EOF() .and. IspitajPrekid()
 
         select KALK
 
-        select roba; hseek kalk->idroba; select kalk
+        select roba
+	hseek kalk->idroba
+	select kalk
         VtPorezi()
         if _PORVT<>0
            cVT:=.t.
@@ -198,4 +180,4 @@ END PRINT
 set softseek on
 closeret
 return
-*}
+

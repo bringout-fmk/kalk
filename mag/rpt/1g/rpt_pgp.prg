@@ -1,29 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_pgp.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: rpt_pgp.prg,v $
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
 
-/*! \file fmk/kalk/mag/rpt/1g/rpt_pgp.prg
- *  \brief
- */
-
-
-/*! \fn PrometGP()
- *  \brief Izvjestaj "promet grupe partnera"
- */
-
+// izvjestaj - promet grupe partnera
 function PrometGP()
 *{
   cgPicKol := IzFMKIni("PrometGrupePartnera","PicKolicina","999999999.999",KUMPATH)
@@ -131,6 +109,7 @@ m:="----- ---------- -------------------- --- "+REPL("-",nlPK)+" "+REPL("-",nlPI
 gaZagFix:={7,5}
 
 START PRINT CRET
+?
 
 private nTStrana:=0
 

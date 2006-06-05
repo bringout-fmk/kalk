@@ -1,23 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/mnu_izvj.prg
- *  \brief Meniji prodavnickih izvjestaja
- */
-
-
-/*! \fn IzvjP()
- *  \brief Osnovni meni prodavnickih izvjestaja
- */
-
+// menij izvjestaji prodavnica
 function IzvjP()
-*{
 private Opc:={}
 private opcexe:={}
 AADD(Opc, "1. kartica - prodavnica                          ")
@@ -37,41 +21,24 @@ AADD(opcexe, {|| RekProd()})
 private Izbor:=1
 Menu_SC("izp")
 return nil
-*}
 
-
-
-
-/*! \fn PoreziProd()
- *  \brief Meni izvjestaja o porezima u prodavnici
- */
-
+// porezi - prodavnica
 function PoreziProd()
-*{
 private Opc:={}
 private opcexe:={}
-AADD(Opc, "1. ukalkulisani porezi ")
+AADD(Opc, "1. ukalkulisani porezi           ")
 AADD(opcexe, {|| RekKPor()})
 AADD(Opc, "2. realizovani porezi")
 AADD(opcexe, {|| RekRPor()})
-
 AADD(Opc, "3. popis 31.12.05 i obracun pdv")
 AADD(opcexe, {|| rpt_uio()})
 
 private Izbor:=1
 Menu_SC("porp")
 return nil
-*}
 
-
-
-
-/*! \fn RekProd()
- *  \brief Meni izvjestaja za vise prodavnica
- */
-
+// pregledi za vise objekata
 function RekProd()
-*{
 private Izbor
 private opc:={}
 private opcexe:={}
@@ -89,6 +56,5 @@ AADD(opcexe, {|| PromPeriod()})
 Izbor:=1
 Menu_SC("prsi")
 return nil
-*}
 
 

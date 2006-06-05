@@ -557,12 +557,6 @@ do while !EOF()
 	nGKObr:=0
 
 	if LEN(aZalihe)<>0
-		//MsgBeep(cG1 + " - " + STR(LEN(aZalihe)))
-		//START PRINT CRET
-		//for i:=1 to LEN(aZalihe)
-		//	? aZalihe[i, 1], aZalihe[i, 2]
-		//next
-		//END PRINT
 		for i:=1 to LEN(aZalihe)
 			nProsZalf+=aZalihe[i,1]
 			nProsZalk+=aZalihe[i,2]

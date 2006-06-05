@@ -1,19 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
- 
-/*! \fn PreglKret()
- * \brief Pregled kretanja zaliha
- * \ingroup Planika
- */
- 
+// pregled kretanja zaliha 
 function PreglKret()
-*{
 local i
 private nT1:=nT4:=nT5:=nT6:=nT7:=0
 private nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
@@ -23,7 +11,6 @@ private PicCDEM:="999999.999"
 private PicProc:="999999.99%"
 private PicDEM:= "9999999.99"
 private Pickol:= "@ 999999"
-
 private dDatOd:=DATE()
 private dDatDo:=DATE()
 private qqKonto:=PADR("13;",60)
@@ -37,7 +24,6 @@ private cPrikazDob:="N"
 private cKartica 
 private cNObjekat
 private cLinija
-
 private PREDOVA2:=62
 private aUTar:={}
 private nUkObj:=0
@@ -65,10 +51,10 @@ if (GetVars(@cNObjekat, @dDatOd, @dDatDo, @cIdKPovrata, @cRekPoRobama, @cRekPoDo
 	return
 endif
 
-private fSMark:=.f.
+private lSMark:=.f.
 
 if right(trim(qqSezona),1)="*"
-	fSMark:=.t.
+	lSMark:=.t.
 endif
 
 CreTblPobjekti()
@@ -84,7 +70,7 @@ O_OBJEKTI
 O_KALK
 O_REKAP1
 
-GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "1", cKesiraj, fSMark, cK1, cK7, cK9, cIdKPovrata, aUslSez)
+GenRekap1(aUsl1, aUsl2, aUslR, cKartica, "1", cKesiraj, lSMark, cK1, cK7, cK9, cIdKPovrata, aUslSez)
 
 SetLinija(@cLinija, @nUkObj)
 
@@ -97,6 +83,7 @@ gaKolFix:={}
 SetGaZag(cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, @gaZagFix, @gaKolFix)
 
 START PRINT CRET
+?
 
 if ((cPapir=="A3L") .or. (cPapir=="A4L") .or. gPrinter=="R")
 	PREDOVA2=46

@@ -1,57 +1,19 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-*string
 static cLinija
-*;
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/rpt_dnpr.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.1 $
- * $Log: rpt_dnpr.prg,v $
- * Revision 1.1  2002/06/29 14:43:18  ernad
- *
- *
- * prebacen rpt_dnp.prg, init rpt_ppp.prg
- *
- * Revision 1.4  2002/06/24 09:04:20  ernad
- *
- * ciscenja
- *
- * Revision 1.3  2002/06/24 08:57:02  ernad
- *
- *
- * skratiti dijalog, promjena imena parametra
- *
- * Revision 1.2  2002/06/21 12:12:43  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_dnpr.prg
- *  \brief Izvjestaj dnevnog prometa
- */
 
 
 /*! \fn DnevProm()
  *  \brief Izvjestaj dnevnog prometa
  *  \todo Ovaj izvjestaj nije dobro uradjen - formira se matrica, koja ce puci na velikom broju artikala
  */
-
 function DnevProm()
-*{
 local i
 local cOldIni
 local dDan
 local cTops
 local cPodvuci
 local aR
-
 private cFilter
 
 gPINI:=""

@@ -213,7 +213,8 @@ set order to 1
 go top
 
 gaZagFix:={9,4}
-start print  cret
+start print cret
+?
 
 if gPrinter="R"
    PREDOVA2=62
@@ -223,7 +224,6 @@ endif
 
 nStr:=0
 ZagOPomF()
-
 nCol1:=10
 
 SELECT reka22
@@ -241,7 +241,6 @@ nT4:=0
 nT5:=0
 nT6:=0
 nT7:=0
-
 nK1:=0
 nK2:=0
 nK3:=0
@@ -250,13 +249,12 @@ nK4R:=0
 nK4:=0
 nK5:=0
 nK6:=0
-
-nT2a:=nK2a:=0
+nT2a:=0
+nK2a:=0
 nT2b:=0
 lIzdvojiGrupe:=.f.
 
 do while !eof()
-
    cG1:=g1   
    if (!EMPTY(cGrupeK1) .and. AT(cG1, cGrupeK1)<>0)
    	skip

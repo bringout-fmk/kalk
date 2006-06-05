@@ -1,40 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/prod/rpt/1g/rpt_fllp.prg,v $
- * $Author: mirsadsubasic $ 
- * $Revision: 1.4 $
- * $Log: rpt_fllp.prg,v $
- * Revision 1.4  2003/09/29 13:26:56  mirsadsubasic
- * sredjivanje koda za poreze u ugostiteljstvu
- *
- * Revision 1.3  2002/06/25 15:08:46  ernad
- *
- *
- * prikaz parovno - Planika
- *
- * Revision 1.2  2002/06/21 12:12:43  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_fllp.prg
- *  \brief Izvjestaj "finansijsko stanje prodavnice"
- */
-
-
-/*! \fn FLLP()
- *  \brief Izvjestaj "finansijsko stanje prodavnice"
- */
-
+// finansijsko stanje prodavnice
 function FLLP()
-*{
 local nKolUlaz
 local nKolIzlaz
 
@@ -117,9 +84,6 @@ EOF CRET
 
 nLen:=1
  
-//? "*Redni*        * Broj      *    NV    *    NV    *    NV    *   MPV    *   MPV    *   MPV    *MPV sa PP *MPV sa PP *MPV sa PP *"
-//? "*broj * Datum  * dokumenta *  duguje  *  potraz. *  ukupno  *  duguje  *  potraz. *  ukupno  *  duguje  *  potraz. *  ukupno  *"
-
 aRFLLP:={}
 AADD(aRFLLP, {6, "Redni", " broj"})
 AADD(aRFLLP, {8, "", " Datum"})
@@ -150,6 +114,7 @@ private cText1:=SetRptLineAndText(aRFLLP, 1, "*")
 private cText2:=SetRptLineAndText(aRFLLP, 2, "*")
 
 start print cret
+?
 
 private nTStrana:=0
 private bZagl:={|| ZaglFLLP()}
@@ -165,24 +130,11 @@ private nRbr:=0
 
 #DEFINE CMORE
 
-#ifdef CAX
-
-aofFInfo:=(aofFilterinfo())
-ncmSlogova:=aofFinfo[4]
-
-#XCOMMAND CMINIT => ncmRec:=1
-#DEFINE CMNEOF  !eof()
-#XCOMMAND CMSKIP => skip
-
-#else
-
 #XCOMMAND CMINIT => ncmSlogova:=cmFiltCount(); ncmRec:=1
 //#DEFINE CMNEOF  !eof() .and. ncmRec<=ncmSLOGOVA
 //#XCOMMAND CMSKIP => ++ncmRec; if ncmrec>ncmslogova;exit;end; skip
 #DEFINE CMNEOF  !eof()
 #XCOMMAND CMSKIP => skip
-
-#endif
 
 CMINIT
 showkorner(ncmslogova,1,16)
@@ -208,11 +160,14 @@ do while CMNEOF  .and. cidfirma+dtos(ddatdok)+cbroj==idFirma+dtos(datdok)+idvd+"
   select roba; hseek KALK->idroba; select KALK
 
   showkorner(1,100)
-  if cTU=="2" .and.  roba->tip $ "UT"  // prikaz dokumenata IP, a ne robe tipa "T"
-     CMSKIP; loop
+  if cTU=="2" .and.  roba->tip $ "UT"  
+     // prikaz dokumenata IP, a ne robe tipa "T"
+     CMSKIP
+     loop
   endif
   if cTU=="1" .and. idvd=="IP"
-     CMSKIP; loop
+     CMSKIP
+     loop
   endif
 
   select roba
@@ -238,7 +193,8 @@ do while CMNEOF  .and. cidfirma+dtos(ddatdok)+cbroj==idFirma+dtos(datdok)+idvd+"
      nNVI+=nc*kolicina
      nPopust+=rabatv
     endif
-  elseif pu_i=="3"    // nivelacija
+  elseif pu_i=="3"    
+    // nivelacija
     nMPVBU+=mpc*kolicina
     nMPVU+=mpcsapp*kolicina
   elseif pu_i=="I"
@@ -254,7 +210,7 @@ do while CMNEOF  .and. cidfirma+dtos(ddatdok)+cbroj==idFirma+dtos(datdok)+idvd+"
   endif
   CMSKIP
 
-enddo  // cbroj
+enddo  
 
 if round(nNVU-nNVI,4)==0 .and. round(nMPVU-nMPVI,4)==0
   loop
@@ -265,12 +221,16 @@ if prow()>61+gPStranica
 	FF
 	eval(bZagl)
 endif
+
 ? str(++nrbr,5)+".",dDatDok,cBroj
 nCol1:=pcol()+1
 
-ntNVU+=nNVU; ntNVI+=nNVI
-ntMPVBU+=nMPVBU; ntMPVBI+=nMPVBI
-ntMPVU+=nMPVU; ntMPVI+=nMPVI
+ntNVU+=nNVU
+ntNVI+=nNVI
+ntMPVBU+=nMPVBU
+ntMPVBI+=nMPVBI
+ntMPVU+=nMPVU
+ntMPVI+=nMPVI
 ntPopust+=nPopust
 
  @ prow(),pcol()+1 SAY nNVU pict picdem
@@ -314,24 +274,13 @@ if IsPlanika()
 endif
 
 FF
-end print
-#ifdef CAX
- if gKalks
- select kalk
- use
- endif
-#endif
+END PRINT
+
 closeret
 return
-*}
 
-
-/*! \fn ZaglFLLP()
- *  \brief Zaglavlje izvjestaja "finansijsko stanje prodavnice"
- */
-
+// zaglavlje fin.stanje
 function ZaglFLLP()
-*{
 select konto
 hseek cIdKonto
 Preduzece()
@@ -354,5 +303,4 @@ select KALK
 ? cLine
 
 return
-*}
 

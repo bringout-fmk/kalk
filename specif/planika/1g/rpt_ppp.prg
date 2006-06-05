@@ -83,7 +83,8 @@ cPrinter:=gPrinter
 gPrinter:="R"
 
 StartPrint()
-?? "#%LANDS#"
+?
+? "#%LANDS#"
 
 nStr:=0
 
@@ -138,10 +139,7 @@ Footer(nUPari, nUBruto1, nUBruto2, nUBruto, nUNeto1, nUNeto2, nUNeto, aPolozi)
 Linija(LEN(aPolozi))
 
 EndPrint()
-  
 gPrinter:=cPrinter
-
-//CopyZaSlanje(dDan)
 
 CLOSERET
 return

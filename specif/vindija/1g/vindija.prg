@@ -171,6 +171,7 @@ SELECT PRODAJA
 GO TOP
 
 START PRINT CRET
+?
 
 Preduzece(0)
 ?

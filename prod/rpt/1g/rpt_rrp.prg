@@ -1,25 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_rrp.prg
- *  \brief Izvjestaj "realizovani porez prodavnice"
- */
-
-
-/*! \fn RekRPor()
- *  \brief Izvjestaj "realizovani porez prodavnice"
- */
-
+// realizovani porez prodavnice
 function RekRPor()
-*{
 local fSaberiKol
 local nT1:=nT4:=nT5:=nT6:=nT7:=0
 local nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
@@ -30,12 +12,9 @@ local PicProc:=gPicProc
 local PicDEM:=REPLICATE("9", VAL(gFPicDem)) + gPicDEM 
 local Pickol:=gPicKol  
 local i:=0
-
 private aPorezi
 
-
 lVoSaTa := ( IzFMKIni("KALK","VodiSamoTarife","N", PRIVPATH)=="D" )
-
 dDat1:=dDat2:=ctod("")
 cVDok:="99"
 qqKonto:=padr("1320;",60)
@@ -74,9 +53,9 @@ O_KALK
 set order to 6
 
 IF lVoSaTa
-  // kreirajmo pomocnu bazu
-  CrePom()
-  SELECT KALK
+	// kreirajmo pomocnu bazu
+  	CrePom()
+  	SELECT KALK
 ENDIF
 
 fSaberikol:=(IzFMKIni('Svi','SaberiKol','N')=='D')
@@ -88,20 +67,18 @@ endif
 private cFilt1:=""
 
 if !empty(dDat1) .and. !empty(dDat2)
- cFilt1:=aUsl1+".and.(IDVD$"+cm2str(cVDOK)+").and.DATDOK>="+cm2str(dDat1)+;
-         ".and.DATDOK<="+cm2str(dDat2)
+	cFilt1:=aUsl1+".and.(IDVD$"+cm2str(cVDOK)+").and.DATDOK>="+cm2str(dDat1)+".and.DATDOK<="+cm2str(dDat2)
 else
- cFilt1:=aUsl1+".and.(IDVD$"+cm2str(cVDOK)+")"
+ 	cFilt1:=aUsl1+".and.(IDVD$"+cm2str(cVDOK)+")"
 endif
 
 if aUsl2<>".t."
- cFilt1+=".and."+aUsl2
+	cFilt1+=".and."+aUsl2
 endif
 
+set filter to &cFilt1
+go top   
 
-SET FILTER TO &cFilt1
-
-go top   // samo  zaduz prod. i povrat iz prod.
 EOF CRET
 
 aRRP:={}
@@ -120,8 +97,8 @@ cLine:=SetRptLineAndText(aRRP, 0)
 cText1:=SetRptLineAndText(aRRP, 1, "*")
 cText2:=SetRptLineAndText(aRRP, 2, "*")
 
-
 START PRINT CRET
+?
 
 private nKI, nPRUC
 nKI:=nPRUC:=0
@@ -288,7 +265,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
         endif
         skip 1
 
-     ENDDO // tarifa
+     ENDDO
 
      IF !lVoSaTa
      
@@ -329,7 +306,7 @@ DO WHILE !EOF() .and. IspitajPrekid()
 	nT8+=n8
      
      ENDIF
-  ENDDO // konto
+  ENDDO 
 
   
   IF !lVoSaTa
@@ -357,36 +334,34 @@ DO WHILE !EOF() .and. IspitajPrekid()
       ? cLine
     endif
   ENDIF
-
-ENDDO // eof
+ENDDO 
 
 set softseek on
 
 IF !lVoSaTa
-  ?
-  FF
+	?
+  	FF
 ELSE
+	SELECT POM
+  	GO TOP
+  	DO WHILE !EOF() .and. IspitajPrekid()
+    		REPLACE PPP  WITH MPV*P_PPP/100
+    		REPLACE PPU  WITH (MPV+PPP)*P_PPU/100
+    		IF gUVarPP=="D"
+      			REPLACE PP   WITH (MPV+PPP)*P_PP/100
+    		ELSE
+      			REPLACE PP   WITH MPV*P_PP/100
+    		ENDIF
+    		REPLACE UPOR WITH PPP+PPU+PP
+    		SKIP 1
+  	ENDDO
+  	GO TOP
 
-  SELECT POM
-  GO TOP
-  DO WHILE !EOF() .and. IspitajPrekid()
-    REPLACE PPP  WITH MPV*P_PPP/100
-    REPLACE PPU  WITH (MPV+PPP)*P_PPU/100
-    IF gUVarPP=="D"
-      REPLACE PP   WITH (MPV+PPP)*P_PP/100
-    ELSE
-      REPLACE PP   WITH MPV*P_PP/100
-    ENDIF
-    REPLACE UPOR WITH PPP+PPU+PP
-    SKIP 1
-  ENDDO
-  GO TOP
-
-  FOR i:=1 TO 3
-    aKol := {}
-    nK   := 0
-    AADD( aKol, { "TARIFNI BROJ", {|| TARIFA   } , .f. , "C", 12, 0, 1,++nK} )
-    IF cPojed=="D".and.i==2
+  	FOR i:=1 TO 3
+    		aKol := {}
+    		nK   := 0
+    		AADD( aKol, { "TARIFNI BROJ", {|| TARIFA   } , .f. , "C", 12, 0, 1,++nK} )
+    		IF cPojed=="D".and.i==2
       AADD( aKol, { "DOKUMENT", {|| LEFT(dokum,2)+"-"+RIGHT(dokum,8) } , .f. , "C", 11, 0, 1,++nK} )
     ENDIF
     AADD( aKol, { "MPV"         , {|| MPV      } , .t. , "N", 12, 2, 1,++nK} )
@@ -436,19 +411,12 @@ END PRINT
 
 closeret
 return
-*}
 
 
-
-
-
-/*! \fn CrePom()
- *  \brief Kreiranje i otvaranje pomocne baze POM.DBF za rekapitulaciju poreza
- */
-
+// kreiranje i otvaranje pomocne baze POM.DBF
 function CrePom()
-*{
-  select 0      // idi na slobodno podrucje
+  select 0      
+  // idi na slobodno podrucje
   cPom:=PRIVPATH+"POM"
   IF FILE(cPom+".DBF") .and. ferase(PRIVPATH+"POM.DBF")==-1
     MsgBeep("Ne mogu izbrisati POM.DBF!")
@@ -486,67 +454,36 @@ function CrePom()
   GO TOP
 
 return .t.
-*}
 
 
-
-
-
-/*! \fn IdiDo1()
- *  \brief While uslov za f-ju StampaTabele() koju poziva RekRPor()
- */
-
+// While uslov za f-ju StampaTabele() koju poziva RekRPor()
 function IdiDo1()
-*{
 return (POM->id==cPom707)
-*}
 
 
-
-
-
-/*! \fn FFor6()
- *  \brief For uslov za f-ju StampaTabele() koju poziva RekRPor()
- */
-
+// For uslov za f-ju StampaTabele() koju poziva RekRPor()
 function FFor6()
-*{
- IF TARIFA <> cTarifa .and. LEN(cTarifa)>0
-   lSubTot6:=.t.
-   cSubTot6:=cTarifa
- ENDIF
- cTarifa:=TARIFA
+IF TARIFA <> cTarifa .and. LEN(cTarifa)>0
+	lSubTot6:=.t.
+   	cSubTot6:=cTarifa
+ENDIF
+cTarifa:=TARIFA
 return .t.
-*}
 
 
-
-
-
-/*! \fn SubTot6()
- *  \brief Uslov za subtotal za f-ju StampaTabele() koju poziva RekRPor()
- */
-
+// Uslov za subtotal za f-ju StampaTabele() koju poziva RekRPor()
 function SubTot6()
-*{
- LOCAL aVrati:={.f.,""}
-  IF lSubTot6 .or. EOF()
-    aVrati := { .t. , "UKUPNO TARIFA "+IF(EOF(),cTarifa,cSubTot6) }
-    lSubTot6:=.f.
-  ENDIF
+LOCAL aVrati:={.f.,""}
+IF lSubTot6 .or. EOF()
+	aVrati := { .t. , "UKUPNO TARIFA "+IF(EOF(),cTarifa,cSubTot6) }
+    	lSubTot6:=.f.
+ENDIF
 return aVrati
-*}
 
 
-
-
-
-/*! \fn IzbPorMP(nOsnPC)
- *  \param nOsnPC - maloprodajna cijena sa porezima
- *  \brief Racuna i vraca maloprodajnu cijenu bez poreza
- */
+// nOsnPC - maloprodajna cijena sa porezima
+// Racuna i vraca maloprodajnu cijenu bez poreza
 static function IzbPorMP(nOsnPC)
-*{
 local nVrati, nDLRUC, nMPP, nPP, nPPP
 nDLRUC := TARIFA->DLRUC/100
 nMPP   := TARIFA->MPP/100
@@ -558,6 +495,5 @@ else
 	nVrati := nOsnPC * ( 1 - ( nPP+nPPP/(1+nPPP)+nDLRUC*(1-nPP)*nMPP/(1+nMPP) ) )
 endif
 return nVrati
-*}
 
 

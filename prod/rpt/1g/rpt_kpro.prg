@@ -1,27 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_kpro.prg
- *  \brief Izvjestaj "kartica prodavnice"
- */
-
-
-/*! \fn KarticaP()
- *  \brief Izvjestaj "kartica prodavnice"
- *  \param cidfirma -
- *  \param cidroba -
- *  \param cidkonto -
- */
-
+// kartica prodavnice
 function KarticaP()
-*{
 parameters cidfirma,cidroba,cidkonto
 
 local PicCDEM:=gPicCDEM
@@ -160,6 +140,7 @@ EOF CRET
 
 gaZagFix:={7+IF(lPoNarudzbi.and.!EMPTY(qqIdNar),3,0),3}
 start print cret
+?
 
 nLen:=1
 
@@ -201,9 +182,9 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
 	nUlaz:=nIzlaz:=0
 	nNV:=nMPV:=0
 	fPrviProl:=.t.
-	nRabat:=0                 // ?
-	nColDok:=9                // ?
-	nColFCJ2:=68              // ?
+	nRabat:=0                
+	nColDok:=9                
+	nColFCJ2:=68           
 
 	do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba
 
@@ -217,7 +198,7 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
   	endif
 
   if cPredh=="D" .and. datdok>=dDatod .and. fPrviProl
-        ********************* ispis predhodnog stanja ***************
+        // ispis predhodnog stanja
         fPrviprol:=.f.
         ? "Stanje do ",ddatod
 
@@ -235,10 +216,13 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
         else
            @ prow(),pcol()+1 SAY 0            pict pickol
         endif
-        ********************* ispis predhodnog stanja ***************
    endif
 
-  if prow()-gPStranica>62; FF; Zagl();endif
+  if prow()-gPStranica>62
+  	FF
+	Zagl()
+  endif
+  
   if pu_i=="1"
     nUlaz+=kolicina-GKolicina-GKolicin2
     if datdok>=ddatod
@@ -323,7 +307,8 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
      @ prow(),pcol()+1 SAY nmpv         pict picdem
     endif
 
-  elseif pu_i=="3"    // nivelacija
+  elseif pu_i=="3"    
+     // nivelacija
     if datdok>=ddatod
      ? datdok,idvd+"-"+brdok,idtarifa,idpartner
      IF lPoNarudzbi .and. cPKN=="D"
@@ -343,7 +328,7 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
     endif
   endif
 
-  skip    // kalk
+  skip    
 enddo
 
 ? m
@@ -374,6 +359,7 @@ closeret
 return
 *}
 
+
 function Test(cIdRoba)
 if LEN(Trim(cIdRoba))<=10
 	cIdRoba:=Left(cIdRoba,10)
@@ -383,14 +369,10 @@ endif
 return cIdRoba
 
 
-
-/*! \fn Zagl()
- *  \brief Zaglavlje izvjestaja "kartica prodavnice"
- */
-
+// zaglavlje kartice
 static function Zagl()
-*{
-select konto; hseek cidkonto
+select konto
+hseek cIdKonto
 
 Preduzece()
 P_12CPI
@@ -424,18 +406,10 @@ else
 endif
 ? m
 return
-*}
 
 
-
-
-
-/*! \fn NPArtikli()
- *  \brief Izvjestaj najprometnijih artikala u jednoj ili vise prodavnica
- */
-
+// izvjestaj najprometniji artikli
 function NPArtikli()
-*{
  local PicDEM:= gPicDem
  local Pickol:= "@Z "+gpickol
   qqKonto := "132;"
@@ -487,14 +461,16 @@ function NPArtikli()
     else
       Msg("'Datum do' ne smije biti stariji nego 'datum od'!")
     endif
-  ENDDO // .t.
+  ENDDO 
 
   if Params2()
    WPar("c2",qqKonto)
    WPar("c5",qqRoba )
-   WPar("d1",dDat0); WPar("d2",dDat1)
+   WPar("d1",dDat0)
+   WPar("d2",dDat1)
   endif
-  select params; use
+  select params
+  use
 
   O_KALK
 
@@ -503,7 +479,7 @@ function NPArtikli()
                                        ' .and. PU_I=="5"' +;
                                        ' .and. !(IDVD $ "12#13#22")'
 
-  SET ORDER TO TAG "7"   // idroba
+  SET ORDER TO TAG "7"   
   SET FILTER TO &cFilt
 
   nMinI:=999999999999
@@ -558,9 +534,8 @@ function NPArtikli()
   SELECT ROBA
 
   START PRINT CRET
-
+  ?
     // zaglavlje
-    // ---------
     Preduzece()
     ?? "Najprometniji artikli za period",ddat0,"-",ddat1
     ? "Obuhvacene prodavnice:",IF(EMPTY(qqKonto),"SVE","'"+TRIM(qqKonto)+"'")
@@ -571,7 +546,6 @@ function NPArtikli()
     ?
 
     // top lista po iznosima
-    // ---------------------
     IF cSta$"IO"
       m:=ALLTRIM(STR(MIN(nTop,LEN(aTopI))))+" NAJPROMETNIJIH ARTIKALA POSMATRANO PO IZNOSIMA:"
       ? m
@@ -605,9 +579,12 @@ function NPArtikli()
     ENDIF
 
     // top lista po kolicinama
-    // -----------------------
     IF cSta$"KO"
-      IF cSta=="O"; ?; ?; ?; ENDIF
+      IF cSta=="O"
+         ?
+	 ?
+	 ?
+      ENDIF
       m:=ALLTRIM(STR(MIN(nTop,LEN(aTopK))))+" NAJPROMETNIJIH ARTIKALA POSMATRANO PO KOLICINAMA:"
       ? m
       ? REPL("-",LEN(m))
@@ -646,6 +623,6 @@ function NPArtikli()
 
 CLOSERET
 return
-*}
+
 
 

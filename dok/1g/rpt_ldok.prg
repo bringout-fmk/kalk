@@ -155,6 +155,7 @@ EOF CRET
 
 gaZagFix:={6,3}
 START PRINT CRET
+?
 
 Preduzece()
 if gduzkonto>7

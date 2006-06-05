@@ -153,6 +153,7 @@ for xxx:=1 to 3  // obrazac nivelacije
 	select rekap1
 	go top
 	start print cret
+	?
 
 	private PREDOVA:=62
 	private  aTarife:={}

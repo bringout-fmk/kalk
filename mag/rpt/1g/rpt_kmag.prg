@@ -691,6 +691,7 @@ static function ZaglPDV()
 *{
 select konto
 hseek cIdKonto
+?
 Preduzece()
 P_12CPI
 ?? "KARTICA MAGACIN za period",ddatod,"-",ddatdo,space(10),"Str:",str(++nTStrana,3)

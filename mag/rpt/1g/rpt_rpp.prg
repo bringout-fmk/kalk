@@ -1,43 +1,22 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_rpp.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: rpt_rpp.prg,v $
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/rpt/1g/rpt_rpp.prg
- *  \brief Izvjestaj "pregled poreza na promet u veleprodaji"
- */
-
-
-/*! \fn RekPorNap()
- *  \brief Izvjestaj "pregled poreza na promet u veleprodaji"
- */
-
+// pregled poreza na promet u vp
 function RekPorNap()
 *{
 local nT0:=nT1:=nT2:=nT3:=nT4:=0
 local nCol1:=0
-local PicCDEM:=gPicCDEM       // "999999.999"
-local PicProc:=gPicProc       // "999999.99%"
-local PicDEM:=gPicDEM         // "9999999.99"
-local Pickol:=gPicKol         // "999999.999"
+local PicCDEM:=gPicCDEM       
+// "999999.999"
+local PicProc:=gPicProc       
+// "999999.99%"
+local PicDEM:=gPicDEM         
+// "9999999.99"
+local Pickol:=gPicKol         
+// "999999.999"
 
-if IzFMKIni("Svi","Sifk")=="D"
-   O_SIFK
-   O_SIFV
-endif
+O_SIFK
+O_SIFV
 O_ROBA
 O_TARIFA
 O_PARTN
@@ -65,7 +44,9 @@ Box(,5,75)
 BoxC()
 
 O_TARIFA
-O_KALK;  set order to 1 //idFirma+IdVD+BrDok+RBr
+O_KALK
+set order to 1 
+//idFirma+IdVD+BrDok+RBr
 
 private cFilt1:=""
 
@@ -85,6 +66,7 @@ EOF CRET
 M:="----------- -------- ---------- -------- ------ ------------- ------------- --------------"
 
 START PRINT CRET
+?
 
 B:=0
 Preduzece()

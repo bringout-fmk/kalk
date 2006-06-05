@@ -42,7 +42,6 @@ O_ROBA
 O_KONTO
 O_PARTN
 
-
 dDatOd:=ctod("")
 dDatDo:=date()
 qqRoba:=space(60)
@@ -93,6 +92,7 @@ nLen:=1
 m:="----- ---------- -------------------- --- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 
 start print cret
+?
 P_COND
 select konto; hseek cIdKonto
 select kalk

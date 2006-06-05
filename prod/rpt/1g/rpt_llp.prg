@@ -1,35 +1,13 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-*string
 static cTblKontrola:=""
-*;
-
-*array
 static aPorezi:={}
-*;
 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_llp.prg
- *  \brief Izvjestaj "lager lista prodavnice"
- */
-
-
-/*! \fn LLP()
- *  \brief Izvjestaj "lager lista prodavnice"
- */
-
+// lager lista prodavnice
 function LLP()
-*{
-parameters fPocStanje
+parameters lPocStanje
 // indikator gresaka
-local fImaGresaka:=.f.  
+local lImaGresaka:=.f.  
 local cKontrolnaTabela
 
 cIdFirma:=gFirma
@@ -42,10 +20,10 @@ O_PARTN
 
 cKontrolnaTabela:="N"
 
-if (fPocStanje==nil)
-	fPocStanje:=.f.
+if (lPocStanje==nil)
+	lPocStanje:=.f.
 else
-   	fPocStanje:=.t.
+   	lPocStanje:=.t.
    	O_PRIPR
    	cBrPSt:="00001   "
    	Box(,2,60)
@@ -148,7 +126,7 @@ if (cKontrolnaTabela=="D")
 	CreTblKontrola()
 endif
 
-if fPocStanje
+if lPocStanje
 	O_PRIPR
 endif
 lPrikK2 := .f.
@@ -164,9 +142,9 @@ O_PARTN
 O_KONCIJ
 O_KALKREP
 
-private fSMark:=.f.
+private lSMark:=.f.
 if right(trim(qqRoba),1)="*"
-	fSMark:=.t.
+	lSMark:=.t.
 endif
 
 private cFilter:=".t."
@@ -208,8 +186,9 @@ if cSredCij=="D"
 endif
 
 start print cret
+?
 select konto
-hseek cidkonto
+hseek cIdKonto
 select KALK
 
 private nTStrana:=0
@@ -234,7 +213,7 @@ nRbr:=0
 Eval(bZagl)
 do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 	cIdRoba:=Idroba
-	if fSMark .and. SkLoNMark("ROBA",cIdroba)
+	if lSMark .and. SkLoNMark("ROBA",cIdroba)
    		skip
    		loop
 	endif
@@ -291,25 +270,25 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 	endif
 
 	do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba .and. IspitajPrekid()
-		if fSMark .and. SkLoNMark("ROBA",cIdroba)
+		if lSMark .and. SkLoNMark("ROBA",cIdroba)
      			skip
      			loop
   		endif
   		if cPredhStanje=="D"
     			if datdok<dDatOd
      				if pu_i=="1"
-       					SumirajKolicinu(kolicina, 0, @nPKol, 0, fPocStanje, lPrikK2)
+       					SumirajKolicinu(kolicina, 0, @nPKol, 0, lPocStanje, lPrikK2)
        					nPMPV+=mpcsapp*kolicina
        					nPNV+=nc*(kolicina)
      				elseif pu_i=="5"
-       					SumirajKolicinu(-kolicina, 0, @nPKol, 0, fPocStanje, lPrikK2)
+       					SumirajKolicinu(-kolicina, 0, @nPKol, 0, lPocStanje, lPrikK2)
        					nPMPV-=mpcsapp*kolicina
        					nPNV-=nc*kolicina
      				elseif pu_i=="3"    
        					// nivelacija
        					nPMPV+=field->mpcsapp*field->kolicina
      				elseif pu_i=="I"
-       					SumirajKolicinu(-gKolicin2, 0, @nPKol, 0, fPocStanje, lPrikK2)
+       					SumirajKolicinu(-gKolicin2, 0, @nPKol, 0, lPocStanje, lPrikK2)
        					nPMPV-=mpcsapp*gkolicin2
        					nPNV-=nc*gkolicin2
      				endif
@@ -319,7 +298,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
       				skip
       				loop
     			endif
-  		endif // cpredhstanje
+  		endif 
 
   		if cTU=="N" .and. roba->tip $ "TU"
   			skip
@@ -333,31 +312,33 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
   		endif
   		if DatDok>=dDatOd  // nisu predhodni podaci
   			if pu_i=="1"
-    				SumirajKolicinu(kolicina, 0, @nUlaz, 0, fPocStanje, lPrikK2)
+    				SumirajKolicinu(kolicina, 0, @nUlaz, 0, lPocStanje, lPrikK2)
     				nCol1:=pcol()+1
     				nMPVU+=mpcsapp*kolicina
     				nNVU+=nc*(kolicina)
   			elseif pu_i=="5"
     				if idvd $ "12#13"
-     					SumirajKolicinu(-kolicina, 0, @nUlaz, 0, fPocStanje, lPrikK2)
+     					SumirajKolicinu(-kolicina, 0, @nUlaz, 0, lPocStanje, lPrikK2)
      					nMPVU-=mpcsapp*kolicina
      					nNVU-=nc*kolicina
     				else
-     					SumirajKolicinu(0, kolicina, 0, @nIzlaz, fPocStanje, lPrikK2)
+     					SumirajKolicinu(0, kolicina, 0, @nIzlaz, lPocStanje, lPrikK2)
      					nMPVI+=mpcsapp*kolicina
      					nNVI+=nc*kolicina
     				endif
 
-  			elseif pu_i=="3"    // nivelacija
+  			elseif pu_i=="3"    
+			        // nivelacija
     				nMPVU+=mpcsapp*kolicina
   			elseif pu_i=="I"
-    				SumirajKolicinu(0, gkolicin2, 0, @nIzlaz, fPocStanje, lPrikK2)
+    				SumirajKolicinu(0, gkolicin2, 0, @nIzlaz, lPocStanje, lPrikK2)
     				nMPVI+=mpcsapp*gkolicin2
     				nNVI+=nc*gkolicin2
 			endif
   		endif
 		skip
 	enddo
+	
 	//ne prikazuj stavke 0
 	if cNula=="D" .or. round(nMPVU-nMPVI+nPMPV,4)<>0 
 		if PROW()>61+gPStranica
@@ -382,7 +363,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 		@ prow(),pcol()+1 SAY nUlaz pict gpickol
 		@ prow(),pcol()+1 SAY nIzlaz pict gpickol
 		@ prow(),pcol()+1 SAY nUlaz-nIzlaz+nPkol pict gpickol
-		if fPocStanje
+		if lPocStanje
   			select pripr
   			if round(nUlaz-nIzlaz,4)<>0
      				append blank
@@ -408,13 +389,12 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
  			@ prow(),pcol()+1 SAY (nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol) pict gpiccdem
  			if round((nMPVU-nMPVI+nPMPV)/(nUlaz-nIzlaz+nPKol),4) <> round(_mpc,4)
    				?? " ERR"
-   				//fImaGresaka:=.t. ovo necemo uzeti u obzir prilikom generacije pst.
  			endif
 		else
  			@ prow(),pcol()+1 SAY 0 pict gpicdem
  			if round((nMPVU-nMPVI+nPMPV),4)<>0
    				?? " ERR"
-   				fImaGresaka:=.t.
+   				lImaGresaka:=.t.
  			endif
 		endif
 
@@ -469,14 +449,12 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 		   ? SPACE(6) + roba->barkod
 		endif
 		
-	endif //cNula
-
-	
+	endif 
 enddo
 
 ? m
 ? "UKUPNO:"
-@ prow(),nCol0-1 SAY ""
+@ prow(), nCol0-1 SAY ""
 if cPredhStanje=="D"
 	@ prow(),pcol()+1 SAY nTPMPV pict gpickol
 endif
@@ -506,12 +484,12 @@ endif
 FF
 END PRINT
 
-if fImaGresaka
+if lImaGresaka
 	MsgBeep("Pogledajte artikle za koje je u izvjestaju stavljena oznaka ERR - GRESKA")
 endif
 
-if fPocStanje
-	if fimagresaka .and. Pitanje(,"Nulirati pripremu (radi ponavljanja procedure) ?","D")=="D"
+if lPocStanje
+	if lImaGresaka .and. Pitanje(,"Nulirati pripremu (radi ponavljanja procedure) ?","D")=="D"
    		select pripr
    		zap
  	else
@@ -519,29 +497,15 @@ if fPocStanje
  	endif
 endif
 
-#ifdef CAX
-	if gKalks
-		select kalk
- 		use
- 	endif
-#endif
 closeret
 return
-*}
 
 
-
-
-
-/*! \fn ZaglLLP(fsint)
- *  \brief Zaglavlje izvjestaja "lager lista prodavnice"
- *  \param fsint -
- */
-
-function ZaglLLP(fsint)
+// zaglavlje llp
+function ZaglLLP(lSint)
 *{
-if fsint==NIL
-	fSint:=.f.
+if lSint==NIL
+	lSint:=.f.
 endif
 
 Preduzece()
@@ -549,11 +513,11 @@ P_COND
 ?? "KALK: LAGER LISTA  PRODAVNICA ZA PERIOD",dDatOd,"-",dDatDo," NA DAN "
 ?? date(), space(12),"Str:",str(++nTStrana,3)
 
-if !fSint .and. !EMPTY(qqIdPartn)
+if !lSint .and. !EMPTY(qqIdPartn)
 	? "Obugvaceni sljedeci partneri:", TRIM(qqIdPartn)
 endif
 
-if fsint
+if lSint
 	? "Kriterij za prodavnice:",qqKonto
 else
  	select konto
@@ -601,15 +565,12 @@ else
 endif
 
 return
-*}
 
 
+// kreiranje kontrolne tabele
 static function CreTblKontrola()
-*{
 local aDbf
 local cCdx
-
-altd()
 
 aDbf:={}
 cTblKontrola:=ToUnix("c:/sigma/kontrola.dbf")
@@ -619,13 +580,10 @@ AADD(aDbf, { "kolicina", "N", 12, 2})
 AADD(aDbf, { "Mpv", "N", 10, 2})
 DBCREATE2( cTblKontrola , aDbf)
 CREATE_INDEX("id","id", cCdx) 
-
 return
-*}
 
-
+// azuriranje kontrolne tabele
 static function AzurKontrolnaTabela(cIdRoba, nStanje, nMpv)
-*{
 local nArea
 
 nArea:=SELECT()
@@ -644,5 +602,4 @@ REPLACE Mpv WITH nMpv
 
 SELECT(nArea)
 return
-*}
 

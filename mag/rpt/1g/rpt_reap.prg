@@ -1,33 +1,6 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_reap.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.3 $
- * $Log: rpt_reap.prg,v $
- * Revision 1.3  2004/02/12 15:37:29  sasavranic
- * no message
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/rpt/1g/rpt_reap.prg
- *  \brief Izvjestaj "realizacija veleprodaje po partnerima"
- */
-
-
-/*! \fn RealPartn()
- *  \brief Izvjestaj "realizacija veleprodaje po partnerima"
- */
-
+// realizacija vp po partnerima
 function RealPartn()
 *{
 local nT0:=nT1:=nT2:=nT3:=nT4:=0
@@ -77,19 +50,16 @@ Box(,8,70)
   ESC_BCR
 
   aUslP:=Parsiraj(qqPartn,"Idpartner")
-  if auslp<>NIL; exit; endif
+  if auslp<>NIL
+     exit
+  endif
   enddo
 BoxC()
 
 
 O_TARIFA
-
-#ifdef CAX
-  O_KALK; set order to tag "PMAG"
-#else
-  O_KALK; set order to tag PMAG
-#endif
-// "P_MAG","idfirma+mkonto+idpartner+idvd+dtos(datdok)",KUMPATH+"KALK")
+O_KALK
+set order to tag PMAG
 
 private cFilt1:=""
 
@@ -109,6 +79,7 @@ EOF CRET
 private M:="   -------------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------" + IF(!IsPDV(), " ----------","")
 
 START PRINT CRET
+?
 
 B:=0
 

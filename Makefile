@@ -1,6 +1,5 @@
 liball: 
 	make -C adm/1g
-	make -C barkod/1g
 	make -C mag/db/1g
 	make -C mag/rpt/1g
 	make -C mag/rpt/2g
@@ -40,7 +39,6 @@ liball:
 	
 cleanall:
 	cd adm/1g; make clean
-	cd barkod/1g; make clean
 	cd mag/db/1g; make clean
 	cd mag/rpt/1g; make clean
 	cd mag/rpt/2g; make clean

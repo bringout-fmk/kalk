@@ -207,8 +207,6 @@ if "." $ cIdKonto
 	lSabKon:=(Pitanje(,"Racunati stanje robe kao zbir stanja na svim obuhvacenim kontima? (D/N)","N")=="D")
 endif
 
-// ----------------------------------------------------------------------
-
 O_KALKREP
 
 private cFilt:=".t."
@@ -285,6 +283,11 @@ elseif !IsMagPNab()
  	m+=" ---------- ----------"
 else
  	m+=" ----------"
+	if IsPDV()
+		m+=" ----------"
+		m+=" ----------"
+		m+=" ----------"
+	endif
 endif
 
 if cSredCij=="D"
@@ -293,7 +296,7 @@ endif
 
 if koncij->naz $ "P1#P2"
 	cPNab:="D"
-endif // ako je magacin got proizvoda
+endif 
 
 if !IsMagPNab() .and. cPNab=="D"
 	gaZagFix:={7+IF(lPoNarudzbi.and.!EMPTY(qqIdNar),3,0),6}
@@ -518,6 +521,7 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	@ prow(),pcol()+1 SAY aNaz[1]
 
 	cJMJ:=ROBA->JMJ
+	nVPCIzSif := ROBA->VPC
 	
 	IF lSvodi
   		nKJMJ  := SJMJ(1 ,cIdRoba,@cJMJ)
@@ -582,106 +586,143 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 
 	nCol1:=pcol()+1
 
+	// varijanta evidencije sa cijenama
 	if gVarEv=="1"
-	   if IsMagPNab()
- 		@ prow(),pcol()+1 SAY nNVU pict gpicdem
- 		@ prow(),pcol()+1 SAY nNVI pict gpicdem
- 		@ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
- 		if round(nUlaz-nIzlaz,4)<>0
-   		   @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
- 		endif
-	   else
-             @ prow(),pcol()+1 SAY nVPVU pict gpicdem
-             @ prow(),pcol()+1 SAY nRabat pict gpicdem
-             @ prow(),pcol()+1 SAY nVPVI pict gpicdem
-             @ prow(),pcol()+1 SAY nVPVU-NVPVI pict gpicdem
-             if round(nUlaz-nIzlaz,4)<>0
-                @ prow(),pcol()+1 SAY (nVPVU-nVPVI)/(nUlaz-nIzlaz) pict gpiccdem
-                if !(koncij->naz="P")
-                     if IsPDV() .and. ( IsMagPNab() .or. IsMagSNab() )
-  	                 if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
-    		             ?? " ERR"
-  	                 endif
-                     else
-   	                 if cErr=="D" .and. round((nVPVU-nVPVI)/(nUlaz-nIzlaz),4)<>round(KoncijVPC(),4)
-    		             ?? " ERR"
-  	                 endif
-                     endif
-               endif
-            else
-               	@ prow(),pcol()+1 SAY 0 pict gpicdem
-		if IsPDV() .and. (IsMagPNab() .or. IsMagSNab())
-  			if (cErr=="D" .or. fPocstanje) .and. round((nNVU-nNVI),4)<>0
-   				fImaGresaka:=.t.
-   				?? " ERR"
+		if IsMagSNab() .or. IsMagPNab()
+ 			
+			// NV
+			@ prow(),pcol()+1 SAY nNVU pict gpicdem
+ 			@ prow(),pcol()+1 SAY nNVI pict gpicdem
+ 			@ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
+ 			
+			if IsPDV() 
+			  // PV - samo u pdv rezimu
+			  @ prow(),pcol()+1 SAY nVPVU pict gpicdem
+             		  @ prow(),pcol()+1 SAY nRabat pict gpicdem
+             		  @ prow(),pcol()+1 SAY nVPVI pict gpicdem
+             		  @ prow(),pcol()+1 SAY nVPVU-nVPVI pict gpicdem
+             	        endif
+			
+	   	else
+             		@ prow(),pcol()+1 SAY nVPVU pict gpicdem
+             		@ prow(),pcol()+1 SAY nRabat pict gpicdem
+             		@ prow(),pcol()+1 SAY nVPVI pict gpicdem
+             		@ prow(),pcol()+1 SAY nVPVU-nVPVI pict gpicdem
+             		if round(nUlaz-nIzlaz,4)<>0
+                		@ prow(),pcol()+1 SAY (nVPVU-nVPVI)/(nUlaz-nIzlaz) pict gpiccdem
+                		if !(koncij->naz="P")
+                     			if IsPDV() .and. ( IsMagPNab() .or. IsMagSNab() )
+  	                 			if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
+    		             				?? " ERR"
+  	                 			endif
+                    	 		else
+   	                 			if cErr=="D" .and. round((nVPVU-nVPVI)/(nUlaz-nIzlaz),4)<>round(KoncijVPC(),4)
+    		             				?? " ERR"
+  	                 			endif
+                     			endif
+               			endif
+            		else
+               			@ prow(),pcol()+1 SAY 0 pict gpicdem
+				if IsPDV() .and. (IsMagPNab() .or. IsMagSNab())
+  					if (cErr=="D" .or. fPocstanje) .and. round((nNVU-nNVI),4)<>0
+   						fImaGresaka:=.t.
+   						?? " ERR"
+  					endif
+ 				else
+  					if (cErr=="D" .or. fPocstanje) .and. round((nVPVU-nVPVI),4)<>0
+   						fImaGresaka:=.t.
+   						?? " ERR"
+  					endif
+ 				endif 
+	   		endif
+     		endif
+	endif
+
+	if cSredCij=="D"
+		@ prow(), pcol()+1 SAY (nNVU-nNVI+nVPVU-nVPVI)/(nUlaz-nIzlaz)/2 PICT "9999999.99"
+	endif
+
+	// novi red
+	@ prow()+1,0 SAY ""
+	if len(aNaz)>1
+ 		@ prow(),nCR  SAY aNaz[2]
+	endif
+	
+	if gVarEv=="1"
+	
+		if cMink <> "N" .and. nMink > 0
+ 			@ prow(),ncol0    SAY padr("min.kolic:",len(gpickol))
+ 			@ prow(),pcol()+1 SAY nKJMJ*nMink  pict gpickol
+		elseif cPNAB=="D" .and. !IsMagPNab()
+			@ prow(),ncol0  SAY space(len(gpickol))
+ 			@ prow(),pcol()+1 SAY space(len(gpickol))
+		endif
+		
+		if cPNAB=="D" .and. !IsMagPNab()
+  			if round(nulaz-nizlaz,4)<>0
+    				@ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
+    				if cNCSif=="D"
+      					select roba
+      					replace nc with round((nNVU-nNVI)/(nUlaz-nIzlaz),3)
+      					select kalk
+    				endif
+  			elseif round(nUlaz,4)<>0
+    				@ prow(),pcol()+1 SAY nNVU/nUlaz pict gpicdem
   			endif
- 		else
-  			if (cErr=="D" .or. fPocstanje) .and. round((nVPVU-nVPVI),4)<>0
-   				fImaGresaka:=.t.
-   				?? " ERR"
-  			endif
- 		endif 
-	   endif
-     endif
+  			
+			@ prow(),nCol1 SAY nNVU pict gpicdem
+  			@ prow(),pcol()+1 SAY space(len(gpicdem))
+  			@ prow(),pcol()+1 SAY nNVI pict gpicdem
+  			@ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
+  			
+			if koncij->naz=="P2"
+    				//@ prow(),pcol()+1 SAY roba->plc pict gpiccdem
+  			else
+    				@ prow(),pcol()+1 SAY KoncijVPC() pict gpiccdem
+ 			endif
+		endif // cbpnab
+		
+		if IsMagPNab()
+			// ulaz - prazno	
+ 			@ prow(),nCol0 SAY space(len(gpickol))
+			// izlaz - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpickol))
+			// stanje - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpickol))
+			// nv.dug - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpicdem))
+			// nv.pot - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpicdem))
+			// prikazi NC
+			if round(nUlaz-nIzlaz,4)<>0 
+				@ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
+ 			endif
+			// pv.dug - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpicdem))
+			// rabat - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpicdem))
+			// pv.pot - prazno
+ 			@ prow(),pcol()+1 SAY space(len(gpicdem))
+			// prikazi PC
+        		if round(nUlaz-nIzlaz,4)<>0
+				@ prow(),pcol()+1 SAY nVPCIzSif pict gpiccdem
+			endif
+		endif
+		
+		if cMink=="O" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0
+   			B_OFF
+		endif
+	endif
+
+	nTULaz+=nKJMJ*nUlaz
+	nTIzlaz+=nKJMJ*nIzlaz
+	nTVPVU+=nVPVU
+	nTVPVI+=nVPVI
+	nTNVU+=nNVU
+	nTNVI+=nNVI
+	nTRabat+=nRabat
+	
 endif
-
-if cSredCij=="D"
-	@ prow(), pcol()+1 SAY (nNVU-nNVI+nVPVU-nVPVI)/(nUlaz-nIzlaz)/2 PICT "9999999.99"
-endif
-
-// novi red
-@ prow()+1,0 SAY ""
-if len(aNaz)>1
- @ prow(),nCR  SAY aNaz[2]
-endif
-
-if gVarEv=="1"
-
-if cMink<>"N" .and. nMink>0
- @ prow(),ncol0    SAY padr("min.kolic:",len(gpickol))
- @ prow(),pcol()+1 SAY nKJMJ*nMink  pict gpickol
-elseif cPNAB=="D" .and. !IsMagPNab()
- @ prow(),ncol0    SAY space(len(gpickol))
- @ prow(),pcol()+1 SAY space(len(gpickol))
-endif
-
-
-if cPNAB=="D" .and. !IsMagPNab()
-  if round(nulaz-nizlaz,4)<>0
-    @ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
-    if cNCSif=="D"
-      select roba
-      replace nc with round((nNVU-nNVI)/(nUlaz-nIzlaz),3)
-      select kalk
-    endif
-  elseif round(nUlaz,4)<>0
-    @ prow(),pcol()+1 SAY nNVU/nUlaz pict gpicdem
-  endif
-  @ prow(),nCol1 SAY nNVU pict gpicdem
-  @ prow(),pcol()+1 SAY space(len(gpicdem))
-  @ prow(),pcol()+1 SAY nNVI pict gpicdem
-  @ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
-  if koncij->naz=="P2"
-    //@ prow(),pcol()+1 SAY roba->plc pict gpiccdem
-  else
-    @ prow(),pcol()+1 SAY KoncijVPC() pict gpiccdem
-  endif
-endif // cbpnab
-
-if cMink=="O" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0
-   B_OFF
-endif
-
-endif
-
-nTULaz+=nKJMJ*nUlaz
-nTIzlaz+=nKJMJ*nIzlaz
-nTVPVU+=nVPVU
-nTVPVI+=nVPVI
-nTNVU+=nNVU
-nTNVI+=nNVI
-nTRabat+=nRabat
-endif  // cnula=="N"
 
 if (IsPlanika() .and. cPrikazDob=="D")
 	? PrikaziDobavljaca(cIdRoba, 6)
@@ -709,25 +750,31 @@ enddo
 nCol1:=pcol()+1
 
 if gVarEv=="1"
-
-if IsMagPNab()
- @ prow(),pcol()+1 SAY ntNVU pict gpicdem
- @ prow(),pcol()+1 SAY ntNVI pict gpicdem
- @ prow(),pcol()+1 SAY ntNVU-NtNVI pict gpicdem
-else
- @ prow(),pcol()+1 SAY ntVPVU pict gpicdem
- @ prow(),pcol()+1 SAY ntRabat pict gpicdem
- @ prow(),pcol()+1 SAY ntVPVI pict gpicdem
- @ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict gpicdem
-endif
-
-if cpnab=="D" .and. !IsMagPNab()
-@ prow()+1,nCol1 SAY ntNVU pict gpicdem
-@ prow(),pcol()+1 SAY space(len(gpicdem))
-@ prow(),pcol()+1 SAY ntNVI pict gpicdem
-@ prow(),pcol()+1 SAY ntNVU-ntNVI pict gpicdem
-endif // cpnab
-
+	if IsMagSNab() .or. IsMagPNab()
+		// NV
+ 		@ prow(),pcol()+1 SAY ntNVU pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntNVI pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntNVU-NtNVI pict gpicdem
+ 	    if IsPDV() 
+	       // PV - samo u pdv rezimu 
+		@ prow(),pcol()+1 SAY ntVPVU pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntRabat pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntVPVI pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict gpicdem
+	    endif
+	    
+	else
+ 		@ prow(),pcol()+1 SAY ntVPVU pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntRabat pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntVPVI pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntVPVU-NtVPVI pict gpicdem
+	endif
+	if cPNab=="D" .and. !IsMagPNab()
+		@ prow()+1,nCol1 SAY ntNVU pict gpicdem
+		@ prow(),pcol()+1 SAY space(len(gpicdem))
+		@ prow(),pcol()+1 SAY ntNVI pict gpicdem
+		@ prow(),pcol()+1 SAY ntNVU-ntNVI pict gpicdem
+	endif
 endif
 
 ? m
@@ -754,26 +801,36 @@ endif
 
 closeret
 return
-*}
 
 
-
-/*! \fn ZaglLLM()
- *  \brief Zaglavlje izvjestaja "lager lista magacina"
- */
-
+// --------------------------------
+// zaglavlje lager liste
+// --------------------------------
 function ZaglLLM()
-*{
+if IsPDV()
+	ZaglPdv()
+else
+	Zagl()
+endif
+return
+
+
+
+// --------------------------------
+// zaglavlje ne-pdv rezima
+// --------------------------------
+static function Zagl()
+
 Preduzece()
 IF gVarEv=="2"
- P_12CPI
+	P_12CPI
 ELSE
- P_COND
+ 	P_COND2
 ENDIF
-select konto; hseek cidkonto
+select konto
+hseek cIdKonto
 set century on
 ?? "KALK: LAGER LISTA  ZA PERIOD",dDatOd,"-",dDatdo,"  na dan", date(), space(12),"Str:",str(++nTStrana,3)
-
 
 IF lPoNarudzbi .and. !EMPTY(qqIdNar)
   ?
@@ -806,40 +863,126 @@ endif
 
 select kalk
 if gVarEv=="2"
- ? m
- ? " R.  *  SIFRA   *                    *J. *"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"   ULAZ      IZLAZ   *          "+cSC2
- ? " BR. * ARTIKLA  *   NAZIV ARTIKLA    *MJ.*"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *  STANJE  "+cSC1
- ? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   "+cSC2
- ? m
-elseif !IsMagPNab()
- ? m
- if koncij->naz=="P1"
-    ? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Prod.vr D *   Rabat  *Prod.vr P*  Prod.vr *  Prod.Cj *"+cSC1
- elseif koncij->naz=="P2"
-    ? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Plan.vr D *   Rabat  *Plan.vr P*  Plan.vr *  Plan.Cj *"+cSC1
- else
-    ? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *  VPV.Dug.*   Rabat  * VPV.Pot *   VPV    *   VPC    *"+cSC1
- endif
- ? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *          *         *          *          *"+cSC2
- if cPNab=="D"
-  if koncij->naz=="P1"
-    ? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * Cij.Kost * V.Kost. D*          * V.Kost.P* Vr.Kost. *          *"+cSC2
-  else
-    ? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * SR.NAB.C *   NV.Dug.*          *  NV.Pot *    NV    *          *"+cSC2
-  endif
- endif
- ? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   *     6    *     7    *     8   *   6 - 8  *     9    *"+cSC2
- ? m
-else
- ? m
- ? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *   NV.Dug.*  NV.Pot *    NV    *    NC    *"+cSC1
- ? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *         *          *          *"+cSC2
- ? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   *     6    *     7   *   6 - 7  *          *"+cSC2
- ? m
-endif
-return
-*}
+	? m
+ 	? " R.  *  SIFRA   *                    *J. *"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"   ULAZ      IZLAZ   *          "+cSC2
+ 	? " BR. * ARTIKLA  *   NAZIV ARTIKLA    *MJ.*"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *  STANJE  "+cSC1
+ 	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   "+cSC2
+ 	? m
 
+elseif !IsMagSNab()
+
+	? m
+ 	if koncij->naz=="P1"
+    		? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Prod.vr D *   Rabat  *Prod.vr P*  Prod.vr *  Prod.Cj *"+cSC1
+ 	elseif koncij->naz=="P2"
+    		? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Plan.vr D *   Rabat  *Plan.vr P*  Plan.vr *  Plan.Cj *"+cSC1
+ 	else
+    		? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *  VPV.Dug.*   Rabat  * VPV.Pot *   VPV    *   VPC    *"+cSC1
+ 	endif
+ 	? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *          *         *          *          *"+cSC2
+ 	if cPNab=="D"
+  		if koncij->naz=="P1"
+    			? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * Cij.Kost * V.Kost. D*          * V.Kost.P* Vr.Kost. *          *"+cSC2
+  		else
+    			? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * SR.NAB.C *   NV.Dug.*          *  NV.Pot *    NV    *          *"+cSC2
+ 		endif
+ 	endif
+ 	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   *     6    *     7    *     8   *   6 - 8  *     9    *"+cSC2
+ 	? m
+else
+ 	? m
+ 	? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *  NV.Dug. * NV.Pot.  *    NV    *"+cSC1
+ 	? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *          *    NC    *"+cSC2
+ 	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   *     6    *     7    *   6 - 7  *"+cSC2
+ 	? m
+endif
+
+return
+
+
+// --------------------------------
+// zaglavlje pdv rezima
+// --------------------------------
+static function ZaglPDV()
+
+Preduzece()
+IF gVarEv=="2"
+	P_12CPI
+ELSE
+ 	P_COND2
+ENDIF
+select konto
+hseek cIdKonto
+set century on
+?? "KALK: LAGER LISTA  ZA PERIOD",dDatOd,"-",dDatdo,"  na dan", date(), space(12),"Str:",str(++nTStrana,3)
+
+IF lPoNarudzbi .and. !EMPTY(qqIdNar)
+  ?
+  ? "Obuhvaceni sljedeci narucioci:",TRIM(qqIdNar)
+  ?
+ENDIF
+
+set century off
+
+if IsPlanika() .and. !EMPTY(cK9)
+	? "Uslov po K9:", cK9
+endif
+
+if IsDomZdr() .and. !Empty(cKalkTip)
+	PrikTipSredstva(cKalkTip)
+endif
+
+? "Magacin:", cIdkonto, "-", ALLTRIM(konto->naz)
+if !Empty(cRNT1) .and. !EMPTY(cRNalBroj)
+	?? ", uslov radni nalog: " + ALLTRIM(cRNalBroj)
+endif
+
+if cSredCij=="D"
+	cSC1:="*Sred.cij.*"
+	cSC2:="*         *"
+else
+	cSC1:=""
+	cSC2:=""
+endif
+
+select kalk
+if gVarEv=="2"
+	? m
+ 	? " R.  *  SIFRA   *                    *J. *"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"   ULAZ      IZLAZ   *          "+cSC2
+ 	? " BR. * ARTIKLA  *   NAZIV ARTIKLA    *MJ.*"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *  STANJE  "+cSC1
+ 	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   "+cSC2
+ 	? m
+
+elseif !IsMagPNab()
+
+	? m
+ 	if koncij->naz=="P1"
+    		? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Prod.vr D *   Rabat  *Prod.vr P*  Prod.vr *  Prod.Cj *"+cSC1
+ 	elseif koncij->naz=="P2"
+    		? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *Plan.vr D *   Rabat  *Plan.vr P*  Plan.vr *  Plan.Cj *"+cSC1
+ 	else
+    		? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *  VPV.Dug.*   Rabat  * VPV.Pot *   VPV    *   VPC    *"+cSC1
+ 	endif
+ 	? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *          *         *          *          *"+cSC2
+ 	if cPNab=="D"
+  		if koncij->naz=="P1"
+    			? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * Cij.Kost * V.Kost. D*          * V.Kost.P* Vr.Kost. *          *"+cSC2
+  		else
+    			? "     *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"                     * SR.NAB.C *   NV.Dug.*          *  NV.Pot *    NV    *          *"+cSC2
+ 		endif
+ 	endif
+ 	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   *     6    *     7    *     8   *   6 - 8  *     9    *"+cSC2
+ 	? m
+
+else
+ 	? m
+ 	? " R.  * Artikal  *   Naziv            *jmj*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *","")+"  ulaz       izlaz   * STANJE   *  NV.Dug. * NV.Pot.  *    NV    *  PV.Dug. *  Rabat   *  PV.Pot. *    PV    *"+cSC1
+ 	? " br. *          *                    *   *"+IF(lPoNarudzbi.and.cPKN=="D","cilac *","")+"                     *          *          *          *    NC    *          *          *          *    PC    *"+cSC2
+ 	? "     *    1     *        2           * 3 *"+IF(lPoNarudzbi.and.cPKN=="D","      *","")+"     4          5    *  4 - 5   *     6    *     7    *   6 - 7  *    8     *     9    *    10    *  8 - 10  *"+cSC2
+ 	? m
+endif
+
+return
 
 
 

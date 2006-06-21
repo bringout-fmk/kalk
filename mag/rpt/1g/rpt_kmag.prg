@@ -341,7 +341,10 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 				@ prow(),pcol()+1 SAY nRabat pict pickol
             			
 				// VPC
-              			@ prow(),pcol()+1 SAY nVPV/(nUlaz-nIzlaz) pict piccdem
+              			if ROUND(nUlaz - nIzlaz, 4) <> 0
+					@ prow(),pcol()+1 SAY nVPV/(nUlaz-nIzlaz) pict piccdem
+				endif
+				
 				//if Round(nUlaz-nIzlaz,4)<>0
               			//	@ prow(),pcol()+1 SAY nVPV/(nUlaz-nIzlaz) pict piccdem
             			//elseif nVpv<>0

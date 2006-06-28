@@ -33,6 +33,7 @@ liball:
 	make -C primpak/1g
 	make -C si/1g
 	make -C proizvod/1g
+	make -C 1g
 	make -C 1g exe
 	
 cleanall:
@@ -69,7 +70,8 @@ cleanall:
 	cd ut/1g; make clean
 	cd primpak/1g; make clean
 	cd si/1g; make clean
-	make -C proizvod/1g clean
+	cd proizvod/1g; make clean
+	cd 1g; make clean
 
 
 kalk:  start_time cleanall liball end_time 

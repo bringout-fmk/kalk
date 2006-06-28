@@ -463,6 +463,7 @@ return
 function result_nivel_p()
 *{
 local cVarijanta
+local cKolNula
 
 if Pitanje(,"Izvrsiti uvid u rezultate nivelacija (D/N)?", "D") == "N"
 	return
@@ -470,14 +471,16 @@ endif
 
 Box(,5, 65)
 	cVarijanta := "2"
+	cKolNula := "N"
 	@ 1+m_x, 2+m_y SAY "Varijanta prikaza:"
 	@ 2+m_x, 2+m_y SAY "  - sa detaljima (1)"
 	@ 3+m_x, 2+m_y SAY "  - bez detalja  (2)" GET cVarijanta VALID !Empty(cVarijanta) .and. cVarijanta $ "12"
+	@ 5+m_x, 2+m_y SAY "Prikaz kolicina 0 (D/N)" GET cKolNula VALID !Empty(cKolNula) .and. cKolNula $ "DN" PICT "@!"
 	read
 	ESC_BCR
 BoxC()
 
-st_res_niv_p(cVarijanta)
+st_res_niv_p(cVarijanta, cKolNula)
 
 return
 *}
@@ -507,10 +510,11 @@ endif
 ObradiImport(0, .f., lStampati)
 
 return
-*}
 
 
-function st_res_niv_p(cVar)
+
+// stampa rezultata - efekata nivelacije
+function st_res_niv_p(cVar, cKolNula)
 local cIdFirma
 local cIdVd
 local cBrDok
@@ -558,6 +562,14 @@ cLine += SPACE(1)
 
 st_zagl(cLine)
 
+// total varijable
+nTStVrbpdv := 0
+nTStVrspdv := 0
+nTNVrbpdv := 0
+nTNVrspdv := 0
+nTRazlbpdv := 0
+nTRazlspdv := 0
+
 do while !EOF()
 	
 	cIdFirma := field->idfirma
@@ -588,6 +600,14 @@ do while !EOF()
 		
 		// kolicina
 		nKolicina := field->kolicina
+		
+		// da li je kolicina 0
+		if cKolNula == "N"
+			if ROUND(nKolicina, 4) == 0
+				skip
+				loop
+			endif
+		endif
 		
 		// stara cijena sa pdv
 		nSCijspdv := field->fcj
@@ -639,13 +659,22 @@ do while !EOF()
 			@ prow(), pcol()+2 SAY ROUND(nRazlbpdv, 3) PICT gPicDem
 		endif
 	
+		// dodaj ukupno prodavnica
 		nUStVrbpdv += nStVrbpdv
 		nUNVrbpdv += nNVrbpdv
 		nUStVrspdv += nStVrspdv
 		nUNVrspdv += nNVrspdv
 		nURazlbpdv += nRazlbpdv
 		nURazlspdv += nRazlspdv
-		
+
+		// dodaj na total
+		nTStVrbpdv += nStVrbpdv
+		nTNVrbpdv += nNVrbpdv
+		nTStVrspdv += nStVrspdv
+		nTNVrspdv += nNVrspdv
+		nTRazlbpdv += nRazlbpdv
+		nTRazlspdv += nRazlspdv
+
 		skip
 	enddo
 	
@@ -673,6 +702,28 @@ do while !EOF()
 		? cLine
 	endif
 enddo
+
+// provjeri za novi red
+nstr(cLine)
+
+? cLine
+
+// total - sve prodavnice
+? PADR("SVE PRODAVNICE UKUPNO:",26)
+@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
+@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
+@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
+// sa pdv
+@ prow(), pcol()+2 SAY ROUND(nTStVrspdv, 3) PICT gPicDem
+@ prow(), pcol()+2 SAY ROUND(nTNVrspdv, 3) PICT gPicDem
+@ prow(), pcol()+2 SAY ROUND(nTRazlspdv, 3) PICT gPicDem
+// bez pdv
+@ prow(), pcol()+2 SAY ROUND(nTStVrbpdv, 3) PICT gPicDem
+@ prow(), pcol()+2 SAY ROUND(nTNVrbpdv, 3) PICT gPicDem
+@ prow(), pcol()+2 SAY ROUND(nTRazlbpdv, 3) PICT gPicDem
+	
+? cLine
+
 
 FF
 

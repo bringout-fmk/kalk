@@ -511,22 +511,19 @@ return
 
 
 function st_res_niv_p(cVar)
-*{
 local cIdFirma
 local cIdVd
 local cBrDok
 local cIdRoba
 local cRobaNaz
-local nSMpcP // stara mpc sa por.
-local nNMpcP // nova mpc sa por.
-local nRMpcP // razlika mpc sa por.
-local nRMpcBP // razlika mpc bez.por.
-local nUSMpcP // ukupno stara mpc sa por.
-local nUNMpcP // ukupno nova mpc sa por.
-local nURMpcP // ukupno razlika mpc sa por.
-local nURMpcBP // ukupno razlika mpc bez. por.
 local cProd
 local cPorez
+local nUStVrbpdv
+local nUStVrspdv
+local nUNVrbpdv 
+local nUNVrspdv 
+local nURazlbpdv
+local nURazlspdv
 
 O_PRIPT
 O_ROBA
@@ -543,57 +540,112 @@ set order to tag "1"
 go top
 
 START PRINT CRET
+
 ?
 ? "Prikaz efekata nivelacije za sve prodavnice, na dan " + DToC(DATE())
 ?
 
-P_COND
+cLine := REPLICATE("-", 10)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 15)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 35)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 35)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 35)
+cLine += SPACE(1)
 
-cLine := REPLICATE("-", 86)
-
-? cLine
-
-? PADR("Artikal", 10), ;
-PADR("Naziv", 15), ;
-PADR("S.MPC sa " + cPorez,14), ;
-PADR("Razl.MPC",14), ;
-PADR("Raz.MPC sa " + cPorez,14), ;
-PADR("N.MPC sa " + cPorez,14) 
-? cLine
+st_zagl(cLine)
 
 do while !EOF()
 	
 	cIdFirma := field->idfirma
 	cIdVd := field->idvd
 	cBrDok := field->brdok
-	nUSMpcP := 0
-	nUNMpcP := 0
-	nURMpcP := 0
-	nURMpcBP := 0
+	
+	nUStVrbpdv := 0
+	nUStVrspdv := 0
+	nUNVrbpdv := 0
+	nUNVrspdv := 0
+	nURazlbpdv := 0
+	nURazlspdv := 0
+	
 	cProd := field->pkonto
 	
 	do while !EOF() .and. pript->(idfirma+idvd+brdok) == cIdFirma+cIdVd+cBrDok
 		cIdRoba := field->idroba
-		nSMpcP := field->fcj
-		nNMpcP := field->mpc
-		nRMpcP := field->mpcsapp
-		nRMpcBP := field->mpcsapp + field->fcj
+		cIdTar := field->idtarifa
+		
+		select roba
+		set order to tag "ID"
+		hseek cIdRoba
+		
+		select tarifa
+		seek cIdTar
+		
+		select pript
+		
+		// kolicina
+		nKolicina := field->kolicina
+		
+		// stara cijena sa pdv
+		nSCijspdv := field->fcj
+		
+		// nova cijena sa pdv
+		nNCijspdv := field->fcj + field->mpcsapp
+		
+		// RUC sa pdv
+		nRazlCij := nSCijspdv - nNCijspdv
+		
+		// stara vrijednost sa pdv
+		nStVrspdv := nKolicina * (field->fcj)
+
+		// stara vrijednost bez pdv
+		nStVrbpdv := nKolicina * (field->fcj / ( 1 + (tarifa->opp / 100) ) )
+		
+		// vrijednost nova cijena sa pdv
+		nNVrspdv := nKolicina * nNCijspdv
+		
+		// vrijednost nova bez pdv
+		nNVrbpdv := nKolicina * (nNCijspdv / (1 + (tarifa->opp / 100) ) )
+		
+		// razlika sa pdv
+		nRazlspdv := nStVrspdv - nNVrspdv
+		
+		// razlika bez pdv
+		nRazlbpdv := nStVrbpdv - nNVrbpdv
 		
 		if cVar == "1"
-			select roba
-			set order to tag "ID"
-			hseek cIdRoba
-			select pript
+			// vidi da li treba nova strana
+			nstr(cLine)
 			
 			// prikazi stavku
-			? cIdRoba, PADR(roba->naz,15), ROUND(nSMpcP, 3), ROUND(nNMpcP, 3), ROUND(nRMpcP, 3), ROUND(nRMpcBP, 3)
+			? cIdRoba
+			?? SPACE(1) 
+			?? PADR(roba->naz, 15)
+			
+			// cijene
+			@ prow(), pcol()+2 SAY ROUND(nSCijspdv, 3) PICT gPicCDem
+			@ prow(), pcol()+2 SAY ROUND(nNCijspdv, 3) PICT gPicCDem
+			@ prow(), pcol()+2 SAY ROUND(nRazlCij, 3) PICT gPicCDem
+			// sa pdv
+			@ prow(), pcol()+2 SAY ROUND(nStVrspdv, 3) PICT gPicDem
+			@ prow(), pcol()+2 SAY ROUND(nNVrspdv, 3) PICT gPicDem
+			@ prow(), pcol()+2 SAY ROUND(nRazlspdv, 3) PICT gPicDem
+			// bez pdv
+			@ prow(), pcol()+2 SAY ROUND(nStVrbpdv, 3) PICT gPicDem
+			@ prow(), pcol()+2 SAY ROUND(nNVrbpdv, 3) PICT gPicDem
+			@ prow(), pcol()+2 SAY ROUND(nRazlbpdv, 3) PICT gPicDem
 		endif
 	
-		nUSMpcP += nSMpcP
-		nUNMpcP += nNMpcP
-		nURMpcP += nRMpcP
-		nURMpcBP += nRMpcBP
-	
+		nUStVrbpdv += nStVrbpdv
+		nUNVrbpdv += nNVrbpdv
+		nUStVrspdv += nStVrspdv
+		nUNVrspdv += nNVrspdv
+		nURazlbpdv += nRazlbpdv
+		nURazlspdv += nRazlspdv
+		
 		skip
 	enddo
 	
@@ -601,18 +653,96 @@ do while !EOF()
 		? cLine
 	endif 
 	
-	? PADR("PRODAVNICA " + ALLTRIM(cProd) + " UKUPNO:",26), ROUND(nUSMpcP, 3), ROUND(nUNMpcP, 3), ROUND(nURMpcP, 3), ROUND(nURMpcBP, 3)
+	// vidi da li treba nova strana
+	nstr(cLine)
+	
+	? PADR("PRODAVNICA " + ALLTRIM(cProd) + " UKUPNO:",26)
+	@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
+	@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
+	@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
+	// sa pdv
+	@ prow(), pcol()+2 SAY ROUND(nUStVrspdv, 3) PICT gPicDem
+	@ prow(), pcol()+2 SAY ROUND(nUNVrspdv, 3) PICT gPicDem
+	@ prow(), pcol()+2 SAY ROUND(nURazlspdv, 3) PICT gPicDem
+	// bez pdv
+	@ prow(), pcol()+2 SAY ROUND(nUStVrbpdv, 3) PICT gPicDem
+	@ prow(), pcol()+2 SAY ROUND(nUNVrbpdv, 3) PICT gPicDem
+	@ prow(), pcol()+2 SAY ROUND(nURazlbpdv, 3) PICT gPicDem
+	
 	if cVar == "1"
 		? cLine
 	endif
 enddo
-
 
 FF
 
 END PRINT
 
 return
-*}
 
+
+
+// stampa zaglavlja
+static function st_zagl(cLine)
+local cHead1
+local cHead2
+local cSep := "*"
+
+P_COND
+
+? cLine
+
+// prva linija headera
+cHead1 := PADC("SIFRA", 10)
+cHead1 += cSep
+cHead1 += PADC("NAZIV", 15)
+cHead1 += cSep
+cHead1 += PADC("CIJENE SA PDV", 35)
+cHead1 += cSep
+cHead1 += PADC("VRIJEDNOST SA PDV", 35)
+cHead1 += cSep
+cHead1 += PADC("VRIJEDNOST BEZ PDV", 35)
+cHead1 += cSep
+
+// druga linija headera
+cHead2 := PADC("ARTIKLA", 10)
+cHead2 += cSep
+cHead2 += PADC("ARTIKLA", 15)
+cHead2 += cSep
+cHead2 += PADC("STARA", 11)
+cHead2 += cSep
+cHead2 += PADC("NOVA", 11)
+cHead2 += cSep
+cHead2 += PADC("RAZLIKA", 11)
+cHead2 += cSep
+cHead2 += PADC("STARA C", 11)
+cHead2 += cSep
+cHead2 += PADC("NOVA C", 11)
+cHead2 += cSep
+cHead2 += PADC("RAZLIKA", 11)
+cHead2 += cSep
+cHead2 += PADC("STARA C", 11)
+cHead2 += cSep
+cHead2 += PADC("NOVA C", 11)
+cHead2 += cSep
+cHead2 += PADC("RAZLIKA", 11)
+cHead2 += cSep
+
+? cHead1
+? cHead2
+
+? cLine
+
+return
+
+
+// prelaz na novu stranicu
+static function nstr(cLine)
+
+if prow() > 58
+	FF
+	st_zagl(cLine)
+endif
+
+return
 

@@ -8,8 +8,8 @@
 	#include "sc.ch"
 #endif
 
-#define D_KA_VERZIJA "02.61"
-#define D_KA_PERIOD  "11.94-28.06.06"
+#define D_KA_VERZIJA "02.62"
+#define D_KA_PERIOD  "11.94-29.06.06"
 
 
 #ifndef FMK_DEFINED

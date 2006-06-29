@@ -797,3 +797,199 @@ endif
 
 return
 
+
+// obrazac o promjeni cijena za sve prodavnice
+function o_pr_cijena()
+local cProred
+local cPodvuceno
+local aDoks
+local i
+
+cProred:="N"
+cPodvuceno:="N"
+
+MsgBeep("Opcija stampa obrasce o promjeni cijena#na osnovu generisane nivelacije!")
+
+Box(,2,60)
+	@ m_x+1,m_y+2 SAY "Prikazati sa proredom:" GET cProred valid cProred $"DN" pict "@!"
+ 	@ m_x+2,m_y+2 SAY "Prikazati podvuceno  :" GET cPodvuceno valid cPodvuceno $ "DN" pict "@!"
+	read
+	ESC_BCR
+BoxC()
+
+if Lastkey()==K_ESC
+	return
+endif
+
+O_PARTN
+O_ROBA
+O_TARIFA
+O_PRIPT
+
+// uzmi u matricu prodavnice
+g_pript_doks(@aDoks)
+
+// ima li dokumenata
+if LEN(aDoks) == 0
+	MsgBeep("Nema dokumenata!")
+	return
+endif
+
+// prodji po dokumentima
+for i:=1 to LEN(aDoks)
+
+	// upit za stampu
+	Box(,5, 60)
+		cOdgovor := "D"
+		@ m_x+1, m_y+2 SAY "Stampati obrazac za dokument: 19-" + ALLTRIM(aDoks[i, 1])
+		@ m_x+3, m_y+2 SAY "D/N (X - prekini)" GET cOdgovor VALID cOdgovor $ "DNX" PICT "@!"
+	read
+	BoxC()
+	
+	// ako je X - izadji skroz
+	if cOdgovor == "X"
+		exit
+	endif
+
+	// ako je N - izadji samo iz tekuceg
+	if cOdgovor == "N"
+		loop
+	endif
+	
+	// stampaj obrazac
+	st_pr_cijena(gFirma, "19", aDoks[i, 1], cPodvuceno, cProred)
+next
+
+
+return
+
+
+// vrati u matricu brojeve dokumenata
+static function g_pript_doks(aArr)
+aArr:={}
+select pript
+go top
+
+do while !EOF()
+	if ASCAN(aArr, {|xVar| xVar[1] == field->brdok }) == 0
+		AADD(aArr, {field->brdok})
+	endif
+	skip
+enddo
+
+return 
+
+
+
+// stampa obrasca o promjeni cijena
+function st_pr_cijena(cFirma, cIdTip, cBrDok, cPodvuceno, cProred)
+local nCol1:=0
+local nCol2:=0
+local nPom:=0
+private nPrevoz
+private nCarDaz
+private nZavTr
+private nBankTr
+private nSpedTr
+private nMarza
+private nMarza2
+
+nStr:=0
+cIdPartner:=IdPartner
+cBrFaktP:=BrFaktP
+dDatFaktP:=DatFaktP
+dDatKurs:=DatKurs
+cIdKonto:=IdKonto
+cIdKonto2:=IdKonto2
+
+START PRINT CRET
+?
+Preduzece()
+
+P_10CPI
+B_ON
+? padl("Prodavnica __________________________",74)
+?
+?
+? PADC("PROMJENA CIJENA U PRODAVNICI ___________________, Datum _________",80)
+?
+B_OFF
+
+select PRIPT
+set order to tag "1"
+go top
+seek cFirma + cIdTip + cBrDok
+
+P_COND
+?
+
+@ prow(), 110 SAY "Str:" + STR(++nStr, 3)
+
+m:= "--- --------------------------------------------------- ---------- ---------- ---------- ------------- ------------- -------------"
+
+? m
+
+? "*R *  Sifra   *        Naziv                           *  STARA   *   NOVA   * promjena *  zaliha     *   iznos     *  ukupno    *"
+? "*BR*          *                                        *  cijena  *  cijena  *  cijene  * (kolicina)  *   poreza    * promjena   *"
+
+? m
+
+nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=0
+
+do while !eof() .and. cFirma==pript->IdFirma .and.  cBrDok==pript->BrDok .and. cIdTip==pript->IdVD
+	
+	select ROBA
+    	HSEEK PRIPT->IdRoba
+    	
+	select TARIFA
+    	HSEEK PRIPT->IdTarifa
+    	
+	select PRIPT
+    
+   	DokNovaStrana(110, @nStr, IIF(cProred=="D", 2, 1))
+      
+      	?
+	
+      	if cPodvuceno=="D"
+       		U_ON
+      	endif
+	
+      	?? field->rbr + " " + field->idroba + " " + PADR(trim(ROBA->naz) + " (" + ROBA->jmj + ")", 40)
+      	
+	@ prow(),pcol()+1 SAY field->FCJ PICT gPicCDEM
+      	@ prow(),pcol()+1 SAY field->MPCSAPP+FCJ PICT gPicCDEM
+      	@ prow(),pcol()+1 SAY field->MPCSAPP PICT gPicCDEM
+      	
+	if cPodvuceno=="D"
+       		U_OFF
+      	endif
+      	
+	@ prow(),pcol()+1 SAY "_____________"
+      	@ prow(),pcol()+1 SAY "_____________"
+      	@ prow(),pcol()+1 SAY "_____________"
+      	
+	if cProred=="D"
+        	?
+      	endif
+    	
+	skip
+enddo
+
+DokNovaStrana(110, @nStr, 12)
+
+? m
+? " UKUPNO "
+? m
+?
+?
+?
+P_10CPI
+
+PrnClanoviKomisije()
+
+END PRINT
+
+return
+
+
+

@@ -72,15 +72,16 @@ AADD(opc, "6. azuriranje nivelacije za sve prodavnice")
 AADD(opcexe, {|| obr_nivel_p()})
 AADD(opc, "7. setovanje mpc nakon obradjenih nivelacija")
 AADD(opcexe, {|| set_mpc_iz_zanivel()})
+AADD(opc, "8. stampa obrazaca o prom.cijena za sve prod.")
+AADD(opcexe, {|| o_pr_cijena()})
 
 private Izbor:=1
 Menu_SC("pmn")
 return
-*}
+
 
 
 function MnuPInv()
-*{
 private Opc:={}
 private OpcExe:={}
 

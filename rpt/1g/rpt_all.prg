@@ -55,7 +55,6 @@ endif
 
 
 function PrikTipSredstva(cKalkTip)
-*{
 if !EMPTY(cKalkTip)
 	? "Uslov po tip-u: "
 	if cKalkTip=="D"
@@ -68,5 +67,29 @@ if !EMPTY(cKalkTip)
 endif
 
 return
-*}
+
+
+// ---------------------------------------
+// vraca naziv objekta na osnovu konta
+// ---------------------------------------
+function g_obj_naz(cKto)
+local cVal := ""
+local nTArr
+
+nTArr := SELECT()
+
+O_OBJEKTI
+select objekti
+set order to tag "idobj"
+go top
+seek cKto
+
+if FOUND()
+	cVal := objekti->naz
+endif
+
+select (nTArr)
+
+return cVal
+
 

@@ -530,6 +530,7 @@ local nURazlbpdv
 local nURazlspdv
 
 O_PRIPT
+O_POBJEKTI
 O_ROBA
 O_TARIFA
 
@@ -685,7 +686,10 @@ do while !EOF()
 	// vidi da li treba nova strana
 	nstr(cLine)
 	
-	? PADR("PRODAVNICA " + ALLTRIM(cProd) + " UKUPNO:",26)
+	// uzmi naziv objekta
+	cObjNaz := g_obj_naz(cProd)
+	
+	? PADR("UKUPNO " + ALLTRIM(cProd) + "-" + ALLTRIM(cObjNaz), 26)
 	@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
 	@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
 	@ prow(), pcol()+2 SAY SPACE(LEN(gPicCDem))
@@ -886,41 +890,34 @@ function st_pr_cijena(cFirma, cIdTip, cBrDok, cPodvuceno, cProred)
 local nCol1:=0
 local nCol2:=0
 local nPom:=0
-private nPrevoz
-private nCarDaz
-private nZavTr
-private nBankTr
-private nSpedTr
-private nMarza
-private nMarza2
-
-nStr:=0
-cIdPartner:=IdPartner
-cBrFaktP:=BrFaktP
-dDatFaktP:=DatFaktP
-dDatKurs:=DatKurs
-cIdKonto:=IdKonto
-cIdKonto2:=IdKonto2
-
-START PRINT CRET
-?
-Preduzece()
-
-P_10CPI
-B_ON
-? padl("Prodavnica __________________________",74)
-?
-?
-? PADC("PROMJENA CIJENA U PRODAVNICI ___________________, Datum _________",80)
-?
-B_OFF
 
 select PRIPT
 set order to tag "1"
 go top
 seek cFirma + cIdTip + cBrDok
 
+nStr:=0
+
+cIdKonto:=IdKonto
+cObjNaz:=g_obj_naz(cIdKonto)
+
+START PRINT CRET
+
+?
+
+Preduzece()
+
+P_10CPI
+B_ON
+? padl("Prodavnica: " + ALLTRIM(cIdKonto) + "-" + ALLTRIM(cObjNaz),74)
+?
+?
+? PADC("PROMJENA CIJENA U PRODAVNICI ___________________, Datum _________",80)
+?
+B_OFF
+
 P_COND
+
 ?
 
 @ prow(), 110 SAY "Str:" + STR(++nStr, 3)
@@ -933,8 +930,6 @@ m:= "--- --------------------------------------------------- ---------- --------
 ? "*BR*          *                                        *  cijena  *  cijena  *  cijene  * (kolicina)  *   poreza    * promjena   *"
 
 ? m
-
-nTot1:=nTot2:=nTot3:=nTot4:=nTot5:=nTot6:=nTot7:=0
 
 do while !eof() .and. cFirma==pript->IdFirma .and.  cBrDok==pript->BrDok .and. cIdTip==pript->IdVD
 	

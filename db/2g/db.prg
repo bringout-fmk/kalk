@@ -585,6 +585,7 @@ if (nArea==-1 .or. nArea==(F_OBJEKTI))
 
 	CREATE_INDEX("ID", "ID", cImeTbl)
 	CREATE_INDEX("NAZ", "NAZ", cImeTbl)
+	CREATE_INDEX("IdObj", "IdObj", cImeTbl)
 
 endif
 

@@ -285,7 +285,7 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 	cLastPar:=""
 	cSKGrup:=""
 	do while !eof() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba
-  		nNVd:=nNVp:=nVPVd:=nVPVp:=0
+		nNVd:=nNVp:=nVPVd:=nVPVp:=0
   		IF lBezG2 .and. idvd=="14"
     			IF !(cLastPar==idpartner)
       				cLastPar := idpartner
@@ -370,7 +370,11 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 		
 		if prow()-gPStranica>62
 			FF
-			Zagl()
+			if IsPDV()
+				ZaglPDV()
+			else
+				Zagl()
+			endif
 		endif
   		
 		if mu_i=="1" .and. !(idvd $ "12#22#94")
@@ -394,7 +398,8 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
     			nNVd:=nc*(kolicina-gkolicina-gkolicin2)
     			tnNVd+=nNVd
     			nNV+=nc*(kolicina-gkolicina-gkolicin2)
-    			if koncij->naz=="P2"
+    			
+			if koncij->naz=="P2"
       				nVPVd:=roba->plc*(kolicina-gkolicina-gkolicin2)
       				tnVPVd+=nVPVd
       				nVPV+=roba->plc*(kolicina-gkolicina-gkolicin2)
@@ -719,6 +724,7 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
       endif
     endif 
   endif
+  
   skip    
   // kalk
 enddo   

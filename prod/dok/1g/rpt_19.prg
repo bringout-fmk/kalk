@@ -91,7 +91,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVd==IdVd
       nTot5+=  (nU5:= MPcSaPP*Kolicina )
       @ prow()+1,0 SAY  Rbr PICTURE "999"
       @ prow(),4 SAY  ""
-      ?? trim(ROBA->naz),"(",ROBA->jmj,")"
+      ?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
       IF lPoNarudzbi
         IspisPoNar()
       ENDIF
@@ -225,7 +225,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       if cPodvuceno=="D"
        U_ON
       endif
-      ?? rbr+" "+idroba+" "+PADR(trim(ROBA->naz)+" ("+ROBA->jmj+")",40)
+      ?? rbr+" "+idroba+" "+PADR(trim(LEFT(ROBA->naz,40))+" ("+ROBA->jmj+")",40)
       @ prow(),pcol()+1 SAY FCJ                  PICTURE PicCDEM
       @ prow(),pcol()+1 SAY MPCSAPP+FCJ          PICTURE PicCDEM
       @ prow(),pcol()+1 SAY MPCSAPP              PICTURE PicCDEM

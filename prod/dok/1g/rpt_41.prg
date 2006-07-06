@@ -157,7 +157,7 @@ nPRUC:=nPor2
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),4 SAY  ""
-    ?? trim(ROBA->naz),"(",ROBA->jmj,")"
+    ?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
     IF lPoNarudzbi
     	IspisPoNar(IF(cIdVd=="41",.f.,))
     ENDIF

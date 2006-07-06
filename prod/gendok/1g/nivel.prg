@@ -949,7 +949,7 @@ do while !eof() .and. cFirma==pript->IdFirma .and.  cBrDok==pript->BrDok .and. c
        		U_ON
       	endif
 	
-      	?? field->rbr + " " + field->idroba + " " + PADR(trim(ROBA->naz) + " (" + ROBA->jmj + ")", 40)
+      	?? field->rbr + " " + field->idroba + " " + PADR(trim(LEFT(ROBA->naz,35)) + " (" + ROBA->jmj + ")", 40)
       	
 	@ prow(),pcol()+1 SAY field->FCJ PICT gPicCDEM
       	@ prow(),pcol()+1 SAY field->MPCSAPP+FCJ PICT gPicCDEM

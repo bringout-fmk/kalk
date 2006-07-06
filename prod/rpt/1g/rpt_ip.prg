@@ -118,9 +118,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 	@ prow(),4 SAY  ""
 
 	if (IsJerry())
-		?? idroba, LEFT(ROBA->naz,LEN(ROBA->naz)-13),"("+ROBA->jmj+")"
+		?? idroba, LEFT(ROBA->naz,40 - 13),"("+ROBA->jmj+")"
 	else
-		?? idroba, trim(ROBA->naz),"(",ROBA->jmj,")"
+		?? idroba, trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
 	endif
 
 	if gRokTr=="D"
@@ -285,7 +285,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     @ prow()+1,0 SAY  Rbr PICTURE "XXX"
     @ prow(),4 SAY  ""
-    ?? idroba, LEFT(ROBA->naz,LEN(ROBA->naz)-13),"("+ROBA->jmj+")"
+    ?? idroba, LEFT(ROBA->naz,40 - 13),"("+ROBA->jmj+")"
     nPosKol:=1
     @ prow(),pcol()+1 SAY IdTarifa
     if gcSLObrazac=="2"

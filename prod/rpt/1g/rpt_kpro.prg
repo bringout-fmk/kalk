@@ -169,7 +169,7 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
 	select tarifa
 	hseek roba->idtarifa
 	? m
-	? "Artikal:",cIdRoba,"-",Trim(roba->naz)+iif(lKoristitiBK," BK:"+roba->barkod,"")+" ("+roba->jmj+")"
+	? "Artikal:",cIdRoba,"-",Trim(LEFT(roba->naz,40))+iif(lKoristitiBK," BK:"+roba->barkod,"")+" ("+roba->jmj+")"
 
 	if (IsPlanika() .and. cPrikazDob=="D")
 		?? PrikaziDobavljaca(cIdRoba, 3)
@@ -565,7 +565,7 @@ function NPArtikli()
         if IsPlanika() .and. cPrikOnlyPar=="D" .and. roba->jmj<>"PAR"
 		LOOP	
 	endif
-	? cIdRoba, ROBA->naz, PADC(TRANSFORM(aTopI[i,2],picdem),20)
+	? cIdRoba, LEFT(ROBA->naz, 40), PADC(TRANSFORM(aTopI[i,2],picdem),20)
         if (IsPlanika() .and. cPrikazDob=="D")
       	    ?? PrikaziDobavljaca(cIdRoba, 2, .f.)		
         endif	
@@ -604,7 +604,7 @@ function NPArtikli()
 	if IsPlanika() .and. cPrikOnlyPar=="D" .and. roba->jmj<>"PAR"
 		LOOP
 	endif
-        ? cIdRoba, ROBA->naz, PADC(TRANSFORM(aTopK[i,2],pickol),20)
+        ? cIdRoba, LEFT(ROBA->naz, 40), PADC(TRANSFORM(aTopK[i,2],pickol),20)
         if (IsPlanika() .and. cPrikazDob=="D")
       	    ?? PrikaziDobavljaca(cIdRoba, 2, .f.)		
         endif	

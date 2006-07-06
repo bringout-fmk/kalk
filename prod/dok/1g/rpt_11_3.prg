@@ -117,7 +117,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     nTot7+=  (nU7:= MPcSaPP*Kolicina )
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
-    ?? " "+IdRoba+" "+ROBA->naz+" "+ROBA->jmj
+    ?? " "+IdRoba+" "+LEFT(ROBA->naz,40)+" "+ROBA->jmj
     if gRokTr=="D"; ?? " "+DTOC(RokTr); endif
     ?? " "+TRANSFORM(Kolicina,pickol)+" "+TRANSFORM(VPC,PicCDEM)
     ?? " "+TRANSFORM(vpc*kolicina,picdem)

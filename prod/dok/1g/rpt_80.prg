@@ -147,7 +147,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     nTotB+= (nUB:=MPCSAPP* (Kolicina-Gkolicina-GKolicin2) )
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
-    @ prow(),4 SAY  ""; ?? trim(ROBA->naz),"(",ROBA->jmj,")"
+    @ prow(),4 SAY  ""; ?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
     if gRokTr=="D"; ?? space(4),"Rok Tr.:",RokTr; endif
     IF lPoNarudzbi
       IspisPoNar()

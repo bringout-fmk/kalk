@@ -25,7 +25,7 @@ if lSay==NIL
 endif
 
 if lSay
-	Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40)
+	Reci(11,23,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40)
 endif
 
 if fNovi .or. IsJerry() .or. IsPlanika()
@@ -240,7 +240,7 @@ return
 function VRoba_lv(fNovi, aPorezi)
 *{
 P_Roba(@_IdRoba)
-Reci(11,23,trim(roba->naz)+" ("+ROBA->jmj+")",40)
+Reci(11,23,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40)
 
 if fNovi .or. IsJerry()
   // nadji odgovarajucu tarifu regiona

@@ -266,7 +266,7 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 	select tarifa
 	hseek roba->idtarifa
 	? m
-	? "Artikal:",cIdRoba,"-",trim(roba->naz)+ iif(lKoristitiBK," BK:"+roba->barkod,"")+" ("+roba->jmj+")"
+	? "Artikal:",cIdRoba,"-",trim(LEFT(roba->naz,40))+ iif(lKoristitiBK," BK:"+roba->barkod,"")+" ("+roba->jmj+")"
 
 	if (IsPlanika() .and. cPrikazDob=="D")
 		?? PrikaziDobavljaca(cIdRoba, 3)

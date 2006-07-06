@@ -105,7 +105,7 @@ function PRobDob()
    ?
    ? "PREGLED ROBE OD DOBAVLJACA ZA PERIOD OD",dOD,"DO",dDo
    ? "DOBAVLJAC:",cIdPartner,"-",PARTN->naz
-   ? "ROBA:",cIdRoba,"-",ROBA->naz
+   ? "ROBA:",cIdRoba,"-",LEFT(ROBA->naz, 40)
    ?
    StampaTabele(aKol,{|| FSvakiPRD()},,gTabela,,;
         ,,;
@@ -136,7 +136,7 @@ function FForPRD1()
 local cIdR
 local dLastNab
 
-cRoba  := IDROBA+"-"+ROBA->naz+"("+ROBA->jmj+")"
+cRoba  := IDROBA+"-"+LEFT(ROBA->naz,40)+"("+ROBA->jmj+")"
 cIdR   := idroba
 nUlaz  := nStanje := 0
 lImaVP := .f.

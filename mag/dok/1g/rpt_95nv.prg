@@ -130,7 +130,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
      cNKonto:=idkonto2
     endif
     @ prow(),4 SAY  ""
-    ?? padr(cNKonto,11), idroba, trim(ROBA->naz)+"("+ROBA->jmj+")"
+    ?? padr(cNKonto,11), idroba, trim(LEFT(ROBA->naz, 40))+"("+ROBA->jmj+")"
     @ prow()+1,46 SAY Kolicina  PICTURE PicKol
     
     nC1:=pcol()+1

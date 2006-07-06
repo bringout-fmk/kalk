@@ -84,7 +84,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),pcol()+1 SAY  padr(cNKonto,11)
     @ prow(),pcol()+1 SAY  IdRoba
-    @ prow(),pcol()+1 SAY  ROBA->naz
+    @ prow(),pcol()+1 SAY  LEFT(ROBA->naz, 40)
     @ prow(),pcol()+1 SAY  ROBA->jmj
     @ prow(),pcol()+2 SAY  Kolicina         PICTURE PicKol
 

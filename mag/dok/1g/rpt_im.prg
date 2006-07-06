@@ -116,7 +116,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVd
     
     @ prow()+1,0 SAY  Rbr PICTURE "XXX"
     @ prow(),4 SAY  ""
-    ?? idroba, trim(ROBA->naz),"(",ROBA->jmj,")"
+    ?? idroba, trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
     
 /* niko ne koristi
     if gRokTr=="D"

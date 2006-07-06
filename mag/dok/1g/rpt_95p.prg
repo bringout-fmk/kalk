@@ -137,7 +137,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	// 1. PRVI RED
 	@ prow()+1,0 SAY  Rbr PICTURE "999"
     	@ prow(),4 SAY  ""
-	?? trim(ROBA->naz), "(", ROBA->jmj,")"
+	?? trim(LEFT(ROBA->naz,40)), "(", ROBA->jmj,")"
 	
     	@ prow()+1,4 SAY IdRoba
     	nCol1:=pcol()+1

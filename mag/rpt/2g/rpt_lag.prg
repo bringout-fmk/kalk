@@ -382,7 +382,7 @@ cTbl:=PRIVPATH+"rpt_tmp.dbf"
 
 aTbl:={}
 AADD(aTbl, { "idRoba",  "C", 10, 0})
-AADD(aTbl, { "RobaNaz", "C", 40, 0})
+AADD(aTbl, { "RobaNaz", "C", 250, 0})
 AADD(aTbl, { "idTarifa","C", 6, 0})
 AADD(aTbl, { "idPartner","C", 6, 0})
 AADD(aTbl, { "jmj",     "C", 3, 0})
@@ -394,7 +394,7 @@ AADD(aTbl, { "rabatF",  "N", 16, 4})
 
 DBCREATE2(cTbl, aTbl)
 CREATE_INDEX("idRoba", "idRoba+idTarifa", cTbl, .f.)
-CREATE_INDEX("RobaNaz", "RobaNaz+idTarifa", cTbl, .f.)
+CREATE_INDEX("RobaNaz", "LEFT(RobaNaz,40)+idTarifa", cTbl, .f.)
 CREATE_INDEX("idTarifa", "idTarifa+idRoba", cTbl, .f.)
 CREATE_INDEX("jmj", "jmj+idRoba+idTarifa", cTbl, .f.)
 CREATE_INDEX("idPartner", "idPartner+idroba+idTarifa", cTbl, .f.)
@@ -530,7 +530,7 @@ local i
 ::cLinija+=REPLICATE("-", 6)+" "
 ::cLinija+=REPLICATE("-", LEN(field->idRoba))+" "
 ::cLinija+=REPLICATE("-", LEN(field->idTarifa))+" "
-::cLinija+=REPLICATE("-", LEN(field->robaNaz))+" "
+::cLinija+=REPLICATE("-", 40)+" "
 
 
 ::cLinija+=REPLICATE("-", LEN(gPicKol))
@@ -562,7 +562,7 @@ cHeader:=""
 cHeader:=PADC("Rbr",5)+" "
 cHeader+=PADC("idRoba",LEN(field->idRoba))+" "
 cHeader+=PADC("Tar.",LEN(field->idTarifa))+" "
-cHeader+=PADC(" Naziv artikla",LEN(field->robaNaz))+" "
+cHeader+=PADC(" Naziv artikla", 40)+" "
 cHeader+=PADC("kolicina", LEN(gPicKol))+" "
 if (::cNabIliProd=="P")
 	cHeader+=PADC("Vpv Ul.", LEN(gPicKol))+" "
@@ -599,9 +599,7 @@ endif
 ? STR(++::nRbr,4)+". "
 @ PROW(), PCOL()+1 SAY field->idRoba
 @ PROW(), PCOL()+1 SAY field->idTarifa
-@ PROW(), PCOL()+1 SAY field->robaNaz
-
-
+@ PROW(), PCOL()+1 SAY LEFT(field->robaNaz, 40)
 @ PROW(), PCOL()+1 SAY field->ulazK-field->izlazK PICT gPicKol
 @ PROW(), PCOL()+1 SAY field->ulazF PICT gPicDem
 @ PROW(), PCOL()+1 SAY field->izlazF PICT gPicDem
@@ -644,7 +642,7 @@ endif
 ? PADR(" ",6)
 @ PROW(), PCOL()+1 SAY SPACE(LEN(field->idRoba))
 @ PROW(), PCOL()+1 SAY SPACE(LEN(field->idTarifa))
-@ PROW(), PCOL()+1 SAY SPACE(LEN(field->robaNaz))
+@ PROW(), PCOL()+1 SAY SPACE(40)
 
 @ PROW(), PCOL()+1 SAY ::nTUlazK-::nTIzlazK PICT gPicKol
 

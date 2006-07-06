@@ -103,7 +103,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     @ prow(),pcol()+1 SAY  padr(idkonto,11)
-    @ prow(),16 SAY  "";?? trim(ROBA->naz),"(",ROBA->jmj,")"
+    @ prow(),16 SAY  "";?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
     if roba->(fieldpos("KATBR"))<>0
        ?? " KATBR:", roba->katbr
     endif

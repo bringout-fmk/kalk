@@ -196,7 +196,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     endif
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
-    @ prow(),4 SAY  ""; ?? trim(ROBA->naz),"(",ROBA->jmj,")"
+    @ prow(),4 SAY  ""; ?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
     if gRokTr=="D"; ?? space(4),"Rok Tr.:",RokTr; endif
     IF lPoNarudzbi
       IspisPoNar(.f.)
@@ -351,7 +351,7 @@ aNiz:= { {"R."        , {|| rbr}      , .f., "C",  3, 0, 1, ++i},;
          {"br."       , {|| "#"}      , .f., "C",  3, 0, 2,   i},;
          {"[ifra"     , {|| idroba}   , .f., "C", 10, 0, 1, ++i},;
          {"robe"      , {|| "#"}      , .f., "C", 10, 0, 2,   i},;
-         {"Naziv robe", {|| ROBA->naz}, .f., "P", 30, 0, 1, ++i},;
+         {"Naziv robe", {|| LEFT(ROBA->naz,40)}, .f., "P", 30, 0, 1, ++i},;
          {"J."        , {|| ROBA->jmj}, .f., "C",  3, 0, 1, ++i},;
          {"mj."       , {|| "#"}      , .f., "C",  3, 0, 2,   i},;
          {"Tarifa"    , {|| PADC(ALLTRIM(idtarifa)+ROBA->tip,7)},;

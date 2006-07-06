@@ -1443,7 +1443,7 @@ function OpisStavke(lGreska)
 *{
  IF !lGreska
   ? "Dokument:    "+idfirma+"-"+idvd+"-"+brdok+", stavka "+rbr
-  ? "Artikal: "+idroba+"-"+Ocitaj(F_ROBA,idroba,"naz")
+  ? "Artikal: "+idroba+"-"+LEFT(Ocitaj(F_ROBA,idroba,"naz"), 40)
   lGreska:=.t.
  ENDIF
 return

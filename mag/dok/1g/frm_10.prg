@@ -55,9 +55,9 @@ endif
 @ m_x+11,m_y+66 SAY "Tarif.brĿ"
 
 if lKoristitiBK
-	@ m_x+12,m_y+2  SAY "Artikal  " GET _IdRoba pict "@!S10" when { || _idroba:=padr(_idroba,VAL(gDuzSifIni)),.t. } valid  {|| _idroba:=iif(len(trim(_idroba))<10,left(_idroba,10),_idroba), P_Roba(@_IdRoba),Reci(12,23,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
+	@ m_x+12,m_y+2  SAY "Artikal  " GET _IdRoba pict "@!S10" when { || _idroba:=padr(_idroba,VAL(gDuzSifIni)),.t. } valid  {|| _idroba:=iif(len(trim(_idroba))<10,left(_idroba,10),_idroba), P_Roba(@_IdRoba),Reci(12,23,trim(LEFT(roba->naz, 40))+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
 else
-	@ m_x+12,m_y+2  SAY "Artikal  " GET _IdRoba pict "@!" valid  {|| _idroba:=iif(len(trim(_idroba))<10,left(_idroba,10),_idroba), P_Roba(@_IdRoba),Reci(12,23,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
+	@ m_x+12,m_y+2  SAY "Artikal  " GET _IdRoba pict "@!" valid  {|| _idroba:=iif(len(trim(_idroba))<10,left(_idroba,10),_idroba), P_Roba(@_IdRoba),Reci(12,23,trim(LEFT(roba->naz, 40))+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
 endif
 
 @ m_x+12,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
@@ -259,7 +259,7 @@ IF !glEkonomat
   @ m_x+11,m_y+66 SAY "Tarif.brĿ"
 ENDIF
 @ m_x+12,m_y+2  SAY "Artikal  " GET _IdRoba pict "@!" ;
-                  valid  {|| P_Roba(@_IdRoba),Reci(12,23,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
+                  valid  {|| P_Roba(@_IdRoba),Reci(12,23,trim(LEFT(roba->naz, 40))+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
 IF !glEkonomat
   @ m_x+12,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
 ENDIF

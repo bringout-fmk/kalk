@@ -190,7 +190,7 @@ if !found()
 	SEEK cIdTarifa
 	SELECT r_uio
 	replace jmj WITH roba->jmj ,;
-	        nazivR WITH roba->naz 
+	        nazivR WITH LEFT(roba->naz,40)
 	replace ppp_pstopa WITH (1-1/(1+tarifa->opp/100))*100
 endif
 

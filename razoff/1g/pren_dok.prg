@@ -364,7 +364,7 @@ set order to 0; go top
 Box(,1,60)
 // prolazimo kroz _ROBA
 do while !eof()
-  @ m_x+1,m_y+2 SAY id; ?? "-",naz
+  @ m_x+1,m_y+2 SAY id; ?? "-",LEFT(naz,40)
   select roba; scatter()
   select _roba
   scatter()

@@ -275,7 +275,7 @@ SELECT r_export
 	SELECT tarifa
 	SEEK cIdTarifa
 
-	cPom1 := KonvznWin(roba->naz, cKonverzija)
+	cPom1 := KonvznWin(LEFT(roba->naz,40), cKonverzija)
 	cPom2 := KonvznWin(roba->jmj, cKonverzija)
 	
 	SELECT r_export

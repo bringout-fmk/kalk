@@ -318,7 +318,7 @@ aDbf := {}
 AADD(aDBf,{ 'IDROBA'      , 'C' , 10 ,  0 })
 AADD(aDBf,{ 'IDG'         , 'C' , 10 ,  0 })
 AADD(aDBf,{ 'IDPG'        , 'C' , 10 ,  0 })
-AADD(aDBf,{ 'NAZ'         , 'C' , 40 ,  0 })
+AADD(aDBf,{ 'NAZ'         , 'C' , 250 ,  0 })
 AADD(aDBf,{ 'BJMJ'        , 'C' , 10 ,  0 })
 AADD(aDBf,{ 'BKOLICINA'   , 'N' , 18 ,  8 })
 AADD(aDBf,{ 'BKOLP4S'     , 'N' , 18 ,  8 })
@@ -330,7 +330,7 @@ AADD(aDBf,{ 'IZNOS'       , 'N' , 18 ,  8 })
 DBCREATE2 (cPom, aDbf)
 USEX (cPom)
 INDEX ON IDG+IDPG+IDROBA TAG "1"
-INDEX ON IDG+IDPG+NAZ    TAG "2"
+INDEX ON IDG+IDPG+LEFT(NAZ,40) TAG "2"
 SET ORDER TO TAG "1" ; GO TOP
 RETURN .T.
 *}

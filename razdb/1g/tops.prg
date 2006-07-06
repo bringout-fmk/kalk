@@ -48,7 +48,7 @@ if gTops<>"0 " .and. Pitanje(,"Izgenerisati datoteku KATOPS","N")=="D"
   AADD(aDBF,{"kolicina","N",13,4})
   AADD(aDBF,{"MPC","N",13,4})
   AADD(aDBF,{"MPC2","N",13,4})
-  AADD(aDBF,{"NAZIV","C",40,0})
+  AADD(aDBF,{"NAZIV","C",250,0})
   AADD(aDBF,{"IDTARIFA","C",6,0})
   AADD(aDBF,{"JMJ","C",3,0})
 

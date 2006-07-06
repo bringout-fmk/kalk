@@ -238,7 +238,7 @@ do while !eof()
      				if cProredPC="D"
       					?
      				endif
-     				? str(++nRbr,4)," ", cidroba; ??  " "; ?? roba->naz; ??  " "
+     				? str(++nRbr,4)," ", cidroba; ??  " "; ?? LEFT(roba->naz,40); ??  " "
      				// grupa artikla - atvibut N1 - numericki
      				@ prow(),pcol() SAY roba->N1 pict  "999"; ??  " "
      				// tekuca cijena
@@ -261,7 +261,7 @@ do while !eof()
 				endif
      				? str(++nRbr,4),"³", cidroba
 				??  "³"
-				?? roba->naz
+				?? LEFT(roba->naz,40)
 				??  "³"
      				// grupa artikla - atvibut N1 - numericki
      				@ prow(),pcol() SAY roba->N1 pict "999"

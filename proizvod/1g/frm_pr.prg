@@ -40,7 +40,7 @@ if nRbr==1
  @ m_x+ 6,m_y+2   SAY "Mag .got.proizvoda zaduzuje" GET _IdKonto valid  P_Konto(@_IdKonto,24) pict "@!"
  @  m_x+7,m_y+2   SAY "Mag. sirovina razduzuje    " get _IdKonto2 pict "@!" valid P_Konto(@_IdKonto2)
  @ m_x+12,m_y+2  SAY "Proizvod  " GET _IdRoba pict "@!" ;
-                  valid  {|| P_Roba(@_IdRoba),Reci(12,24,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
+                  valid  {|| P_Roba(@_IdRoba),Reci(12,24,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
  @ m_x+12,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
  select TARIFA; hseek _IdTarifa  // postavi TARIFA na pravu poziciju
  select PRIPR  // napuni tarifu
@@ -151,7 +151,7 @@ endif // nRbr==1
 
 if nRbr<>1
    @ m_x+12,m_y+2  SAY "Sirovina  " GET _IdRoba pict "@!" ;
-                  valid  {|| P_Roba(@_IdRoba),Reci(12,24,trim(roba->naz)+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
+                  valid  {|| P_Roba(@_IdRoba),Reci(12,24,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
    @ m_x+13,m_y+2   SAY "Kolicina  " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
 endif
 

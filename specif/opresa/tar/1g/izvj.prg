@@ -145,7 +145,7 @@ local PicCDEM:=gPicCDEM
    select roba; hseek cidroba
    select tarifa; hseek roba->idtarifa
    ? m
-   ? "Artikal:",cidroba,"-",trim(roba->naz)+" ("+roba->jmj+")"
+   ? "Artikal:",cidroba,"-",trim(LEFT(roba->naz,40))+" ("+roba->jmj+")"
    ? m
    select kalk
 
@@ -363,7 +363,7 @@ local PicCDEM:=gPicCDEM
    select roba; hseek cidroba
    select tarifa; hseek roba->idtarifa
    ? m
-   ? "Artikal:",cidroba,"-",trim(roba->naz)+" ("+roba->jmj+")"
+   ? "Artikal:",cidroba,"-",trim(LEFT(roba->naz,40))+" ("+roba->jmj+")"
    ? m
    select kalk
 

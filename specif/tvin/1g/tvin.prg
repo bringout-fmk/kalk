@@ -68,7 +68,7 @@ NEXT
 
 IF LEN(aNabavke)>0
  @ 12, 0 SAY ""
- Box("#IZBOR PO NABAVKAMA ZA '"+cIdRoba+"-"+TRIM(ROBA->naz)+"'",LEN(aNabavke)+1,77)
+ Box("#IZBOR PO NABAVKAMA ZA '"+cIdRoba+"-"+TRIM(LEFT(ROBA->naz,40))+"'",LEN(aNabavke)+1,77)
   GetList:={}
   @ m_x+1, m_y+2 SAY PADC("STANJE",12)+;
                      PADC("NAB.CIJENA",12)+PADC("NARUCILAC",10)+PADC("BR.NARUDZBE",14)+PADC("KOLICINA",12)
@@ -196,7 +196,7 @@ NEXT
 
 IF LEN(aNabavke)>0
  @ 12, 0 SAY ""
- Box("#IZBOR PO NABAVKAMA ZA '"+cIdRoba+"-"+TRIM(ROBA->naz)+"'",LEN(aNabavke)+1,77)
+ Box("#IZBOR PO NABAVKAMA ZA '"+cIdRoba+"-"+TRIM(LEFT(ROBA->naz,40))+"'",LEN(aNabavke)+1,77)
   GetList:={}
   @ m_x+1, m_y+2 SAY PADC("STANJE",12)+;
                      PADC("NAB.CIJENA",12)+PADC("NARUCILAC",10)+PADC("BR.NARUDZBE",14)+PADC("KOLICINA",12)
@@ -377,7 +377,7 @@ NEXT
 
 IF LEN(aNabavke)>0
  @ 12, 0 SAY ""
- Box("#IZLAZ PO NABAVKAMA ZA '"+cIdRoba+"-"+TRIM(ROBA->naz)+"'",LEN(aNabavke)+1,77)
+ Box("#IZLAZ PO NABAVKAMA ZA '"+cIdRoba+"-"+TRIM(LEFT(ROBA->naz,40))+"'",LEN(aNabavke)+1,77)
   GetList:={}
   @ m_x+1, m_y+2 SAY PADC("STANJE",12)+;
                      PADC("NAB.CIJENA",12)+PADC("KOLICINA",12)

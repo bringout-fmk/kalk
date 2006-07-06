@@ -234,7 +234,7 @@ do while (!EOF())
 		nMpcBP:=ROUND(cijena/(1+tarifa->zpp/100+tarifa->ppp/100)/(1+tarifa->opp/100),2)
 		SELECT POS
 		if !LEN(aR)>0 .or. !((nPom:=ASCAN(aR,{|x| x[1]==idroba}))>0)
-			AADD(aR,{idroba,ROBA->naz,ROBA->jmj,kolicina, nMpCBP , cijena*kolicina})
+			AADD(aR,{idroba,LEFT(ROBA->naz,40),ROBA->jmj,kolicina, nMpCBP , cijena*kolicina})
 		else
 			aR[nPom,4] += kolicina
 			aR[nPom,6] += nMpCBP*kolicina
@@ -303,7 +303,7 @@ ASORT(aR,,,{|x,y|x[1]<y[1]})
 SELECT ROBA
 for i:=1 to LEN(aR)
 	HSEEK aR[i,1]
-	aR[i,2] := field->naz
+	aR[i,2] := LEFT(field->naz,40)
 	aR[i,3] := field->jmj
 next
 

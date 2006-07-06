@@ -66,6 +66,9 @@ A PODBR   C 1 0
 A ERROR   C 1 0
 A PODBR   C 1 0
 
+*SAST
+A R_BR   N 4 0
+
 *ROBA
 D UKU
 D UKI
@@ -82,6 +85,8 @@ A K2     C  4  0
 A N1     N  12 2
 A N2     N  12 2
 A PLC    N  18 8
+A MATCH_CODE   C 10 0
+C NAZ C 40 0 NAZ C 250 0
 
 *FINMAT
 A UPOREZV N 14 2

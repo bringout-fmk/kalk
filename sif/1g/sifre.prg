@@ -183,38 +183,54 @@ O_SAST
 return
 *}
 
+
+
 function P_K1()
-*{
+local nTArea
+private ImeKol
+private Kol
 
-SELECT(F_K1)
-if !USED()
-	O_K1
-endif
+ImeKol := {}
+Kol := {}
 
-ImeKol:={ { "ID  ",  {|| id },     "id"       },;
- { "Naz",    {|| naz},     "naz"      };
-}
-Kol:={1,2}
+nTArea := SELECT()
+O_K1
+
+AADD(ImeKol, { "ID", {|| id}, "id" })
+add_mcode(@ImeKol)
+AADD(ImeKol, { "Naziv", {|| naz}, "naz" })
+
+for i:=1 to LEN(ImeKol)
+	AADD(Kol, i)
+next
+
+select (nTArea)
 PostojiSifra(F_K1, I_ID, 10, 60, "Lista - K1")
 return
-*}
 
 
 function P_Objekti()
-*{
+local nTArea
+private ImeKol
+private Kol
 
-SELECT(F_OBJEKTI)
-if !USED()
-	O_OBJEKTI
-endif
+ImeKol := {}
+Kol := {}
 
-ImeKol:={ { "ID  ",  {|| id },     "id"       },;
- { "Naziv", {|| naz},     "naz"      },;
- { "IdObj", {|| idobj},     "idobj"      };
-}
-Kol:={1,2,3}
+nTArea := SELECT()
+O_OBJEKTI
+
+AADD(ImeKol, { "ID", {|| id}, "id" })
+add_mcode(@ImeKol)
+AADD(ImeKol, { "Naziv", {|| naz}, "naz" })
+AADD(ImeKol, { "IdObj", {|| idobj}, "idobj" })
+
+for i:=1 to LEN(ImeKol)
+	AADD(Kol, i)
+next
+
+select (nTArea)
 PostojiSifra(F_OBJEKTI, 1, 10, 60, "Objekti")
 return 
-*}
 
 

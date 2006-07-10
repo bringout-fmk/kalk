@@ -85,8 +85,6 @@ A K2     C  4  0
 A N1     N  12 2
 A N2     N  12 2
 A PLC    N  18 8
-A MATCH_CODE   C 10 0
-C NAZ C 45 0 NAZ C 250 0
 
 *BARKOD
 C NAZ C 40 0 NAZ C 250 0

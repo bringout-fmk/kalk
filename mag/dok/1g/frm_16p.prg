@@ -140,7 +140,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
        				select pripr
      			endif
 
-    			SetujVPC(_VPC , .f. )    // .f. - setuj samo ako je vpc u sifraniku 0
+    			SetujVPC(_VPC )  
 
    		endif
 
@@ -150,7 +150,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
  	endif
 
 	if !IsMagPNab()
-   		VPCuSif(_vpc)
+   		SetujVpc(_vpc)
  	endif
 	
 ENDIF
@@ -245,7 +245,7 @@ read
 IF gVarEv=="1"
 
  if !IsMagPNab()
-   VPCuSif(_vpc)
+   SetujVPC(_vpc)
  endif
 
 ENDIF

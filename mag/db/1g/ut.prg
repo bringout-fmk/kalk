@@ -561,28 +561,34 @@ return .t.
  *  \brief Utvrdi varijablu VPC. U sifrarnik staviti novu vrijednost
  */
 
-function SetujVPC(nNovaVrijednost, fUvijek)
-*{
- private cPom:="VPC" ,  nVal
- if koncij->naz=="P2"
+function SetujVPC(nNovaVrijednost, lUvijek)
+local nVal
+
+if lUvijek == nil
+	lUvijek := .f.
+endif
+
+private cPom:="VPC" 
+
+if koncij->naz=="P2"
    cPom:="PLC"
    nVal:=roba->plc
- elseif koncij->naz=="V2"
+elseif koncij->naz=="V2"
    cPom:="VPC2"
    nVal:=roba->VPC2
- else
+else
    cPom:="VPC"
    nVal:=roba->VPC
- endif
- if nVal=0  .or. fUvijek
-   if Pitanje(,"Staviti Cijenu ("+cPom+")"+" u sifrarnik ?","D")=="D"
+endif
+
+if nVal==0  .or. ABS(round(nVal-nNovaVrijednost, 2)) > 0 .or. lUvijek 
+   if Pitanje( ,"Staviti Cijenu ("+cPom+")"+" u sifrarnik ?","D")=="D"
      select roba
      replace &cPom with nNovaVrijednost
      select pripr
    endif
  endif
 return .t.
-*}
 
 
 
@@ -605,37 +611,6 @@ else
 endif
 
 return (nil)
-*}
-
-
-
-/*! \fn VPCuSif(nNovaVrijednost)
- *  \brief Smjesta zadanu cijenu u odgovarajucu VPC u sifrarniku robe 
- */
-
-function VPCuSif(nNovaVrijednost)
-*{
- private cPom:="VPC", nVal
- if koncij->naz=="P2"
-   cPom:="PLC"
-   nVal:=roba->plc
- elseif koncij->naz=="V2"
-   cPom:="VPC2"
-   nVal:=roba->VPC2
- else
-   cPom:="VPC"
-   nVal:=roba->VPC
- endif
- if nVal=0
-   if Pitanje(,"Staviti Cijenu ("+cPom+") "+iif(roba->tip=="V","VT","")+" u sifrarnik ?","D")=="D"
-     select roba
-     replace &cPom with nNovaVrijednost
-     select pripr
-   endif
- else
-   if nNovaVrijednost<>nVal; Beep(1);Msg(cPom+" u sifrarniku je "+str(nVal,11,3),6); endif
- endif
-return
 *}
 
 

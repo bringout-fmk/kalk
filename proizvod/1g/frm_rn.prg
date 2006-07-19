@@ -276,9 +276,12 @@ if koncij->naz<>"N1"  // vodi se po vpc
      if KoncijVPC()==0 .or. round(KoncijVPC(),4)<>round(_vpc,4)
        SetujVPC( _vpc , round(KoncijVPC(),4) <> round(_vpc,4) )
      else
-       if (_vpc<>KoncijVPC()) ; Beep(1); Msg("Cijena u sifrarniku je "+str(KoncijVPC(),11,3),6); endif
+        if (_vpc <> KoncijVPC()) 
+       		Beep(1)
+		Msg("Cijena u sifrarniku je "+str(KoncijVPC(),11,3),6)
+	endif
      endif
-  endif // p2
+  endif 
 else
   read
   _Marza:=0; _TMarza:="A"; _VPC:=_NC

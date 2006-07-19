@@ -192,7 +192,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
  endif
 
  if !IsMagPNab()
-   VPCuSif(_vpc)
+   SetujVPC(_vpc)
  endif
 
 ENDIF    // kraj IF gVarEv=="1"

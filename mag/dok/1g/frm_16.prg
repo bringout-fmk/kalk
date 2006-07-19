@@ -179,7 +179,7 @@ IF gVarEv=="1"          ///////////////////////////// sa cijenama
  endif
 
  if koncij->naz<>"N1"
-   VPCuSif(_vpc)
+   SetujVPC(_vpc)
  endif
 
 ENDIF    // kraj IF gVarEv=="1"
@@ -274,7 +274,7 @@ read
 IF gVarEv=="1"
 
  if koncij->naz<>"N1"
-   VPCuSif(_vpc)
+   SetujVPC(_vpc)
  endif
 
 ENDIF

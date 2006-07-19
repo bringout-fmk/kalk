@@ -211,7 +211,7 @@ if koncij->naz<>"N1"  // vodi se po vpc
      		endif
   	endif
 
-  	SetujVPC(_VPC , .f. )    // .f. - setuj samo ako je vpc u sifraniku 0
+  	SetujVPC(_VPC , .f. )    
 else
 	read
   	_Marza:=0; _TMarza:="A"; _VPC:=_NC
@@ -274,17 +274,12 @@ _MKonto:=_Idkonto; _MU_I:="1"
 DatPosljK()
 DuplRoba()
 
-if roba->tip $ "VKX"
-  Beep(1)
-  Msg("Za robu VT ne moze se koristiti skracena varijanta kalk 10")
-endif
 
 @ m_x+13,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
-if gRokTr=="D"
- @ m_x+13,col()+1 SAY "Rok trajanja" GET _RokTr
-endif
+
 if fNovi
- select ROBA; HSEEK _IdRoba
+ select ROBA
+ HSEEK _IdRoba
  _VPC := KoncijVPC()
 endif
 
@@ -323,7 +318,7 @@ IF gVarEv=="1"
                     VALID {|| Marza(fMarza),.t.}
    read
   
-   VPCuSif(_vpc)
+   SetujVpc(_vpc)
  else
    read
    _Marza:=0; _TMarza:="A"; _VPC:=_NC

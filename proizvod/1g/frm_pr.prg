@@ -293,7 +293,7 @@ if koncij->naz<>"N1"  // vodi se po vpc
                  VALID {|| Marza(fMarza),.t.}
 
   read
-  VPCuSif(_vpc)
+  SetujVPC(_vpc)
 else
   read
   _Marza:=0; _TMarza:="A"; _VPC:=_NC

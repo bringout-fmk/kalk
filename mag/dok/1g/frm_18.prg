@@ -124,7 +124,7 @@ _DatKurs:=_DatFaktP
  if fnovi
    nNCj:=0
  else
-   nNCJ:=_VPC+nStCj   // sadrzi NOVU CIJENU
+   nNCJ:=_VPC+nStCj
  endif
 
  if roba->tip="X"
@@ -154,7 +154,7 @@ _DatKurs:=_DatFaktP
  if _TBankTr<>"X"
 
    select roba
-   SetujVPC(nNCJ , .t. )
+   SetujVPC(nNCJ)
 
    select pripr
  endif

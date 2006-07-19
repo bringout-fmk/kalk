@@ -190,8 +190,7 @@ if !IsMagSNab()
      		endif
   	endif
 
-  	SetujVPC(_VPC , .t. )  
-	// .f. - setuj samo ako je vpc u sifraniku 0
+  	SetujVPC(_VPC )  
 else
 	read
   	_Marza:=0
@@ -212,7 +211,6 @@ return lastkey()
  */
 
 function Get1_10sPDV()
-*{
 
 local nNCpom:=0
 
@@ -231,7 +229,6 @@ else
  @  m_x+6,m_y+2   SAY "DOBAVLJAC: "; ?? _IdPartner
  @  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj: "; ?? _BrFaktP
  @  m_x+7,col()+2 SAY "Datum: "; ?? _DatFaktP
- // @  m_x+8,m_y+2   SAY "Dat kursa: "; ?? _DatKurs ;
 
  @ m_x+10,m_y+2   SAY "Magacinski Konto zaduzuje ";?? _IdKonto
  if gNW<>"X"
@@ -308,6 +305,7 @@ if !IsMagSNab()
    endif
    read
 
+   SetujVPC(_VPC )    
    if (gMpcPomoc=="D")
      	if (roba->mpc==0 .or. roba->mpc<>round(_mpcsapp,2)) .and. Pitanje(,"Staviti MPC u sifrarnik")=="D"
        		select roba
@@ -315,12 +313,9 @@ if !IsMagSNab()
        		select pripr
      	endif
 
-    SetujVPC(_VPC , .t. )    
-    // .f. - setuj samo ako je vpc u sifraniku 0
 
    endif
  
-   VPCuSif(_vpc)
  else
    read
    _Marza:=0
@@ -328,7 +323,7 @@ if !IsMagSNab()
    _VPC:=_NC
  endif
 
-ELSE   // tj. gVarEv=="2" (bez cijena)
+ELSE  
   read
 ENDIF
 

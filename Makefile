@@ -33,7 +33,6 @@ liball:
 	make -C primpak/1g
 	make -C si/1g
 	make -C proizvod/1g
-	make -C 1g
 	make -C 1g exe
 	
 cleanall:

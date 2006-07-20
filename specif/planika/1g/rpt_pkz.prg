@@ -3,6 +3,8 @@
 // pregled kretanja zaliha 
 function PreglKret()
 local i
+local cRSezona:=""
+local cSezStr:=""
 private nT1:=nT4:=nT5:=nT6:=nT7:=0
 private nTT1:=nTT4:=nTT5:=nTT6:=nTT7:=0
 private n1:=n4:=n5:=n6:=n7:=0
@@ -40,6 +42,7 @@ private aUslR
 private aUslSez
 private cPlVrsta:=" "
 private cPapir:="A4 "
+
 
 O_SIFK
 O_SIFV
@@ -163,6 +166,15 @@ do while !eof()
 
 			fFilovo:=.t.
 			fFilGr:=.t.
+
+			cRSezona := IzSifK("ROBA", "SEZ", roba->id, .f.)
+			
+			if !EMPTY(cRSezona)
+				cSezStr := PADR("sez: " + ALLTRIM(cRSezona), 10)
+			else
+				cSezStr := PADR("", 10)
+			endif
+			
 			aStrRoba:=SjeciStr(trim(roba->naz)+" (MPC:"+alltrim(str(nmpc,7,2))+")",27)
 
 			if (prow()> PREDOVA2+gPStranica-3)
@@ -254,10 +266,16 @@ do while !eof()
 			nK1:=0
 			if cRekPoRobama=="D"
 				?
+				
+				// sezona
+				@ prow(), 5 SAY cSezStr
+				
 				if len(aStrRoba)>1
 					@ prow(),nColR SAY aStrRoba[2]
 				endif
-					@ prow(),nCol1 SAY ""
+				
+				@ prow(),nCol1 SAY ""
+			
 			endif
 
 			// ispisi kolone za pojedine objekte

@@ -7,6 +7,8 @@ local dDatOd
 local dDatDo
 local cKonto
 local cFirma
+local aProd
+local i
 
 if get_vars(@dDatOd, @dDatDo, @cKonto, @cFirma) == 0
 	return
@@ -18,12 +20,48 @@ cre_errors()
 BrisiError()
 
 O_KALK
-O_KONCIJ
-O_KONTO
 O_ROBA
 
-// izvrsi provjeru...
-k_t_integ(dDatOd, dDatDo, cKonto, cFirma)
+aProd:={}
+g_k_prod(@aProd, cKonto)
+
+if LEN(aProd) == 0
+	MsgBeep("Nema definisanih prodavnica u koncij.dbf!")
+	return
+endif
+
+// prodji kroz prodavnice
+for i:=1 to LEN(aProd)
+	// izvrsi provjeru...
+	k_t_integ(dDatOd, dDatDo, aProd[i, 1], aProd[i, 2], aProd[i, 3], cFirma)
+next
+
+// pokreni report
+RptInteg()
+
+return
+
+
+// napuni matricu sa prodavnicama
+static function g_k_prod(aProd, cKonto)
+O_KONCIJ
+select koncij 
+set order to tag "ID"
+go top
+
+if !EMPTY(cKonto)
+	seek cKonto
+	if FOUND()
+		AADD(aProd, {koncij->id, koncij->idprodmjes, koncij->kumtops})
+	endif
+else
+	do while !EOF()
+		if LEFT(koncij->id, 3)=="132" .and. !EMPTY(koncij->kumtops)
+			AADD(aProd, {koncij->id, koncij->idprodmjes, koncij->kumtops})
+		endif
+		skip
+	enddo
+endif
 
 return
 
@@ -50,7 +88,7 @@ return 1
 
 
 // kalk, tops integritet podataka
-function k_t_integ(dDatOd, dDatDo, cPKonto, cFirma)
+function k_t_integ(dDatOd, dDatDo, cPKonto, cPOSPm, cKPath, cFirma)
 local cRoba
 local nKStK
 local nKStF
@@ -61,108 +99,84 @@ local nPStF
 local nPPrK
 local nPPrF
 local cKonto
-local cSeek
 
-cSeek := cFirma
-if !EMPTY(cPKonto)
-	cSeek += cPKonto
+cKPath := ALLTRIM(cKPath)
+AddBS(@cKPath)
+
+// da li postoji fajl
+if !FILE(cKPath + "POS.DBF")
+	return
 endif
+
+// otvori pos.dbf na poziciji
+select 0
+use (cKPath + "POS")
 
 O_KALK
 select kalk
 set order to tag "4"
-hseek cSeek
+hseek cFirma + cPKonto
 
 Box(,2,60)
 
 @ 1+m_x, 2+m_y SAY SPACE(60)
 @ 1+m_x, 2+m_y SAY "Provjera integriteta na osnovu KALK-a..."
 	
-do while !EOF() .and. kalk->idfirma == cFirma
+do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 	
-	cKonto := kalk->pkonto
+	cRoba := kalk->idroba
 	
-	O_KONCIJ
-	select koncij
-	set order to tag "ID"
-	hseek cKonto
-
-	cPosPm := koncij->idprodmjes
-	cKPath := koncij->kumtops
-	cKPath := ALLTRIM(cKPath)
-	AddBS(@cKPath)
-
-	select 0
-	use (cKPath + "POS")
-
-	select kalk
-	set order to tag "4"
-	
-	do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cKonto
-	
-		cRoba := kalk->idroba
-	
-		if !(field->pu_i $ "1#3#5#I") .or. Empty(ALLTRIM(cRoba))
-			skip
-			loop
-		endif
-	
-		nKStK := 0
-		nKStF := 0
-		nKPrK := 0
- 		nKPrF := 0
-
-		nPStK := 0
-		nPStF := 0
-		nPPrK := 0
- 		nPPrF := 0
-	
-		@ 2+m_x, 2+m_y SAY SPACE(60)
-		@ 2+m_x, 2+m_y SAY cKonto + " - " + cRoba
-	
-		// prodji kroz KALK za cRoba
-		scan_kalk(cFirma, cKonto, cRoba, dDatOd, dDatDo, @nKStK, @nKStF, @nKPrK, @nKPrF)	
-
-		// prodji kroz POS za cRoba
-		scan_pos(cPosPm, cRoba, dDatOd, dDatDo, @nPStK, @nPStF, @nPPrK, @nPPrF)	
-
-		// kolicinsko stanje ne valja!
-		if ROUND(nKStK, 3) <> ROUND(nPStK, 3)
-			AddToErrors("C", cRoba, "","Konto: " + ALLTRIM(cKonto) + ", KALK->TOPS: kol.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKStK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStK, 3))) )
-		endif
-		
-		// finansijsko stanje ne valja!
-		if ROUND(nKStF, 3) <> ROUND(nPStF, 3)
-			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cKonto) + ", KALK->TOPS: fin.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKStF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStF, 3))) )
-		endif
-		
-		// prodaja kolicinska ne valja!
-		if ROUND(nKPrK, 3) <> ROUND(nPPrK, 3)
-			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cKonto) + ", KALK->TOPS: prodaja kol.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKPrK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrK, 3))) )
-		endif
-		
-		// prodaja fin.stanje ne valja!
-		if ROUND(nKPrF, 3) <> ROUND(nPPrF, 3)
-			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cKonto) + ", KALK->TOPS: prodaja fin.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKPrF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrF, 3))) )
-		endif
-		
-		select kalk
-	enddo
-	
-	select pos
-	use
-
-	if !EMPTY(cPKonto)
-		exit
+	if !(field->pu_i $ "1#3#5#I") .or. Empty(ALLTRIM(cRoba))
+		skip
+		loop
 	endif
 	
+	nKStK := 0
+	nKStF := 0
+	nKPrK := 0
+ 	nKPrF := 0
+
+	nPStK := 0
+	nPStF := 0
+	nPPrK := 0
+ 	nPPrF := 0
+	
+	@ 2+m_x, 2+m_y SAY SPACE(60)
+	@ 2+m_x, 2+m_y SAY cPKonto + " - " + cRoba
+	
+	// prodji kroz KALK za cRoba
+	scan_kalk(cFirma, cPKonto, cRoba, dDatOd, dDatDo, @nKStK, @nKStF, @nKPrK, @nKPrF)	
+
+	// prodji kroz POS za cRoba
+	scan_pos(cPosPm, cRoba, dDatOd, dDatDo, @nPStK, @nPStF, @nPPrK, @nPPrF)	
+
+	// kolicinsko stanje ne valja!
+	if ROUND(nKStK, 3) <> ROUND(nPStK, 3)
+		AddToErrors("C", cRoba, "","Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: kol.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKStK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStK, 3))) )
+	endif
+	
+	// finansijsko stanje ne valja!
+	if ROUND(nKStF, 3) <> ROUND(nPStF, 3)
+		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: fin.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKStF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStF, 3))) )
+	endif
+	
+	// prodaja kolicinska ne valja!
+	if ROUND(nKPrK, 3) <> ROUND(nPPrK, 3)
+		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: prodaja kol.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKPrK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrK, 3))) )
+	endif
+		
+	// prodaja fin.stanje ne valja!
+	if ROUND(nKPrF, 3) <> ROUND(nPPrF, 3)
+		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: prodaja fin.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKPrF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrF, 3))) )
+	endif
+		
 	select kalk
 enddo
 
-BoxC()
+select pos
+use
 
-// pokreni report
-RptInteg()
+BoxC()
 
 return
 

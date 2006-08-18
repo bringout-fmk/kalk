@@ -81,9 +81,9 @@ Box(,5,60)
 	@ m_x+4, m_x+2 SAY "Prodavnicki konto:" GET cKonto VALID EMPTY(cKonto) .or. P_Konto(@cKonto)
 	
 	read
-	ESC_RETURN 0
 BoxC()
 
+ESC_RETURN 0
 return 1
 
 
@@ -141,35 +141,48 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 	nPPrK := 0
  	nPPrF := 0
 	
+	// nivelacije
+	nKNiCnt := 0
+	nPNiCnt := 0
+	
+	// reklamacije
+	nKRkCnt := 0
+	nPRkCnt := 0
+	
 	@ 2+m_x, 2+m_y SAY SPACE(60)
 	@ 2+m_x, 2+m_y SAY cPKonto + " - " + cRoba
 	
 	// prodji kroz KALK za cRoba
-	scan_kalk(cFirma, cPKonto, cRoba, dDatOd, dDatDo, @nKStK, @nKStF, @nKPrK, @nKPrF)	
+	scan_kalk(cFirma, cPKonto, cRoba, dDatOd, dDatDo, @nKStK, @nKStF, @nKPrK, @nKPrF, @nKNiCnt, @nKRkCnt)	
 
 	// prodji kroz POS za cRoba
-	scan_pos(cPosPm, cRoba, dDatOd, dDatDo, @nPStK, @nPStF, @nPPrK, @nPPrF)	
+	scan_pos(cPosPm, cRoba, dDatOd, dDatDo, @nPStK, @nPStF, @nPPrK, @nPPrF, @nPNiCnt, @nPRkCnt)	
 
 	// kolicinsko stanje ne valja!
 	if ROUND(nKStK, 3) <> ROUND(nPStK, 3)
-		AddToErrors("C", cRoba, "","Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: kol.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKStK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStK, 3))) )
-	endif
-	
-	// finansijsko stanje ne valja!
-	if ROUND(nKStF, 3) <> ROUND(nPStF, 3)
-		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: fin.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKStF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStF, 3))) )
+		AddToErrors("C", cRoba, "","Konto: " + ALLTRIM(cPKonto) + ",  zaliha kol. (KALK)=" + ALLTRIM(STR(ROUND(nKStK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStK, 3))) )
+	else
+		// finansijsko stanje ne valja!
+		if ROUND(nKStF, 3) <> ROUND(nPStF, 3)
+			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ",  zaliha fin. (KALK)=" + ALLTRIM(STR(ROUND(nKStF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStF, 3))) )
+		endif
 	endif
 	
 	// prodaja kolicinska ne valja!
 	if ROUND(nKPrK, 3) <> ROUND(nPPrK, 3)
-		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: prodaja kol.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKPrK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrK, 3))) )
+		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", prodaja kol. (KALK)=" + ALLTRIM(STR(ROUND(nKPrK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrK, 3))) )
+	else
+		// prodaja fin.stanje ne valja!
+		if ROUND(nKPrF, 3) <> ROUND(nPPrF, 3)
+			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", prodaja fin. (KALK)=" + ALLTRIM(STR(ROUND(nKPrF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrF, 3))) )
+		endif
 	endif
-		
-	// prodaja fin.stanje ne valja!
-	if ROUND(nKPrF, 3) <> ROUND(nPPrF, 3)
-		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", KALK->TOPS: prodaja fin.stanje, (KALK)=" + ALLTRIM(STR(ROUND(nKPrF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrF, 3))) )
+	
+	// broj nivelacija 
+	if nKNiCnt <> nPNiCnt
+		AddToErrors("W", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", broj nivelacija (KALK)=" + ALLTRIM(STR(ROUND(nKNiCnt, 3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPNiCnt, 3))) )
 	endif
-		
+
 	select kalk
 enddo
 
@@ -182,7 +195,7 @@ return
 
 
 // prodji kroz KALK za cRoba i napuni varijable...
-static function scan_kalk(cFirma, cKonto, cRoba, dDatOd, dDatDo, nKStK, nKStF, nKPrK, nKPrF)	
+static function scan_kalk(cFirma, cKonto, cRoba, dDatOd, dDatDo, nKStK, nKStF, nKPrK, nKPrF, nKNiCnt, nKRkCnt)	
 
 do while !EOF() .and. kalk->(idfirma+pkonto+idroba) == cFirma+cKonto+cRoba
 	
@@ -218,6 +231,7 @@ do while !EOF() .and. kalk->(idfirma+pkonto+idroba) == cFirma+cKonto+cRoba
 	// nivelacija
 	if kalk->pu_i == "3"
 		nKStF += kalk->mpcsapp * kalk->kolicina
+		++ nKNiCnt 
 	endif
 
 	skip
@@ -229,7 +243,7 @@ return
 // prodji kroz POS i napuni varijable....
 static function scan_pos(cPosPm, cRoba, dDatOd,;
 			dDatDo, nPStK, nPStF,;
-			nPPrK, nPPrF)	
+			nPPrK, nPPrF, nPNiCnt, nPRkCnt)	
 
 select pos
 set order to tag "5"
@@ -263,11 +277,13 @@ do while !EOF() .and. pos->(idpos+idroba)==cPosPm+cRoba
 		// stanje
 		nPStK -= pos->kolicina
 		nPStF -= pos->kolicina * pos->cijena
+		++ nPRkCnt
 	endif
 
 	// nivelacija
 	if pos->idvd == "NI"
 		nPStF += pos->kolicina * (pos->ncijena - pos->cijena)
+		++ nPNiCnt
 	endif
 	
 	skip

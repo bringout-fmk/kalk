@@ -9,6 +9,7 @@ liball:
 	make -C mag/gendok/1g
 	make -C main/1g
 	make -C main/2g
+	make -C integ
 	make -C db/1g
 	make -C db/2g
 	make -C dok/1g
@@ -46,6 +47,7 @@ cleanall:
 	cd mag/gendok/1g; make clean
 	cd main/1g; make clean
 	cd main/2g; make clean
+	cd integ; make clean
 	cd db/1g; make clean
 	cd db/2g; make clean
 	cd dok/1g; make clean

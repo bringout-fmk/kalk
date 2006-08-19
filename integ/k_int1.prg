@@ -164,7 +164,13 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 	else
 		// finansijsko stanje ne valja!
 		if ROUND(nKStF, 3) <> ROUND(nPStF, 3)
-			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ",  zaliha fin. (KALK)=" + ALLTRIM(STR(ROUND(nKStF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStF, 3))) )
+			cPom := "C"
+			
+			if nKStK <> 0 .and. ((nKStF-nPStF)/nKStK) == ABS(nKPrF-nPPrF)
+				cPom := "P"
+			endif
+			
+			AddToErrors(cPom, cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ",  zaliha fin. (KALK)=" + ALLTRIM(STR(ROUND(nKStF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPStF, 3))) )
 		endif
 	endif
 	
@@ -173,13 +179,29 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", prodaja kol. (KALK)=" + ALLTRIM(STR(ROUND(nKPrK,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrK, 3))) )
 	else
 		// prodaja fin.stanje ne valja!
-		if ROUND(nKPrF, 3) <> ROUND(nPPrF, 3)
-			AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", prodaja fin. (KALK)=" + ALLTRIM(STR(ROUND(nKPrF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrF, 3))) )
+		if ( ROUND(nKPrF, 3) <> ROUND(nPPrF, 3) )
+			
+			cPom := "C"
+			
+			// ako je razlika kao i razlika zalihe
+			// to nije critical
+			
+			if nKStK <> 0 .and. ((nKStF-nPStF)/nKStK) == ABS(nKPrF-nPPrF)
+				cPom := "P"
+			elseif (nKStF == nPStF) 
+				// ako je f.stanje zaliha isto 
+				// onda je takodjer P
+				cPom := "P"
+			endif
+
+			AddToErrors(cPom, cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", prodaja fin. (KALK)=" + ALLTRIM(STR(ROUND(nKPrF,3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPPrF, 3))) )
+		
 		endif
 	endif
 	
-	// broj nivelacija 
-	if nKNiCnt <> nPNiCnt
+	// broj nivelacija
+	// ako su stanja 0 onda to i nisu greske...
+	if ( nKNiCnt <> nPNiCnt ) .and. ( nKStK + nPStK <> 0 )
 		AddToErrors("W", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", broj nivelacija (KALK)=" + ALLTRIM(STR(ROUND(nKNiCnt, 3))) + " (TOPSK)=" + ALLTRIM(STR(ROUND(nPNiCnt, 3))) )
 	endif
 

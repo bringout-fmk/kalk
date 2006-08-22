@@ -38,7 +38,7 @@ for i:=1 to LEN(aProd)
 	// izvrsi provjeru... podataka
 	k_t_integ(dDatOd, dDatDo, aProd[i, 1], aProd[i, 2], aProd[i, 3], aProd[i, 4], cFirma)
 	// provjera integriteta robe
-	roba_integ(SIFPATH, aProd[i, 4], aProd[i, 3])
+	roba_integ(aProd[i, 1], SIFPATH, aProd[i, 4], aProd[i, 3])
 next
 
 // pokreni report
@@ -174,7 +174,7 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 	select roba
 	hseek cRoba
 	if !FOUND() .and. (nKStK <> 0)
-		AddToErrors("C", cRoba, "", "TOPSK, nepostojeca sifra artikla !!!")
+		AddToErrors("C", cRoba, "", "Konto: " + ALLTRIM(cPKonto) + ", TOPSK, nepostojeca sifra artikla !!!")
 	endif
 	select kalk
 

@@ -42,7 +42,7 @@ for i:=1 to LEN(aProd)
 next
 
 // pokreni report
-RptInteg()
+RptInteg(.t.)
 
 return
 

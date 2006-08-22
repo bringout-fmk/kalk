@@ -7,7 +7,7 @@ private opc:={}
 private opcexe:={}
 private izbor:=1
 
-AADD(opc, "1. INTEG1: provjera prodaje i zalihe")
+AADD(opc, "1. INTEG1: provjera prodaje, zalihe, robe ... ")
 AADD(opcexe, {|| mnu_kt_int1() })
 
 Menu_SC("int")

@@ -30,10 +30,15 @@ if LEN(aProd) == 0
 	return
 endif
 
+// aProd {1, 2, 3, 4}
+//        koncij->id, koncij->idprodmj, koncij->kumtops, koncij->siftops
+
 // prodji kroz prodavnice
 for i:=1 to LEN(aProd)
-	// izvrsi provjeru...
-	k_t_integ(dDatOd, dDatDo, aProd[i, 1], aProd[i, 2], aProd[i, 3], cFirma)
+	// izvrsi provjeru... podataka
+	k_t_integ(dDatOd, dDatDo, aProd[i, 1], aProd[i, 2], aProd[i, 3], aProd[i, 4], cFirma)
+	// provjera integriteta robe
+	roba_integ(SIFPATH, aProd[i, 4], aProd[i, 3])
 next
 
 // pokreni report
@@ -52,12 +57,12 @@ go top
 if !EMPTY(cKonto)
 	seek cKonto
 	if FOUND()
-		AADD(aProd, {koncij->id, koncij->idprodmjes, koncij->kumtops})
+		AADD(aProd, {koncij->id, koncij->idprodmjes, koncij->kumtops, koncij->siftops})
 	endif
 else
 	do while !EOF()
 		if LEFT(koncij->id, 3)=="132" .and. !EMPTY(koncij->kumtops)
-			AADD(aProd, {koncij->id, koncij->idprodmjes, koncij->kumtops})
+			AADD(aProd, {koncij->id, koncij->idprodmjes, koncij->kumtops, koncij->siftops})
 		endif
 		skip
 	enddo
@@ -88,7 +93,7 @@ return 1
 
 
 // kalk, tops integritet podataka
-function k_t_integ(dDatOd, dDatDo, cPKonto, cPOSPm, cKPath, cFirma)
+function k_t_integ(dDatOd, dDatDo, cPKonto, cPOSPm, cKPath, cSPath, cFirma)
 local cRoba
 local nKStK
 local nKStF
@@ -103,6 +108,9 @@ local cKonto
 cKPath := ALLTRIM(cKPath)
 AddBS(@cKPath)
 
+cSPath := ALLTRIM(cSPath)
+AddBS(@cSPath)
+
 // da li postoji fajl
 if !FILE(cKPath + "POS.DBF")
 	return
@@ -111,6 +119,10 @@ endif
 // otvori pos.dbf na poziciji
 select 0
 use (cKPath + "POS")
+
+select (F_ROBA)
+use (cSPath + "ROBA")
+set order to tag "ID"
 
 O_KALK
 select kalk
@@ -130,6 +142,7 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 		skip
 		loop
 	endif
+	
 	
 	nKStK := 0
 	nKStF := 0
@@ -157,6 +170,13 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 
 	// prodji kroz POS za cRoba
 	scan_pos(cPosPm, cRoba, dDatOd, dDatDo, @nPStK, @nPStF, @nPPrK, @nPPrF, @nPNiCnt, @nPRkCnt)	
+
+	select roba
+	hseek cRoba
+	if !FOUND() .and. (nKStK <> 0)
+		AddToErrors("C", cRoba, "", "TOPSK, nepostojeca sifra artikla !!!")
+	endif
+	select kalk
 
 	// kolicinsko stanje ne valja!
 	if ROUND(nKStK, 3) <> ROUND(nPStK, 3)
@@ -209,6 +229,8 @@ do while !EOF() .and. kalk->(idfirma+pkonto) == cFirma+cPKonto
 enddo
 
 select pos
+use
+select roba
 use
 
 BoxC()

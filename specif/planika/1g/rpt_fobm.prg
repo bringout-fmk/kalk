@@ -1,93 +1,38 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/rpt_fobm.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.10 $
- * $Log: rpt_fobm.prg,v $
- * Revision 1.10  2004/05/19 12:16:56  sasavranic
- * no message
- *
- * Revision 1.9  2003/12/08 11:08:13  sasavranic
- * Korekcije fin.obrt
- *
- * Revision 1.8  2003/12/04 14:47:42  sasavranic
- * Uveden filter po polju pl.vrsta na izvjestajima za planiku
- *
- * Revision 1.7  2003/11/11 14:06:35  sasavranic
- * Uvodjenje f-je IspisNaDan()
- *
- * Revision 1.6  2002/07/18 12:10:22  ernad
- *
- *
- * specif/planika : Pregled obrta po mjesecima
- * O_SIFK, O_SIFV ispravljeno (otvara bez obzira na parametre)
- *
- * Revision 1.5  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.4  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.3  2002/07/03 18:37:49  ernad
- *
- *
- * razbijanje dugih funkcija, kategorizacija: planika.prg -> db_cre.prg, db_gen1.prg, db_gen2.prg
- *
- * Revision 1.2  2002/06/26 08:33:56  sasa
- * no message
- *
- * Revision 1.1  2002/06/25 08:45:20  ernad
- *
- *
- * planika.prg -> ... razbijanje
- *
- *
- */
  
-/*! \fn ObrtPoMjF()
- *  \brief Pregled finansijskog obrta 
- */
 
+// Pregled finansijskog obrta magacin/prodavnica
 function ObrtPoMjF()
-*{
 local nOpseg
 local nKorekcija:=1
 local cLegenda
-
 // aMersed
 local nRekaRecCount
 
-
 private  nCol1:=0
-
 private PicCDem := REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
 private PicProc := gPicProc
 private PicDEM  := REPLICATE("9", VAL(gFPicDem)) + gPicDEM
 private Pickol:= "@ 999999"
-// sirina kolone "+povecanje -snizenje" je za 3 karaktera veca od ostalih, tj. ima vise cifara
+// sirina kolone "+povecanje -snizenje" je za 3 
+// karaktera veca od ostalih, tj. ima vise cifara
 private PicPSDEM := REPLICATE("9", 3) + PicDEM
-
 private dDatOd:=date()
 private dDatDo:=date()
 private qqKonto:=padr("13;",60)
 private qqRoba:=space(60)
 private cIdKPovrata:=space(7)
 private ck7:="N"
-// P-prodajna (bez poreza), N-nabavna
+// P-prodajna (bez poreza)
+// N-nabavna
 private cCijena:="P" 
 private cVpRab:="N"
 if IsPlanika()
 	private cPlVrsta:=SPACE(1)
 	private cK9:=SPACE(3)
 	private cGrupeK1:=SPACE(45)
+	private cPrDatOd:="N"
 endif
 private PREDOVA2:= 62
 
@@ -98,25 +43,28 @@ O_ROBA
 cLegenda:="D"
 
 O_PARAMS
-Private cSection:="F",cHistory:=" ",aHistory:={}
+private cSection:="F"
+private cHistory:=" "
+private aHistory:={}
+
 Params1()
-RPar("c1",@cidKPovrata)
+RPar("c1",@cIdKPovrata)
 RPar("c2",@qqKonto)
 RPar("c4",@cCijena)
 RPar("d1",@dDatOd)
 RPar("d2",@dDatDo)
 RPar("d3",@cVpRab)
+RPar("d4",@cPrDatOd)
 
 cLegenda:="D"
 cKolDN:="N"
 
-Box(,16,75)
+Box(, 17, 75)
  set cursor on
  cNObjekat:=space(20)
  cKartica:="D"
  do while .t.
   @ m_x+1,m_y+2 SAY "Konta prodavnice:" GET qqKonto pict "@!S50"
-
   @ m_x+3,m_y+2 SAY "tekuci promet je period:" GET dDatOd
   @ m_x+3,col()+2 SAY "do" GET dDatDo
   @ m_x+4,m_y+2 SAY "Kriterij za robu :" GET qqRoba pict "@!S50"
@@ -124,15 +72,16 @@ Box(,16,75)
   @ m_x+8,m_y+2 SAY "Prikaz kolicina:" GET cKolDN pict "@!" valid cKolDN $"DN"
   @ m_x+9, m_y+2 SAY "Cijena (P-prodajna,N-nabavna):" GET cCijena pict "@!" valid cCijena $"PN"
   @ m_x+10, m_y+2 SAY "VP sa uracunatim rabatom (D/N)?" GET cVpRab pict "@!" valid cVpRab $ "DN"
+  @ m_x+11, m_y+2 SAY "Prodaja pocinje od 'Datum od' (D/N)?" GET cPrDatOd pict "@!" valid cPrDatOd $ "DN"
   read
   nKorekcija:= 12/(month(dDatDo)-month(dDatOd)+1)
-  @ m_x+11,m_y+2 SAY "Korekcija (12/broj radnih mjeseci):" GET nKorekcija pict "999.99"
-  @ m_x+12,m_y+2 SAY "Ostampati legendu za kolone " GET cLegenda PICT "@!" VALID cLegenda $ "DN"  
+  @ m_x+12,m_y+2 SAY "Korekcija (12/broj radnih mjeseci):" GET nKorekcija pict "999.99"
+  @ m_x+13,m_y+2 SAY "Ostampati legendu za kolone " GET cLegenda PICT "@!" VALID cLegenda $ "DN"  
   if IsPlanika()
-  	@ m_x+13,m_y+2 SAY "Uslov po pl.vrsta " GET cPlVrsta PICT "@!"  
-  	@ m_x+14,m_y+2 SAY "Izdvoji grupe: " GET cGrupeK1  
-  	@ m_x+15,m_y+2 SAY "(npr. 0001;0006;0019;)"  
-  	@ m_x+16,m_y+2 SAY "Uslov po K9 " GET cK9 PICT "@!"  
+  	@ m_x+14,m_y+2 SAY "Uslov po pl.vrsta " GET cPlVrsta PICT "@!"  
+  	@ m_x+15,m_y+2 SAY "Izdvoji grupe: " GET cGrupeK1  
+  	@ m_x+16,m_y+2 SAY "(npr. 0001;0006;0019;)"  
+  	@ m_x+17,m_y+2 SAY "Uslov po K9 " GET cK9 PICT "@!"  
   endif
   READ
   ESC_BCR
@@ -144,23 +93,22 @@ Box(,16,75)
   endif
  enddo
 BoxC()
-
  
- if Params2()
+if Params2()
   WPar("c1",cidKPovrata)
   WPar("c2",qqKonto)
   WPar("c4",cCijena)
   WPar("d1",dDatOd)
   WPar("d2",dDatDo)
   WPar("d3",cVpRab)
- endif
- SELECT params
- use
+  WPar("d4",cPrDatOd)
+endif
+SELECT params
+use
  
 private fSMark:=.f.
-
-if right(trim(qqRoba),1)="*"
-  fSMark:=.t.
+if Right(trim(qqRoba),1)="*"
+	fSMark:=.t.
 endif
 
 CreTblRek2()
@@ -179,8 +127,12 @@ lVpRabat := .f.
 if cVpRab == "D"
 	lVpRabat := .t.
 endif
+lPrDatumOd := .f.
+if cPrDatOd == "D"
+	lPrDatumOd := .t.
+endif
 
-GenRekap2(.t., cCijena, lVpRabat, fSMark )
+GenRekap2(.t., cCijena, lPrDatumOd, lVpRabat, fSMark )
 
 // setuj liniju za izvjestaj
 aLineArgs:={}

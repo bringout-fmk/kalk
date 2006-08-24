@@ -1,41 +1,5 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/specif/planika/1g/db_gen2.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: db_gen2.prg,v $
- * Revision 1.6  2004/05/19 12:16:55  sasavranic
- * no message
- *
- * Revision 1.5  2003/12/04 14:47:42  sasavranic
- * Uveden filter po polju pl.vrsta na izvjestajima za planiku
- *
- * Revision 1.4  2003/01/31 13:07:40  ernad
- * planika - data width error
- *
- * Revision 1.3  2002/07/06 12:29:01  ernad
- *
- *
- * kalk, planika GenRekap1, GenRekap2
- *
- * Revision 1.2  2002/07/03 23:55:19  ernad
- *
- *
- * ciscenja planika (tragao za nepostojecim bug-om u prelgedu finansijskog obrta)
- *
- * Revision 1.1  2002/07/03 18:37:49  ernad
- *
- *
- * razbijanje dugih funkcija, kategorizacija: planika.prg -> db_cre.prg, db_gen1.prg, db_gen2.prg
- *
- *
- */
-
-
 *tbl tbl_kalk_rekap2;
 
 /*! \var tbl_kalk_rekap2
@@ -127,11 +91,13 @@
 
 
 
-/*! \fn GenRekap2(lK2X, cC, lMarkiranaRoba)
+/*! \fn GenRekap2(lK2X, cC, lPrDatOd, lVpRab, lMarkiranaRoba)
  *
  * \param lK2X : .f. - ne gledaj K2='X' za zbrajanje kolicine; .t. - uzmi u obzir K2='X' za zbrajanje kolicine (roba kod koje je ROBA->K2="X" nece ulaziti u zbir)
  * 
  * \param lMarkiranaRoba  .t. - selekcija robe vrsi se na osnovu polja _M1_ iz sifrarnika
+ * \param lPrDatOd - gledaj prodaju od datuma od zadavanja izvjestaja
+ * \param lVpRab - u vp uracunati rabat
  * \ingroup Planika
  * \result formira se Tabela REKAP2.DBF
  *
@@ -141,7 +107,7 @@
  *
  */
 
-function GenRekap2(lK2X, cC, lVpRab, lMarkiranaRoba)
+function GenRekap2(lK2X, cC, lPrDatOd, lVpRab, lMarkiranaRoba)
 *{
 local lMagacin
 local lProdavnica
@@ -201,8 +167,8 @@ do while !EOF()
 	lMagacin:=.t.
 	SELECT rekap2
 
-	Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lMagacin, lVpRab)
-	Sca2PKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lProdavnica)
+	Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lMagacin, lVpRab, lPrDatOd)
+	Sca2PKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lProdavnica, lPrDatOd)
 
 	@ m_x+1,m_y+2 SAY ++nStavki pict "99999"
 
@@ -215,12 +181,16 @@ GRekap22()
 BoxC()
 
 return
-*}
 
-function Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, lMagacin, lVpRabat)
-*{
+
+function Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, lMagacin, lVpRabat, lPrDatOd)
+
 local nPomKolicina
 local nTC
+
+if lPrDatOd == nil
+	lPrDatOd := .f.
+endif
 
 if !EMPTY(kalk->mKonto) .and. (KALK->(&aUsl2) .or. kalk->mKonto==cIdKPovrata)
 	cGodina:=STR(YEAR(kalk->datDok),4)
@@ -352,11 +322,15 @@ elseif (kalk->mu_i=="3" .and. cC=="P")
 endif 
 
 return
-*}
 
-function Sca2PKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, lMagacin)
-*{
+
+function Sca2PKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, lMagacin, lPrDatOd)
+
 local nTC
+
+if lPrDatOd == nil
+	lPrDatOd := .f.
+endif
 
 lProdavnica:=.t.
 SELECT rekap2
@@ -436,29 +410,40 @@ elseif kalk->pu_i=="5"
 	endif
 	field->stanjef-=kalk->kolicina*nTC
 
-	if kalk->datdok<=dDatOd
+	if kalk->datdok <= dDatOd
 		if !lK2X .or. !(roba->K2='X')
 			field->zalihak-=kalk->kolicina
 		endif
 		field->zalihaf-=kalk->(kolicina*nTC)
 
-	else   
-		// 02.01 - 31.12
-		if kalk->idvd $ "41#42#43" // maloprodaja
-			if !lK2X .or. !(roba->K2='X')
-				field->prodajak+=kalk->kolicina
+	endif
+	
+	if lPrDatOd == .t.
+		// prodaja 01.01
+		if kalk->datdok >= dDatOd
+			if kalk->idvd $ "41#42#43" // maloprodaja
+				if !lK2X .or. !(roba->K2='X')
+					field->prodajak+=kalk->kolicina
+				endif
+				field->prodajaf+=kalk->(kolicina*nTC)
+				field->orucf+=kalk->(kolicina*(nTC-nc))
 			endif
-			field->prodajaf+=kalk->(kolicina*nTC)
-			field->orucf+=kalk->(kolicina*(nTC-nc))
+		endif
+	else
+		// prodaja 02.01
+		if kalk->datdok > dDatOd
+			if kalk->idvd $ "41#42#43" // maloprodaja
+				if !lK2X .or. !(roba->K2='X')
+					field->prodajak+=kalk->kolicina
+				endif
+				field->prodajaf+=kalk->(kolicina*nTC)
+				field->orucf+=kalk->(kolicina*(nTC-nc))
+			endif
 		endif
 	endif
-
-
 endif 
 
-
 return
-*}
 
 
 static function GRekap22()

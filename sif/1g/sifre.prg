@@ -114,6 +114,16 @@ elseif Ch==K_F8  // cjenovnik
  PopWA()
  return nRet
 
+elseif upper(Chr(Ch))=="O"
+ if roba->(fieldpos("strings")) == 0
+ 	return 6
+ endif
+ TB:Stabilize()
+ PushWa()
+ m_strings(roba->strings)
+ PopWa()
+ return 6
+
 elseif upper(Chr(Ch))=="S"
 
   TB:Stabilize()  // problem sa "S" - exlusive, htc

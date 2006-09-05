@@ -120,9 +120,10 @@ elseif upper(Chr(Ch))=="O"
  endif
  TB:Stabilize()
  PushWa()
- m_strings(roba->strings)
+ m_strings(roba->strings, roba->id)
+ select roba
  PopWa()
- return 6
+ return 7
 
 elseif upper(Chr(Ch))=="S"
 

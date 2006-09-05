@@ -466,7 +466,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
     		if koncij->naz=="P2"
       			nVPVI+=round( roba->plc*kolicina , gZaokr)
     		else
-      			nVPVI+=round( vpc*kolicina , gZaokr)
+			nVPVI+=round( vpc*kolicina , gZaokr)
     		endif
     		nRabat+=round(  rabatv/100*vpc*kolicina , gZaokr)
     		nNVI+=ROUND(nc*kolicina, gZaokr)

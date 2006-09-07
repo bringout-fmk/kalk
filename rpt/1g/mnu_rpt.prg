@@ -16,8 +16,6 @@
  */
  
 function MIzvjestaji()
-*{
-
 private Opc:={}
 private opcexe:={}
 
@@ -38,7 +36,8 @@ private Izbor:=1
 Menu_SC("izvj")
 CLOSERET
 return
-*}
+
+return
 
 
 /*! \fn IzvjMaPr()

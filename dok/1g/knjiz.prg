@@ -234,8 +234,7 @@ do case
      		return DE_REFRESH
   	case Ch==K_ALT_L
 		close all
-     		KaLabelBKod()
-     		// StPripr()
+     		label_bkod()
    		OEdit()
      		return DE_REFRESH
 	case Ch==K_ALT_Q

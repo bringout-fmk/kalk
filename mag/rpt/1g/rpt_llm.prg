@@ -445,7 +445,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
      			if koncij->naz=="P2"
       				nVPVU+=round(roba->plc*(kolicina-gkolicina-gkolicin2), gZaokr)
      			else
-      				nVPVU+=round( vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+      				nVPVU+=round(roba->vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
      			endif
      			nNVU+=round( nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
    		else
@@ -455,7 +455,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
      			if koncij->naz=="P2"
         			nVPVI-=round( roba->plc*kolicina , gZaokr)
      			else
-        			nVPVI-=round( vpc*kolicina , gZaokr)
+        			nVPVI-=round( roba->vpc*kolicina , gZaokr)
      			endif
      			nNVI-=round( nc*kolicina , gZaokr)
     		endif
@@ -466,13 +466,13 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
     		if koncij->naz=="P2"
       			nVPVI+=round( roba->plc*kolicina , gZaokr)
     		else
-			nVPVI+=round( vpc*kolicina , gZaokr)
+			nVPVI+=round( roba->vpc*kolicina , gZaokr)
     		endif
     		nRabat+=round(  rabatv/100*vpc*kolicina , gZaokr)
     		nNVI+=ROUND(nc*kolicina, gZaokr)
   	elseif mu_i=="3"    
     		// nivelacija
-    		nVPVU+=round( vpc*kolicina , gZaokr)
+    		nVPVU+=round( roba->vpc * kolicina , gZaokr)
   	elseif mu_i=="8"
      		nKolicina:=-field->kolicina
      		nIzlaz+=nKolicina
@@ -480,19 +480,21 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
      		if koncij->naz=="P2"
        			nVPVI+=round( roba->plc*(-kolicina) , gZaokr)
      		else
-       			nVPVI+=round( vpc*(-kolicina) , gZaokr)
+       			nVPVI+=round( roba->vpc*(-kolicina) , gZaokr)
      		endif
      		nRabat+=round(  rabatv/100*vpc*(-kolicina) , gZaokr)
      		nNVI+=ROUND(nc*(-kolicina), gZaokr)
    		nKolicina:=-field->kolicina
      		nUlaz+=nKolicina
      		SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
-     		if koncij->naz=="P2"
+     		
+		if koncij->naz=="P2"
       			nVPVU+=round(-roba->plc*(kolicina-gkolicina-gkolicin2), gZaokr)
      		else
-      			nVPVU+=round(-vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+      			nVPVU+=round(-roba->vpc*(kolicina-gkolicina-gkolicin2) , gZaokr)
      		endif
-     		nNVU+=round(-nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
+     		
+		nNVU+=round(-nc*(kolicina-gkolicina-gkolicin2) , gZaokr)
   	endif
   
   	if fPocStanje .and. glEkonomat

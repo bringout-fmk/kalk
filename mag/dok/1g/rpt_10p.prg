@@ -83,7 +83,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	endif
 
         nPDVStopa := tarifa->opp
-	nPDV := MPCsaPP * (tarifa->opp/100)
+	nPDV := MPCsaPP / (1 + (tarifa->opp/100)) * (tarifa->opp/100)
 
     	nTot+=  (nU:=round(FCj*Kolicina,gZaokr))
     	if gKalo=="1"

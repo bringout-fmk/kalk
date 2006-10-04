@@ -32,3 +32,26 @@ function PrintParovno(nKolUlaz, nKolIzlaz)
 
 return
 *}
+
+
+// -------------------------------------------
+// vraca naziv prodavnice iz tabele OBJEKTI
+// -------------------------------------------
+function get_prod_naz(cIdKonto)
+local nTArea := SELECT()
+local cNaz := "???"
+
+O_OBJEKTI
+select objekti
+set order to tag "idobj"
+go top
+seek cIdKonto
+
+if FOUND()
+	cNaz := ALLTRIM(field->naz)
+endif
+
+select (nTArea)
+return cNaz
+
+

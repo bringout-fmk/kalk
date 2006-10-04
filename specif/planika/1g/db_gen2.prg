@@ -170,7 +170,7 @@ do while !EOF()
 	Sca2MKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lMagacin, lVpRab, lPrDatOd)
 	Sca2PKonto(dDatOd, dDatDo, aUsl1, aUsl2, cIdKPovrata, cC, lK2X, @lProdavnica, lPrDatOd)
 
-	@ m_x+1,m_y+2 SAY ++nStavki pict "99999"
+	@ m_x+1,m_y+2 SAY ++nStavki pict "999999999999"
 
 	SELECT kalk
 	skip

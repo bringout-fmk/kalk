@@ -105,8 +105,10 @@ cPicKol:=REPLICATE("9",LEN(gPicKol))
 SELECT ppprod
 GO TOP
 do while (!EOF())
+	
 	cIdKonto:=field->idKonto
-	cNazivProdKonto:=IzFmkIni("Prodavnice","Konto_"+cIdKonto, "Naziv"+cIdKonto, KUMPATH)
+	cNazivProdKonto := get_prod_naz(cIdKonto)
+	
 	? PADR(cNazivProdKonto, NAZIV_PROD_LEN)
 	@ PROW(), PCOL()+1 SAY field->pari PICTURE cPicKol
 	@ PROW(), PCOL()+1 SAY field->bruto1 PICTURE gPicDem

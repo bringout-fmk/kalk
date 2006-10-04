@@ -152,7 +152,7 @@ do while !EOF()
 	ScanPKonto(dDatOd, dDatDo, cIdKPovrata, cKartica, cVarijanta, cKesiraj)
 
 	if ((++nStavki % 100)==0)
-		@ m_x+1,m_y+2 SAY nStavki pict "99999"
+		@ m_x+1,m_y+2 SAY nStavki pict "99999999999999"
 	endif
 
 	SELECT kalk
@@ -185,7 +185,7 @@ do while !EOF()
 		enddo
 	endif
 	@ m_x+1,m_y+2 SAY "***********************"
-	@ m_x+1,col()+2 SAY ++nStavki pict "99999"
+	@ m_x+1,col()+2 SAY ++nStavki pict "99999999999999"
 	SELECT roba
 	skip
 enddo 

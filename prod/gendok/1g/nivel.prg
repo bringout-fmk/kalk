@@ -45,6 +45,7 @@ if LEN(aProd) == 0
 endif
 
 lGlStanje := .t.
+
 if cGlStanje == "N"
 	lGlStanje := .f.
 endif
@@ -144,12 +145,16 @@ BoxC()
 result_nivel_p()
 
 return
-*}
 
 
-
+// --------------------------------------------------------------------
+// generisanje nivalacije za prodavnicu
+//  cPKonto - prodavnicki konto
+//  dDatDok - datum dokumenta nivelacije
+//  cBrKalk - broj dokumenta nivelacije
+//  lGledajStanje - .t. - gledaj sta je na stanju pa to nivelisi
+// --------------------------------------------------------------------
 function gen_nivel_p(cPKonto, dDatDok, cBrKalk, lGledajStanje)
-*{
 local nRbr
 local cIdFirma 
 local cIdVd
@@ -483,18 +488,23 @@ BoxC()
 st_res_niv_p(cVarijanta, cKolNula)
 
 return
-*}
 
 
+// -----------------------------------------
+// obrada nivelacije iz PRIPT tabele
+// -----------------------------------------
 function obr_nivel_p()
-*{
 local nRecP
+local lGenFinFakt
+local lStampati
+
 if Pitanje(,"Obraditi nivelaciju iz pomocne tabele (D/N)?", "N") == "N"
 	return
 endif
 
 O_PRIPT
 nRecP := RecCount()
+
 if nRecP == 0
 	MsgBeep("Nije generisana nivelacija, opcija 9. !")
 	return
@@ -506,14 +516,42 @@ if Pitanje(,"Stampati dokumente (D/N)","N") == "N"
 	lStampati := .f.
 endif
 
+lGenFinFakt := .f.
+
+if Pitanje(, "Generisati FIN/FAKT dokumente (D/N)", "N") == "D"
+	lGenFinFakt := .t.
+endif
+
+if !lGenFinFakt
+	// snimi stanje parametara
+	cTmpFin := gAFin
+	cTmpMat := gAMat
+	cTmpFakt := gAFakt
+
+	gAFin := "0"
+	gAMat := "N"
+	gAFakt := "N"
+endif
+
 // pokreni obradu pript bez asistenta
 ObradiImport(0, .f., lStampati)
+
+if !lGenFinFakt
+	// vrati parametre...
+	gAFin := cTmpFin
+	gAMat := cTmpMat
+	gAFakt := cTmpFakt
+endif
 
 return
 
 
 
+// -----------------------------------------
 // stampa rezultata - efekata nivelacije
+// cVar - varijanta
+// cKolNula - 
+// -----------------------------------------
 function st_res_niv_p(cVar, cKolNula)
 local cIdFirma
 local cIdVd

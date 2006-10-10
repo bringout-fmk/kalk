@@ -655,24 +655,34 @@ if cBrDok="."
       			select KALK
 			Scatter()
 			select PRIPR
-      			IF ! ( _idvd $ "97" .and. _tbanktr=="X" )
+      			
+			IF ! ( _idvd $ "97" .and. _tbanktr=="X" )
         			append ncnl; _ERROR:="";  Gather2()
       			ENDIF
+			
 			if gEraseKum
       				select doks
 				seek kalk->(idfirma+idvd+brdok)   // izbrisi u doks
       				if Found() 
 					delete
 				endif
-				select kalk
-      				skip
-				nRec:=recno()
-				skip -1
-      				dbdelete2()
-      				go nRec
 			endif
+			
+			select kalk
+      			skip
+			
+			nRec:=recno()
+			
+			skip -1
+      			
+			if gEraseKum
+				dbdelete2()
+			endif
+      			
+			go nRec
     		enddo
     		select kalk
+		
 		MsgC()
   	endif
   	closeret

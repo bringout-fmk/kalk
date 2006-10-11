@@ -1,86 +1,21 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/razdb/1g/tops_ka.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.11 $
- * $Log: tops_ka.prg,v $
- * Revision 1.11  2004/05/28 14:52:11  sasavranic
- * no message
- *
- * Revision 1.10  2003/12/22 14:59:00  sasavranic
- * Uslov za sortiranje rednih brojeva u pripremi...varijanta Jerry
- *
- * Revision 1.9  2003/12/08 11:37:17  sasavranic
- * Ispravljen bug: pri preuzimanju podataka iz tops-a, lReplace nepostojeca var
- *
- * Revision 1.8  2003/11/29 13:49:02  sasavranic
- * Dorade: preuzimanje barkodova pri preuzimanju realizacije iz kalk-a
- *
- * Revision 1.7  2002/07/31 09:55:32  mirsad
- * broj 11-ke koja se formira pri TOPS42->KALK sada se odredjuje na osnovu
- * azuriranih 11-ki a ne 42-ki
- *
- * Revision 1.6  2002/07/31 08:27:04  mirsad
- * omoguæeno vezivanje varijante TOPS->KALK za prod.mjesto
- *
- * Revision 1.5  2002/06/24 09:28:08  mirsad
- * dokumentovanje
- *
- * Revision 1.4  2002/06/24 08:02:27  ernad
- *
- *
- * topska->kolicina<>0
- *
- * Revision 1.3  2002/06/24 07:46:28  ernad
- *
- *
- * kada je topska->kolicina==0 ne prenosi
- *
- * Revision 1.2  2002/06/24 07:39:28  ernad
- *
- *
- * doxy
- *
- *
- */
-
-
-/*! \file fmk/kalk/razdb/1g/tops_ka.prg
- *  \brief Preuzimanje dokumenata iz TOPS-a u KALK
- */
-
-
-
-/*! \ingroup ini
-  * \var *string FmkIni_KumPath_POS42uKALK11_Kase
-  * \brief Definise koja prodajna mjesta se retroaktivno zaduzuju samo za prodate kolicine
-  * \param  - prazno, sva prodajna mjesta, default vrijednost
-  * \param  1 - samo prodajno mjesto " 1"
-  * \param  1 3 - prodajna mjesta " 1" i " 3"
-  */
-*string FmkIni_KumPath_POS42uKALK11_Kase;
-
-
-/*! \fn UzmiIzTopsa()
- *  \brief Preuzimanje podataka iz datoteke TOPSKA te generisanje dokumenta 42 ili 11 (SOFA Vitez)
- */
-
-
 #define D_MAX_FILES     150
 
 
+// preuzimanje podataka iz TOPS-a
 function UzmiIzTopsa()
-*{
 local Izb3
 local OpcF
-LOCAL aPom1:={}, aPom2:={}
-private HH
+local aPom1 := {}
+local aPom2 := {}
+local l42u11
+local cTopsKPath
+local cTopsKChkPath
+private h
 
-l42u11:=( IzFMKINI("KALK","POS42uKALK11","N") == "D" )
+// kreirati dokument 42 ili 11
+l42u11 := ( IzFMKINI("KALK", "POS42uKALK11", "N") == "D" )
 
 // primjer matrice:
 // [TOPSuKALK]    |=CHR(124)
@@ -88,58 +23,78 @@ l42u11:=( IzFMKINI("KALK","POS42uKALK11","N") == "D" )
 // ----------------------------------------
 cRazdvoji := IzFMKIni("TOPSuKALK","UslovKontoIMarkerZaRazvrstReal","-",KUMPATH)
 
-IF cRazdvoji<>"-"
-  // razdvajanje realizacije na viçe konta
-  // -------------------------------------
-  lRazdvoji:=.t.
-  aRazdvoji := TOKuNIZ(cRazdvoji,";","|")
-  AADD(aRazdvoji,{".t.","","",0})
-  FOR i:=1 TO LEN(aRazdvoji)
-    DO WHILE LEN(aRazdvoji[i])<4
-      DO CASE
-        CASE LEN( aRazdvoji[i] ) < 1
-                                     AADD( aRazdvoji[i] , ".t." )
-        CASE LEN( aRazdvoji[i] ) < 2
-                                     AADD( aRazdvoji[i] , "" )
-        CASE LEN( aRazdvoji[i] ) < 3
-                                     AADD( aRazdvoji[i] , "" )
-        CASE LEN( aRazdvoji[i] ) < 4
-                                     AADD( aRazdvoji[i] , 0 )
-      ENDCASE
-    ENDDO
-  NEXT
+IF ( cRazdvoji <> "-" )
+	// razdvajanje realizacije na vise konta
+  	// -------------------------------------
+  	lRazdvoji:=.t.
+  	aRazdvoji := TOKuNIZ(cRazdvoji, ";", "|")
+  	
+	AADD(aRazdvoji,{".t.","","",0})
+  	
+	FOR i:=1 TO LEN(aRazdvoji)
+    		DO WHILE LEN(aRazdvoji[i])<4
+      			DO CASE
+        			CASE LEN( aRazdvoji[i] ) < 1
+                                	AADD( aRazdvoji[i] , ".t." )
+        			CASE LEN( aRazdvoji[i] ) < 2
+                                	AADD( aRazdvoji[i] , "" )
+        			CASE LEN( aRazdvoji[i] ) < 3
+                                 	AADD( aRazdvoji[i] , "" )
+        			CASE LEN( aRazdvoji[i] ) < 4
+                                	AADD( aRazdvoji[i] , 0 )
+      			ENDCASE
+    		ENDDO
+  	NEXT
 ELSE
-  // standardni prenos
-  // -----------------
-  lRazdvoji:=.f.
+
+	// standardni prenos
+	// -----------------
+  	lRazdvoji := .f.
+
 ENDIF
 
 O_KONCIJ
 go top
 
-if gModemVeza=="D"
-	OPCF:={}
+if gModemVeza == "D"
+	
+	OpcF:={}
 
  	select koncij
- 	do while !eof()
+	
+ 	do while !EOF()
     
-  		if !empty(IdProdmjes)
-   			BrisiSFajlove(trim(gTopsDest)+trim(koncij->IdProdmjes)+"\")
-   			BrisiSFajlove(strtran(trim(gTopsDest)+trim(koncij->IdProdmjes)+"\",":\",":\chk\"))
+  		if !EMPTY(field->idprodmjes)
+   			
+			cTopsKPath := TRIM(gTopsDest) + TRIM(field->idprodmjes) + SLASH
+			cTopsKChkPath := STRTRAN(cTopsKPath, ":\", ":\chk\")
+			
+			// brisi fajlove iz prenosa....
+			BrisiSFajlove( cTopsKPath , 7)
+			// brisi fajlove iz chk lokacije...
+   			BrisiSFajlove( cTopsKChkPath, 7 )
 
-   			aFiles:=DIRECTORY(trim(gTopsDest)+trim(koncij->IdProdmjes)+"\TK*.dbf")
-   			ASORT(aFiles,,,{|x,y| x[3]>y[3]})
-			AEVAL(aFiles,  {|elem| AADD(opcF,PADR(trim(koncij->IdProdmjes)+"\"+trim(elem[1]),15)+iif(UChkPostoji(trim(gTopsDest)+trim(koncij->IdProdmjes)+"\"+trim(elem[1])),"R","X")+" "+dtos(elem[3]))},1,D_MAX_FILES)  
-  		endif
-  		skip
+   			aFiles := DIRECTORY(cTopsKPath + "TK*.dbf")
+   			
+			ASORT(aFiles,,,{|x,y| DTOS(x[3]) + x[4] > DTOS(y[3]) + y[4] })
+			
+			AEVAL(aFiles, { |elem| AADD( OpcF, PADR(ALLTRIM(koncij->idprodmjes) + SLASH + TRIM(elem[1]), 20) + " " + UChkPostoji(cTopsKPath + TRIM(elem[1]) ) + " " + DTOC(elem[3]) + 	" " + elem[4] ) } , 1, D_MAX_FILES)  
+  		
+		endif
+  		
+		skip
  	enddo
 
- 	ASORT(OPCF,,,{|x,y| right(x,10)>right(y,10)})  // datumi
- 	hh:=ARRAY(LEN(OPCF))
- 	for i:=1 to len(hh)
-   		hh[i]:=""
+	// R/X + datum + vrijeme
+ 	ASORT(OpcF,,,{|x,y| right(x, 19) > right(y, 19) })  
+ 	
+	h := ARRAY(LEN(OpcF))
+ 	
+	for i:=1 to len(h)
+   		h[i]:=""
  	next
- 	if len(opcf)==0
+ 	
+	if LEN(OpcF)==0
    		MsgBeep("U direktoriju za prenos nema podataka")
    		closeret
  	endif
@@ -152,7 +107,7 @@ O_TARIFA
 O_PRIPR
 O_KALK
 
-if gModemVeza=="D"
+if gModemVeza == "D"
 	Izb3:=1
   	fPrenesi:=.f.
   	do while .t.
@@ -160,26 +115,33 @@ if gModemVeza=="D"
 		if Izb3==0
      			exit
    		else
-     			cTopsDBF:=trim(gTopsDEST)+trim(left(opcf[Izb3],15))
-     			save screen to cS
-     			Vidifajl(strtran(ctopsDBF,".DBF",".TXT"))  // vidi TK1109.TXT
-     			restore screen from cS
-     			if Pitanje(,"Zelite li izvrsiti prenos ?","D")=="D"
+     			cTopsDBF := TRIM(gTopsDEST) + TRIM(left(opcf[Izb3], 15))
+     			
+			save screen to cS
+     			
+			Vidifajl(strtran(cTopsDBF, ".DBF", ".TXT"))  
+			// vidi TK1109.TXT
+     			
+			restore screen from cS
+     			
+			if Pitanje(,"Zelite li izvrsiti prenos ?","D")=="D"
          			fPrenesi:=.t.
          			Izb3:=0
      			else
-         			// close all // vrati se u petlju
+         			// close all 
+				// vrati se u petlju
          			loop
      			endif
    		endif
   	enddo
+	
   	if !fprenesi
         	return .f.
   	endif
 else
 	// CRC gledamo ako nije modemska veza
- 	cTOPSDBF:=trim(gTopsDEST)+"TOPSKA"
- 	aPom1 := IscitajCRC( trim(gTopsDest)+"CRCTK.CRC" )
+ 	cTOPSDBF:=TRIM(gTopsDEST) + "TOPSKA"
+ 	aPom1 := IscitajCRC( trim(gTopsDest) + "CRCTK.CRC" )
  	aPom2 := IntegDBF(cTopsDBF)
 	IF !(aPom1[1]==aPom2[1] .and. aPom1[2]==aPom2[2])
    		Msg("CRCTK.CRC se ne slaze. Greska na disketi !",4)
@@ -190,7 +152,7 @@ endif
 usex (cTopsDBF) NEW alias TOPSKA
 
 go bottom
-cBRKALK:=left(strtran(dtoc(datum),".",""),4) + "/" + idpos
+cBRKALK:=LEFT(STRTRAN(DTOC(datum),".",""),4) + "/" + idpos
 // dobija se broj u formi 1210/1     - 1210 - posljednji, najveci datum
 cIdVd := TOPSKA->IdVd
 
@@ -386,31 +348,25 @@ if (lReplace .and. nReplaceBK > 0)
 endif
 
 if gModemVeza=="D" .and. fPrenesi
-    dirmak2(strtran(trim(gTopsDest),":\",":\chk\"))
-    copy file (cTopsDbf) TO (strtran(cTopsDbf,":\",":\chk\"))
-    // odradjeno-postavi kopiraj u chk direktorij
+	// pobrisi fajlove...
+	FileDelete(cTopsDBF)
+	FileDelete(STRTRAN(UPPER(cTopsDBF), ".DBF", ".TXT"))
 endif
 
 IF IzFMKINI("KALK","PrimPak","N",KUMPATH)=="D"
-  NaPrPak2()
+	NaPrPak2()
 ENDIF
 
 return
-*}
 
 
- /*! \fn UChkPostoji(cFullFileName)
-  *  \brief Da li u chk direktoriju postoji fajl
-  *  \code
-  *   UChkPostoji(gKalkDest+"KT1105.DBF")
-  *  \endcode
-  */
+// da li postoji fajl u chk lokaciji, vraca oznaku
+// R - realizovan
+// X - nije obradjen
 function UChkPostoji(cFullFileName)
-*{
-if File(strtran(cFullFileName,":\",":\chk\"))
-   return .t.
+if FILE(STRTRAN(cFullFileName,":" + SLASH, ":" + SLASH + "chk" + SLASH))
+	return "R"
 else
-   return .f.
+   	return "X"
 endif
-*}
 

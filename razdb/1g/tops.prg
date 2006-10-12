@@ -41,8 +41,13 @@ if gTops<>"0 " .and. Pitanje(,"Izgenerisati datoteku KATOPS","N")=="D"
   O_ROBA;  O_KONCIJ; O_PRIPR
   select pripr; go top
   aDbf:={}
+  AADD(aDBF,{"IDFIRMA","C",2,0})
   AADD(aDBF,{"BRDOK","C",8,0})
   AADD(aDBF,{"IDVD","C",2,0})
+  AADD(aDBF,{"DATDOK","D",8,0})
+  AADD(aDBF,{"IDKONTO","C",7,0})
+  AADD(aDBF,{"IDKONTO2","C",7,0})
+  AADD(aDBF,{"IDPARTNER","C",6,0})
   AADD(aDBF,{"IDPOS","C",2,0})
   AADD(aDBF,{"IDROBA","C",10,0})
   AADD(aDBF,{"kolicina","N",13,4})
@@ -88,14 +93,20 @@ if gTops<>"0 " .and. Pitanje(,"Izgenerisati datoteku KATOPS","N")=="D"
        AADD(aIdPos,koncij->idprodmjes)
     endif
     dDatDok:=pripr->datdok
-    replace idvd with pripr->idvd, idpos with koncij->idprodmjes,;
-     idroba with pripr->idroba,;
-     kolicina with pripr->kolicina,;
-     mpc with pripr->mpcsapp,;
-     naziv with roba->naz,;
-     idtarifa with pripr->idtarifa,;
-     jmj with roba->jmj ,;
-     brdok with pripr->brdok
+    replace idfirma with gFirma
+    replace idvd with pripr->idvd
+    replace idpos with koncij->idprodmjes
+    replace datdok with pripr->datdok
+    replace idkonto with pripr->idkonto
+    replace idkonto2 with pripr->idkonto2
+    replace idpartner with pripr->idpartner
+    replace idroba with pripr->idroba
+    replace kolicina with pripr->kolicina
+    replace mpc with pripr->mpcsapp
+    replace naziv with roba->naz
+    replace idtarifa with pripr->idtarifa
+    replace jmj with roba->jmj
+    replace brdok with pripr->brdok
 
     if roba->(fieldpos("K1"))<>0
         replace K1 with roba->k1, K2 with roba->K2
@@ -371,8 +382,13 @@ do while !eof() .and. (field->idfirma==idfirma) .and. (field->idvd=idtipdokument
     	
 	dDatDok:=kalk->datdok
     	
+	replace idfirma with gFirma
 	replace idvd with kalk->idvd
 	replace idpos with koncij->idprodmjes
+	replace datdok with dDatDok
+	replace idkonto with kalk->idkonto
+	replace idkonto2 with kalk->idkonto2
+	replace idpartner with kalk->idpartner
      	replace idroba with kalk->idroba
      	replace kolicina with kalk->kolicina
      	replace mpc with kalk->mpcsapp
@@ -531,9 +547,14 @@ function CreDBKaTOPS()
 MsgO("Kreiram tabelu prenosa")
 
 aDbf:={}
+AADD(aDBF,{"IDFIRMA","C",2,0})
 AADD(aDBF,{"BRDOK","C",8,0})
 AADD(aDBF,{"IDVD","C",2,0})
 AADD(aDBF,{"IDPOS","C",2,0})
+AADD(aDBF,{"DATDOK","D",8,0})
+AADD(aDBF,{"IDKONTO","C",7,0})
+AADD(aDBF,{"IDKONTO2","C",7,0})
+AADD(aDBF,{"IDPARTNER","C",6,0})
 AADD(aDBF,{"IDROBA","C",10,0})
 AADD(aDBF,{"kolicina","N",13,4})
 AADD(aDBF,{"MPC","N",13,4})

@@ -418,6 +418,11 @@ if cPametno=="D"
 
 endif // cpametno=="D"
 
+O_PRIPR
+select pripr
+
+// azuriraj i pripremu p_doksrc
+p_to_doksrc()
 
 O_PRIPR
 IF lViseDok .and. LEN(aOstaju)>0
@@ -437,6 +442,7 @@ IF lViseDok .and. LEN(aOstaju)>0
 ELSE
   select PRIPR; zap
 ENDIF
+
 
 if cPametno=="D"
 
@@ -734,6 +740,8 @@ if gEraseKum
 		EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+"-"+idVd+"-"+cBrDok,Date(),Date(),"","KALK - Povrat dokumenta u pripremu")
 	endif
 
+	// vrati i dokument iz DOKSRC
+	povrat_doksrc(cIdFirma, cIdVd, cBrDok)
 endif
 
 select doks
@@ -744,7 +752,8 @@ use
 MsgC()
 
 closeret
-*}
+return
+
 
 
 // iz pripr 9 u pripr

@@ -174,6 +174,8 @@ function OEdit()
 *{
 O_DOKS
 O_PRIPR
+O_DOKSRC
+O_P_DOKSRC
 O_KALK
 O_KONTO
 O_PARTN
@@ -297,7 +299,10 @@ do case
       				EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje kompletne pripreme")
       	 		endif
  	 		zapp()
-         		return DE_REFRESH
+         		select p_doksrc
+			zapp()
+			select pripr
+			return DE_REFRESH
       		endif
       		return DE_CONT
 	case Ch==K_ALT_F10 .or. lAutoAsist

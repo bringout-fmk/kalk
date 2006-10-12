@@ -12,6 +12,7 @@ local aPom2 := {}
 local l42u11
 local cTopsKPath
 local cTopsKChkPath
+local cSrcOpis
 private h
 
 // kreirati dokument 42 ili 11
@@ -238,6 +239,9 @@ if IsJerry()
 	endif
 endif
 
+// pobrisi prvo p_doksrc
+zap_p_doksrc()
+
 nRbr:=0
 do while !eof()
 	if lRazdvoji
@@ -336,10 +340,28 @@ do while !eof()
 			endif
 	    	endif
 	endif
+	
+	select pripr
 
+	cSrcOpis := ""
+	if pripr->idvd == "42"
+		cSrcOpis := "Prodaja"
+	endif
+	if pripr->idvd == "12"
+		cSrcOpis := "Reklamacija"
+	endif
+	
+	// dodaj stavku i u p_doksrc
+	add_p_doksrc( gFirma, pripr->idvd, pripr->brdok, ;
+		pripr->datdok, "TOPS", topska->idpos, topska->idvd, ;
+		topska->brdok, topska->datpos, "", pripr->idkonto, ;
+		topska->idpartner, cSrcOpis)
+
+	
 	select topska
   	skip
 enddo
+
 
 close all
 

@@ -168,7 +168,9 @@ Skloni(KUMPATH,"ZAGLI.DBF",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"FMK.INI",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"OBJEKTI.DBF",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"K1.DBF",cSezona,finverse,fda,fnul)
-
+if is_doksrc()
+	Skloni(KUMPATH,"DOKSRC.DBF",cSezona,finverse,fda,fnul)
+endif
 
 fnul:=.f.
 Skloni(SIFPATH,"TARIFA.DBF",cSezona,finverse,fda,fnul)
@@ -237,10 +239,12 @@ PUBLIC gaDbfs := {;
 { F_IZVJE  ,"IZVJE"   , P_KUMPATH     },;
 { F_ZAGLI  ,"ZAGLI"   , P_KUMPATH     },;
 { F_KOLIZ  ,"KOLIZ"   , P_KUMPATH     },;
+{ F_DOKSRC ,"DOKSRC"  , P_KUMPATH     },;
 { F_LOGK   ,"LOGK"    , P_KUMPATH     },;
 { F_LOGKD  ,"LOGKD"   , P_KUMPATH     },;
 { F_BARKOD ,"BARKOD"  , P_PRIVPATH    },;
 { F_PPPROD ,"PPPROD"  , P_PRIVPATH    },;
+{ F_P_DOKSRC,"P_DOKSRC", P_PRIVPATH    },;
 { F_OBJEKTI,"OBJEKTI" , P_KUMPATH     },;
 { F_PRODNC, "PRODNC"  , P_KUMPATH     },;
 { F_RVRSTA, "RVRSTA"  , P_SIFPATH     },;
@@ -691,6 +695,12 @@ endif
 
 if i==F_OBJEKTI .or. i==F_K1
 	lIdiDalje:=.t.
+endif
+
+if is_doksrc()
+	if i==F_P_DOKSRC .or. i==F_DOKSRC
+		lIdiDalje := .t.
+	endif
 endif
 
 if IsPlanika()

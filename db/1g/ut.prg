@@ -1330,5 +1330,138 @@ select (nTArea)
 return lRet
 
 
+// ----------------------------------------------
+// skeniranje i setovanje novih stanja
+// za dokumente u procesu
+// 
+// cMagProd - marker "M"agacin, "P"rodavnica
+// ----------------------------------------------
+function scan_dok_u_procesu(cMagProd)
+local cPMU_I := "MU_I"
+local nDokNaStanju := 0
+local nNRec
+
+O_KONCIJ
+O_KALK
+O_DOKS
+
+if cMagProd == nil
+	cMagProd := "P"
+endif
+
+select kalk
+
+if cMagProd == "P"
+	cPMU_I := "PU_I"
+endif
+
+set order to tag cPMU_I
+go top
+
+do while !EOF() .and. field->&cPMU_I == "P"
+	
+	cKIdFirma := kalk->idfirma
+	cKIdVd := kalk->idvd
+	cKBrDok := kalk->brdok
+	cKKonto := kalk->idkonto
+
+	// provjeri da li je tops dokument na stanju
+	nDokNaStanju := tops_dok_na_stanju(cKIdFirma, cKIdVd, cKBrDok, cKKonto)
+		
+	select kalk
+
+	if nDokNaStanju == -1
+		MsgBeep(cKKonto + " nema podesene parametre u konciju!!!")
+		skip
+		loop
+	endif
+	
+	do while !EOF() .and. kalk->(&cPU_I + idfirma + idvd + brdok) == "P" + cKIdFirma + cKIdVd + cKBrDok
+		
+		skip
+		nNRec := RECNO()
+		skip -1
+		
+		if nDokNaStanju == 1
+			Scatter()
+			_pu_i := get_pu_i(_idvd)
+			_mu_i := get_mu_i(_idvd)
+			Gather()
+		endif
+		
+		go (nNREC)
+	enddo
+enddo
+
+return
+
+
+// --------------------------------------------------------------
+// da li je vezni tops dokument na stanju
+// 
+// funkcija vraca nNaStanju
+//    0 = nije na stanju
+//    1 = na stanju je
+//   -1 = nije nesto podeseno u konciju
+// --------------------------------------------------------------
+static function tops_dok_na_stanju(cFirma, cIdVd, cBrDok, cKonto)
+local nNaStanju := 1
+local cTKPath := ""
+local cTSPath := ""
+local cTPM := ""
+
+select koncij
+set order to tag "IDKONTO"
+hseek cKonto
+
+if FOUND()
+	cTKPath := field->topskum
+	cTSPath := field->topssif
+	cTPm := field->idprodmjes
+else
+	return -1
+endif
+
+// otvori DOKSRC i DOKS
+select (248)
+use (cTKPath + SLASH + "DOKSRC") alias TDOKSRC
+set order to tag "2"
+
+select (249)
+use (cTKPath + SLASH + "DOKS") alias TDOKS
+set order to tag "2"
+
+select tdoksrc
+go top
+seek PADR("KALK", 10) + cFirma + cIdvd + cBrDok
+
+// pronadji dokument TOPS - vezni
+if FOUND()
+	
+	cTBrDok := tdoksrc->brdok
+	cTIdPos := tdoksrc->idfirma
+	cTIdVd := tdoksrc->idvd
+	dTDatum := tdoksrc->datdok
+
+	select tdoks
+	set order to tag "1"
+	go top
+	seek cTIdPos + cTIdVd + DTOS(dTDatum) + cTBrDok
+
+	if FOUND()
+		if ALLTRIM(tdoks->sto) == "N"
+			nNaStanju := 0
+		endif
+	endif
+	
+endif
+
+select (248)
+use
+
+select (249)
+use
+
+return nNaStanju
 
 

@@ -306,84 +306,94 @@ select KALK
 
 select pripr
 nNV:=nVPV:=nMPV:=nRABAT:=0
+
 do while !eof()
-  cIdFirma:=idfirma
-  cBrDok:=brdok
-  cIdvd:=idvd
-  PRIVATE nNV:=nVPV:=nMPV:=nRABAT:=0  // za DOKS.DBF
-  IF lViseDok .and. ASCAN(aOstaju,cIdFirma+cIdVd+cBrDok)<>0  // preskoci postojece
-    SKIP 1
-    LOOP
-  ENDIF
-  select doks
-  append blank
-  replace idfirma with cidfirma, brdok with cbrdok,;
-          datdok with pripr->datdok, idvd with cidvd,;
-          idpartner with pripr->idpartner, mkonto with pripr->MKONTO,;
-          pkonto with pripr->PKONTO,;
-          idzaduz with pripr->idzaduz, idzaduz2 with pripr->idzaduz2,;
-          brfaktp with pripr->BrFaktP
-  if fieldpos("sifra")<>0
-     replace sifra with SifraKorisn
-  endif
+
+	cIdFirma:=idfirma
+	cBrDok:=brdok
+  	cIdvd:=idvd
+  	private nNV:=0
+	private nVPV:=0
+	private nMPV:=0
+	private nRabat:=0  
+	// za DOKS.DBF
+  	
+	IF lViseDok .and. ASCAN(aOstaju,cIdFirma+cIdVd+cBrDok)<>0  // preskoci postojece
+    		SKIP 1
+    		LOOP
+  	ENDIF
+  	
+	select doks
+  	append blank
+  	replace idfirma with cidfirma, brdok with cbrdok,;
+        	datdok with pripr->datdok, idvd with cidvd,;
+           	idpartner with pripr->idpartner, mkonto with pripr->MKONTO,;
+          	pkonto with pripr->PKONTO,;
+          	idzaduz with pripr->idzaduz, idzaduz2 with pripr->idzaduz2,;
+          	brfaktp with pripr->BrFaktP
+  	if fieldpos("sifra")<>0
+     		replace sifra with SifraKorisn
+  	endif
   
-if Logirati(goModul:oDataBase:cName,"DOK","UNOSDOK")
-	EventLog(nUser,goModul:oDataBase:cName,"DOK","UNOSDOK",nil,nil,nil,nil,"","",cIdFirma+"-"+cIdVd+"-"+cBrDok,pripr->datdok,Date(),"","Azuriranje dokumenta")
-endif
-#ifdef SR
-  O_LOGK
-  go bottom
-  Scatter()
-  _NO:=NO+1
-  append blank
-  _Id:="AZUR";_datum:=pripr->datdok; _datprom:=date()
-  _k1:=pripr->brdok; _k2:=pripr->brfaktp; Gather()
-  O_LOGKD  // otvori logove kumulativa
-#endif
+	if Logirati(goModul:oDataBase:cName,"DOK","UNOSDOK")
+		EventLog(nUser,goModul:oDataBase:cName,"DOK","UNOSDOK",nil,nil,nil,nil,"","",cIdFirma+"-"+cIdVd+"-"+cBrDok,pripr->datdok,Date(),"","Azuriranje dokumenta")
+	endif
+	#ifdef SR
+  		O_LOGK
+  		go bottom
+  		Scatter()
+  		_NO:=NO+1
+  		append blank
+  		_Id:="AZUR";_datum:=pripr->datdok; _datprom:=date()
+  		_k1:=pripr->brdok; _k2:=pripr->brfaktp; Gather()
+  		O_LOGKD  
+		// otvori logove kumulativa
+	#endif
 
-  select pripr
-  nBrStavki:=0
-  do while !eof() .and. cidfirma==idfirma .and. cbrdok==brdok .and. cidvd==idvd
-   nBrStavki:=nBrStavki+1
-   Scatter()
-   _Podbr:=cNPodbr
-   select kalk
-   append blank
-   Gather()
-   if cIdVd=="97"
-     append blank
-       _TBankTr := "X"
-       _mkonto  := _idkonto
-       _mu_i    := "1"
-     Gather()
-   endif
+  	select pripr
+  	nBrStavki:=0
+  	do while !eof() .and. cidfirma==idfirma .and. cbrdok==brdok .and. cidvd==idvd
+   		nBrStavki:=nBrStavki+1
+   		Scatter()
+   		_Podbr:=cNPodbr
+   		select kalk
+   		append blank
+   		Gather()
+   		if cIdVd=="97"
+     			append blank
+       			_TBankTr := "X"
+       			_mkonto  := _idkonto
+       			_mu_i    := "1"
+     			Gather()
+   		endif
    
-  // popunjavanje roba->idpartner
-  // popunjavanje tabele prodnc
-  if IsPlanika()
-	PlFillIdPartner(pripr->idpartner, pripr->idroba)
-	if pripr->idvd $ "11#12#13#80#81"
-		SetProdNc(pripr->pkonto, pripr->idroba, pripr->idvd, pripr->brdok, pripr->datdok, pripr->fcj)
-   	endif
-  endif
+  		// popunjavanje roba->idpartner
+  		// popunjavanje tabele prodnc
+  		if IsPlanika()
+			PlFillIdPartner(pripr->idpartner, pripr->idroba)
+			if pripr->idvd $ "11#12#13#80#81"
+				SetProdNc(pripr->pkonto, pripr->idroba, pripr->idvd, pripr->brdok, pripr->datdok, pripr->fcj)
+   			endif
+  		endif
 
-   select pripr
+   		select pripr
 
-   if ! ( cIdVd $ "97" )
-     SetZaDoks()   // setuj nnv, nmpv ....
-   endif
+   		if ! ( cIdVd $ "97" )
+     			SetZaDoks() 
+			// setuj nnv, nmpv ....
+   		endif
 
-   skip
-  enddo
+   		skip
+  	enddo
 
-  select doks
-  replace nv with nnv, vpv with nvpv, rabat with nrabat, mpv with nmpv, podbr with cNPodbr
+  	select doks
+  	replace nv with nnv, vpv with nvpv, rabat with nrabat, mpv with nmpv, podbr with cNPodbr
 
-  if lBrStDoks
-  	replace ukstavki with nBrStavki
-  endif
+  	if lBrStDoks
+  		replace ukstavki with nBrStavki
+  	endif
 
-  select pripr
+  	select pripr
 enddo
 
 MsgC()

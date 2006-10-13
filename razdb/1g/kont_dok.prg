@@ -915,27 +915,39 @@ return 0
  */
 
 function SetZaDoks()
-*{
+
 if mu_i="1"
-  nNV+=nc*(kolicina-gkolicina-gkolicin2); nVPV+=vpc*(kolicina-gkolicina-gkolicin2)
+	nNV += nc*(kolicina-gkolicina-gkolicin2)
+	nVPV += vpc*(kolicina-gkolicina-gkolicin2)
+elseif mu_i="P"
+	nNV += nc*(kolicina-gkolicina-gkolicin2)
+	nVPV += vpc*(kolicina-gkolicina-gkolicin2)
 elseif mu_i="3"
-  nVPV+=vpc*(kolicina-gkolicina-gkolicin2)
+  	nVPV += vpc*(kolicina-gkolicina-gkolicin2)
 elseif mu_i=="5"
- nNV-=nc*(kolicina); nVPV-=vpc*(kolicina); nRabat+=vpc*rabatv/100*kolicina
+ 	nNV-=nc*(kolicina); nVPV-=vpc*(kolicina); nRabat+=vpc*rabatv/100*kolicina
 endif
 
 if pu_i=="1"
- if empty(mu_i)
-   nNV+=nc*kolicina
- endif
- nMPV+=mpcsapp*kolicina
+	if empty(mu_i)
+   		nNV+=nc*kolicina
+ 	endif
+ 	nMPV+=mpcsapp*kolicina
+elseif pu_i=="P"
+	if empty(mu_i)
+   		nNV+=nc*kolicina
+ 	endif
+ 	nMPV+=mpcsapp*kolicina
 elseif pu_i=="5"
- if empty(mu_i); nNV-=nc*kolicina; endif
- nMPV-=mpcsapp*kolicina
+ 	if empty(mu_i)
+		nNV-=nc*kolicina
+	endif
+ 	nMPV-=mpcsapp*kolicina
 elseif pu_i=="I"
-  nMPV-=mpcsapp*gkolicin2; nNV-=nc*gkolicin2
+  	nMPV-=mpcsapp*gkolicin2
+	nNV-=nc*gkolicin2
 elseif pu_i=="3"
-  nMPV+=mpcsapp*kolicina
+  	nMPV+=mpcsapp*kolicina
 endif
 
 return

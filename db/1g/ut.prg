@@ -1256,6 +1256,79 @@ else
 endif
 
 return 1
-*}
+
+
+
+// --------------------------------------------------
+// vraca oznaku PU_I za pojedini dokument prodavnice
+// --------------------------------------------------
+function get_pu_i(cIdVd)
+local cRet := " "
+
+do case 
+	case cIdVd == "11#15#80#81"
+		cRet := "1"
+	case cIdVd $ "12#41#42#43"
+		cRet := "5"
+	case cIdVd == "19"
+		cRet := "3"
+	case cIdVd == "IP"
+		cRet := "I"
+		
+endcase
+
+return cRet
+
+
+// --------------------------------------------------
+// vraca oznaku PU_I za pojedini dokument magacina
+// --------------------------------------------------
+function get_mu_i(cIdVd)
+local cRet := " "
+
+do case 
+	case cIdVd == "10#12#16#94"
+		cRet := "1"
+	case cIdVd $ "11#14#82#95#96#97"
+		cRet := "5"
+	case cIdVd == "15"
+		cRet := "8"
+	case cIdVd == "18"
+		cRet := "3"
+	case cIdVd == "IM"
+		cRet := "I"
+		
+endcase
+
+return cRet
+
+
+// ---------------------------------------------
+// da li je dokument u procesu
+// provjerava na osnovu polja PU_I ili MU_I
+// ---------------------------------------------
+function dok_u_procesu(cFirma, cIdVd, cBrDok)
+local nTArea := SELECT()
+local lRet := .f.
+
+select kalk
+
+if cIdVD $ "#80#81#41#42#43#12#19#IP" 
+	set order to tag "PU_I"
+else
+	set order to tag "MU_I"
+endif
+
+go top
+seek "P" + cFirma + cIdVd + cBRDok
+
+if FOUND()
+	lRet := .t.
+endif
+
+select (nTArea)
+return lRet
+
+
 
 

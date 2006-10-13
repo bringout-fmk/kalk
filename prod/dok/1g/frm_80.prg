@@ -165,17 +165,10 @@ return lastkey()
 
 
 
-
-
-/*! \fn Get1_80b()
- *  \brief Druga strana maske za unos dokumenta tipa 80 - protustavka
- */
-
+// PROTUSTAVKA 80-ka, druga strana
 // _odlval nalazi se u knjiz, filuje staru vrijenost
 // _odlvalb nalazi se u knjiz, filuje staru vrijenost nabavke
-
 function Get1_80b()
-*{
 local cSvedi:="M"
 private aPorezi:={}
 
@@ -260,13 +253,18 @@ StaviMPCSif(_mpcsapp,.t.)
 select pripr
 
 _PKonto:=_Idkonto
-_PU_I:="1"
+
+if IsPlanika()
+	_PU_I := "P"
+else
+	_PU_I := "1"
+endif
+
 _MKonto:=""
 _MU_I:=""
 
 nStrana:=3
 return lastkey()
-*}
 
 
 

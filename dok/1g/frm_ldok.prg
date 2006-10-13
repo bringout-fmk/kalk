@@ -1,45 +1,255 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/dok/1g/frm_ldok.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: frm_ldok.prg,v $
- * Revision 1.2  2002/06/18 14:02:39  mirsad
- * dokumentovanje (priprema za doxy)
- *
- *
- */
- 
 
-/*! \file fmk/kalk/dok/1g/frm_ldok.prg
- *  \brief Pregled dokumenata, podataka u modulu KALK
- */
+// --------------------------------------------
+// browse dokumenata - tabelarni pregled
+// --------------------------------------------
+function browse_dok()
+local cFirma := gFirma
+local cIdVd := PADR("80;", 30)
+local dDatOd := DATE() - 7
+local dDatDo := DATE()
+local cProdKto := PADR("", 50)
+local cMagKto := PADR("", 50)
+local cPartner := PADR("", 6)
+local cFooter := ""
+local cHeader := "Pregled dokumenata - tabelarni pregled"
+private ImeKol
+private Kol
 
-/*! \fn BrowseHron()
- *  \brief Hronoloski browse azuriranih dokumenata
- */
+if usl_browse_dok(@cFirma, @cIdVd, @dDatOd, @dDatDo, ;
+			@cMagKto, @cProdKto, @cPartner) == 0
+	return
+endif
 
+O_ROBA
+O_KONCIJ
+O_KALK
+O_KONTO
+O_DOKS
+
+select kalk
+select doks
+set order to tag "1"
+// setuj filter na tabeli
+set_f_tbl(cFirma, cIdVd, dDatOd, dDatDo, cMagKto, cProdKto, cPartner)
+
+Box(, 20, 77)
+
+@ m_x + 18 , m_y + 2 SAY ""
+@ m_x + 19 , m_y + 2 SAY ""
+
+if IsPlanika()
+	@ m_x + 20 , m_y + 2 SAY "<S> dokument u procesu staviti na stanje "
+else
+	@ m_x + 20 , m_y + 2 SAY ""
+endif
+
+set_a_kol(@ImeKol, @Kol)
+
+ObjDbedit("pregl", 20, 77, {|| brow_keyhandler(Ch) }, cFooter, cHeader,,,,, 3)
+
+BoxC()
+
+closeret
+return
+
+
+// --------------------------------------------------------
+// setovanje filtera na tabeli..
+// --------------------------------------------------------
+static function set_f_tbl(cFirma, cIdVd, dDatOd, dDatDo, ;
+			cMagKto, cProdKto, cPartner)
+local cFilter := ".t."
+
+if !EMPTY(cFirma)
+	cFilter += " .and. idfirma == " + cm2str(cFirma) 
+endif
+
+if !EMPTY(cIdVd)
+	cFilter += " .and. " + cIdVd 
+endif
+
+if !EMPTY(DTOS(dDatOd))
+	cFilter += " .and. DTOS(datdok) >= " + cm2str(DTOS(dDatOd))
+endif
+
+if !EMPTY(DTOS(dDatDo))
+	cFilter += " .and. DTOS(datdok) <= " + cm2str(DTOS(dDatDo))
+endif
+
+if !EMPTY(cMagKto)
+	cFilter += " .and. " + cMagKto 
+endif
+
+if !EMPTY(cProdKto)
+	cFilter += " .and. " + cProdKto 
+endif
+
+if !EMPTY(cPartner)
+	cFilter += " .and. idpartner == " + cm2str(cPartner) 
+endif
+
+MsgO("pripremam pregled ... sacekajte trenutak !")
+select doks
+set filter to &cFilter
+go top
+MsgC()
+
+return
+
+
+
+// -------------------------------------------
+// setovanje kolona za browse
+// -------------------------------------------
+static function set_a_kol(aImeKol, aKol)
+aImeKol := {}
+aKol := {}
+
+AADD(aImeKol, { "F.",    {|| idfirma } })
+AADD(aImeKol, { "Tip", {|| idvd } })
+AADD(aImeKol, { "Broj",     {|| brdok } })
+AADD(aImeKol, { "Datum",    {|| datdok } })
+AADD(aImeKol, { "M.Konto",  {|| mkonto} })
+AADD(aImeKol, { "P.Konto",  {|| pkonto} })
+AADD(aImeKol, { "Partner",  {|| idpartner} })
+if IsPlanika()
+	AADD(aImeKol, { "Status",   {|| st_dok_status(doks->idfirma, doks->idvd, doks->brdok) } })
+endif
+AADD(aImeKol, { "NV",       {|| TRANSFORM(nv, gPicDem)} })
+AADD(aImeKol, { "VPV",      {|| TRANSFORM(vpv,gPicDem)} })
+AADD(aImeKol, { "MPV",      {|| TRANSFORM(mpv,gPicDem)} })
+
+for i:=1 to LEN(aImeKol)
+	AADD(aKol, i)
+next
+
+return
+
+
+// prikazi status dokumenata
+function st_dok_status(cFirma, cIdVd, cBrDok)
+local nTArea := SELECT()
+local cStatus := "na stanju"
+
+if cIdVd == "80" .and. dok_u_procesu(cFirma, cIdVd, cBrDok)
+	cStatus := "u procesu"
+endif
+
+cStatus := PADR(cStatus, 10)
+
+select (nTArea)
+return cStatus
+
+// ----------------------------------------
+// key handler za browse_dok 
+// ----------------------------------------
+static function brow_keyhandler(Ch)
+
+do case
+	case UPPER(CHR(Ch)) == "S"
+		// stavljanje dokumenta na stanje...
+		if IsPlanika() ;
+		   .and. dok_u_procesu(doks->idfirma, doks->idvd, doks->brdok) ;
+		   .and. Pitanje(,"Dokument staviti na stanje", "N") == "D"
+			
+			select kalk
+			set order to tag "1"
+			go top
+			seek doks->(idfirma + idvd + brdok)
+			do while !EOF() .and. kalk->(idfirma + idvd + brdok) == doks->(idfirma + idvd + brdok)
+				Scatter()
+				// setuj MU_I i PU_I
+				_pu_i := get_pu_i(doks->idvd)
+				_mu_i := get_mu_i(doks->idvd)
+				Gather()
+				skip
+			enddo
+			select doks
+			return DE_REFRESH
+		endif
+		return DE_CONT
+
+	case Ch == K_CTRL_P
+		// stampa dokumenta
+		return DE_CONT
+		
+	case UPPER(CHR(Ch)) ==  "P"
+		// povrat dokumenta u pripremu
+		return DE_CONT
+endcase
+
+return DE_CONT
+
+
+// ----------------------------------------
+// uslovi browse-a dokumenata
+// ----------------------------------------
+static function usl_browse_dok( cFirma, cIdVd, dDatOd, dDatDo, ;
+			cMagKto, cProdKto, cPartner )
+local nX := 1
+private GetList:={}
+
+Box(, 10, 65)
+	
+	set cursor on
+	
+	@ nX + m_x, 2 + m_y SAY "Firma" GET cFirma
+	
+	++ nX
+	
+	@ nX + m_x, 2 + m_y SAY "Datumski period od" GET dDatOd 
+	
+	@ nX + m_x, col() + 1 SAY "do" GET dDatDo
+
+	nX := nX + 2
+	
+	@ nX + m_x, 2 + m_y SAY "Vrsta dokumenta (prazno-svi)" GET cIdVd PICT "@S30"
+
+	++ nX
+
+	@ nX + m_x, 2 + m_y SAY "Magacinski konto (prazno-svi)" GET cMagKto PICT "@S30"
+	
+	++ nX
+
+	@ nX + m_x, 2 + m_y SAY "Prodavnicki konto (prazno-svi)" GET cProdKto PICT "@S30"
+
+	nX := nX + 2
+	
+	@ nX + m_x, 2 + m_y SAY "Partner:" GET cPartner VALID p_firma(@cPartner)
+	
+	read
+BoxC()
+
+if LastKey() == K_ESC
+	return 0
+endif
+
+cIdVd := Parsiraj( cIdVd, "idvd" )
+cMagKto := Parsiraj( cMagKto, "mkonto" )
+cProdKto := Parsiraj( cProdKto, "pkonto" )
+
+return 1
+
+
+// --------------------------------------------
+// browse dokumenata hronoloski
+// --------------------------------------------
 function BrowseHron()
-*{
 O_ROBA
 O_KONCIJ
 O_KALK
 O_KONTO
 cIdFirma:=gFirma
-
 cIdFirma:=left(cIdFirma,2)
 
 O_DOKS
-
 select kalk
-select doks; set order to 3
+select doks
+set order to 3
 //CREATE_INDEX("DOKSi3","IdFirma+dtos(datdok)+podbr","DOKS")
-
 
 Box(,19,77)
 
@@ -63,16 +273,13 @@ BrowseKey(m_x+4,m_y+1,m_x+19,m_y+77,ImeKol,{|Ch| EdHron(Ch)},"idFirma=cidFirma",
 BoxC()
 
 closeret
-*}
+return
 
 
-
-/*! \fn EdHron(Ch)
- *  \brief Obrada opcija u hronoloskom browsu dokumenata
- */
-
+// ---------------------------------------------
+// key handler za hronoloski pregled
+// ---------------------------------------------
 function EdHron(Ch)
-*{
 local cDn:="N",nTrecDok:=0,nRet:=DE_CONT
 do case
   CASE Ch==K_CTRL_PGUP

@@ -54,7 +54,7 @@ endif
 
 @ m_x+11,m_y+66 SAY "Tarif.br->"
 if lKoristitiBK
-	@ m_x+11,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!S10" when {|| _IdRoba:=PADR(_idroba,VAL(gDuzSifIni)),.t.} valid VRoba_lv(fNovi, @aPorezi)
+	@ m_x+12,m_y+2   SAY "Artikal  " GET _IdRoba pict "@!S10" when {|| _IdRoba:=PADR(_idroba,VAL(gDuzSifIni)),.t.} valid VRoba_lv(fNovi, @aPorezi)
 else
 	@ m_x+12,m_y+2  SAY "Artikal  " GET _IdRoba pict "@!"  valid  VRoba_lv(fNovi, @aPorezi)
 

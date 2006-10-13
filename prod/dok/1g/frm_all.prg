@@ -240,7 +240,7 @@ return
 function VRoba_lv(fNovi, aPorezi)
 *{
 P_Roba(@_IdRoba)
-Reci(11,23,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40)
+Reci(12,23,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40)
 
 if fNovi .or. IsJerry()
   // nadji odgovarajucu tarifu regiona

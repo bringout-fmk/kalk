@@ -1266,7 +1266,7 @@ function get_pu_i(cIdVd)
 local cRet := " "
 
 do case 
-	case cIdVd == "11#15#80#81"
+	case cIdVd $ "11#15#80#81"
 		cRet := "1"
 	case cIdVd $ "12#41#42#43"
 		cRet := "5"
@@ -1281,13 +1281,13 @@ return cRet
 
 
 // --------------------------------------------------
-// vraca oznaku PU_I za pojedini dokument magacina
+// vraca oznaku MU_I za pojedini dokument magacina
 // --------------------------------------------------
 function get_mu_i(cIdVd)
 local cRet := " "
 
 do case 
-	case cIdVd == "10#12#16#94"
+	case cIdVd $ "10#12#16#94"
 		cRet := "1"
 	case cIdVd $ "11#14#82#95#96#97"
 		cRet := "5"
@@ -1340,6 +1340,10 @@ function scan_dok_u_procesu(cMagProd)
 local cPMU_I := "MU_I"
 local nDokNaStanju := 0
 local nNRec
+local nCount := 0
+local cSeekDok := ""
+local nScanArr := 0
+local aDokNaStanju := {}
 
 O_KONCIJ
 O_KALK
@@ -1349,14 +1353,19 @@ if cMagProd == nil
 	cMagProd := "P"
 endif
 
+altd()
+
 select kalk
 
 if cMagProd == "P"
 	cPMU_I := "PU_I"
 endif
 
-set order to tag cPMU_I
+set order to tag &cPMU_I
 go top
+seek "P"
+
+Box(, 2, 70)
 
 do while !EOF() .and. field->&cPMU_I == "P"
 	
@@ -1364,6 +1373,8 @@ do while !EOF() .and. field->&cPMU_I == "P"
 	cKIdVd := kalk->idvd
 	cKBrDok := kalk->brdok
 	cKKonto := kalk->idkonto
+
+	@ m_x+1, m_y+2 SAY "Dokument: " + cKIdFirma + "-" + cKIdVd + "-" + cKBrDok + SPACE(5) + "konto: " + cKKonto
 
 	// provjeri da li je tops dokument na stanju
 	nDokNaStanju := tops_dok_na_stanju(cKIdFirma, cKIdVd, cKBrDok, cKKonto)
@@ -1376,22 +1387,71 @@ do while !EOF() .and. field->&cPMU_I == "P"
 		loop
 	endif
 	
-	do while !EOF() .and. kalk->(&cPU_I + idfirma + idvd + brdok) == "P" + cKIdFirma + cKIdVd + cKBrDok
+	do while !EOF() .and. kalk->(&cPMU_I + idfirma + idvd + brdok) == "P" + cKIdFirma + cKIdVd + cKBrDok
 		
 		skip
 		nNRec := RECNO()
 		skip -1
 		
 		if nDokNaStanju == 1
+			
+			// funkcije koje setuju stanje...
 			Scatter()
-			_pu_i := get_pu_i(_idvd)
-			_mu_i := get_mu_i(_idvd)
+			_pu_i := get_pu_i(cKIdVd)
+			_mu_i := get_mu_i(cKIdVd)
 			Gather()
+
+			++ nCount
+
+			cSeekDok := kalk->idfirma
+			cSeekDok += "-"
+			cSeekDok += kalk->idvd
+			cSeekDok += "-"
+			cSeekDok += ALLTRIM(kalk->brdok)
+
+			nScanArr := ASCAN(aDokNaStanju, {|xVal| xVal[1] == cSeekDok })
+			if nScanArr == 0
+				AADD(aDokNaStanju, { cSeekDok, kalk->datdok })
+			endif
+			
 		endif
 		
 		go (nNREC)
 	enddo
 enddo
+
+BoxC()
+
+// prikazi report...
+rpt_dok_na_stanju(aDokNaStanju)
+
+return
+
+
+// -----------------------------------------------------
+// izvjestaj o dokumentima stavljenim na stanje
+// -----------------------------------------------------
+static function rpt_dok_na_stanju(aDoks)
+local i
+
+if LEN(aDoks) == 0
+	return
+endif
+
+START PRINT CRET
+
+? "Lista dokumenata stavljenih na stanje:"
+? "--------------------------------------"
+?
+
+for i:=1 TO LEN(aDoks)
+	? aDoks[i, 1], aDoks[i, 2]
+next
+
+?
+
+FF
+END PRINT
 
 return
 
@@ -1405,31 +1465,45 @@ return
 //   -1 = nije nesto podeseno u konciju
 // --------------------------------------------------------------
 static function tops_dok_na_stanju(cFirma, cIdVd, cBrDok, cKonto)
+local nTArea := SELECT()
 local nNaStanju := 1
 local cTKPath := ""
 local cTSPath := ""
 local cTPM := ""
 
 select koncij
-set order to tag "IDKONTO"
+set order to tag "ID"
 hseek cKonto
 
 if FOUND()
-	cTKPath := field->topskum
-	cTSPath := field->topssif
+	cTKPath := ALLTRIM(field->kumtops)
+	cTSPath := ALLTRIM(field->siftops)
 	cTPm := field->idprodmjes
 else
+	select (nTArea)
 	return -1
 endif
 
-// otvori DOKSRC i DOKS
-select (248)
-use (cTKPath + SLASH + "DOKSRC") alias TDOKSRC
-set order to tag "2"
+AddBS(@cTKPath)
+AddBS(@cTSPath)
 
-select (249)
-use (cTKPath + SLASH + "DOKS") alias TDOKS
-set order to tag "2"
+// otvori DOKSRC i DOKS
+if FILE(cTKPath + "DOKSRC.DBF")
+	select (248)
+	use (cTKPath + "DOKSRC") alias TDOKSRC
+	set order to tag "2"
+else
+	select (nTArea)
+	return -1
+endif
+if FILE(cTKPath + "DOKS.DBF")
+	select (249)
+	use (cTKPath + "DOKS") alias TDOKS
+	set order to tag "2"
+else
+	select (nTArea)
+	return -1
+endif
 
 select tdoksrc
 go top
@@ -1462,6 +1536,7 @@ use
 select (249)
 use
 
+select (nTArea)
 return nNaStanju
 
 

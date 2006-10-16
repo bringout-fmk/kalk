@@ -35,6 +35,10 @@ AADD(opc,"6. analiza kartica ")
 AADD(opcexe, {|| AnaKart()})
 AADD(opc,"7. stampa OLPP-a za azurirani dokument")
 AADD(opcexe, {|| StOLPPAz()})
+if IsPlanika()
+	AADD(opc,"8. scan dokumenti u procesu...")
+	AADD(opcexe, {|| scan_dok_u_procesu() })
+endif
 
 private Izbor:=1
 Menu_SC("razp")

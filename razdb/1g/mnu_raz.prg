@@ -21,7 +21,7 @@ function ModRazmjena()
 *{
 private Opc:={}
 private opcexe:={}
-AADD(opc,"1. generisi FIN,FAKT dokumente (kontiraj) ")
+AADD(opc,"1. generisi FIN,FAKT dokumente (kontiraj)      ")
 AADD(opcexe,{|| Rekapk(.t.)})
 AADD(opc,"2. iz FAKT generisi KALK dokumente")
 AADD(opcexe, {|| Faktkalk()})
@@ -31,6 +31,12 @@ AADD(opc,"4. sifrarnik KALK prebaci u TOPS")
 AADD(opcexe, {|| SifKalkTOPS()} )
 AADD(opc,"5. iz KALK generisi TOPS dokumente")
 AADD(opcexe, {|| Mnu_GenKaTOPS()} )
+
+if IsPlanika()
+	AADD(opc,"6. TOPS, skeniranje dokumenata u procesu")
+	AADD(opcexe, {|| scan_dok_u_procesu() })
+endif
+
 if IsVindija()
 	AADD(opc,"6. import txt")
 	AADD(opcexe, {|| MnuImpTxt()} )

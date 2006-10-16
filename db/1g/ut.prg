@@ -1435,6 +1435,7 @@ static function rpt_dok_na_stanju(aDoks)
 local i
 
 if LEN(aDoks) == 0
+	MsgBeep("Nema novih dokumenata na stanju !")
 	return
 endif
 

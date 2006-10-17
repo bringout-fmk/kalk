@@ -1303,10 +1303,10 @@ endcase
 return cRet
 
 
-// ---------------------------------------------
+// ------------------------------------------------------------
 // da li je dokument u procesu
 // provjerava na osnovu polja PU_I ili MU_I
-// ---------------------------------------------
+// ------------------------------------------------------------
 function dok_u_procesu(cFirma, cIdVd, cBrDok)
 local nTArea := SELECT()
 local lRet := .f.
@@ -1314,9 +1314,9 @@ local lRet := .f.
 select kalk
 
 if cIdVD $ "#80#81#41#42#43#12#19#IP" 
-	set order to tag "PU_I"
+	set order to tag "PU_I2"
 else
-	set order to tag "MU_I"
+	set order to tag "MU_I2"
 endif
 
 go top
@@ -1326,8 +1326,50 @@ if FOUND()
 	lRet := .t.
 endif
 
+select kalk
+set order to tag "1"
+
 select (nTArea)
 return lRet
+
+// ----------------------------------------------------------
+// skeniranje koje se poziva automatski za sve prodavnice
+// ----------------------------------------------------------
+function pl_scan_automatic()
+local nTArea := SELECT()
+
+if !isplanika()
+	return
+endif
+
+if o_p_update() == 0
+	return
+endif
+select p_update
+go top
+
+do while !EOF()
+	
+	if field->p_updated == "N"
+	
+		scan_dok_u_procesu("P", field->idkonto)
+		
+		select p_update
+		
+		scatter()
+		_p_updated := "D"
+		gather()
+		
+	endif
+		
+	select p_update
+	skip
+enddo
+
+c_p_update()
+
+select (nTArea)
+return
 
 
 // -------------------------------------------------
@@ -1343,14 +1385,14 @@ endif
 // da li treba odraditi update za specifican konto
 if !EMPTY(cKonto) .and. scan_p_update("TOPS", cKonto)
 	// skeniraj dokumente u procesu
-    	scan_dok_u_procesu(cKonto)
+    	scan_dok_u_procesu("P", cKonto)
     	// dodaj da je skenirano za konto....
 	add_p_update("TOPS", cKonto, "D")
 endif
 
 // da li treba uraditi update za sva konta
 if EMPTY(cKonto)
-	scan_dok_u_procesu()
+	scan_dok_u_procesu("P")
 endif
 
 select (nTArea)

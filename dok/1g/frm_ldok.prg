@@ -116,7 +116,7 @@ AADD(aImeKol, { "M.Konto",  {|| mkonto} })
 AADD(aImeKol, { "P.Konto",  {|| pkonto} })
 AADD(aImeKol, { "Partner",  {|| idpartner} })
 if IsPlanika()
-	AADD(aImeKol, { "Status",   {|| st_dok_status(doks->idfirma, doks->idvd, doks->brdok) } })
+	AADD(aImeKol, { "Status",   {|| st_dok_status(doks->idfirma, doks->idvd, doks->brdok ) } })
 endif
 AADD(aImeKol, { "NV",       {|| TRANSFORM(nv, gPicDem)} })
 AADD(aImeKol, { "VPV",      {|| TRANSFORM(vpv,gPicDem)} })
@@ -128,8 +128,9 @@ next
 
 return
 
-
+// -------------------------------------------------------------
 // prikazi status dokumenata
+// -------------------------------------------------------------
 function st_dok_status(cFirma, cIdVd, cBrDok)
 local nTArea := SELECT()
 local cStatus := "na stanju"

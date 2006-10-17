@@ -99,9 +99,12 @@ CheckROnly(KUMPATH + "\KALK.DBF")
 O_DOKS
 select doks
 TrebaRegistrovati(10)
-
 gDuzKonto:=LEN(mkonto) 
 select doks
+
+// skeniranje prodavnica automatsko...
+pl_scan_automatic()
+
 use
 
 #ifdef PROBA

@@ -1348,6 +1348,10 @@ endif
 select p_update
 go top
 
+if p_update->(RecCount()) == 0
+	return
+endif
+
 do while !EOF()
 	
 	if field->p_updated == "N"

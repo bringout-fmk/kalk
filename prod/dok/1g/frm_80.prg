@@ -56,6 +56,11 @@ else
  ESC_RETURN K_ESC
 endif
 
+// planika, skeniraj dok.u procesu....
+pl_scan_dok_u_procesu(_idkonto)
+
+select pripr
+
 @ m_x+11,m_y+66 SAY "Tarif.br->"
 
 if lKoristitiBK

@@ -88,6 +88,9 @@ if PCount()==0
   ENDDO
  BoxC()
 
+ // skeniraj dokumente u procesu za konto
+ pl_scan_dok_u_procesu(cIdKonto)
+
  if empty(cIdRoba) .or. cIdroba=="SIGMAXXXXX"
     if pitanje(,"Niste zadali sifru artikla, izlistati sve kartice ?","N")=="N"
        closeret
@@ -104,11 +107,16 @@ if PCount()==0
  endif
 
  if Params2()
-  WPar("c1",cIdRoba); WPar("c2",cidkonto); WPar("c3",cPredh)
-  WPar("d1",dDatOd); WPar("d2",dDatDo)
+  O_PARAMS
+  WPar("c1",cIdRoba)
+  WPar("c2",cIdkonto)
+  WPar("c3",cPredh)
+  WPar("d1",dDatOd)
+  WPar("d2",dDatDo)
   WPar("c4",@cBrFDa)
  endif
- select params; use
+ select params
+ use
 
 else
   	cIdR:=cIdRoba

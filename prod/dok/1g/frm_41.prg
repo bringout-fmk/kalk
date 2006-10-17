@@ -51,6 +51,11 @@ _idkonto2:=""
 _idzaduz2:=""
 read
 
+// planika - skeniraj dok.u procesu....
+pl_scan_dok_u_procesu(_idKonto)
+
+select pripr
+
 ESC_RETURN K_ESC
 
 @ m_x+10,m_y+66 SAY "Tarif.br->"

@@ -1330,30 +1330,61 @@ select (nTArea)
 return lRet
 
 
+// -------------------------------------------------
+// skeniraj dokumente u procesu za cKonto
+// -------------------------------------------------
+function pl_scan_dok_u_procesu(cKonto)
+local nTArea := SELECT()
+
+if !IsPlanika()
+	return
+endif
+
+// da li treba odraditi update za specifican konto
+if !EMPTY(cKonto) .and. scan_p_update("TOPS", cKonto)
+	// skeniraj dokumente u procesu
+    	scan_dok_u_procesu(cKonto)
+    	// dodaj da je skenirano za konto....
+	add_p_update("TOPS", cKonto, "D")
+endif
+
+// da li treba uraditi update za sva konta
+if EMPTY(cKonto)
+	scan_dok_u_procesu()
+endif
+
+select (nTArea)
+return
+
 // ----------------------------------------------
 // skeniranje i setovanje novih stanja
 // za dokumente u procesu
 // 
 // cMagProd - marker "M"agacin, "P"rodavnica
+// cPMKonto - prodavnicki/magacinski konto 
 // ----------------------------------------------
-function scan_dok_u_procesu(cMagProd)
+function scan_dok_u_procesu(cMagProd, cPMKonto)
 local cPMU_I := "MU_I"
+local cFldMPKonto := "MKONTO"
 local nDokNaStanju := 0
 local nNRec
 local nCount := 0
 local cSeekDok := ""
 local nScanArr := 0
 local aDokNaStanju := {}
+local cSeekUsl := ""
 
 O_KONCIJ
 O_KALK
 O_DOKS
 
+if cPMKonto == nil
+	cPMKonto := ""
+endif
+
 if cMagProd == nil
 	cMagProd := "P"
 endif
-
-altd()
 
 select kalk
 
@@ -1361,13 +1392,23 @@ if cMagProd == "P"
 	cPMU_I := "PU_I"
 endif
 
+cFldMPKonto := cMagProd + "KONTO"
+
 set order to tag &cPMU_I
 go top
-seek "P"
+
+cSeekUsl := "P"
+
+if !EMPTY(cPMKonto)
+	cSeekUsl += cPMKonto
+endif
+
+seek cSeekUsl
 
 Box(, 2, 70)
 
-do while !EOF() .and. field->&cPMU_I == "P"
+do while !EOF() .and. field->&cPMU_I == "P" ;
+		.and. IF(!EMPTY(cPMKonto), field->&cFldMPKonto == cPMKonto, .t.)
 	
 	cKIdFirma := kalk->idfirma
 	cKIdVd := kalk->idvd
@@ -1416,6 +1457,13 @@ do while !EOF() .and. field->&cPMU_I == "P"
 			
 		endif
 		
+		if EMPTY(cPMKonto)
+			// upisi da je skenirano u p_update
+    			add_p_update("TOPS", kalk->pkonto, "D")
+		endif
+
+		select kalk
+		
 		go (nNREC)
 	enddo
 enddo
@@ -1423,7 +1471,7 @@ enddo
 BoxC()
 
 // prikazi report...
-rpt_dok_na_stanju(aDokNaStanju)
+// rpt_dok_na_stanju(aDokNaStanju)
 
 return
 
@@ -1539,5 +1587,11 @@ use
 
 select (nTArea)
 return nNaStanju
+
+
+
+
+
+
 
 

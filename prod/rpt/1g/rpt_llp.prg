@@ -120,6 +120,9 @@ do while .t.
 enddo
 BoxC()
 
+// skeniraj dokumente u procesu za konto
+pl_scan_dok_u_procesu(cIdKonto)
+
 CLOSE ALL
 
 if (cKontrolnaTabela=="D")

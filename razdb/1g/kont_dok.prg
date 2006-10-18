@@ -20,12 +20,17 @@ static dDatMax
  */
 
 function KontNal(fAuto, lAGen, lViseKalk)
-*{
-local cidfirma,cidvd,cbrdok, lAFin,lAMat, lafin2, lamat2
+local cIdFirma
+local cIdVd
+local cBrDok
+local lAFin
+local lAMat
+local lAFin2
+local lAMat2
 local nRecNo
-local lPrvoDzok:=(IzFMKINI("KontiranjeKALK","PrioritetImajuDzokeri","N",SIFPATH)=="D")
+local lPrvoDzok := (IzFMKINI("KontiranjeKALK", "PrioritetImajuDzokeri", "N", SIFPATH) == "D")
 
-PRIVATE lVrsteP := ( IzFmkIni("FAKT","VrstePlacanja","N",SIFPATH)=="D" )
+private lVrsteP := ( IzFmkIni("FAKT","VrstePlacanja","N",SIFPATH)=="D" )
 
 if (lAGen == nil)
 	lAGen := .f.
@@ -80,8 +85,6 @@ if !used()
 	O_VALUTE
 endif
 
-
-
 if fAuto==NIL
 	fAuto:=.f.
 endif
@@ -97,22 +100,21 @@ if lafin
 	endif
 endif
 
-lafin2:=(!fauto .and. gafin<>"0")
-lAMat:=(fauto .and. gAMat=="D")
+lAFin2 := (!fAuto .and. gAFin <> "0")
+lAMat := (fAuto .and. gAMat == "D")
 
-if lamat
+if lAMat
 	Beep(1)
-	lamat:=Pitanje(,"Formirati MAT nalog?","D")=="D"
+	lAMat := Pitanje(, "Formirati MAT nalog?", "D") == "D"
 	O_TRMP
 endif
 
-lamat2:=(!fauto .and. gamat<>"0")
+lAMat2 := (!fAuto .and. gAMat <> "0")
 
 cBrNalF:=""
 cBrNalM:=""
 
 if lAFin .or. lAFin2
-
 
 	SELECT F_FIPRIPR
 	if !used()
@@ -137,8 +139,6 @@ if lAMat .or. lAMat2
 	set order to tag "1"
 	
 endif
-
-altd()
 
 select FINMAT
 go top
@@ -491,7 +491,7 @@ do while !eof()    // datoteka finmat
             replace D_P      with trfp->d_P
 	    
             replace idFirma  with FINMAT->idfirma,;
-                    IdVN     with cidvn,;
+                    IdVN     with cIdVN,;
                     BrNal    with cBrNalF,;
                     IdTipDok with FINMAT->IdVD,;
                     BrDok    with cBrDok
@@ -624,7 +624,17 @@ do while !eof()    // datoteka finmat
 
 enddo
 
-SKIP -1      // zbog FINMAT->idfirma u donjem seek-u
+select finmat
+skip -1  
+
+//select fpripr
+//skip -1
+//add_p_doksrc(fpripr->idfirma, fpripr->idvn, fpripr->brnal, fpripr->datnal, ;
+//	"KALK", finmat->idfirma, finmat->idvd, finmat->brdok, finmat->datdok, ;
+//	finmat->idkonto, finmat->idkonto2, finmat->idpartner, "Kontiranje KALK->FIN", gFPrivPath)
+
+//select finmat
+// zbog FINMAT->idfirma u donjem seek-u
 
 if lAFin .or. lAFin2
 
@@ -660,9 +670,7 @@ if !lViseKalk
 	closeret
 endif
 
-
 return
-*}
 
 
 

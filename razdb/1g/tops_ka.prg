@@ -354,7 +354,7 @@ do while !eof()
 	// dodaj stavku i u p_doksrc
 	add_p_doksrc( gFirma, pripr->idvd, pripr->brdok, ;
 		pripr->datdok, "TOPS", topska->idpos, topska->idvd, ;
-		topska->brdok, topska->datpos, "", pripr->idkonto, ;
+		topska->brdok, topska->datpos, pripr->idkonto, "" ,;
 		topska->idpartner, cSrcOpis)
 
 	

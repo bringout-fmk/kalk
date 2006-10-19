@@ -1434,6 +1434,8 @@ endif
 
 select kalk
 
+altd()
+
 if cMagProd == "P"
 	cPMU_I := "PU_I"
 endif
@@ -1472,6 +1474,16 @@ do while !EOF() .and. field->&cPMU_I == "P" ;
 		MsgBeep(cKKonto + " nema podesene parametre u konciju!!!")
 		skip
 		loop
+	endif
+
+	if nDokNaStanju == 2
+		
+		if EMPTY(cPMKonto)
+		  MsgBeep("Dokument " + kalk->idfirma + "-" + ;
+		      	  kalk->idvd + "-" + ALLTRIM(kalk->brdok) + ;
+			  " nije prenesen u TOPS !")
+		endif
+		
 	endif
 	
 	do while !EOF() .and. kalk->(&cPMU_I + idfirma + idvd + brdok) == "P" + cKIdFirma + cKIdVd + cKBrDok
@@ -1558,6 +1570,7 @@ return
 //    0 = nije na stanju
 //    1 = na stanju je
 //   -1 = nije nesto podeseno u konciju
+//    2 = nije prenesen u TOPS
 // --------------------------------------------------------------
 static function tops_dok_na_stanju(cFirma, cIdVd, cBrDok, cKonto)
 local nTArea := SELECT()
@@ -1623,6 +1636,8 @@ if FOUND()
 		endif
 	endif
 	
+else
+	nNaStanju := 2
 endif
 
 select (248)

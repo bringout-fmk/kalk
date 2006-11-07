@@ -85,7 +85,9 @@ gaZagFix:={}
 gaKolFix:={}
 SetGaZag(cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, @gaZagFix, @gaKolFix)
 
-START PRINT CRET
+//START PRINT CRET
+gvim_print()
+
 ?
 
 if ((cPapir=="A3L") .or. (cPapir=="A4L") .or. gPrinter=="R")
@@ -540,7 +542,11 @@ if (cRekPoGrupamaRobe=="D")
 endif
 
 FF
-end print
+
+gvim_end()
+
+//end print
+
 #ifdef CAX
 close all
 #endif

@@ -86,7 +86,7 @@ gaKolFix:={}
 SetGaZag(cRekPoRobama, cRekPoDobavljacima, cRekPoGrupamaRobe, @gaZagFix, @gaKolFix)
 
 //START PRINT CRET
-gvim_print()
+gvim_print("PKZ.TXT")
 
 ?
 

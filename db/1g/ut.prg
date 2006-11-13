@@ -1352,6 +1352,10 @@ if p_update->(RecCount()) == 0
 	return
 endif
 
+go top
+
+MsgBeep("!EOF()")
+
 do while !EOF()
 	
 	if field->p_updated == "N"
@@ -1433,8 +1437,6 @@ if cMagProd == nil
 endif
 
 select kalk
-
-altd()
 
 if cMagProd == "P"
 	cPMU_I := "PU_I"

@@ -314,6 +314,12 @@ Eval(bZagl)
 nTUlaz:=nTIzlaz:=0
 nTUlazP:=nTIzlazP:=0
 nTVPVU:=nTVPVI:=nTNVU:=nTNVI:=0
+nRazlika := 0
+nTNV:=0
+
+nNBUk := 0
+nNBCij := 0
+
 nTRabat:=0
 nCol1:=nCol0:=50
 
@@ -605,12 +611,29 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
              		  @ prow(),pcol()+1 SAY nVPVU-nVPVI pict gpicdem
              	        endif
 			
+			// provjeri greske sa NC
+			if !(koncij->naz = "P")
+			    if ROUND( nUlaz - nIzlaz, 4 ) <> 0
+  	                 	if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
+    		             		?? " ERR"
+					fImaGreska := .t.	
+  	                 	endif
+			    else
+  				if (cErr=="D" .or. fPocstanje) .and. ;
+					Round((nNVU-nNVI), 4) <> 0
+   						fImaGresaka:=.t.
+   						?? " ERR"
+				endif
+  			    endif
+			endif
 	   	else
+		
              		@ prow(),pcol()+1 SAY nVPVU pict gpicdem
              		@ prow(),pcol()+1 SAY nRabat pict gpicdem
              		@ prow(),pcol()+1 SAY nVPVI pict gpicdem
              		@ prow(),pcol()+1 SAY nVPVU-nVPVI pict gpicdem
-             		if round(nUlaz-nIzlaz,4)<>0
+             		
+			if round(nUlaz-nIzlaz,4)<>0
                 		@ prow(),pcol()+1 SAY (nVPVU-nVPVI)/(nUlaz-nIzlaz) pict gpiccdem
                 		if !(koncij->naz="P")
                      			if IsPDV() .and. ( IsMagPNab() .or. IsMagSNab() )
@@ -697,8 +720,10 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
  			@ prow(),pcol()+1 SAY space(len(gpicdem))
 			// prikazi NC
 			if round(nUlaz-nIzlaz,4)<>0 
+				
 				@ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
- 			endif
+				
+			endif
 			// pv.dug - prazno
  			@ prow(),pcol()+1 SAY space(len(gpicdem))
 			// rabat - prazno
@@ -722,6 +747,7 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	nTVPVI+=nVPVI
 	nTNVU+=nNVU
 	nTNVI+=nNVI
+	nTNV+=(nNVU-nNVI)
 	nTRabat+=nRabat
 	
 endif
@@ -756,7 +782,7 @@ if gVarEv=="1"
 		// NV
  		@ prow(),pcol()+1 SAY ntNVU pict gpicdem
  		@ prow(),pcol()+1 SAY ntNVI pict gpicdem
- 		@ prow(),pcol()+1 SAY ntNVU-NtNVI pict gpicdem
+ 		@ prow(),pcol()+1 SAY ntNV pict gpicdem
  	    if IsPDV() 
 	       // PV - samo u pdv rezimu 
 		@ prow(),pcol()+1 SAY ntVPVU pict gpicdem

@@ -117,11 +117,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 	@ prow(),125 SAY "Str:"+str(++nStr,3)
     endif
 
-
-
     SKol:=Kolicina
 
-    nT4+=  (nU4:=NC*Kolicina     )  // nv
+    nT4 += (nU4:= NC * Kolicina     )  // nv
 
     @ prow()+1,0 SAY  Rbr PICTURE "999"
     if idvd=="16"
@@ -143,10 +141,12 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
   nTot4+=nT4
   nTot5+=nT5
   nTot8+=nT8
+  
   ? m
-  @ prow()+1,0        SAY "Ukupno za "; ?? cidpartner
-  ? cBrFaktP,"/",dDatFaktp
-  @ prow(),nc1      SAY 0  pict "@Z "+picdem
+  @ prow()+1,0        SAY "Ukupno za "
+  ?? cidpartner
+  ? cBrFaktP, "/", dDatFaktp
+  @ prow(),nC1      SAY 0  pict "@Z "+picdem
   @ prow(),pcol()+1 SAY nT4  pict picdem
   ? m
 

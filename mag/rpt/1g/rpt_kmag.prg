@@ -12,10 +12,10 @@
 function KarticaM()
 parameters cIdFirma,cIdRoba,cIdKonto
 
-local PicCDEM:=gPicCDEM
+local PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
 local PicProc:=gPicProc
-local PicDEM:= gPicDem
-local Pickol:="@Z " + gpickol
+local PicDEM:= REPLICATE("9", VAL(gFPicDem)) + gPicDem
+local Pickol:="@Z " + REPLICATE("9", VAL(gFPicKol)) + gPickol
 local nNV:=0
 local nVPV:=0
 private fKNabC:=.f.

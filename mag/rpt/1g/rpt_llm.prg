@@ -19,6 +19,17 @@ local aNabavke:={}
 local nTUlazP
 local nTIzlazP
 local nKolicina
+local cPicDem
+local cPicCDem
+local cPicKol
+
+cPicDem := gPicDem
+cPicCDem := gPicCDem
+cPicKol := gPicKol
+
+gPicDem := REPLICATE("9", VAL(gFPicDem)) + gPicDem
+gPicCDem := REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
+gPicKol := REPLICATE("9", VAL(gFPicKol)) + gPicKol
 
 cIdFirma:=gFirma
 cPrikazDob:="N"
@@ -826,6 +837,10 @@ if fPocStanje
    RenumPripr(cBrPst,"16")
  endif
 endif
+
+gPicDem := cPicDem
+gPicCDem := cPicCDem
+gPicKol := cPicKol
 
 closeret
 return

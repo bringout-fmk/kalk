@@ -255,7 +255,7 @@ function SetPICT()
 *{
 private  GetList:={}
 
-Box(,9,60,.f.,"PARAMETRI PRIKAZA - PICTURE KODOVI")
+Box(,10,60,.f.,"PARAMETRI PRIKAZA - PICTURE KODOVI")
 	@ m_x+1,m_y+2 SAY "Prikaz Cijene  " GET gPicCDem
   	@ m_x+2,m_y+2 SAY "Prikaz procenta" GET gPicProc
   	@ m_x+3,m_y+2 SAY "Prikaz iznosa  " GET gPicDem
@@ -265,6 +265,7 @@ Box(,9,60,.f.,"PARAMETRI PRIKAZA - PICTURE KODOVI")
   	@ m_x+7,m_y+2 SAY REPLICATE("-", 30) 
   	@ m_x+8,m_y+2 SAY "Dodatno prosirenje cijene" GET gFPicCDem
   	@ m_x+9,m_y+2 SAY "Dodatno prosirenje iznosa" GET gFPicDem
+  	@ m_x+10,m_y+2 SAY "Dodatno prosirenje kolicine" GET gFPicKol
   	read
 BoxC()
 
@@ -276,6 +277,7 @@ if lastkey()<>K_ESC
   	Wpar("p5",gPicNC )
   	Wpar("p6",gFPicCDem )
   	Wpar("p7",gFPicDem )
+  	Wpar("p8",gFPicKol )
   	Wpar("dk",gDecKol)
 endif
 

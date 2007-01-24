@@ -1,25 +1,26 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
+static __line
+static __txt1
+static __txt2
+
 
 // ----------------------------------------
 // kartica magacina
 // ----------------------------------------
 function KarticaM()
 parameters cIdFirma,cIdRoba,cIdKonto
-
-local PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
-local PicProc:=gPicProc
-local PicDEM:= REPLICATE("9", VAL(gFPicDem)) + gPicDem
-local Pickol:="@Z " + REPLICATE("9", VAL(gFPicKol)) + gPickol
 local nNV:=0
 local nVPV:=0
+local cLine
+local cTxt1
+local cTxt2
 private fKNabC:=.f.
 private fVeci:=.f.
+private PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
+private PicProc:=gPicProc
+private PicDEM:= REPLICATE("9", VAL(gFPicDem)) + gPicDem
+private Pickol:="@Z " + REPLICATE("9", VAL(gFPicKol)) + gPickol
 
 O_PARTN
 O_TARIFA
@@ -34,6 +35,7 @@ cPredh:="N"
 
 private cIdR:=cIdRoba
 
+cPkN := "N"
 cBrFDa:="N"
 cPrikFCJ2:="N"
 
@@ -216,10 +218,19 @@ gaZagFix:={7+IF(lPoNarudzbi.and.!EMPTY(qqIdNar),3,0),4}
 start print cret
 nLen:=1
 
-IF gVarEv=="2"
+if IsPDV()
+
+	_set_zagl(@cLine, @cTxt1, @cTxt2, cPvSS, lPoNarudzbi, cPKN)
+	__line := cLine
+	__txt1 := cTxt1
+	__txt2 := cTxt2
+	
+else
+
+  IF gVarEv=="2"
 	m:="-------- ----------- ------ ------ ---------- ---------- ----------"
 
-ELSE
+  ELSE
 	m:="-------- ----------- ------ ------ ---------- ---------- ---------- ---------- ----------"
  	
 	IF IsMagPNab()
@@ -237,7 +248,11 @@ ELSE
    	  		m+=" ---------- ----------"
    		ENDIF
 	endif
-ENDIF
+  ENDIF
+  
+  __line := m
+  
+endif
 
 private nTStrana:=0
 
@@ -265,14 +280,14 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 
 	select tarifa
 	hseek roba->idtarifa
-	? m
+	? __line
 	? "Artikal:",cIdRoba,"-",trim(LEFT(roba->naz,40))+ iif(lKoristitiBK," BK:"+roba->barkod,"")+" ("+roba->jmj+")"
 
 	if (IsPlanika() .and. cPrikazDob=="D")
 		?? PrikaziDobavljaca(cIdRoba, 3)
 	endif
 
-	? m
+	? __line
 	select kalk
 
 	nCol1:=10
@@ -730,7 +745,7 @@ do while !eof() .and. iif(fVeci,idfirma+mkonto+idroba>=cIdFirma+cIdKonto+cIdR , 
 enddo   
 // cIdRoba
 
-? m
+? __line
 ? "Ukupno:"
 @ prow(),nCol1    SAY nulaz        pict pickol
 @ prow(),pcol()+1 SAY nizlaz       pict pickol
@@ -769,7 +784,7 @@ IF gVarEv=="1"
    
   //endif
 ENDIF
-? m
+? __line
 
 ?
 ?
@@ -779,6 +794,95 @@ end print
 
 closeret
 return
+
+
+// -----------------------------------------------
+// setovanje zaglavlja
+// -----------------------------------------------
+static function _set_zagl(cLine, cTxt1, cTxt2, cPVSS, ;
+		lPoNarudzbi, cPKN, cPicKol, cPicCDem)
+local nPom
+local aKMag := {}
+
+nPom := 8
+// datum
+AADD(aKMag, {nPom, PADC("Datum", nPom), PADC("", nPom) })
+
+nPom := 11
+// dokument
+AADD(aKMag, {nPom, PADC("Dokument", nPom), PADC("", nPom) })
+
+nPom := 6
+// tarifa
+AADD(aKMag, {nPom, PADC("Tarifa", nPom), PADC("", nPom) })
+
+// narucilac
+if ( lPoNarudzbi .and. cPKN == "D" ) 
+
+	nPom := 7
+	AADD(aKMag, {nPom, PADC("Naru-", nPom), PADC("cilac", nPom) })
+
+endif
+
+// partner
+AADD(aKMag, {nPom, PADC("Part-", nPom), PADC("ner", nPom) })
+
+nPom := LEN( PicKol ) - 3
+// ulaz, izlaz, stanje
+AADD(aKMag, {nPom, PADC("Ulaz", nPom), PADC("1", nPom) })
+AADD(aKMag, {nPom, PADC("Izlaz", nPom), PADC("2", nPom) })
+AADD(aKMag, {nPom, PADC("Stanje", nPom), PADC("(1 - 2)", nPom) })
+
+if gVarEv <> "2"
+
+	nPom := LEN( PicCDem )
+	// NC, NV
+	AADD(aKMag, {nPom, PADC("NC", nPom), PADC("", nPom) })
+	
+	if cPVSS == "N" .and. IsMagPNab()
+		
+		nPom := LEN( PicDem )
+		// nv.dug
+		AADD(aKMag, {nPom, PADC("NV Dug.", nPom), PADC("", nPom) })
+		// nv.pot
+		AADD(aKMag, {nPom, PADC("NV Pot.", nPom), PADC("", nPom) })
+		
+	endif
+	
+	nPom := LEN( PicCDem )
+	// NV
+	AADD(aKMag, {nPom, PADC("NV", nPom), PADC("", nPom) })
+	
+	nPom := LEN( PicKol ) - 3
+	// RABAT
+	AADD(aKMag, {nPom, PADC("RABAT", nPom), PADC("", nPom) })
+
+	nPom := LEN( PicDem )
+	// PC
+	AADD(aKMag, {nPom, PADC("PC", nPom), PADC("bez PDV", nPom) })
+	
+	
+	if !IsMagPNab()
+		
+		if cPVSS == "N" 
+			
+			AADD(aKMag, {nPom, PADC("PV Dug.", nPom), PADC("", nPom) })
+			AADD(aKMag, {nPom, PADC("PV Pot.", nPom), PADC("", nPom) })
+		endif
+		
+		AADD(aKMag, {nPom, PADC("PV", nPom), PADC("", nPom) })
+		AADD(aKMag, {nPom, PADC("PC", nPom), PADC("sa PDV", nPom) })
+	
+	endif
+	
+endif
+
+cLine := SetRptLineAndText(aKMag, 0)
+cTxt1 := SetRptLineAndText(aKMag, 1, "*")
+cTxt2 := SetRptLineAndText(aKMag, 2, "*")
+
+return
+
 
 
 // ----------------------------------------
@@ -828,31 +932,10 @@ else
   	ENDIF
 endif
 
-? m
-
-IF gVarEv=="2"
-	? " Datum  *  Dokument *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+" Partn *   Ulaz   *  Izlaz   * Stanje   "
- 	? "        *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"       *          *          *          "
-ELSE
-	? " Datum  * Dokument  *Tarifa*"+IF(lPoNarudzbi.and.cPKN=="D","Naru- *   Broj   *","")+"Partn *   Ulaz   *  Izlaz   * Stanje   *   NC     *"+IF(cPVSS=="N".and. IsMagPNab(),"  NV dug. *  NV pot. *","")+"    NV    *"
-	
-	if !IsMagPNab()
-		?? "  RABAT   *    PC    *"+IF(cPVSS=="N","  PV dug. *  PV pot. *","")+"    PV    *    PC    *"
-	
-	else
-		?? "  RABAT   *    PC    *"
-	endif
-	
-	? "        *           *      *"+IF(lPoNarudzbi.and.cPKN=="D","cilac * narudzbe *","")+"      *          *          *          *"+IF(cPrikFCJ2=="D",PADC("FCJ",10),SPACE(10))+"*"+IF(cPVSS=="N".and. IsMagPNab(),"          *          *","")+"          *"
-	
-	if !IsMagPNab()
-  		?? "          * BEZ PDV  *"+IF(cPVSS=="N","          *          *","")+"          *  SA PDV  *"
-	else
-  		?? "          * BEZ PDV  *"
-	endif
-ENDIF
-
-? m
+? __line
+? __txt1
+? __txt2
+? __line
 
 return (nil)
 
@@ -904,7 +987,7 @@ else
     		P_12CPI
   	ENDIF
 endif
-? m
+? __line
 
 
 IF gVarEv=="2"
@@ -925,7 +1008,7 @@ ELSE
 	endif
 ENDIF
 
-? m
+? __line
 
 return (nil)
 *}

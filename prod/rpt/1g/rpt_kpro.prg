@@ -1,13 +1,25 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-// kartica prodavnice
-function KarticaP()
-parameters cidfirma,cidroba,cidkonto
+static __line
+static __txt1
+static __txt2
+static __txt3
 
-local PicCDEM:=gPicCDEM
-local PicProc:=gPicProc
-local PicDEM:= gPicDem
-local Pickol:= "@Z "+gpickol
+// ------------------------------------
+// kartica prodavnice
+// ------------------------------------
+function KarticaP()
+parameters cIdFirma,cIdRoba,cIdKonto
+
+local cLine
+local cTxt1
+local cTxt2
+local cTxt3
+
+private PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
+private PicProc:=gPicProc
+private PicDEM:= REPLICATE("9", VAL(gFPicDem)) + gPicDem
+private Pickol:="@Z " + REPLICATE("9", VAL(gFPicKol)) + gPickol
 
 O_TARIFA
 O_SIFK
@@ -18,6 +30,8 @@ O_KONTO
 cPredh:="N"
 dDatOd:=ctod("")
 dDatDo:=date()
+cPKN := "N"
+
 if IsDomZdr()
 	private cKalkTip:=SPACE(1)
 endif
@@ -145,16 +159,29 @@ ENDIF
 hseek cIdFirma+cIdKonto+cIdR
 EOF CRET
 
-
 gaZagFix:={7+IF(lPoNarudzbi.and.!EMPTY(qqIdNar),3,0),3}
 start print cret
 ?
 
 nLen:=1
 
-m:="-------- ----------- ------ ------ "+IF(lPoNarudzbi.and.cPKN=="D","------ ---------- ","")+"---------- ---------- ---------- ---------- ---------- ---------- ----------"
+if IsPDV()
+
+	_set_zagl(@cLine, @cTxt1, ;
+			lPoNarudzbi, cPKN )
+
+	__line := cLine
+	__txt1 := cTxt1
+	
+else
+	
+	m:="-------- ----------- ------ ------ "+IF(lPoNarudzbi.and.cPKN=="D","------ ---------- ","")+"---------- ---------- ---------- ---------- ---------- ---------- ----------"
+	__line := m
+	
+endif
 
 nTStrana:=0
+
 Zagl()
 
 nCol1:=10
@@ -176,14 +203,14 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
 	
 	select tarifa
 	hseek roba->idtarifa
-	? m
+	? __line
 	? "Artikal:",cIdRoba,"-",Trim(LEFT(roba->naz,40))+iif(lKoristitiBK," BK:"+roba->barkod,"")+" ("+roba->jmj+")"
 
 	if (IsPlanika() .and. cPrikazDob=="D")
 		?? PrikaziDobavljaca(cIdRoba, 3)
 	endif
 
-	? m
+	? __line
 	select kalk
 
 	nCol1:=10
@@ -339,7 +366,7 @@ do while !eof() .and. idfirma+pkonto+idroba=cIdFirma+cIdKonto+cIdR
   skip    
 enddo
 
-? m
+? __line
 ? "Ukupno:"
 @ prow(),nCol1    SAY nulaz        pict pickol
 @ prow(),pcol()+1 SAY nizlaz       pict pickol
@@ -356,7 +383,7 @@ else
    @ prow(),pcol()+1 SAY 0            pict pickol
 endif
 @ prow(),pcol()+1 SAY nmpv         pict picdem
-? m
+? __line
 
 ?
 ?
@@ -365,7 +392,50 @@ FF
 end print
 closeret
 return
-*}
+
+
+
+// ---------------------------------------------------------
+// setovanje zaglavlja
+// ---------------------------------------------------------
+static function _set_zagl( cLine, cTxt1, ;
+			lPoNarudzbi, cPKN )
+local aKProd := {}
+local nPom
+
+nPom := 8
+AADD(aKProd, {nPom, PADC("Datum", nPom) })
+nPom := 11
+AADD(aKProd, {nPom, PADC("Dokument", nPom) })
+nPom := 6
+AADD(aKProd, {nPom, PADC("Tarifa", nPom) })
+nPom := 6
+AADD(aKProd, {nPom, PADC("Partn", nPom) })
+
+if lPoNarudzbi .and. cPKN == "D"
+	
+	nPom := 6
+	AADD(aKProd, {nPom, PADC("Naruc.", nPom) })
+	nPom := 10
+	AADD(aKProd, {nPom, PADC("Broj nar.", nPom) })
+
+endif
+
+nPom := LEN(gPicKol)
+AADD(aKProd, {nPom, PADC("Ulaz", nPom) })
+AADD(aKProd, {nPom, PADC("Izlaz", nPom) })
+AADD(aKProd, {nPom, PADC("Stanje", nPom) })
+
+nPom := LEN(gPicCDem)
+AADD(aKProd, {nPom, PADC("NC", nPom) })
+AADD(aKProd, {nPom, PADC("PC", nPom) })
+AADD(aKProd, {nPom, PADC("PC sa PDV", nPom) })
+AADD(aKProd, {nPom, PADC("PV", nPom) })
+
+cLine := SetRptLineAndText(aKProd, 0)
+cTxt1 := SetRptLineAndText(aKProd, 1, "*")
+
+return
 
 
 function Test(cIdRoba)
@@ -377,7 +447,10 @@ endif
 return cIdRoba
 
 
+
+// --------------------------------------
 // zaglavlje kartice
+// --------------------------------------
 static function Zagl()
 select konto
 hseek cIdKonto
@@ -406,13 +479,13 @@ IF lPoNarudzbi .and. cPKN=="D"
 ELSE
   P_COND
 ENDIF
-? m
+? __line
 if IsPDV()
-	? " Datum     Dokument  Tarifa  Partn "+IF(lPoNarudzbi.and.cPKN=="D","Naruc.  Broj nar. ","")+"    Ulaz      Izlaz     Stanje      NC          PC      PC SA PDV        PV"
+	? __txt1
 else
 	? " Datum     Dokument  Tarifa  Partn "+IF(lPoNarudzbi.and.cPKN=="D","Naruc.  Broj nar. ","")+"    Ulaz      Izlaz     Stanje      NC         VPC       MPCSAPP        MPV"
 endif
-? m
+? __line
 return
 
 
@@ -556,7 +629,7 @@ function NPArtikli()
     // top lista po iznosima
     IF cSta$"IO"
       m:=ALLTRIM(STR(MIN(nTop,LEN(aTopI))))+" NAJPROMETNIJIH ARTIKALA POSMATRANO PO IZNOSIMA:"
-      ? m
+      ? __line
       ? REPL("-",LEN(m))
       ?
       ? PADC("SIFRA",LEN(id))+" "+PADC("NAZIV",LEN(naz))+" "+PADC("IZNOS",20)
@@ -594,7 +667,7 @@ function NPArtikli()
 	 ?
       ENDIF
       m:=ALLTRIM(STR(MIN(nTop,LEN(aTopK))))+" NAJPROMETNIJIH ARTIKALA POSMATRANO PO KOLICINAMA:"
-      ? m
+      ? __line
       ? REPL("-",LEN(m))
       ?
       ? PADC("SIFRA",LEN(id))+" "+PADC("NAZIV",LEN(naz))+" "+PADC("KOLICINA",20)

@@ -2,6 +2,10 @@
 
 static cTblKontrola:=""
 static aPorezi:={}
+static __line
+static __txt1
+static __txt2
+static __txt3
 
 // lager lista prodavnice
 function LLP()
@@ -9,6 +13,13 @@ parameters lPocStanje
 // indikator gresaka
 local lImaGresaka:=.f.  
 local cKontrolnaTabela
+local cPicKol := gPicKol
+local cPicCDEm := gPicCDem
+local cPicDem := gPicDem
+
+gPicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
+gPicDEM:= REPLICATE("9", VAL(gFPicDem)) + gPicDem
+gPicKol :=REPLICATE("9", VAL(gFPicKol)) + gPicKol
 
 cIdFirma:=gFirma
 cIdKonto:=PadR("1320",gDuzKonto)
@@ -180,13 +191,28 @@ hseek cIdfirma+cIdkonto
 EOF CRET
 
 nLen:=1
-m:="----- ---------- -------------------- ---"+" ---------- ---------- ---------- ---------- ---------- ---------- ----------"
+
+m:="----- ---------- -------------------- ---"
+nPom := LEN(gPicKol)
+m+=" " + REPL("-", nPom)
+m+=" " + REPL("-", nPom)
+m+=" " + REPL("-", nPom)
+nPom := LEN(gPicDem)
+m+=" " + REPL("-", nPom)
+m+=" " + REPL("-", nPom)
+m+=" " + REPL("-", nPom)
+m+=" " + REPL("-", nPom)
+
 if cPredhstanje=="D"
-  	m+=" ----------"
+	nPom := LEN(gPicKol) - 2
+	m+=" " + REPL("-", nPom)
 endif
 if cSredCij=="D"
-	m+=" ----------"
+	nPom := LEN(gPicCDem)
+	m+=" " + REPL("-", nLen)
 endif
+
+__line := m
 
 start print cret
 ?
@@ -455,7 +481,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 	endif 
 enddo
 
-? m
+? __line
 ? "UKUPNO:"
 @ prow(), nCol0-1 SAY ""
 if cPredhStanje=="D"
@@ -482,7 +508,7 @@ if cPNab=="D"
 	@ prow(),pcol()+1 SAY nTNVU-nTNVI+nTPNV pict gpicdem
 endif
 
-? m
+? __line
 
 FF
 END PRINT
@@ -500,8 +526,13 @@ if lPocStanje
  	endif
 endif
 
+gPicDem := cPicDem
+gPicKol := cPicKol
+gPicCDem := cPicCDem
+
 closeret
 return
+
 
 
 // zaglavlje llp
@@ -517,7 +548,7 @@ P_COND
 ?? date(), space(12),"Str:",str(++nTStrana,3)
 
 if !lSint .and. !EMPTY(qqIdPartn)
-	? "Obugvaceni sljedeci partneri:", TRIM(qqIdPartn)
+	? "Obuhvaceni sljedeci partneri:", TRIM(qqIdPartn)
 endif
 
 if lSint
@@ -536,36 +567,174 @@ cSC1:=""
 cSC2:=""
 
 select kalk
-? m
+? __line
+
 if cPredhStanje=="D"
+	
 	if IsPDV()
-		? " R.  * Artikal  *   Naziv            *jmj*"+" Predh.st *  ulaz       izlaz   * STANJE   *  PV.Dug. *  PV.Pot *    PV    * PC.SA PDV*"+cSC1
-  	else
-		? " R.  * Artikal  *   Naziv            *jmj*"+" Predh.st *  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
+		
+		cTmp := " R.  * Artikal  *   Naziv            *jmj*"
+		nPom := LEN(gPicKol)
+		cTmp += PADC("Predh.st", nPom) + "*"
+		cTmp += PADC("ulaz", nPom) + " " + PADC("izlaz", nPom) + "*"
+		cTmp += PADC("STANJE", nPom) + "*"
+		nPom := LEN(gPicDem)
+		cTmp += PADC("PV.Dug.", nPom) + "*"
+		cTmp += PADC("PV.Pot.", nPom) + "*"
+		cTmp += PADC("PV", nPom) + "*"
+		nPom := LEN(gPicCDem)
+		cTmp += PADC("PC.SA PDV", nPom) + "*" 
+		cTmp += cSC1
+  		
+		? cTmp
+		
+	else
+		
+		cTmp := " R.  * Artikal  *   Naziv            *jmj*"
+		nPom := LEN(gPicKol)
+		cTmp += PADC("Predh.st", nPom) + "*"
+		cTmp += PADC("ulaz", nPom) + " " + PADC("izlaz", nPom) + "*"
+		cTmp += PADC("STANJE", nPom) + "*"
+		nPom := LEN(gPicDem)
+		cTmp += PADC("MPV.Dug.", nPom) + "*"
+		cTmp += PADC("MPV.Pot.", nPom) + "*"
+		cTmp += PADC("MPV", nPom) + "*"
+		nPom := LEN(gPicCDem)
+		cTmp += PADC("MPC sa PP", nPom) + "*" 
+		cTmp += cSC1
+  	
+		? cTmp
 	endif
-	? " br. *          *                    *   *"+" Kol/MPV  *                     *          *          *         *          *          *"+cSC2
-  	if cPNab=="D"
-  		? "     *          *                    *   *"+"          *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
-  	endif
+	
+	cTmp := " br. *          *                    *   *"
+	nPom := LEN(gPicKol)
+	cTmp += PADC("Kol/MPV", nPom) + "*"
+	cTmp += REPL(" ", nPom) + " " + REPL(" ", nPom) + "*"
+	nPom := LEN(gPicDem)
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += cSC2
+	
+  	? cTmp
+	
+	if cPNab=="D"
+  		
+		cTmp := "     *          *                    *   *"
+		nPom := LEN(gPicKol)
+		cTmp += REPL(" ", nPom) + "*"
+		cTmp += REPL(" ", nPom) + " " + REPL(" ", nPom) + "*"
+		nPom := LEN(gPicDem)
+		cTmp += PADC("SR.NAB.C", nPom) + "*"
+		cTmp += PADC("NV.Dug.", nPom) + "*"
+		cTmp += PADC("NV.Pot", nPom) + "*"
+		cTmp += PADC("NV", nPom) + "*"
+		cTmp += REPL(" ", nPom) + "*"
+		cTmp += cSC2
+		
+  		? cTmp
+	endif
 else
 	if IsPDV()
-		? " R.  * Artikal  *   Naziv            *jmj*  ulaz       izlaz   * STANJE   *  PV.Dug. *  PV.Pot *    PV    * PC.SA PDV*"+cSC1
-  	else
-		? " R.  * Artikal  *   Naziv            *jmj*  ulaz       izlaz   * STANJE   *  MPV.Dug.* MPV.Pot *   MPV    *  MPCSAPP *"+cSC1
+		
+		cTmp := " R.  * Artikal  *   Naziv            *jmj*"
+		nPom := LEN(gPicKol)
+		cTmp += PADC("ulaz", nPom) + " " + PADC("izlaz", nPom) + "*"
+		cTmp += PADC("STANJE", nPom) + "*"
+		nPom := LEN(gPicDem)
+		cTmp += PADC("PV.Dug.", nPom) + "*"
+		cTmp += PADC("PV.Pot.", nPom) + "*"
+		cTmp += PADC("PV", nPom) + "*"
+		cTmp += PADC("PC.SA PDV", nPom) + "*" 
+		cTmp += cSC1
+  	
+  		? cTmp
+	else
+		
+		cTmp := " R.  * Artikal  *   Naziv            *jmj*"
+		nPom := LEN(gPicKol)
+		cTmp += PADC("ulaz", nPom) + " " + PADC("izlaz", nPom) + "*"
+		cTmp += PADC("STANJE", nPom) + "*"
+		nPom := LEN(gPicDem)
+		cTmp += PADC("MPV.Dug.", nPom) + "*"
+		cTmp += PADC("MPV.Pot.", nPom) + "*"
+		cTmp += PADC("MPV", nPom) + "*"
+		cTmp += PADC("MPC sa PP", nPom) + "*" 
+		cTmp += cSC1
+  	
+		? cTmp
+	
 	endif
-	? " br. *          *                    *   *                     *          *          *         *          *          *"+cSC2
-  	if cPNab=="D"
-  		? "     *          *                    *   *                     * SR.NAB.C *   NV.Dug.*  NV.Pot *    NV    *          *"+cSC2
-  	endif
+	
+	cTmp := " br. *          *                    *   *"
+	nPom := LEN(gPicKol)
+	cTmp += REPL(" ", nPom) + " " + REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	nPom := LEN(gPicDem)
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += REPL(" ", nPom) + "*"
+	cTmp += cSC2
+	
+	? cTmp
+	
+	if cPNab=="D"
+  		
+		cTmp := "     *          *                    *   *"
+		nPom := LEN(gPicKol)
+		cTmp += REPL(" ", nPom) + " " + REPL(" ", nPom) + "*"
+		nPom := LEN(gPicDem)
+		cTmp += PADC("SR.NAB.C", nPom) + "*"
+		cTmp += PADC("NV.Dug.", nPom) + "*"
+		cTmp += PADC("NV.Pot", nPom) + "*"
+		cTmp += PADC("NV", nPom) + "*"
+		cTmp += REPL(" ", nPom) + "*"
+		cTmp += cSC2
+	
+		? cTmp
+		
+	endif
 endif
 
 if cPredhStanje=="D"
-	? "     *    1     *        2           * 3 *     4    *     5    *     6    *  5 - 6   *     7    *     8   *   7 - 8  *     9    *"+cSC2
-  	? m
+	
+	cTmp := "     *    1     *        2           * 3 *"
+	nPom := LEN(gPicKol)
+	cTmp += PADC("4", nPom) + "*"
+	cTmp += PADC("5", nPom) + "*"
+	cTmp += PADC("6", nPom) + "*"
+	cTmp += PADC("5 - 6", nPom) + "*"
+	nPom := LEN(gPicDem)
+	cTmp += PADC("7", nPom) + "*"
+	cTmp += PADC("8", nPom) + "*"
+	cTmp += PADC("7 - 8", nPom) + "*"
+	cTmp += PADC("9", nPom) + "*"
+	cTmp += cSC2
+  	
+	? cTmp
+	
 else
-	? "     *    1     *        2           * 3 *     4    *     5    *  4 - 5   *     6    *     7   *   6 - 7  *     8    *"+cSC2
-  	? m
+	
+	cTmp := "     *    1     *        2           * 3 *"
+	nPom := LEN(gPicKol)
+	cTmp += PADC("4", nPom) + "*"
+	cTmp += PADC("5", nPom) + "*"
+	cTmp += PADC("4 - 5", nPom) + "*"
+	nPom := LEN(gPicDem)
+	cTmp += PADC("6", nPom) + "*"
+	cTmp += PADC("7", nPom) + "*"
+	cTmp += PADC("6 - 7", nPom) + "*"
+	cTmp += PADC("8", nPom) + "*"
+	cTmp += cSC2
+	
+	? cTmp
+	
 endif
+
+? __line
 
 return
 

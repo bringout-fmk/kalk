@@ -871,6 +871,9 @@ do while .t.
 setkey(K_PGDN,{|| NIL})
 setkey(K_PGUP,{|| NIL})
 
+// konvertovanje valute - ukljuci
+setkey(K_CTRL_K,{|| a_val_convert() })
+
 if nStrana==1
   nR:=GET1(fnovi)
 elseif nStrana==2
@@ -879,6 +882,9 @@ endif
 
 setkey(K_PGDN,NIL)
 setkey(K_PGUP,NIL)
+
+// konvertovanje valute - iskljuci
+setkey(K_CTRL_K,NIL)
 
 set escape on
 

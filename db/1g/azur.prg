@@ -409,7 +409,6 @@ if cPametno=="D"
  endif
 
  P_Fin(lAuto)
- //P_Mat()
 
  gAFin:=lgAFin
  gAMat:=lgAMat

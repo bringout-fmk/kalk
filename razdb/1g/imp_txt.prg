@@ -1,5 +1,9 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
+// stampanje dokumenata .t. or .f.
+static __stampaj
+
+
 
 /*! \fn MnuImpTxt()
  *  \brief Menij opcije import txt
@@ -10,6 +14,12 @@ private izbor:=1
 private opc:={}
 private opcexe:={}
 
+__stampaj := .f.
+
+if gAImpPrint == "D"
+	__stampaj := .t.
+endif
+
 AADD(opc, "1. import vindija racun                 ")
 AADD(opcexe, {|| ImpTxtDok()})
 AADD(opc, "2. import vindija partner               ")
@@ -18,11 +28,58 @@ AADD(opc, "3. popuna polja sifra dobavljaca ")
 AADD(opcexe, {|| FillDobSifra()})
 AADD(opc, "4. nastavak obrade dokumenata ... ")
 AADD(opcexe, {|| RestoreObrada()})
+AADD(opc, "5. podesenja importa ")
+AADD(opcexe, {|| aimp_setup()})
 
 Menu_SC("itx")
 
 return
 *}
+
+
+// ----------------------------------
+// podesenja importa
+// ----------------------------------
+function aimp_setup()
+local nX
+local GetList:={}
+
+gAImpRKonto := PADR( gAImpRKonto, 7 )
+
+nX := 1
+
+Box(, 10, 70)
+
+	@ m_x + nX, m_y + 2 SAY "Podesenja importa ********"
+	
+	nX += 2
+	
+	@ m_x + nX, m_y + 2 SAY "Stampati dokumente pri auto obradi (D/N)" GET gAImpPrint VALID gAImpPrint $ "DN" PICT "@!"
+
+	nX += 1
+	
+	@ m_x + nX, m_y + 2 SAY "Automatska ravnoteza naloga na konto: " GET gAImpRKonto 
+	read	
+BoxC()
+
+if LastKey() <> K_ESC
+	
+	O_PARAMS
+	
+	private cSection := "7"
+	private cHistory := " "
+	private aHistory := {}
+
+	WPar("ap", gAImpPrint )
+	WPar("ak", gAImpRKonto )
+	
+	select params
+	use
+	
+endif
+
+return
+
 
 /*! \fn ImpTxtDok()
  *  \brief Import dokumenta
@@ -124,7 +181,7 @@ return cRet
 static function MnuObrDok()
 *{
 if Pitanje(,"Obraditi dokumente iz pomocne tabele (D/N)?", "D") == "D"
-	ObradiImport()
+	ObradiImport( nil, nil, __stampaj )
 else
 	MsgBeep("Dokumenti nisu obradjeni!#Obrada se moze uraditi i naknadno!")
 	close all
@@ -1184,6 +1241,7 @@ return
  */
 function ObradiImport(nPocniOd, lAsPokreni, lStampaj)
 *{
+
 O_PRIPR
 O_PRIPT
 
@@ -1355,7 +1413,7 @@ if Pitanje(,"Nastaviti sa obradom dokumenata", "D") == "N"
 	return
 endif
 
-ObradiImport(nDosaoDo)
+ObradiImport( nDosaoDo , nil, __stampaj )
 
 return
 *}
@@ -1373,8 +1431,6 @@ function ObradiDokument(cIdVd, lAsPokreni, lStampaj)
 
 private lAsistRadi:=.f.
 
-altd()
-
 if lAsPokreni == nil
 	lAsPokreni := .t.
 endif
@@ -1390,45 +1446,53 @@ else
 	OEdit()
 endif
 
-if lStampaj 
+if lStampaj == .t.
 	// odstampaj kalk
-	StKalk(nil,nil,.t.)
+	StKalk( nil, nil, .t. )
 endif
 
 // azuriraj kalk
-Azur(.t.)
+Azur( .t. )
+
 OEdit()
 
 // ako postoje zavisni dokumenti non stop ponavljaj proceduru obrade
-altd()
 private nRslt
+
 do while (ChkKPripr(cIdVd, @nRslt) <> 0)
+	
 	// vezni dokument u pripremi je ok
 	if nRslt == 1
+		
 		if lAsPokreni
 			// otvori pripremu
 			KUnos(.t.)
 		else
 			OEdit()
 		endif
-		if lStampaj
+		
+		if lStampaj == .t.
 			StKalk(nil, nil, .t.)
 		endif
+		
 		Azur(.t.)
 		OEdit()
+		
 	endif
 
 	// vezni dokument ne pripada azuriranom dokumentu 
 	// sta sa njim
-	if nRslt == 2
-		MsgBeep("Dokument u pripremi ne pripada azuriranom#veznom dokumentu!!!")
+	
+	if nRslt >= 2
+		
+		MsgBeep("Postoji dokument u pripremi koji je sumljiv!!!#Radi se o veznom dokumentu ili nekoj drugoj gresci...#Obradite ovaj dokument i autoimport ce nastaviti dalje sa radom !")
 		KUnos()
 		OEdit()
+		
 	endif
 enddo
 
 return
-*}
 
 
 /*! \fn ChkKPripr(cIdVd, nRes)
@@ -1436,7 +1500,6 @@ return
  *  \param cIdVd - id vrsta dokumenta
  */
 function ChkKPripr(cIdVd, nRes)
-*{
 // provjeri da li je priprema prazna, ako je prazna vrati 0
 select pripr
 go top
@@ -1448,17 +1511,17 @@ if RecCount() == 0
 endif
 
 // provjeri koji je dokument u pripremi u odnosu na cIdVd
-return nRes:=ChkTipDok(cIdVd)
+return nRes := ChkTipDok(cIdVd)
 
 return 0
-*}
+
+
 
 /*! \fn ChkTipDok(cIdVd)
  *  \brief Provjeri pripremu za tip dokumenta
  *  \param cIdVd - vrsta dokumenta
  */
 static function ChkTipDok(cIdVd)
-*{
 
 nNrRec := RecCount()
 nTmp := 0

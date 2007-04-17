@@ -93,11 +93,13 @@ lAFin:=(fauto .and. gAFin=="D")
 
 if lafin
 	Beep(1)
+	
 	if !lAGen
 		lafin:=Pitanje(,"Formirati FIN nalog?","D")=="D"
 	else 
 		lafin := .t.
 	endif
+	
 endif
 
 lAFin2 := (!fAuto .and. gAFin <> "0")
@@ -192,46 +194,54 @@ endif
 select finmat
 go top
 
-Box("brn?",5,55)
-dDatNal:=datdok
-set cursor on
+dDatNal := datdok
 
-if fAuto
-	if !lAFin
-		cBrNalF:=""
-	else
-		@ m_x+1,m_y+2  SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" - "+cBrNalF
-	endif
+if lAGen == .f.
+
+	Box("brn?",5,55)
 	
-	if !lAMat
-		cBrBalM:=""
-	else
-		if idvd<>"24" // kalkulacija usluge
-			@ m_x+2,m_y+2 SAY "Broj naloga u MAT  "+finmat->idfirma+" - "+cidvn+" - "+cBrNalM
+	set cursor on
+
+	if fAuto
+		if !lAFin
+			cBrNalF:=""
+		else
+			@ m_x+1,m_y+2  SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" - "+cBrNalF
 		endif
-	endif
 	
-	@ m_x+4,m_y+2 SAY "Datum naloga: "
-	?? dDatNal
+		if !lAMat
+			cBrBalM:=""
+		else
+			if idvd<>"24" // kalkulacija usluge
+				@ m_x+2,m_y+2 SAY "Broj naloga u MAT  "+finmat->idfirma+" - "+cidvn+" - "+cBrNalM
+			endif
+		endif
 	
-	if lAFin .or. lAMat
-		inkey(0)
-	endif
-else
-	if laFin2
-		@ m_x+1,m_y+2 SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalF
-	endif
+		@ m_x+4,m_y+2 SAY "Datum naloga: "
+		
+		?? dDatNal
 	
-	if idvd<>"24" .and. laMat2
-		@ m_x+2,m_y+2 SAY "Broj naloga u MAT  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalM
+		if lAFin .or. lAMat
+			inkey(0)
+		endif
+		
+	else
+		if laFin2
+			@ m_x+1,m_y+2 SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalF
+		endif
+	
+		if idvd<>"24" .and. laMat2
+			@ m_x+2,m_y+2 SAY "Broj naloga u MAT  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalM
+		endif
+
+		@ m_x+5,m_y+2 SAY "(ako je broj naloga prazan - ne vrsi se kontiranje)"
+		read
+		ESC_BCR
 	endif
 
-	@ m_x+5,m_y+2 SAY "(ako je broj naloga prazan - ne vrsi se kontiranje)"
-	read
-	ESC_BCR
+	BoxC()
+
 endif
-
-BoxC()
 
 nRbr:=0
 nRbr2:=0
@@ -240,8 +250,9 @@ MsgO("Prenos KALK -> FIN")
 
 select finmat
 private cKonto1:=NIL
-altd()
-do while !eof()    // datoteka finmat
+
+do while !eof()    
+// datoteka finmat
 
  cIDVD:=IdVD
  cBrDok:=BrDok
@@ -627,21 +638,11 @@ enddo
 select finmat
 skip -1  
 
-//select fpripr
-//skip -1
-//add_p_doksrc(fpripr->idfirma, fpripr->idvn, fpripr->brnal, fpripr->datnal, ;
-//	"KALK", finmat->idfirma, finmat->idvd, finmat->brdok, finmat->datdok, ;
-//	finmat->idkonto, finmat->idkonto2, finmat->idpartner, "Kontiranje KALK->FIN", gFPrivPath)
-
-//select finmat
-// zbog FINMAT->idfirma u donjem seek-u
-
 if lAFin .or. lAFin2
-
-select fpripr
-go top
-seek FINMAT->idfirma+cIdVN+cBrNalF
-if found()
+  select fpripr
+  go top
+  seek FINMAT->idfirma+cIdVN+cBrNalF
+  if found()
 	do while !eof() .and. IDFIRMA+IDVN+BRNAL==FINMAT->idfirma+cIdVN+cBrNalF
 		cPom:=right(opis,1)
 		// na desnu stranu opisa stavim npr "ZADUZ MAGACIN          0"
@@ -656,12 +657,15 @@ if found()
 				replace iznosbhd with round(iznosbhd,MIN(val(cPom),2))
 				replace iznosdem with round(iznosdem,MIN(val(cPom),2))
 			endif
-		endif // cpom
+		endif 
+		// cPom
 		skip
-	enddo //fpripr
-endif
+	enddo 
+	//fpripr
+  endif
 
-endif // lafin , lafin2
+endif 
+// lafin , lafin2
 
 MsgC()
 
@@ -671,9 +675,6 @@ if !lViseKalk
 endif
 
 return
-
-
-
 
 
 /*! \fn Konto(nBroj,cDef,cTekst)
@@ -1500,7 +1501,8 @@ else
 	if !lViseKalk
 		close all
 	endif
-	
+
+	altd()
 	Kontnal(.f., nil, lViseKalk)
 
 	// ne vrti se ukrug u ovoj do wile petlji

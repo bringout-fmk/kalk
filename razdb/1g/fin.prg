@@ -1,37 +1,8 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/razdb/1g/fin.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.5 $
- * $Log: fin.prg,v $
- * Revision 1.5  2002/11/22 10:37:04  mirsad
- * sredjivanje makroa za oblasti - ukidanje starog sistema
- *
- * Revision 1.4  2002/06/24 09:19:02  mirsad
- * dokumentovanje
- *
- * Revision 1.3  2002/06/21 14:08:29  mirsad
- * dokumentovanje
- *
- *
- */
- 
 
-/*! \file fmk/kalk/razdb/1g/fin.prg
- *  \brief Generacija FIN-dokumenata na osnovu kalkulacija (kontiranje)
- */
-
-
-/*! \fn P_Fin()
- *  \brief Centralna funkcija za formiranje i stampu FIN-naloga
- */
-
-function P_Fin(lAuto)
-*{
+// stampanje fin naloga iz FIN-a
+function P_Fin( lAuto )
 private gDatNal:="N"
 private gRavnot:="D"
 private cDatVal:="D"
@@ -40,46 +11,111 @@ private gnLOst:=0
 if (lAuto == nil)
 	lAuto := .f.
 endif
+
+altd()
+
 if gafin=="D"
+	
 	#ifdef CAX
    		close all
  	#endif
- 	KZbira()
- 	StNal(lAuto)
- 	Azur(lAuto)
+	
+	// kontrola zbira - uravnotezenje
+ 	KZbira( lAuto )
+	
+	if lAuto == .f. .or. (lAuto == .t. .and. gAImpPrint == "D" ) 
+		// stampa fin naloga
+ 		StNal( lAuto )
+	else
+		fill_psuban()
+		sintstav()
+	endif
+	
+	// azuriranje fin naloga
+ 	Azur( lAuto )
+
 endif
 
 return
-*}
 
 
 
+// stampa fin naloga
+static function StNal( lAuto )
+private dDatNal := date()
 
-/*! \fn StNal()
- *  \brief Centralna funkcija za stampu FIN-naloga
- */
-
-static function StNal(lAuto)
-*{
-private dDatNal:=date()
 if lAuto == nil
 	lAuto := .f.
 endif
-StAnalNal(lAuto)
+
+StAnalNal( lAuto )
+
 //StSintNal()
 SintStav()
+
 return
-*}
 
 
 
+// ---------------------------------------------
+// filovanje potrebnih tabela kod auto importa
+// ---------------------------------------------
+static function fill_psuban()
 
-/*! \fn StAnalNal()
- *  \brief Stampanje analitickog naloga
- */
+FO_PRIPR
+O_KONTO
+O_PARTN
+O_TNAL
+O_TDOK
+FO_PSUBAN
 
+select PSUBAN
+ZAP
+
+SELECT PRIPR
+set order to 1
+go top
+
+if EOF()
+	closeret2
+endif
+
+altd()
+
+DO WHILE !EOF()
+	
+	cIdFirma := IdFirma
+	cIdVN := IdVN
+	cBrNal := BrNal
+
+	b2:={|| cIdFirma==IdFirma .AND. cIdVN==IdVN .AND. cBrNal==BrNal}
+
+   	DO WHILE !eof() .and. eval(b2)
+
+         	select PSUBAN
+		Scatter()
+		select PRIPR
+		Scatter()
+
+         	SELECT PSUBAN
+         	APPEND BLANK
+         	Gather()  
+		select PRIPR
+         
+	 SKIP
+      
+      ENDDO
+
+ENDDO   
+
+closeret2
+return
+
+
+// ----------------------------------------
+// stampa analitickog naloga
+// ----------------------------------------
 static function StAnalNal(lAuto)
-*{
 FO_PRIPR
 O_KONTO
 O_PARTN
@@ -89,6 +125,7 @@ FO_PSUBAN
 
 PicBHD:="@Z 999999999999.99"
 PicDEM:="@Z 9999999.99"
+
 gVar1:=2
 
 M:="---- ------- ------ ---------------------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1==1,"-"," ---------- ----------")
@@ -113,7 +150,7 @@ DO WHILE !EOF()
    cIdFirma:=IdFirma; cIdVN:=IdVN; cBrNal:=BrNal
 
    if !lAuto
-   Box("",2,50)
+    Box("",2,50)
      set cursor on
      @ m_x+1,m_y+2 SAY "Finansijski nalog broj:" GET cIdFirma
      @ m_x+1,col()+1 SAY "-" GET cIdVn
@@ -121,8 +158,9 @@ DO WHILE !EOF()
      if gDatNal=="D"
       @ m_x+2,m_y+2 SAY "Datum naloga:" GET dDatNal
      endif
-     read; ESC_BCR
-   BoxC()
+     read
+     ESC_BCR
+    BoxC()
    endif	
 
    HSEEK cIdFirma+cIdVN+cBrNal
@@ -298,7 +336,7 @@ return
  *  \brief Formiranje sintetickih stavki
  */
 
-static function SintStav()
+static function SintStav( lAuto )
 *{
 FO_PSUBAN
 FO_PANAL
@@ -307,15 +345,29 @@ FO_PNALOG
 O_KONTO
 O_TNAL
 
-select PANAL; zap
-select PSINT; zap
-select PNALOG; zap
+if lAuto == nil
+	lAuto := .f.
+endif
 
-select PSUBAN; set order to 2; go top
-if empty(BrNal); closeret2; endif
+select PANAL
+zap
+select PSINT
+zap
+select PNALOG
+zap
+
+select PSUBAN
+set order to 2
+go top
+
+if empty(BrNal)
+	closeret2
+endif
 
 A:=0
-DO WHILE !eof()   // svi nalozi
+
+DO WHILE !eof()   
+   // svi nalozi
 
    nStr:=0
    nD1:=nD2:=nP1:=nP2:=0
@@ -435,17 +487,13 @@ enddo
 
 closeret2
 return
-*}
 
 
-
-
-/*! \fn Azur()
- *  \brief Azuriranje knjizenja
- */
-
+// ------------------------------------------
+// Azuriranje fin naloga
+// ------------------------------------------
 static function Azur(lAuto)
-*{
+
 FO_PRIPR
 FO_SUBAN
 FO_ANAL
@@ -492,6 +540,7 @@ set order to 1
 go top
 
 do while !eof()
+
 // prodji kroz PSUBAN i vidi da li je nalog zatvoren
 // samo u tom slucaju proknjizi nalog u odgovarajuce datoteke
 
@@ -507,7 +556,8 @@ do while !eof() .and. cNal==IdFirma+IdVn+BrNal
     skip
 enddo
 
-if round(nSaldo,4)==0  .or. gRavnot=="N" // nalog je uravnote`en, a`uriraj ga !
+if Round(nSaldo,4)==0  .or. gRavnot=="N" 
+  // nalog je uravnote`en, a`uriraj ga !
 
   if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  )
     Beep(4)
@@ -532,7 +582,7 @@ if round(nSaldo,4)==0  .or. gRavnot=="N" // nalog je uravnote`en, a`uriraj ga !
   endif
 
   
-  * nalog je uravnote`en, mo`e se izbrisati iz PRIPR
+  // nalog je uravnote`en, mo`e se izbrisati iz PRIPR
   
   select PRIPR; seek cNal
   @ m_x+3,m_y+2 SAY "BRISEM PRIPREMU "
@@ -608,19 +658,12 @@ else
 	closeret2
 endif
 return
-*}
 
 
-
-
-
-/*! \fn StOSNal(fkum)
- *  \brief Stampa sintetickog naloga
- *  \param fkum - .t. stampa naloga iz anal.dbf, .f. stampa naloga iz panal.dbf
- */
-
+// ------------------------------------------
+// stampa sintetickog naloga
+// ------------------------------------------
 static function StOSNal(fkum)
-*{
 if fkum==NIL
   fkum:=.t.
 endif
@@ -744,17 +787,9 @@ if fkum
  closeret2
 endif
 return
-*}
 
-
-
-
-/*! \fn Zagl12()
- *  \brief Zaglavlje sintetickog naloga
- */
 
 static function Zagl12()
-*{
 local nArr
 P_COND
 ?? "FIN.P: ANALITIKA/SINTETIKA -  NALOG ZA KNJIZENJE BROJ : "
@@ -776,78 +811,130 @@ P_NRED; ?? "*BR *        *                                                     *
 P_NRED; ?? m
 
 return
-*}
 
 
+// -----------------------------------------------
+// kontrola zbira naloga prije azuriranja
+// -----------------------------------------------
+function KZbira( lAuto )
 
-
-
-/*! \fn KZbira()
- *  \brief Kontrola zbira FIN-naloga
- */
-
-function KZbira()
-*{
 O_KONTO
 O_VALUTE
 FO_PRIPR
 
+if lAuto == nil
+	lAuto := .f.
+endif
+
 Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
- set cursor on
- cIdFirma:=IdFirma; cIdVN:=IdVN; cBrNal:=BrNal
+	
+	set cursor on
+ 	
+	cIdFirma:=IdFirma
+	cIdVN:=IdVN
+	cBrNal:=BrNal
 
- @ m_x+1,m_y+2 SAY "Nalog broj: "+cidfirma+"-"+cidvn+"-"+cBrNal
+ 	@ m_x+1,m_y+2 SAY "Nalog broj: "+cidfirma+"-"+cidvn+"-"+cBrNal
 
- set order to 1
- seek cIdFirma+cIdVn+cBrNal
+ 	set order to 1
+ 	seek cIdFirma+cIdVn+cBrNal
 
- private dug:=dug2:=Pot:=Pot2:=0
- do while  !eof() .and. (IdFirma+IdVn+BrNal==cIdFirma+cIdVn+cBrNal)
-   if D_P=="1"; dug+=IznosBHD; dug2+=iznosdem; else; pot+=IznosBHD;pot2+=iznosdem; endif
-   skip
- enddo
- SKIP -1
- Scatter()
+ 	private dug:=dug2:=Pot:=Pot2:=0
+	
+ 	do while  !eof() .and. (IdFirma+IdVn+BrNal==cIdFirma+cIdVn+cBrNal)
+   		
+		if D_P == "1"
+			dug += IznosBHD
+			dug2 += iznosdem
+		else
+			pot += IznosBHD
+			pot2 += iznosdem
+		endif
+   		
+		skip
+ 	enddo
+ 	
+	SKIP -1
+ 	
+	Scatter()
 
- cPic:="999 999 999 999.99"
- @ m_x+5,m_y+2 SAY "Zbir naloga:"
- @ m_x+6,m_y+2 SAY "     Duguje:"
- @ m_x+6,COL()+2 SAY Dug PICTURE cPic
- @ m_x+6,COL()+2 SAY Dug2 PICTURE cPic
- @ m_x+7,m_y+2 SAY "  Potrazuje:"
- @ m_x+7,COL()+2 SAY Pot  PICTURE cPic
- @ m_x+7,COL()+2 SAY Pot2  PICTURE cPic
- @ m_x+8,m_y+2 SAY "      Saldo:"
- @ m_x+8,COL()+2 SAY Dug-Pot  PICTURE cPic
- @ m_x+8,COL()+2 SAY Dug2-Pot2  PICTURE cPic
+ 	cPic:="999 999 999 999.99"
+ 	
+	@ m_x+5,m_y+2 SAY "Zbir naloga:"
+ 	@ m_x+6,m_y+2 SAY "     Duguje:"
+ 	@ m_x+6,COL()+2 SAY Dug PICTURE cPic
+ 	@ m_x+6,COL()+2 SAY Dug2 PICTURE cPic
+ 	@ m_x+7,m_y+2 SAY "  Potrazuje:"
+ 	@ m_x+7,COL()+2 SAY Pot  PICTURE cPic
+ 	@ m_x+7,COL()+2 SAY Pot2  PICTURE cPic
+ 	@ m_x+8,m_y+2 SAY "      Saldo:"
+ 	@ m_x+8,COL()+2 SAY Dug-Pot  PICTURE cPic
+ 	@ m_x+8,COL()+2 SAY Dug2-Pot2  PICTURE cPic
 
- IF round(Dug-Pot,2) <> 0
-   private cDN:="D"
-   set cursor on
-   @ m_x+10,m_y+2 SAY "Zelite li uravnoteziti nalog (D/N) ?" GET cDN valid (cDN $ "DN") pict "@!"
-   read
-   if cDN=="D"
-     _Opis:="GRESKA ZAOKRUZ."
-     _BrDok:=""
-     _D_P:="2"; _IdKonto:=SPACE(7)
-     @ m_x+11,m_y+2 SAY "Staviti na konto ?" GET _IdKonto valid P_Konto(@_IdKonto)
-     @ m_x+11,col()+1 SAY "Datum dokumenta:" GET _DatDok
-     read
-     if lastkey()<>K_ESC
-       _Rbr:=str(val(_Rbr)+1,4)
-       _IdPartner:=""
-       _IznosBHD:=Dug-Pot
-       DinDem(NIL,NIL,"_IZNOSBHD")
-       append blank
-       Gather()
-     endif
-   endif // cDN=="D"
- endif  // dug-pot<>0
+ 	IF Round(Dug-Pot, 2 ) <> 0
+   		
+		private cDN:="D"
+   		
+   		
+		if lAuto == .f.
+			
+		  set cursor on
+			
+		  @ m_x+10,m_y+2 SAY "Zelite li uravnoteziti nalog (D/N) ?" GET cDN valid (cDN $ "DN") pict "@!"
+   		  
+		  read
+		  
+   		else
+			// uravnoteziti nalog ako je auto import
+			cDN := "D"
+		endif
+		
+   		if cDN == "D"
+     			
+			_Opis:="GRESKA ZAOKRUZ."
+     			_BrDok:=""
+     			_D_P:="2"
+			_IdKonto:=SPACE(7)
+     			
+			if lAuto == .f.
+			  
+			  @ m_x+11,m_y+2 SAY "Staviti na konto ?" ;
+				GET _IdKonto valid P_Konto(@_IdKonto)
+     			  @ m_x+11,col()+1 SAY "Datum dokumenta:" GET _DatDok
+     			  
+			  read
+			
+			else
+			
+			  _idkonto := gAImpRKonto
+			  
+			  if EMPTY(_idkonto)
+			  	_idkonto := "1370   "
+			  endif
+			  
+			endif
+			
+     
+     			if lastkey()<>K_ESC
+       				
+				_Rbr:=str(val(_Rbr)+1,4)
+      				_IdPartner:=""
+       				_IznosBHD:=Dug-Pot
+       				
+				DinDem(NIL,NIL,"_IZNOSBHD")
+       				
+				append blank
+       				
+				Gather()
+				
+     			endif
+   		endif
+ 	endif
 BoxC()
 
 closeret2
 return
-*}
+
 
 
 

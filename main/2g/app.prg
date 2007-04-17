@@ -327,6 +327,12 @@ public gMpcPomoc:="N"
 public gKolicFakt:="N"
 public lPoNarudzbi
 
+// KALK: auto import
+// print dokumenata pri auto importu
+public gAImpPrint := "N"
+// ravnoteza def.konto
+public gAImpRKonto := PADR("1370", 7)
+
 lPoNarudzbi:=.f.
 
 RPar("11",@c10T1)
@@ -408,7 +414,6 @@ RPar("pt",@gPromTar)
 RPar("f1",@gFunKon1)
 RPar("f2",@gFunKon2)
 
-
 cOdradjeno:="D"
 if file(EXEPATH+'scshell.ini')
         //cBrojLok:=R_IniRead ( 'TekucaLokacija','Broj',  "",EXEPATH+'scshell.INI' )
@@ -437,6 +442,11 @@ gDirFiK:=trim(gDirFiK)
 gDirMaK:=trim(gDirMaK)
 gDirFakt:=trim(gDirFakt)
 gDirFakK:=trim(gDirFakK)
+
+// KALK: auto import
+private cSection := "7"
+RPar("ai", @gAImpPrint)
+RPar("ak", @gAImpRKonto)
 
 select (F_PARAMS)
 use

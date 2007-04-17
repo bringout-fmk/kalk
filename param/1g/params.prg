@@ -75,30 +75,76 @@ return
  */
 
 function SetVarijante()
-*{
+local nX := 1
 private  GetList:={}
 
- Box(,17,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
-  @ m_x+1,m_y+2 SAY "14 -Varijanta poreza na RUC u VP 1/2 (1-naprijed,2-nazad)"  get gVarVP  valid gVarVP $ "12"
-  @ m_x+2,m_y+2 SAY "14 - Nivelaciju izvrsiti na ukupno stanje/na prodanu kolicinu  1/2 ?" GET gNiv14  valid gNiv14 $ "12"
+Box(,20,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
+	
+	@ m_x + nX, m_y+2 SAY "14 -Varijanta poreza na RUC u VP 1/2 (1-naprijed,2-nazad)"  get gVarVP  valid gVarVP $ "12"
+  	
+	nX += 1
+	
+	@ m_x + nX, m_y+2 SAY "14 - Nivelaciju izvrsiti na ukupno stanje/na prodanu kolicinu  1/2 ?" GET gNiv14  valid gNiv14 $ "12"
 
-  @ m_x+4,m_y+2 SAY "10 - Varijanta izvjestaja (1/2/3)" GET c10Var  valid c10Var $ "123"
-  @ m_x+5,m_y+2 SAY "10 - prikaz ukalkulisanog poreza (D/N)" GET  g10Porez  pict "@!" valid g10Porez $ "DN"
-  @ m_x+6,m_y+2 SAY "10 - ** kolicina = (1) kol-kalo ; (2) kol" GET gKalo valid gKalo $ "12"
-  @ m_x+7,m_y+2 SAY "Voditi kalo pri ulazu " GET gVodiKalo valid gVodiKalo $ "DN" pict "@!"
+	nX += 2
+	
+  	@ m_x + nX, m_y+2 SAY "10 - Varijanta izvjestaja (1/2/3)" GET c10Var  valid c10Var $ "123"
+  	
+	nX += 1
+	
+	@ m_x + nX,m_y+2 SAY "10 - prikaz ukalkulisanog poreza (D/N)" GET  g10Porez  pict "@!" valid g10Porez $ "DN"
+  	
+	nX += 1
+	
+	@ m_x + nX,m_y+2 SAY "10 - ** kolicina = (1) kol-kalo ; (2) kol" GET gKalo valid gKalo $ "12"
+  
+	nX += 1
+  	
+	@ m_x + nX,m_y+2 SAY "10 - automatsko preuzimanje troskova iz sifrarnika robe ? (0/D/N)" GET gRobaTrosk valid gRobaTrosk $ "0DN" PICT "@!"
 
-  @ m_x+8,m_y+2 SAY "Program se koristi iskljucivo za vodjenje magacina po NC  Da-1 / Ne-2 " GET gMagacin valid gMagacin $ "12"
-  if IsPDV()
-  	@ m_x+9,m_y+2 SAY "PDV, evidencija magacina po NC  D/N " GET gPDVMagNab valid gPDVMagNab $ "DN"
-  endif
-  @ m_x+10,m_y+2 SAY "Varijanta FAKT13->KALK11 ( 1-mpc iz sifrarnika, 2-mpc iz FAKT13)" GET  gVar13u11  pict "@!" valid gVar13u11 $ "12"
-  @ m_x+12,m_y+2 SAY "Varijanta KALK 11 bez prikaza NC i storna RUC-a (D/N)" GET  g11bezNC  pict "@!" valid g11bezNC $ "DN"
-  @ m_x+13,m_y+2 SAY "Pri ulaznoj kalkulaciji pomoc sa C.sa PDV (D/N)" GET  gMPCPomoc pict "@!" valid gMPCPomoc $ "DN"
+	nX += 1
+	
+	@ m_x + nX,m_y+2 SAY "     * postavi tip troska na (%,A,U,R) ?" GET gRobaTrTip valid gRobaTrTip $ " %URA" PICT "@!"
+	
+	nX += 1
+	
+  	@ m_x + nX, m_y+2 SAY "Voditi kalo pri ulazu " GET gVodiKalo valid gVodiKalo $ "DN" pict "@!"
 
-  @ m_x+15,m_y+2 SAY "80 - var.rek.po tarifama ( 1 -samo ukupno / 2 -prod.1,prod.2,ukupno)" GET  g80VRT pict "9" valid g80VRT $ "12"
-  @ m_x+17,m_y+2 SAY "Kolicina za nivelaciju iz FAKT-a " GET  gKolicFakt valid gKolicFakt $ "DN"  pict "@!"
-  read
- BoxC()
+	nX += 1
+  
+  	@ m_x + nX,m_y+2 SAY "Program se koristi iskljucivo za vodjenje magacina po NC  Da-1 / Ne-2 " GET gMagacin valid gMagacin $ "12"
+  
+  	if IsPDV()
+	
+		nX += 1
+  		
+		@ m_x + nX,m_y+2 SAY "PDV, evidencija magacina po NC  D/N " GET gPDVMagNab valid gPDVMagNab $ "DN"
+  	
+	endif
+  	
+	nX += 1
+	
+  	@ m_x + nX,m_y+2 SAY "Varijanta FAKT13->KALK11 ( 1-mpc iz sifrarnika, 2-mpc iz FAKT13)" GET  gVar13u11  pict "@!" valid gVar13u11 $ "12"
+  
+  	nX += 2
+	
+  	@ m_x + nX,m_y+2 SAY "Varijanta KALK 11 bez prikaza NC i storna RUC-a (D/N)" GET  g11bezNC  pict "@!" valid g11bezNC $ "DN"
+  	
+	nX += 1
+	
+	@ m_x + nX,m_y+2 SAY "Pri ulaznoj kalkulaciji pomoc sa C.sa PDV (D/N)" GET  gMPCPomoc pict "@!" valid gMPCPomoc $ "DN"
+
+	nX += 2
+	
+  	@ m_x + nX,m_y+2 SAY "80 - var.rek.po tarifama ( 1 -samo ukupno / 2 -prod.1,prod.2,ukupno)" GET  g80VRT pict "9" valid g80VRT $ "12"
+  	
+	nX += 2
+	
+	@ m_x + nX,m_y+2 SAY "Kolicina za nivelaciju iz FAKT-a " GET  gKolicFakt valid gKolicFakt $ "DN"  pict "@!"
+  	
+	read
+
+BoxC()
 
  if lastkey()<>K_ESC
   WPar("c1",gMagacin)
@@ -116,10 +162,12 @@ private  GetList:={}
   WPar("vo",gVar13u11)
   WPar("mP",gMPCPomoc)
   WPar("fK",gKolicFakt)
+  WPar("rx",gRobaTrosk)
+  WPar("ry",gRobaTrTip)
  endif
 
 return nil
-*}
+
 
 
 

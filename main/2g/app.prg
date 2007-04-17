@@ -325,6 +325,8 @@ public gFunKon2:=PADR("SUBSTR(FINMAT->IDKONTO2,4,2)",80)
 public g11bezNC:="N"
 public gMpcPomoc:="N"
 public gKolicFakt:="N"
+public gRobaTrosk:="N"
+public gRobaTrTip:=" "
 public lPoNarudzbi
 
 // KALK: auto import
@@ -396,6 +398,8 @@ Rpar("p8",@gFPicKol)
 RPar("po",@gPotpis)
 Rpar("rt",@gRokTr)
 
+Rpar("rx",@gRobaTrosk)
+Rpar("ry",@gRobaTrTip)
 
 Rpar("up",@g10Porez)
 RPar("v1",@c10Var)

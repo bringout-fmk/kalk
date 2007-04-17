@@ -138,6 +138,9 @@ if empty(_TSpedTr); _TSpedtr:="%"; endif
 if empty(_TZavTr);  _TZavTr:="%" ; endif
 if empty(_TMarza);  _TMarza:="%" ; endif
 
+// automatski setuj troskove....
+_auto_set_trosk( fNovi )
+
 @ m_x+2,m_y+2     SAY c10T1+cSPom GET _TPrevoz VALID _TPrevoz $ "%AUR" PICTURE "@!"
 @ m_x+2,m_y+40    GET _Prevoz PICTURE  PicDEM
 
@@ -203,6 +206,92 @@ _MU_I:="1"
 nStrana:=3
 return lastkey()
 *}
+
+
+// ------------------------------------------------------
+// automatsko setovanje troskova kalkulacije
+// na osnovu sifrarnika robe
+//
+// lNewItem - radi se o novoj stavci
+// ------------------------------------------------------
+static function _auto_set_trosk( lNewItem )
+
+local lForce := .f.
+
+// ako nema polja TROSK1 u robi idi dalje....
+// nemas sta raditi
+
+if roba->(fieldpos("TROSK1")) == 0
+	return
+endif
+
+// ako su automatski troskovi = "N", izadji
+if gRobaTrosk == "N"
+	return 
+endif
+
+if gRobaTrosk == "0"
+	
+	if Pitanje( ,"Preuzeti troskove iz sifrarnika robe ?", "D" ) == "N"
+		return
+	endif
+	
+	// setuj forirano uzimanje troska.....
+	lForce := .t.
+	
+endif
+
+if ( _Prevoz == 0 .or. lForce == .t. .or. lNewItem == .t. ) 
+	
+	_Prevoz := roba->trosk1
+	
+	if !Empty(gRobaTrTip)
+		_TPrevoz := gRobaTrTip
+	endif
+	
+endif
+
+if ( _BankTr == 0 .or. lForce == .t. .or. lNewItem == .t. ) 
+	
+	_BankTr := roba->trosk2
+	
+	if !Empty(gRobaTrTip)
+		_TBankTr := gRobaTrTip
+	endif
+	
+endif
+
+if ( _SpedTr == 0 .or. lForce == .t. .or. lNewItem == .t. ) 
+	
+	_SpedTr := roba->trosk3
+
+	if !Empty(gRobaTrTip)
+		_TSpedTr := gRobaTrTip
+	endif
+	
+endif
+
+if ( _CarDaz == 0 .or. lForce == .t. .or. lNewItem == .t. ) 
+	
+	_CarDaz := roba->trosk4
+
+	if !EMPTY(gRobaTrTip)
+		_TCarDaz := gRobaTrTip
+	endif
+	
+endif
+
+if ( _ZavTr == 0 .or. lForce == .t. .or. lNewItem == .t. ) 
+	
+	_ZavTr := roba->trosk5
+
+	if !EMPTY(gRobaTrTip)
+		_TZavTr := gRobaTrTip
+	endif
+	
+endif
+
+return
 
 
 
@@ -279,6 +368,8 @@ IF gVarEv=="1"
 
 @ m_x+17,m_y+2     SAY "NABAVNA CJENA:"
 @ m_x+17,col()+2    GET _NC     PICTURE gPicNC VALID NabCj2(_NC,nNCpom)
+
+
 
 if empty(_TPrevoz); _TPrevoz:="%"; endif
 if empty(_TCarDaz); _TCarDaz:="%"; endif

@@ -78,7 +78,7 @@ function SetVarijante()
 local nX := 1
 private  GetList:={}
 
-Box(,20,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
+Box(,21,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 	
 	@ m_x + nX, m_y+2 SAY "14 -Varijanta poreza na RUC u VP 1/2 (1-naprijed,2-nazad)"  get gVarVP  valid gVarVP $ "12"
   	
@@ -104,9 +104,21 @@ Box(,20,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 
 	nX += 1
 	
-	@ m_x + nX,m_y+2 SAY "     * postavi tip troska na (%,A,U,R) ?" GET gRobaTrTip valid gRobaTrTip $ " %URA" PICT "@!"
+	@ m_x + nX,m_y+2 SAY "   default tip za pojedini trosak:" 
 	
 	nX += 1
+	
+	@ m_x + nX, m_y + 2 SAY "   " + c10T1 GET gRobaTr1Tip valid gRobaTr1Tip $ " %URA" PICT "@!"
+	
+	@ m_x + nX, col() + 1 SAY c10T2 GET gRobaTr2Tip valid gRobaTr2Tip $ " %URA" PICT "@!"
+	
+	@ m_x + nX, col() + 1 SAY c10T3 GET gRobaTr3Tip valid gRobaTr3Tip $ " %URA" PICT "@!"
+	
+	@ m_x + nX, col() + 1 SAY c10T4 GET gRobaTr4Tip valid gRobaTr4Tip $ " %URA" PICT "@!"
+	
+	@ m_x + nX, col() + 1 SAY c10T5 GET gRobaTr5Tip valid gRobaTr5Tip $ " %URA" PICT "@!"
+	
+	nX += 2
 	
   	@ m_x + nX, m_y+2 SAY "Voditi kalo pri ulazu " GET gVodiKalo valid gVodiKalo $ "DN" pict "@!"
 
@@ -163,7 +175,11 @@ BoxC()
   WPar("mP",gMPCPomoc)
   WPar("fK",gKolicFakt)
   WPar("rx",gRobaTrosk)
-  WPar("ry",gRobaTrTip)
+  WPar("R1",gRobaTr1Tip)
+  WPar("R2",gRobaTr2Tip)
+  WPar("R3",gRobaTr3Tip)
+  WPar("R4",gRobaTr4Tip)
+  WPar("R5",gRobaTr5Tip)
  endif
 
 return nil

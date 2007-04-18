@@ -245,8 +245,8 @@ if ( _Prevoz == 0 .or. lForce == .t. .or. lNewItem == .t. )
 	
 	_Prevoz := roba->trosk1
 	
-	if !Empty(gRobaTrTip)
-		_TPrevoz := gRobaTrTip
+	if !Empty(gRobaTr1Tip)
+		_TPrevoz := gRobaTr1Tip
 	endif
 	
 endif
@@ -255,8 +255,8 @@ if ( _BankTr == 0 .or. lForce == .t. .or. lNewItem == .t. )
 	
 	_BankTr := roba->trosk2
 	
-	if !Empty(gRobaTrTip)
-		_TBankTr := gRobaTrTip
+	if !Empty(gRobaTr2Tip)
+		_TBankTr := gRobaTr2Tip
 	endif
 	
 endif
@@ -265,8 +265,8 @@ if ( _SpedTr == 0 .or. lForce == .t. .or. lNewItem == .t. )
 	
 	_SpedTr := roba->trosk3
 
-	if !Empty(gRobaTrTip)
-		_TSpedTr := gRobaTrTip
+	if !Empty(gRobaTr3Tip)
+		_TSpedTr := gRobaTr3Tip
 	endif
 	
 endif
@@ -275,8 +275,8 @@ if ( _CarDaz == 0 .or. lForce == .t. .or. lNewItem == .t. )
 	
 	_CarDaz := roba->trosk4
 
-	if !EMPTY(gRobaTrTip)
-		_TCarDaz := gRobaTrTip
+	if !EMPTY(gRobaTr4Tip)
+		_TCarDaz := gRobaTr4Tip
 	endif
 	
 endif
@@ -285,8 +285,8 @@ if ( _ZavTr == 0 .or. lForce == .t. .or. lNewItem == .t. )
 	
 	_ZavTr := roba->trosk5
 
-	if !EMPTY(gRobaTrTip)
-		_TZavTr := gRobaTrTip
+	if !EMPTY(gRobaTr5Tip)
+		_TZavTr := gRobaTr5Tip
 	endif
 	
 endif

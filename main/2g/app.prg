@@ -326,7 +326,12 @@ public g11bezNC:="N"
 public gMpcPomoc:="N"
 public gKolicFakt:="N"
 public gRobaTrosk:="N"
-public gRobaTrTip:=" "
+public gRobaTr1Tip:="%"
+public gRobaTr2Tip:="%"
+public gRobaTr3Tip:="%"
+public gRobaTr4Tip:="%"
+public gRobaTr5Tip:="%"
+
 public lPoNarudzbi
 
 // KALK: auto import
@@ -399,7 +404,12 @@ RPar("po",@gPotpis)
 Rpar("rt",@gRokTr)
 
 Rpar("rx",@gRobaTrosk)
-Rpar("ry",@gRobaTrTip)
+Rpar("R1",@gRobaTr1Tip)
+Rpar("R2",@gRobaTr2Tip)
+Rpar("R3",@gRobaTr3Tip)
+Rpar("R4",@gRobaTr4Tip)
+Rpar("R5",@gRobaTr5Tip)
+
 
 Rpar("up",@g10Porez)
 RPar("v1",@c10Var)

@@ -12,13 +12,9 @@ if (lAuto == nil)
 	lAuto := .f.
 endif
 
-altd()
-
 if gafin=="D"
 	
-	#ifdef CAX
-   		close all
- 	#endif
+	altd()
 	
 	// kontrola zbira - uravnotezenje
  	KZbira( lAuto )
@@ -77,10 +73,9 @@ set order to 1
 go top
 
 if EOF()
-	closeret2
+	close all
+	return
 endif
-
-altd()
 
 DO WHILE !EOF()
 	
@@ -108,7 +103,7 @@ DO WHILE !EOF()
 
 ENDDO   
 
-closeret2
+close all
 return
 
 
@@ -337,7 +332,7 @@ return
  */
 
 static function SintStav( lAuto )
-*{
+
 FO_PSUBAN
 FO_PANAL
 FO_PSINT
@@ -361,7 +356,11 @@ set order to 2
 go top
 
 if empty(BrNal)
-	closeret2
+	if lAuto == .t.
+		closeret
+	else
+		closeret2
+	endif
 endif
 
 A:=0
@@ -369,33 +368,52 @@ A:=0
 DO WHILE !eof()   
    // svi nalozi
 
-   nStr:=0
-   nD1:=nD2:=nP1:=nP2:=0
-   cIdFirma:=IdFirma;cIDVn=IdVN;cBrNal:=BrNal
+   nStr := 0
+   nD1 := 0
+   nD2 := 0
+   nP1 := 0
+   nP2 := 0
+   
+   cIdFirma := IdFirma
+   cIDVn := IdVN
+   cBrNal := BrNal
 
-   DO WHILE !eof() .and. cIdFirma==IdFirma .AND. cIdVN==IdVN .AND. cBrNal==BrNal     // jedan nalog
+   DO WHILE !EOF() .and. cIdFirma == IdFirma ;
+   		.and. cIdVN == IdVN ;
+		.and. cBrNal == BrNal
 
-         cIdkonto:=idkonto
+         cIdkonto := idkonto
 
-         nDugBHD:=nDugDEM:=0
-         nPotBHD:=nPotDEM:=0
-         IF D_P="1"
-               nDugBHD:=IznosBHD; nDugDEM:=IznosDEM
-         ELSE
-               nPotBHD:=IznosBHD; nPotDEM:=IznosDEM
-         ENDIF
+         nDugBHD:=0
+	 nDugDEM:=0
+         nPotBHD:=0
+	 nPotDEM:=0
+         
+	 if D_P="1"
+               nDugBHD:=IznosBHD
+	       nDugDEM:=IznosDEM
+         else
+               nPotBHD:=IznosBHD
+	       nPotDEM:=IznosDEM
+         endif
 
-         SELECT PANAL     // analitika
-         seek cidfirma+cidvn+cbrnal+cidkonto
+         SELECT PANAL     
+	 // analitika
+         seek cIdFirma + cIdVn + cBrNal + cIdKonto
+	 
          fNasao:=.f.
-         DO WHILE !eof() .and. cIdFirma==IdFirma .AND. cIdVN==IdVN .AND. cBrNal==BrNal ;
-                    .and. IdKonto==cIdKonto
+         
+	 DO WHILE !EOF() .and. cIdFirma == IdFirma ;
+	 	.and. cIdVN == IdVN .and. cBrNal==BrNal ;
+                .and. IdKonto == cIdKonto
+		
            if gDatNal=="N"
-              if month(psuban->datdok)==month(datnal)
+              if month(psuban->datdok) == month(datnal)
                 fNasao:=.t.
                 exit
               endif
-           else  // sintetika se generise na osnovu datuma naloga
+           else  
+	      // sintetika se generise na osnovu datuma naloga
               if month(dDatNal)==month(datnal)
                 fNasao:=.t.
                 exit
@@ -407,18 +425,22 @@ DO WHILE !eof()
             append blank
          endif
 
-         REPLACE IdFirma WITH cIdFirma,IdKonto WITH cIdKonto,IdVN WITH cIdVN,;
-                 BrNal with cBrNal,;
-                 DatNal WITH iif(gDatNal=="D",dDatNal,max(psuban->datdok,datnal)),;
-                 DugBHD WITH DugBHD+nDugBHD,PotBHD WITH PotBHD+nPotBHD,;
-                 DugDEM WITH DugDEM+nDugDEM, PotDEM WITH PotDEM+nPotDEM
+         replace IdFirma WITH cIdFirma
+	 replace IdKonto WITH cIdKonto
+	 replace IdVN WITH cIdVN
+         replace BrNal with cBrNal
+         replace DatNal with iif(gDatNal=="D", dDatNal, max(psuban->datdok,datnal))
+         replace DugBHD WITH DugBHD + nDugBHD
+	 replace PotBHD WITH PotBHD + nPotBHD
+         replace DugDEM WITH DugDEM + nDugDEM
+	 replace PotDEM WITH PotDEM + nPotDEM
 
-
-         
          SELECT PSINT
          seek cidfirma+cidvn+cbrnal+left(cidkonto,3)
          fNasao:=.f.
-         DO WHILE !eof() .and. cIdFirma==IdFirma .AND. cIdVN==IdVN .AND. cBrNal==BrNal ;
+         
+	 DO WHILE !eof() .and. cIdFirma==IdFirma ;
+	 	.AND. cIdVN==IdVN .AND. cBrNal==BrNal ;
                    .and. left(cidkonto,3)==idkonto
            if gDatNal=="N"
             if  month(psuban->datdok)==month(datnal)
@@ -433,8 +455,9 @@ DO WHILE !eof()
            endif
 
            skip
-         enddo
-         if !fNasao
+         ENDDO
+         
+	 if !fNasao
              append blank
          endif
 
@@ -448,7 +471,9 @@ DO WHILE !eof()
 
         SELECT PSUBAN
         skip
-   ENDDO  // nalog
+	
+   ENDDO  
+   // nalog
 
    SELECT PNALOG    // datoteka naloga
    APPEND BLANK
@@ -461,7 +486,8 @@ DO WHILE !eof()
 
    SELECT PSUBAN
 
-ENDDO  // svi nalozi
+ENDDO  
+// svi nalozi
 
 select PANAL
 go top
@@ -485,7 +511,12 @@ do while !eof()
    enddo
 enddo
 
-closeret2
+if lAuto == .t.
+	closeret
+else
+	closeret2
+endif
+
 return
 
 
@@ -535,128 +566,173 @@ if !lAuto .and. pitanje(,"Izvrsiti azuriranje FIN naloga ?","D")=="N"
 endif
 
 Box(,5,60)
+
 select PSUBAN
 set order to 1
 go top
 
+altd()
+
 do while !eof()
 
-// prodji kroz PSUBAN i vidi da li je nalog zatvoren
-// samo u tom slucaju proknjizi nalog u odgovarajuce datoteke
+	// prodji kroz PSUBAN i vidi da li je nalog zatvoren
+	// samo u tom slucaju proknjizi nalog u odgovarajuce datoteke
 
-cNal:=IDFirma+IdVn+BrNal
-@ m_x+1,m_y+2 SAY "Auzriram nalog: "+IdFirma+"-"+idvn+"-"+brnal
-nSaldo:=0
-do while !eof() .and. cNal==IdFirma+IdVn+BrNal
-    if D_P=="1"
-       nSaldo+=IznosBHD
-    else
-       nSaldo-=IznosBHD
-    endif
-    skip
+	cNal:=IDFirma+IdVn+BrNal
+	@ m_x+1,m_y+2 SAY "Auzriram nalog: "+IdFirma+"-"+idvn+"-"+brnal
+
+	nSaldo := 0
+
+	do while !eof() .and. cNal==IdFirma+IdVn+BrNal
+    		if D_P == "1"
+       			nSaldo += IznosBHD
+    		else
+       			nSaldo -= IznosBHD
+    		endif
+    		skip
+	enddo
+
+	if Round( nSaldo, 4 ) == 0 .or. gRavnot=="N" 
+		// nalog je uravnotezen, azuriraj ga !
+	
+		if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  )
+    			Beep(4)
+    			BoxC()
+    			Msg("Azuriranje NE moze vrsiti vise korisnika istovremeno !")
+    			closeret2
+  		endif
+
+  		@ m_x+3,m_y+2 SAY "NALOZI         "
+  		select  NALOG
+  		seek cNal
+  		if found()
+  			BoxC()
+			Msg("Vec postoji proknjizen nalog "+IdFirma+"-"+IdVn+"-"+BrNal+ "  !")
+			closeret2 
+  		endif
+
+  		select PNALOG
+		seek cNal
+  		
+		if found()
+    			Scatter()
+    			_sifra:=sifrakorisn
+    			select NALOG
+			append ncnl
+			Gather2()
+  		else
+    			Beep(4)
+    			Msg("Greska... ponovi stampu naloga ...")
+  		endif
+
+    		// nalog je uravnotezen, moze se izbrisati iz PRIPR
+ 		select PRIPR
+		seek cNal
+  		@ m_x+3,m_y+2 SAY "BRISEM PRIPREMU "
+  		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
+    			skip
+			nTRec:=RECNO()
+			skip -1
+			dbdelete2()
+			go nTRec
+  		enddo
+
+  		@ m_x+3,m_y+2 SAY "SUBANALITIKA   "
+  		select PSUBAN
+		seek cNal
+  		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
+
+    			Scatter()
+    			if _d_p=="1"
+				nSaldo := _IznosBHD
+			else
+				nSaldo := -_IznosBHD
+			endif
+
+    			SELECT SUBAN
+			set order to 3
+    			SEEK _IdFirma+_IdKonto+_IdPartner+_BrDok
+
+    			nRec:=recno()
+    			do while  !eof() .and. (_IdFirma+_IdKonto+_IdPartner+_BrDok)== (IdFirma+IdKonto+IdPartner+BrDok)
+       				if D_P == "1"
+					nSaldo += IznosBHD
+				else
+					nSaldo -= IznosBHD
+				endif
+       				skip
+    			enddo
+
+    			if ABS( nSaldo ) <= gnLOSt
+      				go nRec
+      				do while  !eof() .and. (_IdFirma+_IdKonto+_IdPartner+_BrDok)== (IdFirma+IdKonto+IdPartner+BrDok)
+        				_field->OtvSt:="9"
+        				skip
+      				enddo
+      				_OtvSt:="9"
+    			endif
+
+    			append ncnl
+			Gather2()
+
+    			select PSUBAN
+			skip
+		enddo
+  
+		@ m_x+3,m_y+2 SAY "ANALITIKA       "
+		select PANAL
+		seek cNal
+
+		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
+			Scatter()
+    			select ANAL
+			append ncnl
+			Gather2()
+    			select PANAL
+			skip
+		enddo
+
+		@ m_x+3,m_y+2 SAY "SINTETIKA       "
+		select PSINT
+		seek cNal
+
+		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
+			Scatter()
+    			select SINT
+			append ncnl
+			Gather2()
+    			select PSINT
+			skip
+		enddo
+
+	else
+		msgbeep("saldo <> 0")
+	endif 
+	// saldo == 0
+
+	select PSUBAN
+
 enddo
 
-if Round(nSaldo,4)==0  .or. gRavnot=="N" 
-  // nalog je uravnote`en, a`uriraj ga !
-
-  if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  )
-    Beep(4)
-    BoxC()
-    Msg("Azuriranje NE moze vrsiti vise korisnika istovremeno !")
-    closeret2
-  endif
-
-  @ m_x+3,m_y+2 SAY "NALOZI         "
-  select  NALOG
-  seek cNal
-  if found(); BoxC(); Msg("Vec postoji proknjizen nalog "+IdFirma+"-"+IdVn+"-"+BrNal+ "  !"); closeret2; endif
-
-  select PNALOG; seek cNal
-  if found()
-    Scatter()
-    _sifra:=sifrakorisn
-    select NALOG; append ncnl ; Gather2()
-  else
-    Beep(4)
-    Msg("Greska... ponovi stampu naloga ...")
-  endif
-
-  
-  // nalog je uravnote`en, mo`e se izbrisati iz PRIPR
-  
-  select PRIPR; seek cNal
-  @ m_x+3,m_y+2 SAY "BRISEM PRIPREMU "
-  do while !eof() .and. cNal==IdFirma+IdVn+BrNal
-    skip; ntRec:=RECNO(); skip -1; dbdelete2(); go ntRec
-  enddo
-
-  
-  @ m_x+3,m_y+2 SAY "SUBANALITIKA   "
-  select PSUBAN; seek cNal
-  do while !eof() .and. cNal==IdFirma+IdVn+BrNal
-
-    Scatter()
-    if _d_p=="1"; nSaldo:=_IznosBHD; else; nSaldo:= -_IznosBHD; endif
-
-    SELECT SUBAN; set order to 3
-    SEEK _IdFirma+_IdKonto+_IdPartner+_BrDok    // isti dokument
-
-    nRec:=recno()
-    do while  !eof() .and. (_IdFirma+_IdKonto+_IdPartner+_BrDok)== (IdFirma+IdKonto+IdPartner+BrDok)
-       if d_P=="1"; nSaldo+= IznosBHD; else; nSaldo -= IznosBHD; endif
-       skip
-    enddo
-
-    if abs(nSaldo)<=gnLOSt
-      go nRec
-      do while  !eof() .and. (_IdFirma+_IdKonto+_IdPartner+_BrDok)== (IdFirma+IdKonto+IdPartner+BrDok)
-        _field->OtvSt:="9"
-        skip
-      enddo
-      _OtvSt:="9"
-    endif
-
-    append ncnl; Gather2()
-
-    select PSUBAN; skip
-  enddo
-
-  
-  @ m_x+3,m_y+2 SAY "ANALITIKA       "
-  select PANAL; seek cNal
-  do while !eof() .and. cNal==IdFirma+IdVn+BrNal
-    Scatter()
-    select ANAL; append ncnl; Gather2()
-    select PANAL; skip
-  enddo
-
-  
-  @ m_x+3,m_y+2 SAY "SINTETIKA       "
-  select PSINT; seek cNal
-  do while !eof() .and. cNal==IdFirma+IdVn+BrNal
-    Scatter()
-    select SINT; append ncnl; Gather2()
-    select PSINT; skip
-  enddo
-
-
-endif // saldo == 0
-
+select PRIPR
+__dbpack()
 select PSUBAN
-enddo
+zap
+select PANAL
+zap
+select PSINT
+zap
+select PNALOG
+zap
 
-select PRIPR; __dbpack()
-select PSUBAN; zap
-select PANAL; zap
-select PSINT; zap
-select PNALOG; zap
 BoxC()
 
-if lAuto
+if lAuto == .t.
 	closeret
 else
 	closeret2
 endif
+
 return
 
 
@@ -839,7 +915,10 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
  	set order to 1
  	seek cIdFirma+cIdVn+cBrNal
 
- 	private dug:=dug2:=Pot:=Pot2:=0
+ 	private dug:=0
+	private dug2:=0
+	private Pot:=0
+	private Pot2:=0
 	
  	do while  !eof() .and. (IdFirma+IdVn+BrNal==cIdFirma+cIdVn+cBrNal)
    		
@@ -874,7 +953,6 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
  	IF Round(Dug-Pot, 2 ) <> 0
    		
 		private cDN:="D"
-   		
    		
 		if lAuto == .f.
 			
@@ -914,15 +992,18 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 			  
 			endif
 			
-     
-     			if lastkey()<>K_ESC
-       				
+     			if lAuto == .t. .or. lastkey() <> K_ESC
+			       				
 				_Rbr:=str(val(_Rbr)+1,4)
       				_IdPartner:=""
        				_IznosBHD:=Dug-Pot
-       				
+       			
+				nTArea := SELECT()
+				
 				DinDem(NIL,NIL,"_IZNOSBHD")
-       				
+       			
+				select (nTArea)
+			
 				append blank
        				
 				Gather()
@@ -932,7 +1013,12 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
  	endif
 BoxC()
 
-closeret2
+if lAuto == .t.
+	closeret
+else
+	closeret2
+endif
+
 return
 
 

@@ -1038,7 +1038,6 @@ else
 	endif
 endif
 
-
 select FINMAT
 zap
 
@@ -1502,7 +1501,6 @@ else
 		close all
 	endif
 
-	altd()
 	Kontnal(.f., nil, lViseKalk)
 
 	// ne vrti se ukrug u ovoj do wile petlji
@@ -1525,7 +1523,6 @@ endif
 
 return
 
-*}
 
 static function dummy()
   

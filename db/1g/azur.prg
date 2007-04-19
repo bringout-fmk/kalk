@@ -403,12 +403,12 @@ select KALK
 if cPametno=="D"
 
  RekapK()
+ 
  if (gafin=="D" .or. gamat=="D")
-   //RekapK()
-   KontNal(.t., lAuto)
+   	KontNal( .t., lAuto )
  endif
 
- P_Fin(lAuto)
+ P_Fin( lAuto )
 
  gAFin:=lgAFin
  gAMat:=lgAMat

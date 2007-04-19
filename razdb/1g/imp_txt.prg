@@ -4,7 +4,6 @@
 static __stampaj
 
 
-
 /*! \fn MnuImpTxt()
  *  \brief Menij opcije import txt
  */
@@ -922,8 +921,6 @@ aPom := {}
 
 do while !EOF()
 	
-	altd()
-
 	cFakt := ALLTRIM(temp->brdok)
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	cPm := temp->idpm
@@ -1475,7 +1472,7 @@ do while (ChkKPripr(cIdVd, @nRslt) <> 0)
 			StKalk(nil, nil, .t.)
 		endif
 		
-		Azur(.t.)
+		Azur( .t. )
 		OEdit()
 		
 	endif

@@ -694,7 +694,7 @@ if empty(gMetodaNC) .or. _TBankTR=="X"   // .or. lPoNarudzbi
 endif  // bez ograde
 
 if nKolS<_Kolicina
- Beep(2);clear typeahead
+ Beep(4);clear typeahead
  Msg("Ukupno na stanju je samo"+str(nKolS,10,4)+" robe !!",6)
  _ERROR:="1"
 endif

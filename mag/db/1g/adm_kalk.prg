@@ -1,50 +1,43 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-
-/*! \file fmk/kalk/mag/db/1g/adm_kalk.prg
- *  \brief Korekcija nabavnih cijena u magacinu
- */
-
-
-/*! \fn KorekNC2()
- *  \brief Korekcija nabavnih cijena u magacinu
- */
-
+// -----------------------------------------------------
+// korekcija nc pomocu dokumenta 95 - nc iz sif.robe
+// -----------------------------------------------------
 function KorekNC2()
-*{
- LOCAL dDok:=CTOD("31.12.97"), nPom:=0
+local nPom:=0
+private cMagac := "1310   "
+private dDok := DATE()
 
- IF !SigmaSif("SIGMAPR2")
+IF !SigmaSif("SIGMAPR2")
    return
- endif
- 
- PRIVATE cMagac:="1310   "
- O_KONCIJ
- O_KONTO
- IF !VarEdit({ {"Magacinski konto","cMagac","P_Konto(@cMagac)",,} }, 12,5,16,74,;
+endif
+
+O_KONCIJ
+O_KONTO
+
+IF !VarEdit({ {"Magacinski konto","cMagac","P_Konto(@cMagac)",,},{"Datum dokumenta","dDok",,,} }, 12,5,16,74,;
                'DEFINISANJE MAGACINA NA KOME CE BITI IZVRSENE PROMJENE',;
                "B1")
-   CLOSERET
- ENDIF
- O_ROBA
- O_PRIPR
- O_KALK
+	CLOSERET
+ENDIF
+O_ROBA
+O_PRIPR
+O_KALK
 
-nTUlaz:=nTIzlaz:=0
-nTVPVU:=nTVPVI:=nTNVU:=nTNVI:=0
+nTUlaz:=0
+nTIzlaz:=0
+nTVPVU:=0
+nTVPVI:=0
+nTNVU:=0
+nTNVI:=0
 nTRabat:=0
+
 private nRbr:=0
 
 select kalk
-cBr95:=sljedeci(gfirma,"95")
+
+cBr95 := Sljedeci( gFirma, "95" )
 
 select koncij
 seek trim(cMagac)
@@ -54,18 +47,29 @@ HSEEK gFirma+cMagac
 
 do while !eof() .and. idfirma+mkonto=gFirma+cMagac
 
-cIdRoba:=Idroba; nUlaz:=nIzlaz:=0; nVPVU:=nVPVI:=nNVU:=nNVI:=0; nRabat:=0
-select roba; hseek cidroba; select kalk
+	cIdRoba:=Idroba
+	nUlaz:=nIzlaz:=0
+	nVPVU:=nVPVI:=nNVU:=nNVI:=0
+	nRabat:=0
+	select roba
+	hseek cIdRoba
+	select kalk
 
-if roba->tip $ "TU"; skip; loop; endif
+	if roba->tip $ "TU"
+		skip
+		loop
+	endif
 
-cIdkonto:=mkonto
-do while !eof() .and. gFirma+cidkonto+cidroba==idFirma+mkonto+idroba
+	cIdkonto:=mkonto
+	do while !eof() .and. gFirma+cidkonto+cidroba==idFirma+mkonto+idroba
 
-  if roba->tip $ "TU"; skip; loop; endif
+  		if roba->tip $ "TU"
+			skip
+			loop
+		endif
 
-  if mu_i=="1"
-    if !(idvd $ "12#22#94")
+  		if mu_i=="1"
+    			if !(idvd $ "12#22#94")
      nUlaz+=kolicina-gkolicina-gkolicin2
      nVPVU+=vpc*(kolicina-gkolicina-gkolicin2)
      nNVU+=nc*(kolicina-gkolicina-gkolicin2)

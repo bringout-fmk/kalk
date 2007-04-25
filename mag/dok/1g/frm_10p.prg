@@ -1,20 +1,21 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
+// konverzija valute
+static __k_val
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-/*! \fn Get1_10()
- *  \brief Prvi ekran maske za unos dokumenta tipa 10
- */
 
+// -----------------------------------------------
+// unos dokumenta tip "10" - prva stranica
+// -----------------------------------------------
 function Get1_10PDV()
-*{
 
-if nRbr==1 .and. fnovi
+__k_val := "N"
+
+if gDokKVal == "D" .and. fNovi
+	__k_val := "D"
+endif
+
+if nRbr==1 .and. fNovi
 	_DatFaktP:=_datdok
 endif
 
@@ -95,13 +96,19 @@ endif
 
 select PRIPR
 
-if _tmarza<>"%"  // procente ne diraj
+if _tmarza<>"%"  
+	// procente ne diraj
 	_Marza:=0
 endif
 
 if gVarEv=="1"
 	@ m_x+15+IF(lPoNarudzbi,1,0),m_y+2   SAY "F.CJ.(DEM/JM):"
- 	@ m_x+15+IF(lPoNarudzbi,1,0),m_y+50  GET _FCJ PICTURE gPicNC valid _fcj>0 when V_kol10()
+
+	if gDokKVal == "D"
+		@ m_x + 15, m_y + 40 SAY "pr.->" GET __k_val VALID _val_konv(__k_val) PICT "@!"
+	endif
+	
+ 	@ m_x+15+IF(lPoNarudzbi,1,0),m_y+50  GET _FCJ PICTURE gPicNC valid {|| _fcj > 0, _set_konv( @_fcj, @__k_val ) } when V_kol10()
 	@ m_x+17+IF(lPoNarudzbi,1,0),m_y+2   SAY "KASA-SKONTO(%):"
  	@ m_x+17+IF(lPoNarudzbi,1,0),m_y+40 GET _Rabat PICTURE PicDEM when DuplRoba()
 	if gNW<>"X"   .or. gVodiKalo=="D"
@@ -118,16 +125,45 @@ ESC_RETURN K_ESC
 _FCJ2:=_FCJ*(1-_Rabat/100)
 
 return lastkey()
-*}
 
 
 
-/*! \fn Get2_10()
- *  \brief Drugi ekran maske za unos dokumenta tipa 10
- */
+// ---------------------------------------
+// validacija unosa preracuna
+// ---------------------------------------
+static function _val_konv( cDn )
+local lRet := .t.
 
+if cDN $ "DN"
+	return lRet
+else
+	msgbeep("Preracun: " + valpomocna() + "=>" + valdomaca() + "#Unjeti 'D' ili 'N' !")
+	lRet := .f.
+	return lRet
+endif
+
+return .t.
+
+
+// --------------------------------------
+// konverzija fakturne cijene
+// --------------------------------------
+static function _set_konv( nFcj, cPretv )
+
+if cPretv == "D"
+	a_val_convert()	
+	cPretv := "N"
+	showgets()
+endif
+
+return .t.
+
+
+
+// --------------------------------------------------
+// unos dokumenta "10" - druga stranica
+// --------------------------------------------------
 function Get2_10PDV()
-*{
 local cSPom:=" (%,A,U,R) "
 private getlist:={}
 
@@ -294,16 +330,19 @@ endif
 return
 
 
-
-/*! \fn Get1_10s()
- *  \brief
- */
-
+// ---------------------------------------------------------
+// unos dokumenta "10" - skracena varijanta bez troskova
+// ---------------------------------------------------------
 function Get1_10sPDV()
-
 local nNCpom:=0
 
-if nRbr==1  .or. !fnovi
+__k_val := "N"
+
+if gDokKVal == "D" .and. fNovi
+	__k_val := "D"
+endif
+
+if nRbr==1  .or. !fNovi
  _DatFaktP:=_datdok
  @  m_x+6,m_y+2   SAY "DOBAVLJAC:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,6,22)
  @  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj:" get _BrFaktP
@@ -359,11 +398,25 @@ endif
 IF gVarEv=="1"
 
  IF !glEkonomat
-   @ m_x+15,m_y+2   SAY "F.CJ.(DEM/JM):"
-   @ m_x+15,col()+2 GET _FCJ PICTURE gPicNC valid _fcj>0 when V_kol10()
+   
+   nYpos := m_y + 2
+   
+   if gDokKVal == "D"
+   
+   	@ m_x + 15, nYpos SAY "pr" GET __k_val VALID _val_konv(__k_val) PICT "@!"
+   	
+	nYpos := col() + 2 
+   
+   endif
+   
+   @ m_x+15, nYpos SAY "F.CJ.(DEM/JM):"
+   @ m_x+15, col() + 2 GET _FCJ PICTURE gPicNC ;
+   	VALID {|| _fcj > 0, _set_konv( @_fcj, @__k_val ) } ;
+	WHEN V_kol10()
 
-   @ m_x+15,m_y+36   SAY "Rabat(%):"
-   @ m_x+15,col()+2 GET _Rabat PICTURE PicDEM valid {|| _FCJ2:=_FCJ*(1-_Rabat/100),NabCj(),nNCpom:=_NC,.t.}
+   @ m_x+15, m_y + 40   SAY "Rabat(%):"
+   @ m_x+15, col()+2 GET _Rabat PICTURE PicDEM valid {|| _FCJ2:=_FCJ*(1-_Rabat/100),NabCj(),nNCpom:=_NC,.t.}
+ 
  ENDIF
 
 @ m_x+17,m_y+2     SAY "NABAVNA CJENA:"

@@ -332,6 +332,9 @@ public gRobaTr3Tip:="%"
 public gRobaTr4Tip:="%"
 public gRobaTr5Tip:="%"
 
+// dokument. koverzija valute
+public gDokKVal := "N"
+
 public lPoNarudzbi
 
 // KALK: auto import
@@ -410,6 +413,7 @@ Rpar("R3",@gRobaTr3Tip)
 Rpar("R4",@gRobaTr4Tip)
 Rpar("R5",@gRobaTr5Tip)
 
+Rpar("KV",@gDokKVal)
 
 Rpar("up",@g10Porez)
 RPar("v1",@c10Var)

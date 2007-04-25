@@ -78,7 +78,7 @@ function SetVarijante()
 local nX := 1
 private  GetList:={}
 
-Box(,21,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
+Box(,22,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 	
 	@ m_x + nX, m_y+2 SAY "14 -Varijanta poreza na RUC u VP 1/2 (1-naprijed,2-nazad)"  get gVarVP  valid gVarVP $ "12"
   	
@@ -117,6 +117,10 @@ Box(,21,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 	@ m_x + nX, col() + 1 SAY c10T4 GET gRobaTr4Tip valid gRobaTr4Tip $ " %URA" PICT "@!"
 	
 	@ m_x + nX, col() + 1 SAY c10T5 GET gRobaTr5Tip valid gRobaTr5Tip $ " %URA" PICT "@!"
+	
+	nX += 1
+
+	@ m_x + nX, m_y + 2 SAY "10 - pomoc sa koverzijom valute pri unosu dokumenta (D/N)" GET gDokKVal valid gDokKVal $ "DN" PICT "@!"
 	
 	nX += 2
 	
@@ -180,6 +184,7 @@ BoxC()
   WPar("R3",gRobaTr3Tip)
   WPar("R4",gRobaTr4Tip)
   WPar("R5",gRobaTr5Tip)
+  WPar("KV",gDokKVal)
  endif
 
 return nil

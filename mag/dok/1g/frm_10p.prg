@@ -11,18 +11,17 @@ function Get1_10PDV()
 
 __k_val := "N"
 
-if gDokKVal == "D" .and. fNovi
-	__k_val := "D"
-endif
-
-if nRbr==1 .and. fNovi
+if nRbr == 1 .and. fNovi
 	_DatFaktP:=_datdok
 endif
 
-if nRbr==1  .or. !fnovi .or. gMagacin=="1"
-	@  m_x+6,m_y+2   SAY "DOBAVLJAC:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,6,22)
- 	@  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj:" get _BrFaktP
- 	@  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
+if nRbr == 1  .or. !fNovi .or. gMagacin=="1"
+	
+	@  m_x+6,m_y+2   SAY "DOBAVLJAC:" get _IdPartner pict "@!" valid {|| empty(_IdPartner) .or. P_Firma(@_IdPartner,6,22), _ino_dob( _idpartner ) }
+ 	
+	@  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj:" get _BrFaktP
+ 	
+	@  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
  	_DatKurs:=_DatFaktP
  	@ m_x+10,m_y+2   SAY "Magacinski Konto zaduzuje" GET _IdKonto valid  P_Konto(@_IdKonto,24) pict "@!"
  	if gNW<>"X"
@@ -34,6 +33,7 @@ if nRbr==1  .or. !fnovi .or. gMagacin=="1"
  	read
 	ESC_RETURN K_ESC
 else
+	
 	@ m_x+6,m_y+2 SAY "DOBAVLJAC: "
 	?? _IdPartner
  	@ m_x+7,m_y+2 SAY "Faktura dobavljaca - Broj: "
@@ -46,6 +46,9 @@ else
    		@ m_x+10,m_y+42 SAY "Zaduzuje: "
 		?? _IdZaduz
  	endif
+	
+	_ino_dob( _idpartner )
+	
 endif
 
 @ m_x+11,m_y+66 SAY "Tarif.brĿ"
@@ -125,6 +128,18 @@ ESC_RETURN K_ESC
 _FCJ2:=_FCJ*(1-_Rabat/100)
 
 return lastkey()
+
+
+// --------------------------------------------------
+// da li je dobavljac ino, setuje valutiranje
+// --------------------------------------------------
+static function _ino_dob( cPartn )
+
+if gDokKVal == "D" .and. fNovi .and. isinodob( cPartn ) 
+	__k_val := "D"
+endif
+
+return .t.
 
 
 
@@ -338,13 +353,9 @@ local nNCpom:=0
 
 __k_val := "N"
 
-if gDokKVal == "D" .and. fNovi
-	__k_val := "D"
-endif
-
 if nRbr==1  .or. !fNovi
  _DatFaktP:=_datdok
- @  m_x+6,m_y+2   SAY "DOBAVLJAC:" get _IdPartner pict "@!" valid empty(_IdPartner) .or. P_Firma(@_IdPartner,6,22)
+ @  m_x+6,m_y+2   SAY "DOBAVLJAC:" get _IdPartner pict "@!" valid {|| empty(_IdPartner) .or. P_Firma(@_IdPartner,6,22), _ino_dob(_idpartner) }
  @  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj:" get _BrFaktP
  @  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
  _DatKurs:=_DatFaktP
@@ -362,6 +373,7 @@ else
  if gNW<>"X"
   @ m_x+10,m_y+42  SAY "Zaduzuje: "; ?? _IdZaduz
  endif
+ _ino_dob( _idpartner )
 endif
 
 IF !glEkonomat

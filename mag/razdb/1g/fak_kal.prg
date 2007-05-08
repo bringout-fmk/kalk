@@ -245,14 +245,20 @@ return
  */
 
 function PrenosOt(cIndik)
-*{
-local cIdFirma:=gFirma,cIdTipDok:="12",cBrDok:=cBrKalk:=space(8)
-local cTipKalk:="96"
+local cIdFirma := gFirma
+local cIdTipDok := "12"
+local cBrDok := SPACE(8)
+local cBrKalk := SPACE(8)
+local cTipKalk := "96"
+local cFaktDob := SPACE(10)
+IF cIndik != nil .and. cIndik == "19"
+	cIdTipDok := "19"
+ENDIF
+IF cIndik != nil .and. cIndik == "0x"
+	cIdTipDok := "0x"
+ENDIF
 
-IF cIndik!=NIL.and.cIndik=="19"; cIdTipDok:="19"; ENDIF
-IF cIndik!=NIL.and.cIndik=="0x"; cIdTipDok:="0x"; ENDIF
-
-if cIndik="01_10"
+if cIndik = "01_10"
 
    cTipKalk:="10"
    cIdtipdok:="01"
@@ -277,29 +283,34 @@ XO_FAKT
 dDatKalk:=date()
 
 if cIdTipDok=="01"
-  cIdKonto:=padr("1310",7)
-  cIdKonto2:=padr("",7)
+	cIdKonto:=padr("1310",7)
+  	cIdKonto2:=padr("",7)
 elseif cIdTipDok=="0x"
-  cIdKonto:=padr("1310",7)
-  cIdKonto2:=padr("",7)
+  	cIdKonto:=padr("1310",7)
+  	cIdKonto2:=padr("",7)
 else
-  cIdKonto:=padr("",7)
-  cIdKonto2:=padr("1310",7)
+  	cIdKonto:=padr("",7)
+  	cIdKonto2:=padr("1310",7)
 endif
 
 cIdZaduz2:=space(6)
 
 if glBrojacPoKontima
+	
 	Box("#FAKT->KALK",3,70)
 		@ m_x+2, m_y+2 SAY "Konto zaduzuje" GET cIdKonto  pict "@!" valid P_Konto(@cIdKonto)
 		read
 	BoxC()
+	
 	cSufiks:=SufBrKalk(cIdKonto)
 	cBrKalk:=SljBrKalk(cTipKalk, cIdFirma, cSufiks)
 	//cBrKalk:=GetNextKalkDoc(cIdFirma, cTipKalk)
+	
 else
+	
 	//cBrKalk:=SljBrKalk(cTipKalk,cIdFirma)
 	cBrKalk:=GetNextKalkDoc(cIdFirma, cTipKalk)
+	
 endif
 
 Box(,15,60)
@@ -307,6 +318,7 @@ Box(,15,60)
 do while .t.
 
   nRBr:=0
+  
   @ m_x+1,m_y+2   SAY "Broj kalkulacije "+cTipKalk+" -" GET cBrKalk pict "@!"
   @ m_x+1,col()+2 SAY "Datum:" GET dDatKalk
   @ m_x+3,m_y+2   SAY "Konto zaduzuje :" GET cIdKonto  pict "@!" when !glBrojacPoKontima valid P_Konto(@cIdKonto)
@@ -315,22 +327,30 @@ do while .t.
     @ m_x+4,col()+2 SAY "Razduzuje:" GET cIdZaduz2  pict "@!"      valid empty(cidzaduz2) .or. P_Firma(@cIdZaduz2)
   endif
 
-  cFaktFirma:=cIdFirma
-  @ m_x+6,m_y+2 SAY "Broj "+IF(LEFT(cIdTipDok,1)!="0","otpremnice","dokumenta u FAKT")+": " GET  cFaktFirma
-  IF LEFT(cIdTipDok,1)!="0"
-    @ m_x+6,col()+1 SAY "- "+cidtipdok
-  ELSE
-    @ m_x+6,col()+1 SAY "- " GET cidtipdok VALID cIdTipDok$"00#01"
-  ENDIF
+  cFaktFirma := cIdFirma
+  
+  @ m_x+6,m_y+2 SAY SPACE(60)
+  @ m_x+6,m_y+2 SAY "Broj dokumenta u FAKT: " GET cFaktFirma
+  @ m_x+6,col()+1 SAY "-" GET cIdTipDok VALID cIdTipDok $ "00#01#10"
   @ m_x+6,col()+1 SAY "-" GET cBrDok
+
   read
+
+  if cIDTipDok == "10" .and. cTipKalk == "10"
+  	 @ m_x + 7, m_y + 2 SAY "Faktura dobavljaca: " GET cFaktDob
+  else
+  	cFaktDob := cBrDok
+  endif
+ 
+  read
+  
   if lastkey()==K_ESC
     exit
   endif
 
-
   select xfakt
   seek cFaktFirma+cIdTipDok+cBrDok
+  
   if !found()
      Beep(4)
      @ m_x+14,m_y+2 SAY "Ne postoji ovaj dokument !!"
@@ -346,7 +366,9 @@ do while .t.
      else
 	cTxt:=""
      endif
+     
      cIdPartner:=space(6)
+     
      private cBeze:=" "
 
      if cTipKalk $ "10"
@@ -364,16 +386,23 @@ do while .t.
       @ m_x+8,m_y+2 SAY space(30)
       loop
      endif
+     
      go bottom
-     if brdok==cBrKalk; nRbr:=val(Rbr); endif
+     
+     if brdok == cBrKalk
+     	nRbr:=val(Rbr)
+     endif
 
-     SELECT KONCIJ; SEEK TRIM(cIdKonto)
+     SELECT KONCIJ
+     SEEK TRIM(cIdKonto)
 
      select xfakt
+     
      IF !ProvjeriSif("!eof() .and. '"+cFaktFirma+cIdTipDok+cBrDok+"'==IdFirma+IdTipDok+BrDok","IDROBA",F_ROBA)
        MsgBeep("U ovom dokumentu nalaze se sifre koje ne postoje u tekucem sifrarniku!#Prenos nije izvrsen!")
        LOOP
      ENDIF
+     
      do while !eof() .and. cFaktFirma+cIdTipDok+cBrDok==IdFirma+IdTipDok+BrDok
        select ROBA; hseek xfakt->idroba
 
@@ -394,7 +423,7 @@ do while .t.
                datdok with dDatKalk,;
                idpartner with cIdPartner,;
                idtarifa with ROBA->idtarifa,;
-               brfaktp with xfakt->brdok,;
+               brfaktp with cFaktDob,;
                datfaktp with xfakt->datdok,;
                idkonto   with cidkonto,;
                idkonto2  with cidkonto2,;
@@ -419,19 +448,27 @@ do while .t.
        select xfakt
        skip
      enddo
+     
      @ m_x+8,m_y+2 SAY "Dokument je prenesen !!"
+     
      if gBrojac=="D"
-      cbrkalk:=UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
+        cBrKalk:=UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
      endif
+     
      inkey(4)
+     
      @ m_x+8,m_y+2 SAY space(30)
+  
   endif
 
 enddo
+
 BoxC()
+
 closeret
+
 return
-*}
+
 
 // ------------------------------------------------
 // ------------------------------------------------

@@ -183,18 +183,15 @@ O_TDOK
 O_VALUTE
 O_SIFK
 O_SIFV
-if (IsRamaGlas())
-	O_RNAL
-endif
 O_ROBA
-O_TARIFA // tarife
+O_TARIFA 
 O_KONCIJ
 
 select PRIPR
 set order to 1
 go top
 return
-*}
+
 
 
 

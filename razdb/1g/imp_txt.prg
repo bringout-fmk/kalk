@@ -273,9 +273,9 @@ AADD(aDbf,{"rbr", "C", 3, 0})
 AADD(aDbf,{"idroba", "C", 10, 0})
 AADD(aDbf,{"kolicina", "N", 14, 5})
 AADD(aDbf,{"cijena", "N", 14, 5})
-AADD(aDbf,{"rabat", "N", 10, 5})
-AADD(aDbf,{"porez", "N", 10, 5})
-AADD(aDbf,{"rabatp", "N", 10, 5})
+AADD(aDbf,{"rabat", "N", 14, 5})
+AADD(aDbf,{"porez", "N", 14, 5})
+AADD(aDbf,{"rabatp", "N", 14, 5})
 AADD(aDbf,{"datval", "D", 8, 0})
 AADD(aDbf,{"obrkol", "N", 14, 5})
 
@@ -499,6 +499,8 @@ for i:=1 to nBrLin
 	select temp
 	// dodaj novi zapis
 	append blank
+	
+	altd()
 	
 	for nCt:=1 to LEN(aRules)
 		fname := FIELD(nCt)

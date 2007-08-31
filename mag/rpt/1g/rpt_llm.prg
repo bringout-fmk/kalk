@@ -103,6 +103,7 @@ private cNCSif:="N"
 private cMink:="N"
 private cSredCij:="N"
 private cPKN := "N"
+private cFaBrDok := space(40)
 
 if !Empty(cRNT1)
 	private cRNalBroj:=PADR("", 40)
@@ -122,8 +123,9 @@ Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		@ m_x+2,m_y+2 SAY "Konto   " GET cIdKonto valid "." $ cidkonto .or. P_Konto(@cIdKonto)
  		@ m_x+3,m_y+2 SAY "Artikli " GET qqRoba pict "@!S50"
  		@ m_x+4,m_y+2 SAY "Tarife  " GET qqTarifa pict "@!S50"
- 		@ m_x+5,m_y+2 SAY "Vrste dokumenata  " GET qqIDVD pict "@!S30"
- 		@ m_x+6,m_y+2 SAY "Partneri          " GET qqIdPartner pict "@!S30"
+ 		@ m_x+5,m_y+2 SAY "Vrste dokumenata " GET qqIDVD pict "@!S30"
+ 		@ m_x+6,m_y+2 SAY "Partneri " GET qqIdPartner pict "@!S20"
+		@ m_x+6,col()+1 SAY "Br.fakture " GET cFaBrDok  pict "@!S15"
  		@ m_x+7,m_y+2 SAY "Prikaz Nab.vrijednosti D/N" GET cPNab  valid cpnab $ "DN" pict "@!"
  		if (IsPDV() .and. (IsMagPNab() .or. IsMagSNab()))
 			@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je NV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
@@ -186,7 +188,8 @@ Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
  		private aUsl3:=Parsiraj(qqIDVD,"idvd")
  		private aUsl4:=Parsiraj(qqIDPartner,"idpartner")
- 		
+		private aUsl5:=Parsiraj(cFaBrDok, "brfaktp" )
+		
 		if IsRobaGroup()
 			qqRGr := ALLTRIM(qqRGr)	
  			qqRGr2 := ALLTRIM(qqRGr2)	
@@ -200,7 +203,7 @@ Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 			private aUslRn := Parsiraj(cRNalBroj,"idzaduz2")
 		endif
 		
-		if aUsl1<>NIL .and. aUsl2<>NIL .and. aUsl3<>NIL .and. aUsl4<>NIL .and. (!lPoNarudzbi.or.aUslN<>NIL) .and. (EMPTY(cRnT1) .or. EMPTY(cRNalBroj) .or. aUslRn<>NIL)
+		if aUsl1<>NIL .and. aUsl2<>NIL .and. aUsl3<>NIL .and. aUsl4<>NIL .and. (!lPoNarudzbi.or.aUslN<>NIL) .and. (EMPTY(cRnT1) .or. EMPTY(cRNalBroj) .or. aUslRn<>NIL) .and. aUsl5<>nil
    			exit
  		endif
 	enddo
@@ -245,6 +248,10 @@ endif
 if aUsl4<>".t."
   	cFilt+=".and."+aUsl4
 endif
+if !EMPTY(cFaBrDok) .and. aUsl5<>".t."
+	cFilt+=".and."+aUsl5
+endif
+
 if !empty(dDatOd) .or. !empty(dDatDo)
  	cFilt+=".and. DatDok>="+cm2str(dDatOd)+".and. DatDok<="+cm2str(dDatDo)
 endif

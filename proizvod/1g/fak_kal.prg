@@ -1,48 +1,43 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-
 /*
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
  */
- 
 
 
-/*! \fn FaKaProizvodnja()
- *  \brief Meni opcija za prenos dokumenata FAKT->KALK za proizvode
- */
 
+// ---------------------------------------------
+// meni za razmjenu dokumenata proizvodnje
+// ---------------------------------------------
 function FaKaProizvodnja()
-*{
 private Opc:={}
 private opcexe:={}
+private Izbor:=1
+
 AADD(Opc,"1. fakt->kalk 96 po normativima za period            ")
 AADD(opcexe,{||          PrenosNo()  })
-AADD(Opc,"2. fakt->kalk 10 got.proizv po normativima za period")
+AADD(Opc,"2. fakt->kalk 96 po normativima po fakturama")
+AADD(opcexe,{||          PrenosNoFakt()  })
+AADD(Opc,"3. fakt->kalk 10 got.proizv po normativima za period")
 AADD(opcexe,{||          PrenosNo2() })
-private Izbor:=1
+
 Menu_SC("fkno")
+
 return
-*}
 
 
-/*! \fn PrenosNo()
- *  \brief Prenos FAKT -> KALK 96 po normativima
- */
-
+// -------------------------------------------------------
+// prenos po normativima za period
+// -------------------------------------------------------
 function PrenosNo()
-*{
-local cIdFirma:=gFirma,cIdTipDok:="10;11;12;      ",cBrDok:=cBrKalk:=space(8)
+local cIdFirma:=gFirma
+local cIdTipDok:="10;11;12;      "
+local cBrDok:=space(8)
+local cBrKalk:=space(8)
 
-O_PRIPR
-O_KALK
-O_ROBA
-O_KONTO
-O_PARTN
-O_TARIFA
-O_SAST
-XO_FAKT
+o_tables()
 
 dDatKalk:=date()
 cIdKonto:=padr("",7)
@@ -93,11 +88,48 @@ do while .t.
     MsgBeep("U ovom dokumentu nalaze se sifre koje ne postoje u tekucem sifrarniku!#Prenos nije izvrsen!")
     LOOP
   ENDIF
+  
+  aNotIncl := {}
+  
   do while !eof() .and. cFaktFirma==IdFirma
 
     if idtipdok $ cIdTipdok .and. dDatFOd<=datdok .and. dDatFDo>=datdok // pripada odabranom intervalu
 
-       select ROBA; hseek xfakt->idroba
+       cFBrDok := xfakt->brdok
+
+       select doks
+       set order to tag "V_BRF"
+       go top
+       seek PADR( cFBrDok, 10 ) + "96"
+
+       if FOUND() .and. ALLTRIM(doks->brfaktp) == ALLTRIM(cFBrDok) .and. doks->idvd == "96"
+       		
+		cTmp := xfakt->idfirma + "-" + (cFBrDok)
+		dTmpDate := xfakt->datdok
+		
+		select partn
+		hseek xfakt->idpartner
+		
+		cTmpPartn := ALLTRIM( partn->naz )
+		
+		select doks
+		
+		
+		nScan := ASCAN(aNotIncl, {|xVar| xVar[1] == cTmp })
+		
+		if nScan == 0
+			AADD(aNotIncl, { cTmp, dTmpDate, cTmpPartn, doks->idvd + "-" + doks->brdok })
+		endif
+		
+		select xfakt
+		skip
+		loop
+		
+       endif
+       
+       select ROBA
+       hseek xfakt->idroba
+       
        if roba->tip="P"  // radi se o proizvodu
 
           select sast
@@ -139,20 +171,226 @@ do while .t.
     select xfakt
     skip
   enddo
+  
+  if LEN(aNotIncl) > 0
+  	rpt_not_incl( aNotIncl )
+  endif
 
   @ m_x+10,m_y+2 SAY "Dokumenti su preneseni !!"
+  
   if gBrojac=="D"
-   cbrkalk:=UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
+   	cbrkalk:=UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
   endif
+  
   inkey(4)
   @ m_x+8,m_y+2 SAY space(30)
+
 
 enddo
 Boxc()
 closeret
 return
-*}
 
+// ---------------------------------------------
+// prikazi sta nije ukljuceno u prenos
+// ---------------------------------------------
+static function rpt_not_incl( aArr )
+local i
+local nCnt := 0
+
+START PRINT CRET
+
+? "----------------------------------------------"
+? "U prenosu nisu ukljuceni sljedeci dokumenti:"
+? "----------------------------------------------"
+
+?
+? "---- ----------- ----------- -------- --------------------------------------"
+? "rbr  br.dok      br.dok       datum   partner" 
+? "     u fakt      u kalk"
+? "---- ----------- ----------- -------- --------------------------------------"
+
+for i :=1 to LEN( aArr )
+
+	//       rbr             brdok f.   brdok k.  datum       partner
+	? STR(++nCnt, 3) + ".", aArr[i, 1], aArr[i, 4], aArr[i, 2], aArr[i, 3]
+
+next
+
+?
+? "Ovi dokumenti su preneseni opcijom prenosa po"
+? "broju fakture."
+
+FF
+END PRINT
+
+return
+
+
+// -------------------------------------
+// otvori tabele za prenos
+// -------------------------------------
+static function o_tables()
+
+O_PRIPR
+O_KALK
+O_DOKS
+O_ROBA
+O_KONTO
+O_PARTN
+O_TARIFA
+O_SAST
+XO_FAKT
+
+return
+
+
+
+// -------------------------------------------------------
+// prenos po normativima po broju faktura
+// -------------------------------------------------------
+function PrenosNoFakt()
+local cIdFirma := gFirma
+local cIdTipDok := "10"
+local cBrDok := space(8)
+local cBrKalk := space(8)
+local cFaBrDok := space(8)
+// otvori tabele prenosa
+o_tables()
+
+dDatKalk := date()
+cIdKonto := padr("",7)
+cIdKonto2 := padr("1310",7)
+cIdZaduz2 := space(6)
+
+cBrkalk:=space(8)
+
+if gBrojac=="D"
+ 	select kalk
+	set order to 1
+	seek cIdFirma + "96X"
+ 	skip -1
+ 	if idvd<>"96"
+   		cBrKalk:=space(8)
+ 	else
+   		cBrKalk:=brdok
+ 	endif
+endif
+
+Box(,15,60)
+
+if gBrojac=="D"
+	cBrKalk := UBrojDok(val(left(cBrKalk,5))+1,5,right(cBrKalk,3))
+endif
+
+do while .t.
+
+	nRBr:=0
+  
+  	@ m_x+1,m_y+2   SAY "Broj kalkulacije 96 -" GET cBrKalk pict "@!"
+  	@ m_x+1,col()+2 SAY "Datum:" GET dDatKalk
+  	@ m_x+3,m_y+2   SAY "Konto razduzuje:" GET cIdKonto2 pict "@!" valid P_Konto(@cIdKonto2)
+  
+  	if gNW<>"X"
+    		@ m_x+3,col()+2 SAY "Razduzuje:" GET cIdZaduz2  pict "@!"      valid empty(cidzaduz2) .or. P_Firma(@cIdZaduz2)
+  	endif
+  
+  	@ m_x+4,m_y+2   SAY "Konto zaduzuje :" GET cIdKonto  pict "@!" valid P_Konto(@cIdKonto)
+
+  	cFaktFirma:=cIdFirma
+  	
+	@ m_x+6,m_y+2 SAY "RJ u FAKT: " GET  cFaktFirma
+  	@ m_x+7,m_Y+2 SAY "Dokument tipa u fakt:" GET cIdTipDok
+  	
+  	@ m_x+8,m_Y+2 SAY "Broj dokumenta u fakt:" GET cFaBrDok
+
+	
+	read
+  
+  	if lastkey()==K_ESC
+  		exit
+	endif
+
+  	select xfakt
+  	seek cFaktFirma
+  	
+	if !ProvjeriSif("!eof() .and. '"+cFaktFirma+"'==IdFirma","IDROBA",F_ROBA,"idtipdok = '"+cIdTipdok+"' .and. brdok = '" + cFaBrDok + "'" )
+	
+    		MsgBeep("U ovom dokumentu nalaze se sifre koje ne postoje u tekucem sifrarniku!#Prenos nije izvrsen!")
+    		loop
+  	endif
+  
+  	do while !eof() .and. cFaktFirma==IdFirma
+
+    		if idtipdok = cIdTipdok .and. cFaBrDok = brdok 
+
+       			select ROBA
+			hseek xfakt->idroba
+       			if roba->tip="P"  
+				// radi se o proizvodu
+				select sast
+          			hseek  xfakt->idroba
+          			do while !eof() .and. id==xFakt->idroba 
+					// setaj kroz sast
+            				select roba
+					hseek sast->id2
+            				select pripr
+            				locate for idroba==sast->id2
+            				if found()
+              					replace kolicina with kolicina + xfakt->kolicina*sast->kolicina
+            				else
+              					select pripr
+              					append blank
+              					replace idfirma with cIdFirma,;
+                      				rbr     with str(++nRbr,3),;
+                       				idvd with "96",;   
+                       				brdok with cBrKalk,;
+                       				datdok with dDatKalk,;
+                       				idtarifa with ROBA->idtarifa,;
+                       				brfaktp with xfakt->brdok,;
+						idpartner with xfakt->idpartner,;
+                       				datfaktp with dDatKalk,;
+                       				idkonto   with cidkonto,;
+                       				idkonto2  with cidkonto2,;
+                       				idzaduz2  with cidzaduz2,;
+                       				datkurs with dDatKalk,;
+                       				kolicina with xfakt->kolicina*sast->kolicina,;
+                       				idroba with sast->id2,;
+                       				nc  with ROBA->nc,;
+                       				vpc with xfakt->cijena,;
+                       				rabatv with xfakt->rabat,;
+                       				mpc with xfakt->porez
+            				endif
+            				
+					select sast
+            				skip
+          			enddo
+
+       			endif 
+    		endif 
+    		
+		select xfakt
+    		skip
+  	enddo
+
+  	@ m_x+10,m_y+2 SAY "Dokumenti su preneseni !!"
+  	
+	if gBrojac=="D"
+   		cBrKalk:=UBrojDok(val(left(cBrKalk,5)) +1, 5, right(cBrKalk,3))
+  	endif
+  
+	cFaBrDok := UBrojDok(val(left(cFaBrDok, 5)) + 1, 5, right(cFaBrDok,3))
+  
+	inkey(4)
+  	
+	@ m_x+8,m_y+2 SAY space(30)
+
+enddo
+
+Boxc()
+closeret
+
+return
 
 
 

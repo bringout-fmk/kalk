@@ -111,7 +111,7 @@ if gVarEv=="1"
 		@ m_x + 15, m_y + 40 SAY "pr.->" GET __k_val VALID _val_konv(__k_val) PICT "@!"
 	endif
 	
- 	@ m_x+15+IF(lPoNarudzbi,1,0),m_y+50  GET _FCJ PICTURE gPicNC valid {|| _fcj > 0, _set_konv( @_fcj, @__k_val ) } when V_kol10()
+ 	@ m_x+15+IF(lPoNarudzbi,1,0),m_y+50  GET _FCJ PICTURE gPicNC valid {|| _fcj > 0 .and. _set_konv( @_fcj, @__k_val ) } when V_kol10()
 	@ m_x+17+IF(lPoNarudzbi,1,0),m_y+2   SAY "KASA-SKONTO(%):"
  	@ m_x+17+IF(lPoNarudzbi,1,0),m_y+40 GET _Rabat PICTURE PicDEM when DuplRoba()
 	if gNW<>"X"   .or. gVodiKalo=="D"

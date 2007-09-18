@@ -111,6 +111,7 @@ private aDbf:={}
 private aRules:={}
 private aFaktEx
 private lFtSkip := .f.
+private lNegative := .f.
 
 // setuj polja temp tabele u matricu aDbf
 SetTblDok(@aDbf)
@@ -130,7 +131,13 @@ if CheckBrFakt(@aFaktEx) == 0
 	endif
 endif
 
-if TTbl2Kalk(aFaktEx, lFtSkip) == 0
+lNegative := .f.
+
+if Pitanje(,"Prebaciti prvo negatine dokumente (povrate) ?", "D") == "D"
+	lNegative := .t.
+endif
+
+if TTbl2Kalk(aFaktEx, lFtSkip, lNegative) == 0
 	MsgBeep("Operacija prekinuta!")
 	return 
 endif
@@ -278,6 +285,7 @@ AADD(aDbf,{"porez", "N", 14, 5})
 AADD(aDbf,{"rabatp", "N", 14, 5})
 AADD(aDbf,{"datval", "D", 8, 0})
 AADD(aDbf,{"obrkol", "N", 14, 5})
+AADD(aDbf,{"dtype", "C", 3, 0})
 
 return
 *}
@@ -506,8 +514,26 @@ for i:=1 to nBrLin
 		fname := FIELD(nCt)
 		xVal := aRules[nCt, 1]
 		replace &fname with &xVal
+
 	next
 next
+
+// proği kroz temp i napuni da li je dtype pozitivno ili negativno
+
+select temp
+go top
+do while !EOF()
+
+	if field->idtipdok == "10" .and. field->kolicina < 0
+		replace field->dtype with "0"
+	else
+		replace field->dtype with "1"
+	endif
+	
+	skip
+
+enddo
+
 
 MsgBeep("Import txt => temp - OK")
 
@@ -549,6 +575,7 @@ if aDbf[1,1] == "idpartner"
 	create_index("1","idpartner", cTmpTbl)
 else
 	create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
+	create_index("2","dtype+idfirma+idtipdok+brdok+rbr", cTmpTbl)
 endif
 return
 *}
@@ -894,8 +921,9 @@ return aRet
  *  \brief kopira podatke iz pomocne tabele u tabelu KALK->PRIPT
  *  \param aFExist matrica sa postojecim fakturama
  *  \param lFSkip preskaci postojece fakture
+ *  \param lNegative - prvo prebaci negativne fakture
  */
-function TTbl2Kalk(aFExist, lFSkip)
+function TTbl2Kalk(aFExist, lFSkip, lNegative)
 *{
 local cBrojKalk
 local cTipDok
@@ -909,7 +937,17 @@ O_ROBA
 O_PRIPT
 
 select temp
-set order to tag "1"
+
+if lNegative == nil
+	lNegative := .f.
+endif
+
+if lNegative == .t.
+	set order to tag "2"
+else
+	set order to tag "1"
+endif
+
 go top
 
 nRbr:=0
@@ -922,7 +960,9 @@ cPPm := "XXX"
 aPom := {}
 
 do while !EOF()
-	
+
+	altd()
+
 	cFakt := ALLTRIM(temp->brdok)
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	cPm := temp->idpm

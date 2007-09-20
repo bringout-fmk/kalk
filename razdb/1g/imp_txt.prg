@@ -518,22 +518,23 @@ for i:=1 to nBrLin
 	next
 next
 
-// proði kroz temp i napuni da li je dtype pozitivno ili negativno
+
 
 select temp
-go top
-do while !EOF()
 
-	if field->idtipdok == "10" .and. field->kolicina < 0
-		replace field->dtype with "0"
-	else
-		replace field->dtype with "1"
-	endif
-	
-	skip
-
-enddo
-
+// proði kroz temp i napuni da li je dtype pozitivno ili negativno
+// ali samo ako je u pitanju racun tabela... !
+if temp->(fieldpos("idtipdok")) <> 0
+	go top
+	do while !EOF()
+		if field->idtipdok == "10" .and. field->kolicina < 0
+			replace field->dtype with "0"
+		else
+			replace field->dtype with "1"
+		endif
+		skip
+	enddo
+endif
 
 MsgBeep("Import txt => temp - OK")
 

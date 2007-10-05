@@ -13,6 +13,7 @@ local cPKonto
 local dDatDok
 local cGlStanje:="D"
 
+
 O_KONTO
 
 Box(,4,70)
@@ -59,7 +60,6 @@ Box(, 2, 65)
 
 O_DOKS
 
-
 nUvecaj := 1
 for nCnt:=1 to LEN(aProd)
 	// daj broj kalkulacije
@@ -78,11 +78,10 @@ BoxC()
 result_nivel_p()
 
 return
-*}
+
 
 
 function get_zcnivel()
-*{
 local aProd // matrica sa prodavnicama
 local cProd // prodavnica
 local cPKonto
@@ -196,7 +195,8 @@ do while !eof()
 	
 	cIdRoba:=field->id
 	nNivCijena:=field->zanivel
-	nStCijena:=field->mpc
+	// uzmi MPC iz sifrarnika
+	nStCijena:=UzmiMpcSif()
 
 	nUlaz:=0
 	nIzlaz:=0
@@ -277,7 +277,8 @@ return
 
 // setuj mpc iz polja zanivel nakon nivelacije
 function set_mpc_iz_zanivel()
-*{
+local cSetCj := "1"
+
 
 if !SigmaSif("SETMPC")
 	MsgBeep("Ne cackaj!")
@@ -285,6 +286,14 @@ if !SigmaSif("SETMPC")
 endif
 
 MsgBeep("Ova opcija se iskljucivo pokrece#nakon obradjenih nivelacija!")
+
+
+box(, 1, 55)
+	@ m_x + 1, m_y + 2 SAY "Setovati MPC(1, 2, 3, 4) ?" GET cSetCj VALID cSetCj $ "12345"
+	
+	read
+boxc()
+
 
 if Pitanje(,"Setovati nove cijene","N") == "N"
 	return
@@ -294,12 +303,20 @@ if !USED(F_ROBA)
 	O_ROBA
 endif
 
+
+if cSetCj == "1"
+	cField := "MPC"
+else
+	cField := "MPC" + cSetCj
+endif
+
 select roba
 set order to tag "ID"
 go top
 
 Box(,3, 70)
 do while !EOF()
+
 	if ROUND(field->zanivel, 4) == 0
 		skip
 		loop
@@ -308,20 +325,21 @@ do while !EOF()
 	@ 1+m_x, 2+m_y SAY "ID roba: " + field->id
 	
 	// sacuvaj backup u zaniv2
-	replace zaniv2 with mpc
+	replace zaniv2 with &cField
 	// prebaci iz zanivel u mpc
-	replace mpc with zanivel
+	replace &cField with zanivel
 	
-	@ 2+m_x, 2+m_y SAY "Update cijena " + ALLTRIM(STR(field->zanivel)) + " -> " + ALLTRIM(STR(field->mpc))
+	@ 2+m_x, 2+m_y SAY "Update cijena " + ALLTRIM(STR(field->zanivel)) + " -> " + ALLTRIM(STR( &cField ))
 	
 	skip
 enddo
+
 BoxC()
 
 MsgBeep("Zavrseno setovanje cijena!")
 
 return
-*}
+
 
 
 // generisanje nivelacije sa zadzavanjem cijena

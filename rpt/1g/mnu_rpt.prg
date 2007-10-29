@@ -28,7 +28,7 @@ AADD(opcexe, {|| IzvjMaPr() } )
 AADD(opc,"4. proizvoljni izvjestaji")
 AADD(opcexe, {|| Proizv()})
 AADD(opc,"5. export dokumenata")
-AADD(opcexe, {|| rpt_export()})
+AADD(opcexe, {|| krpt_export()})
 AADD(opc,"6. integritet podataka")
 AADD(opcexe, {|| m_integritet() })
 

@@ -3,7 +3,7 @@ MODUL=ka_1sif
 
 SRCDOSROOT=c:\\dev\\fmk\\kalk\\sif\\1g\\
 
-PRGS=sifre.prg
+PRGS=sifre.prg sast.prg
 
 CS=
 ASMS=

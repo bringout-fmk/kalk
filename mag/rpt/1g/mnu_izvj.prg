@@ -1,41 +1,7 @@
 #include "\dev\fmk\kalk\kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/mnu_izvj.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.4 $
- * $Log: mnu_izvj.prg,v $
- * Revision 1.4  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.3  2002/06/25 15:08:46  ernad
- *
- *
- * prikaz parovno - Planika
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/rpt/1g/mnu_izvj.prg
- *  \brief Meniji magacinskih izvjestaja
- */
-
-
-/*! \fn IzvjM()
- *  \brief Osnovni meni magacinskih izvjestaja
- */
 
 function IzvjM()
-*{
 private Opc:={}
 private opcexe:={}
 AADD(Opc,"1. kartica - magacin                      ")
@@ -62,11 +28,13 @@ AADD(Opc,"----------------------------------")
 AADD(opcexe, nil)
 AADD(Opc,"S. pregledi za vise objekata")
 AADD(opcexe, {|| MRekMag() })
+//AADD(Opc,"T. lista sastavnice po oznakama")
+//AADD(opcexe, {|| g_sast_list() })
 private Izbor:=1
 Menu_SC("imag")
 CLOSERET
 return
-*}
+
 
 
 

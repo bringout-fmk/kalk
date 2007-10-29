@@ -341,7 +341,9 @@ Box(,15,60)
        					APPEND BLANK
        					replace idfirma with cIdFirma,rbr with str(++nRbr,3),idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa,	brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cidkonto, idzaduz with cidzaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena,	tmarza2 with "%"
 
-       					select xfakt
+					replace rabatv with xfakt->rabat
+						
+					select xfakt
       					skip
      				enddo
 			

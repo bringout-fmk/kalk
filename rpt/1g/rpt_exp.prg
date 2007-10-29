@@ -19,7 +19,7 @@ static cKonverzija := "4"
 static nCurrLine:=0
 
 
-function rpt_export()
+function krpt_export()
 
 local lAkciznaRoba := .f.
 local lZasticeneCijene := .f.
@@ -177,7 +177,8 @@ AADD(aArr, {"cij_nov_2",  "N",  10, nCijDec})
 return
 *}
 
-function t_exp_create(cIdVd, lVpcCij, lMpcCij)
+
+function kt_exp_create(cIdVd, lVpcCij, lMpcCij)
 *{
 local cExpTbl := "R_EXPORT.DBF"
 local aArr:={}
@@ -211,7 +212,7 @@ private cKom
 // + stavka preknjizenja = pdv
 // - stavka = ppp
 
-t_exp_create(cIdVd, lVpcCij, lMpcCij)
+kt_exp_create(cIdVd, lVpcCij, lMpcCij)
 
 O_R_EXP
 //set ORDER to TAG "ROB"

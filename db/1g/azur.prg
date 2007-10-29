@@ -219,8 +219,11 @@ if cPametno=="D"
 
 	Otprema() // iz otpreme napravi ulaza
  	Iz13u11()  // prenos iz prodavnice u prodavnicu
- 	InvManj()
- 	lOSitInv:=.f.
+ 	
+	// inventura magacina - manjak / visak
+	InvManj()
+	
+	lOSitInv:=.f.
  	IF IzFMKIni("KALKSI","EvidentirajOtpis","N",KUMPATH)=="D"
    		lOSitInv:=Otpis16SI()
  	ENDIF
@@ -484,6 +487,7 @@ if cPametno=="D"
    append from pripr2
    select pripr2; zap
   endif
+
 
  elseif idvd $ "16"  .and. gGen16=="1" 
    // nakon otpreme doprema

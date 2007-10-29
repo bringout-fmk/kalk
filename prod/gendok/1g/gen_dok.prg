@@ -105,6 +105,7 @@ return
 
 
 
+
 /*! \fn GenNivP()
  *  \brief Generisanje 19-ke na osnovu azuriranog dokumenta IP
  */

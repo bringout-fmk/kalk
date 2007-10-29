@@ -63,15 +63,15 @@ P_COND
 select PRIPR
 
 if (IsJerry())
-	m:="--- -------------------------------------------- ------ ---------- ---------- ---------- --------- ----------- ----------- -----------"
+	m:="--- -------------------------------------------- ------ ---------- ---------- ---------- ---------- ----------- ----------- -----------"
 	? m
 	? "*R *                                            *      *  Popisana*  Knjizna *  Knjizna * Popisana *  Razlika * Cijena  *  +VISAK  *"
 	? "*BR*               R O B A                      *Tarifa*  Kolicina*  Kolicina*vrijednost*vrijednost*  (kol)   *         *  -MANJAK *"
 else
-	m:="--- --------------------------------------- ---------- ---------- ---------- --------- ----------- ----------- -----------"
+	m:="--- --------------------------------------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------"
 	? m
-	? "*R * ROBA                                  *  Popisana*  Knjizna *  Knjizna * Popisana *  Razlika * Cijena  *  +VISAK  *"
-	? "*BR* TARIFA                                *  Kolicina*  Kolicina*vrijednost*vrijednost*  (kol)   *         *  -MANJAK *"
+	? "*R * ROBA                                  *  Popisana*  Knjizna *  Knjizna * Popisana *  Razlika * Cijena  *  +VISAK  * -MANJAK  *"
+	? "*BR* TARIFA                                *  Kolicina*  Kolicina*vrijednost*vrijednost*  (kol)   *         *          *          *"
 endif
 
 ? m
@@ -89,7 +89,12 @@ nTotKol:=0
 nTotGKol:=0
 
 
+nTotVisak := 0
+nTotManjak := 0
+
 private cIdd:=idpartner+brfaktp+idkonto+idkonto2
+
+
 
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
@@ -169,7 +174,20 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 	if cSamoObraz=="D"
 		@ prow(),pcol()+1 SAY nU4  pict replicate(" ",len(PicDEM))
 	else
-		@ prow(),pcol()+1 SAY nU4  pict picdem
+		if ( nU4 < 0 ) 
+			
+			// manjak
+			@ prow(),pcol()+1 SAY 0 PICT picdem	
+			@ prow(),pcol()+1 SAY nU4  PICT picdem
+			nTotManjak += nU4	
+		else
+			
+			// visak
+			@ prow(), pcol()+1 SAY nU4 PICT picdem
+			@ prow(),pcol()+1 SAY 0 PICT picdem
+			nTotVisak += nU4
+			
+		endif
 	endif
 
 	skip 1
@@ -193,14 +211,16 @@ if cSamoObraz=="D"
 endif
 
 ? m
-@ prow()+1, 0 SAY "Ukupno:"
-@ prow(),(pcol()*6)+2 SAY nTotKol pict pickol
+@ prow()+1, 0 SAY PADR( "Ukupno:", 43)
+@ prow(),pcol()+1 SAY nTotKol pict pickol
 @ prow(),pcol()+1 SAY nTotGKol pict pickol
 @ prow(),pcol()+1 SAY nTotb pict picdem
 @ prow(),pcol()+1 SAY nTotc pict picdem
 @ prow(),pcol()+1 SAY 0 pict picdem
 @ prow(),pcol()+1 SAY 0 pict picdem
-@ prow(),pcol()+1 SAY nTot4  pict picdem
+@ prow(),pcol()+1 SAY nTotVisak pict picdem
+@ prow(),pcol()+1 SAY nTotManjak pict picdem
+
 ? m
 
 // Visak

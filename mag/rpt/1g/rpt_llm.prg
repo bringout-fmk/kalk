@@ -7,6 +7,19 @@ static __txt2
 static __txt3
 
 
+// ---------------------------------
+// tabele potrebne za report
+// ---------------------------------
+static function _o_tables()
+O_SIFK
+O_SIFV
+O_ROBA
+O_KONCIJ
+O_KONTO
+O_PARTN
+
+return
+
  
 // ----------------------------------------------------
 // izvjestaj - lager lista magacina
@@ -15,6 +28,9 @@ function LLM()
 parameters fPocStanje
 local fimagresaka:=.f.
 local aNabavke:={}
+
+local lExpDbf := .f.
+local cExpDbf := "N"
 
 // ulaz, izlaz parovno
 local nTUlazP
@@ -68,12 +84,7 @@ if IsVindija()
 	cOpcine:=SPACE(50)
 endif
 
-O_SIFK
-O_SIFV
-O_ROBA
-O_KONCIJ
-O_KONTO
-O_PARTN
+_o_tables()
 
 if fPocStanje==NIL
 	fPocStanje:=.f.
@@ -111,7 +122,7 @@ endif
 
 cArtikalNaz:=SPACE(30)
 
-Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
+Box(,20+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 	
 	do while .t.
  		if gNW $ "DX"
@@ -181,6 +192,8 @@ Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 			@ m_x+19,m_y+2 SAY "Broj radnog naloga:"  GET cRNalBroj PICT "@S20"
 		endif
 		
+		@ m_x + 20, m_y + 2 SAY "Export izvjestaja u dbf?" GET cExpDbf VALID cExpDbf $ "DN" PICT "@!"
+		
 		read
 		ESC_BCR
  
@@ -209,6 +222,13 @@ Box(,19+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 	enddo
 BoxC()
 
+
+// export u dbf ?
+if cExpDbf == "D"
+	lExpDbf := .t.
+endif
+
+
 lSvodi:=.f.
 
 if IsDomZdr() .and. cSzDN == "D"
@@ -230,6 +250,20 @@ if "." $ cIdKonto
   	fSint:=.t.
 	lSabKon:=(Pitanje(,"Racunati stanje robe kao zbir stanja na svim obuhvacenim kontima? (D/N)","N")=="D")
 endif
+
+
+if lExpDbf == .t.
+
+	// exportuj report....
+	aExpFields := g_exp_fields()
+	t_exp_create( aExpFields )
+	cLaunch := exp_report()
+
+endif
+
+
+_o_tables()
+
 
 O_KALKREP
 
@@ -577,6 +611,7 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	
 	? str(++nrbr,4)+".", cIdRoba
 	nCr:=pcol()+1
+	
 	@ prow(),pcol()+1 SAY aNaz[1]
 
 	cJMJ:=ROBA->JMJ
@@ -646,7 +681,7 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	nCol1:=pcol()+1
 
 	// varijanta evidencije sa cijenama
-	if gVarEv=="1"
+	if gVarEv == "1"
 		if IsMagSNab() .or. IsMagPNab()
  			
 			// NV
@@ -800,6 +835,13 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	nTNVI+=nNVI
 	nTNV+=(nNVU-nNVI)
 	nTRabat+=nRabat
+
+	if lExpDbf == .t.
+	
+		fill_exp_tbl( 0, roba->id, roba->naz, roba->idtarifa, cJmj, ;
+				nUlaz, nIzlaz, (nUlaz-nIzlaz) )
+		
+	endif
 	
 endif
 
@@ -878,11 +920,67 @@ if fPocStanje
  endif
 endif
 
+// lansiraj report....
+if lExpDbf == .t.
+	tbl_export( cLaunch ) 
+endif
+
+
 gPicDem := cPicDem
 gPicCDem := cPicCDem
 gPicKol := cPicKol
 
 closeret
+return
+
+
+// --------------------------------------
+// export rpt, tbl fields
+// --------------------------------------
+static function g_exp_fields( )
+aDbf := {}
+
+AADD( aDbf, { "IDROBA", "C", 10, 0 })
+AADD( aDbf, { "NAZIV", "C", 40, 0 })
+AADD( aDbf, { "TARIFA", "C", 6, 0 })
+AADD( aDbf, { "JMJ", "C", 3, 0 })
+AADD( aDbf, { "ULAZ", "N", 15, 5 })
+AADD( aDbf, { "IZLAZ", "N", 15, 5 })
+AADD( aDbf, { "STANJE", "N", 15, 5 })
+
+return aDbf
+
+
+// ------------------------------------------------------------
+// filovanje tabele exporta
+// ------------------------------------------------------------
+static function fill_exp_tbl( nVar, cIdRoba, cNazRoba, cTarifa, cJmj, ;
+		nUlaz, nIzlaz, nSaldo )
+
+local nTArea := SELECT()
+
+if nVar == nil
+	nVar := 0
+endif
+
+O_R_EXP
+
+append blank
+
+replace field->idroba with cIdRoba
+replace field->naziv with cNazRoba
+replace field->tarifa with cTarifa
+replace field->jmj with cJmj
+replace field->ulaz with nUlaz
+replace field->izlaz with nIzlaz
+replace field->stanje with nSaldo
+
+if nVar == 1
+	//
+endif
+
+select (nTArea)
+
 return
 
 

@@ -140,12 +140,12 @@ cLine := cSpace + REPLICATE("-", 5) + SPACE(1) + REPLICATE("-", 10) + ;
 	REPLICATE("-", 10) , "" )
 
 
+
 ? cLine
 
-? cSpace + PADR("R.br", 5) + SPACE(1) + PADR("Sifra", 10) + ;
-	SPACE(1) + PADR("Naziv", 40) + SPACE(1) + ;
-	PADR("Kol.sast", 10) + IF( nVar == 2, SPACE(1) + PADR("Stanje", 10) + ;
-	SPACE(1) + PADR("Total", 10 ), "" )
+? cSpace + PADR("R.br", 5), PADR("Sifra", 10), PADR("Naziv", 40), PADR("Kol.po", 10), IF( nVar == 2, PADR("Stanje", 10) + SPACE(1) + PADR("Ukupno", 10), "" )
+? cSpace + PADR("", 5), PADR("", 10), PADR("", 40), PADR("sastav.", 10), IF( nVar == 2, PADR("po kart.", 10) + SPACE(1) + PADR("", 10), "")
+? cSpace + PADR("", 5), PADR("", 10), PADR("", 40), PADC("(1)", 10), IF( nVar == 2, PADC("(2)", 10) + SPACE(1) + PADC("(1-2)", 10) , "")
 
 ? cLine
 
@@ -249,7 +249,7 @@ Box(, 10, 60)
 	
 	nX += 3
 
-	@ m_x + nX, m_y + 2 SAY "Oznaka:" GET cMark 
+	@ m_x + nX, m_y + 2 SAY "Oznaka koristena u K1 (prazno-sve):" GET cMark 
 	
 	nX += 2
 

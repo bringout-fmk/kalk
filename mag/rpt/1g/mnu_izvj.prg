@@ -4,7 +4,7 @@
 function IzvjM()
 private Opc:={}
 private opcexe:={}
-AADD(Opc,"1. kartica - magacin                      ")
+AADD(Opc,"1. kartica - magacin                        ")
 AADD(opcexe,{|| KarticaM()})
 AADD(Opc,"2. lager lista - magacin")
 AADD(opcexe,{|| LLM()})
@@ -28,8 +28,8 @@ AADD(Opc,"----------------------------------")
 AADD(opcexe, nil)
 AADD(Opc,"S. pregledi za vise objekata")
 AADD(opcexe, {|| MRekMag() })
-//AADD(Opc,"T. lista sastavnice po oznakama")
-//AADD(opcexe, {|| g_sast_list() })
+AADD(Opc,"T. lista trebovanja po sastavnicama")
+AADD(opcexe, {|| g_sast_list() })
 private Izbor:=1
 Menu_SC("imag")
 CLOSERET

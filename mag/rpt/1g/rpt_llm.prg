@@ -839,7 +839,9 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	if lExpDbf == .t.
 	
 		fill_exp_tbl( 0, roba->id, roba->naz, roba->idtarifa, cJmj, ;
-				nUlaz, nIzlaz, (nUlaz-nIzlaz) )
+				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
+				nNVU, nNVI, ( nNVU - nNVI ), ;
+				(nNVU - nNVI)/(nUlaz - nIzlaz) )
 		
 	endif
 	
@@ -947,6 +949,10 @@ AADD( aDbf, { "JMJ", "C", 3, 0 })
 AADD( aDbf, { "ULAZ", "N", 15, 5 })
 AADD( aDbf, { "IZLAZ", "N", 15, 5 })
 AADD( aDbf, { "STANJE", "N", 15, 5 })
+AADD( aDbf, { "NVDUG", "N", 15, 5 })
+AADD( aDbf, { "NVPOT", "N", 15, 5 })
+AADD( aDbf, { "NV", "N", 15, 5 })
+AADD( aDbf, { "NC", "N", 15, 5 })
 
 return aDbf
 
@@ -955,7 +961,7 @@ return aDbf
 // filovanje tabele exporta
 // ------------------------------------------------------------
 static function fill_exp_tbl( nVar, cIdRoba, cNazRoba, cTarifa, cJmj, ;
-		nUlaz, nIzlaz, nSaldo )
+		nUlaz, nIzlaz, nSaldo, nNVDug, nNVPot, nNV, nNC )
 
 local nTArea := SELECT()
 
@@ -974,6 +980,10 @@ replace field->jmj with cJmj
 replace field->ulaz with nUlaz
 replace field->izlaz with nIzlaz
 replace field->stanje with nSaldo
+replace field->nvdug with nNVDug
+replace field->nvpot with nNVPot
+replace field->nv with nNV
+replace field->nc with nNC
 
 if nVar == 1
 	//

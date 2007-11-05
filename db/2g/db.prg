@@ -393,6 +393,7 @@ if (nArea==-1 .or. nArea==(F_PRIPR))
 	CREATE_INDEX("1","idFirma+IdVD+BrDok+RBr",PRIVPATH+"PRIPR")
 	CREATE_INDEX("2","idFirma+idvd+brdok+IDTarifa",PRIVPATH+"PRIPR")
 	CREATE_INDEX("3","idFirma+idvd+brdok+idroba+rbr",PRIVPATH+"PRIPR")
+	CREATE_INDEX("4","idFirma+idvd+idroba",PRIVPATH+"PRIPR")
 endif
 
 if (nArea==-1 .or. nArea==(F_PRIPR2))

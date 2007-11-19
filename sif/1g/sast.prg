@@ -128,6 +128,9 @@ go top
 
 i := 0
 
+?
+
+P_COND
 
 ? cSpace + "Specifikacija sastavnica po oznaci"
 ? cSpace + "Oznaka: " + cMarker
@@ -169,9 +172,8 @@ enddo
 
 ? cLine
 
-
-END PRINT
 FF
+END PRINT
 
 return
 

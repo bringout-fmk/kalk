@@ -508,8 +508,6 @@ for i:=1 to nBrLin
 	// dodaj novi zapis
 	append blank
 	
-	altd()
-	
 	for nCt:=1 to LEN(aRules)
 		fname := FIELD(nCt)
 		xVal := aRules[nCt, 1]

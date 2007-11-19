@@ -510,10 +510,15 @@ Box(,15,60)
        					endif
 
        					select PRIPR
-       					APPEND BLANK
+       					
+					private aPorezi:={}
+					Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
+					nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
+					
+					APPEND BLANK
        					replace idfirma with cIdFirma,rbr with str(++nRbr,3),idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa,	brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cidkonto, idzaduz with cidzaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena,	tmarza2 with "%"
 
-					replace rabatv with xfakt->rabat
+					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
 						
 					select xfakt
       					skip
@@ -564,12 +569,18 @@ Box(,15,60)
      			
        					select PRIPR
        					
+					private aPorezi:={}
+					Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
+					nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
+					
 					append blank
        			
 					replace idfirma with cIdFirma, rbr with str(++nRbr,3), idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa, brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cIdKonto, idzaduz with cIdZaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena, tmarza2 with "%"
 
 
-       					select xfakt
+					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
+       					
+					select xfakt
       					skip
 					loop
      				else

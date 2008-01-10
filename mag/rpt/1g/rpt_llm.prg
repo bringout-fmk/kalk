@@ -836,7 +836,7 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	nTNV+=(nNVU-nNVI)
 	nTRabat+=nRabat
 
-	if lExpDbf == .t.
+	if lExpDbf == .t. .and. ROUND(nUlaz-nIzlaz, 4) <> 0
 	
 		fill_exp_tbl( 0, roba->id, roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
@@ -949,8 +949,8 @@ AADD( aDbf, { "JMJ", "C", 3, 0 })
 AADD( aDbf, { "ULAZ", "N", 15, 5 })
 AADD( aDbf, { "IZLAZ", "N", 15, 5 })
 AADD( aDbf, { "STANJE", "N", 15, 5 })
-AADD( aDbf, { "NVDUG", "N", 15, 5 })
-AADD( aDbf, { "NVPOT", "N", 15, 5 })
+AADD( aDbf, { "NVDUG", "N", 20, 10 })
+AADD( aDbf, { "NVPOT", "N", 20, 10 })
 AADD( aDbf, { "NV", "N", 15, 5 })
 AADD( aDbf, { "NC", "N", 15, 5 })
 

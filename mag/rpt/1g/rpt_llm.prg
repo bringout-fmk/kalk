@@ -563,7 +563,7 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
     		nNVI+=ROUND(nc*kolicina, gZaokr)
   	elseif mu_i=="3"    
     		// nivelacija
-    		nVPVU+=round( roba->vpc * kolicina , gZaokr)
+    		//nVPVU+=round( vpc * kolicina , gZaokr)
   	elseif mu_i=="8"
      		nKolicina:=-field->kolicina
      		nIzlaz+=nKolicina

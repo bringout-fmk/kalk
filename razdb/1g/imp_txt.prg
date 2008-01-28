@@ -1053,7 +1053,7 @@ do while !EOF()
 		if cTDok == "11"
 			replace mpcsapp with roba->mpc2
 		else
-			replace mpcsapp with roba->mpc
+			replace mpcsapp with temp->cijena
 		endif
 	endif
 	

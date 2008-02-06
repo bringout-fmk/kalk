@@ -22,12 +22,14 @@ endif
 AADD(opc, "1. import vindija racun                 ")
 AADD(opcexe, {|| ImpTxtDok()})
 AADD(opc, "2. import vindija partner               ")
-AADD(opcexe, {|| ImpTxtSif()})
-AADD(opc, "3. popuna polja sifra dobavljaca ")
+AADD(opcexe, {|| ImpTxtPartn()})
+AADD(opc, "3. import vindija roba               ")
+AADD(opcexe, {|| ImpTxtRoba()})
+AADD(opc, "4. popuna polja sifra dobavljaca ")
 AADD(opcexe, {|| FillDobSifra()})
-AADD(opc, "4. nastavak obrade dokumenata ... ")
+AADD(opc, "5. nastavak obrade dokumenata ... ")
 AADD(opcexe, {|| RestoreObrada()})
-AADD(opc, "5. podesenja importa ")
+AADD(opc, "6. podesenja importa ")
 AADD(opcexe, {|| aimp_setup()})
 
 Menu_SC("itx")
@@ -197,10 +199,10 @@ return
 *}
 
 
-/*! \fn ImpTxtSif()
- *  \brief Import sifrarnika
+/*! \fn ImpTxtPartn()
+ *  \brief Import sifrarnika partnera
  */
-function ImpTxtSif()
+function ImpTxtPartn()
 *{
 private cExpPath
 private cImpFile
@@ -231,7 +233,7 @@ SetRulePartn(@aRules)
 // prebaci iz txt => temp tbl
 Txt2TTbl(aDbf, aRules, cImpFile)
 
-if CheckSif() > 0
+if CheckPartn() > 0
 	if Pitanje(,"Izvrsiti import partnera (D/N)?", "D") == "N"
 		MsgBeep("Opcija prekinuta!")
 		return 
@@ -258,6 +260,63 @@ TxtErase(cImpFile)
 
 return
 *}
+
+
+// ------------------------------------------
+// import sifrarnika robe
+// ------------------------------------------
+function ImpTxtRoba()
+private cExpPath
+private cImpFile
+
+// setuj varijablu putanje exportovanih fajlova
+GetExpPath( @cExpPath )
+
+cFFilt := "S*.S??"
+
+// daj mi pregled fajlova za import, te setuj varijablu cImpFile
+if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+	return
+endif
+
+// provjeri da li je fajl za import prazan
+if CheckFile(cImpFile)==0
+	MsgBeep("Odabrani fajl je prazan!#!!! Prekidam operaciju !!!")
+	return
+endif
+
+private aDbf:={}
+private aRules:={}
+// setuj polja temp tabele u matricu aDbf
+SetTblRoba(@aDbf)
+// setuj pravila upisa podataka u temp tabelu
+SetRuleRoba(@aRules)
+
+// prebaci iz txt => temp tbl
+Txt2TTbl(aDbf, aRules, cImpFile)
+
+if CheckRoba() > 0
+	if Pitanje(,"Importovati nove cijene u sifrarnika robe (D/N)?", "D") == "N"
+		MsgBeep("Opcija prekinuta!")
+		return 
+	endif
+else
+	MsgBeep("Nema novih stavki za import !")
+	return
+endif
+
+lEdit := .f.
+
+if TTbl2Roba( lEdit ) == 0
+	MsgBeep("Operacija prekinuta!")
+	return
+endif
+
+MsgBeep("Operacija zavrsena !")
+
+TxtErase(cImpFile)
+
+return
 
 
 
@@ -314,7 +373,25 @@ AADD(aDbf,{"brupis", "C", 20, 0})
 AADD(aDbf,{"brjes", "C", 20, 0})
 
 return
-*}
+
+
+
+// -------------------------------------
+// matrica sa strukturom 
+// tabele ROBA
+// -------------------------------------
+static function SetTblRoba(aDbf)
+
+AADD(aDbf,{"idpm", "C", 3, 0})
+AADD(aDbf,{"datum", "C", 10, 0})
+AADD(aDbf,{"sifradob", "C", 10, 0})
+AADD(aDbf,{"naz", "C", 30, 0})
+AADD(aDbf,{"mpc", "N", 15, 5})
+
+return
+
+
+
 
 /*! \fn SetRuleDok(aRule)
  *  \brief Setovanje pravila upisa zapisa u temp tabelu
@@ -399,7 +476,29 @@ AADD(aRule, {"SUBSTR(cVar, 198, 20)"})
 AADD(aRule, {"SUBSTR(cVar, 219, 20)"})
 
 return
-*}
+
+
+
+// ---------------------------------------------
+// pravila za import tabele robe
+// ---------------------------------------------
+static function SetRuleRoba(aRule)
+
+// idpm
+AADD(aRule, {"SUBSTR(cVar, 1, 3)"})
+// datum
+AADD(aRule, {"SUBSTR(cVar, 5, 10)"})
+// sifra dobavljaca
+AADD(aRule, {"SUBSTR(cVar, 16, 6)"})
+// naziv
+AADD(aRule, {"SUBSTR(cVar, 22, 30)"})
+// mpc
+AADD(aRule, {"VAL( STRTRAN( SUBSTR(cVar, 53, 10), ',', '.' ) )"})
+
+return
+
+
+
 
 
 /*! \fn GetExpPath(cPath)
@@ -416,6 +515,7 @@ return
 *}
 
 
+
 /*! \fn GetFList(cFilter, cPath, cImpFile)
  *  \brief Pregled liste exportovanih dokumenata te odabir zeljenog fajla za import
  *  \param cFilter - filter naziva dokumenta
@@ -426,7 +526,7 @@ function GetFList(cFilter, cPath, cImpFile)
 
 OpcF:={}
 
-// cFilter := "R*.R??" ili "P*.P??"
+// cFilter := "R*.R??" ili "P*.P??" ili "S*.S??"
 aFiles:=DIRECTORY(cPath + cFilter)
 
 // da li postoje fajlovi
@@ -470,6 +570,7 @@ return 1
 *}
 
 
+
 /*! \fn Txt2TTbl(aDbf, aRules, cTxtFile)
  *  \brief Kreiranje temp tabele, te prenos zapisa iz text fajla "cTextFile" u tabelu putem aRules pravila 
  *  \param aDbf - struktura tabele
@@ -496,8 +597,11 @@ endif
 nBrLin:=BrLinFajla(cTxtFile)
 nStart:=0
 
+altd()
+
 // prodji kroz svaku liniju i insertuj zapise u temp.dbf
 for i:=1 to nBrLin
+	
 	aFMat:=SljedLin(cTxtFile, nStart)
       	nStart:=aFMat[2]
 	// uzmi u cText liniju fajla
@@ -539,6 +643,7 @@ MsgBeep("Import txt => temp - OK")
 return
 *}
 
+
 /*! \fn CheckFile(cTxtFile)
  *  \brief Provjerava da li je fajl prazan
  *  \param cTxtFile - txt fajl
@@ -569,10 +674,15 @@ endif
 
 DbCreate2(cTmpTbl, aDbf)
 
-// provjeri jesu li partneri ili dokumenti
+// provjeri jesu li partneri ili dokumenti ili je roba
 if aDbf[1,1] == "idpartner"
+	// partner
 	create_index("1","idpartner", cTmpTbl)
+elseif aDbf[1,1] == "idpm"
+	// roba
+	create_index("1", "sifradob", cTmpTbl)
 else
+	// dokumenti
 	create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
 	create_index("2","dtype+idfirma+idtipdok+brdok+rbr", cTmpTbl)
 endif
@@ -683,13 +793,15 @@ if (LEN(aPomPart) > 0 .or. LEN(aPomArt) > 0)
 endif
 
 return .t.
-*}
 
-/*! \fn CheckSif()
+
+
+
+/*! \fn CheckPartn()
  *  \Provjerava i daje listu nepostojecih partnera pri importu liste partnera
  */
-function CheckSif()
-*{
+function CheckPartn()
+
 
 aPomPart := ParExist(.t.)
 
@@ -713,6 +825,105 @@ endif
 
 return LEN(aPomPart)
 *}
+
+
+
+// -------------------------------------------------------------------------- 
+// Provjerava i daje listu promjena na robi
+// -------------------------------------------------------------------------- 
+function CheckRoba()
+
+aPomRoba := SDobExist( .t. )
+
+if (LEN(aPomRoba) > 0)
+	
+	START PRINT CRET
+	
+	? "Lista promjena u sifrarniku robe:"
+	? "---------------------------------------------------------------------------"
+	? "sifradob    naziv                          stara cijena -> nova cijena "
+	? "---------------------------------------------------------------------------"
+	? 
+	
+	for i:=1 to LEN(aPomRoba)
+		
+		? aPomRoba[i, 2]
+		
+		?? " " + aPomRoba[i, 9]
+		
+		if aPomRoba[i, 1] == "1"
+			
+			if aPomRoba[i, 3] == "001"
+				// vpc
+				nCijena := aPomRoba[i, 6]
+			elseif aPomRoba[i, 3] == "002"
+				// vpc2
+				nCijena := aPomRoba[i, 7]
+			elseif aPomRoba[i, 3] == "003"
+				// mpc
+				nCijena := aPomRoba[i, 8]
+			endif
+			
+			?? STR( nCijena, 12, 2 )
+			?? STR( aPomRoba[i, 4], 12, 2 )
+		
+			if nCijena = aPomRoba[i, 4]
+				?? " x"
+			endif
+		
+		else
+			?? " ovog artikla nema u sifrarniku !" 
+		endif
+	
+	next
+	
+	?
+
+	FF
+	END PRINT
+
+endif
+
+return LEN(aPomRoba)
+
+
+
+
+
+// --------------------------------------------------------
+// provjerava da li postoji roba po sifri dobavljaca
+// --------------------------------------------------------
+function SDobExist()
+O_ROBA
+select temp
+go top
+
+aRet:={}
+
+do while !EOF()
+	
+	select roba
+	set order to tag "SIFRADOB"
+	go top
+	
+	seek temp->sifradob
+	
+	if Found()
+		cInd := "1"
+	else
+		cInd := "0"
+	endif
+	
+	AADD(aRet, {cInd, temp->sifradob, temp->idpm, temp->mpc, roba->id, ;
+				roba->vpc, roba->vpc2, roba->mpc, temp->naz } )
+	
+	select temp
+	skip
+	
+enddo
+
+return aRet
+
 
 
 /*! \fn ParExist()
@@ -1208,7 +1419,62 @@ do while !EOF()
 enddo
 
 return 1
-*}
+
+
+// -----------------------------------------
+// napuni iz tmp tabele u robu
+// -----------------------------------------
+function TTbl2Roba()
+
+O_ROBA
+O_SIFK
+O_SIFV
+
+select temp
+go top
+
+do while !EOF()
+
+	// pronadji robu
+	select roba
+	set order to tag "SIFRADOB"
+	
+	cTmpSif := ALLTRIM(temp->sifradob)
+	
+	go top
+	seek cTmpSif
+	
+	if !Found()
+	
+		// da li treba dodavati novi zapis ...
+	
+	else
+		
+		// mjenja se VPC
+		if temp->idpm == "001"
+			if field->vpc <> temp->mpc
+				replace field->vpc with temp->mpc
+			endif
+		// mjenja se VPC2
+		elseif temp->idpm == "002"
+			if field->vpc2 <> temp->mpc
+				replace field->vpc2 with temp->mpc
+			endif
+		// mjenja se MPC
+		elseif temp->idpm == "003"
+			if field->mpc <> temp->mpc
+				replace field->mpc with temp->mpc
+			endif
+		endif
+		
+	endif
+	
+	select temp
+	skip
+enddo
+
+return 1
+
 
 
 

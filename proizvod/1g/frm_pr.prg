@@ -19,8 +19,9 @@ if nRbr==1 .and. fnovi
 endif
 
 if nRbr==1
-	@ m_x+ 6,m_y+2   SAY "Mag .got.proizvoda zaduzuje" GET _IdKonto valid  P_Konto(@_IdKonto,24) pict "@!"
- 	@  m_x+7,m_y+2   SAY "Mag. sirovina razduzuje    " get _IdKonto2 pict "@!" valid P_Konto(@_IdKonto2)
+	@ m_x+ 6,m_y+2   SAY "Broj fakture" GET _brfaktp
+	@ m_x+ 7,m_y+2   SAY "Mag .got.proizvoda zaduzuje" GET _IdKonto valid  P_Konto(@_IdKonto,24) pict "@!"
+ 	@  m_x+8,m_y+2   SAY "Mag. sirovina razduzuje    " get _IdKonto2 pict "@!" valid P_Konto(@_IdKonto2)
  	@ m_x+12,m_y+2  SAY "Proizvod  " GET _IdRoba pict "@!" valid  {|| P_Roba(@_IdRoba),Reci(12,24,trim(LEFT(roba->naz,40))+" ("+ROBA->jmj+")",40),_IdTarifa:=iif(fnovi,ROBA->idtarifa,_IdTarifa),.t.}
 	@ m_x+12,m_y+70 GET _IdTarifa when gPromTar=="N" valid P_Tarifa(@_IdTarifa)
  	select TARIFA
@@ -32,7 +33,8 @@ if nRbr==1
  	@ m_x+13,m_y+2   SAY "Kolicina  " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
  	
 	read
- 	_BrFaktP:=_idzaduz2
+	
+ 	//_BrFaktP := _idzaduz2
  	// sada trazim trebovanja u proizvod. u toku i filujem u stavke 
 	// od 100 pa nadalje
 	// ove stavke imace  mu_i=="5", mkonto=_idkonto2, nc,nv
@@ -76,7 +78,7 @@ if nRbr==1
                 	brdok with _Brdok,;
                 	datdok with _Datdok,;
                 	idtarifa with ROBA->idtarifa,;
-                	brfaktp with "",;
+                	brfaktp with _brfaktp,;
                 	datfaktp with _Datdok,;
                 	idkonto   with _idkonto,;
                 	idkonto2  with _idkonto2,;

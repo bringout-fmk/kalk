@@ -30,6 +30,8 @@ AADD(Opc,"S. pregledi za vise objekata")
 AADD(opcexe, {|| MRekMag() })
 AADD(Opc,"T. lista trebovanja po sastavnicama")
 AADD(opcexe, {|| g_sast_list() })
+AADD(Opc,"U. specifikacija izlaza po sastavnicama")
+AADD(opcexe, {|| rpt_prspec() })
 private Izbor:=1
 Menu_SC("imag")
 CLOSERET

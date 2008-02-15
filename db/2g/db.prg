@@ -458,6 +458,8 @@ if (nArea==-1 .or. nArea==(F_KALK))
 	CREATE_INDEX("PU_I2","pu_i+idfirma+idvd+brdok",KUMPATH+"KALK")
 	
 	CREATE_INDEX("PMAG","idfirma+mkonto+idpartner+idvd+dtos(datdok)",KUMPATH+"KALK")
+	
+	CREATE_INDEX("BRFAKTP","idfirma+brfaktp+idvd+brdok+rbr+dtos(datdok)",KUMPATH+"KALK")
 	if lPoNarudzbi
   		CREATE_INDEX("3N","idFirma+mkonto+idnar+idroba+dtos(datdok)+podbr+MU_I+IdVD",KUMPATH+"KALK")
   		CREATE_INDEX("4N","idFirma+Pkonto+idnar+idroba+dtos(datdok)+podbr+PU_I+IdVD",KUMPATH+"KALK")

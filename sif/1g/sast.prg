@@ -101,7 +101,13 @@ do while !EOF()
 
 	// izracunaj stanje
 	replace field->stanje with g_kalk_stanje( field->idsast, cKto )
-	
+
+	if field->kol > 0 .and. field->stanje <= field->kol
+		replace field->total with field->kol - field->stanje
+	else
+		replace field->total with 0
+	endif
+
 	skip
 
 enddo

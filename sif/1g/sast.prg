@@ -82,13 +82,28 @@ do while !EOF()
 	do while !EOF() .and. field->id == cRoba
 
 		fill_exp_tbl( sast->id2, _art_naz(sast->id2), ;
-				sast->kolicina, g_kalk_stanje( sast->id2, cKto ) )
+				sast->kolicina, 0 )
 	
 		@ m_x + 3, m_y + 2 SAY "sastavnica: " + sast->id2
 		
 		skip
 	enddo
 	
+enddo
+
+// sada izracunaj stanja za sve u r_export
+select r_export
+set order to tag "1"
+
+go top
+
+do while !EOF()
+
+	// izracunaj stanje
+	replace field->stanje with g_kalk_stanje( field->idsast, cKto )
+	
+	skip
+
 enddo
 
 BoxC()
@@ -313,7 +328,9 @@ if !FOUND()
 endif
 
 replace field->kol with field->kol + nKol
-replace field->stanje with field->stanje + nStanje
+
+// stanje je uvijek isto njega ne sabiri
+replace field->stanje with nStanje
 
 if field->kol > 0 .and. field->stanje <= field->kol
 	replace field->total with field->kol - field->stanje

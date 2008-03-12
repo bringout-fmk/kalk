@@ -39,15 +39,26 @@ if nRbr==1 .or. !fnovi .or. gMagacin=="1"
    endif
  endif
  if _idvd $ "97#96#95"    // ako je otprema, gdje to ide
-  @ m_x+9,m_y+2   SAY "Konto zaduzuje            " GET _IdKonto valid  empty(_IdKonto) .or. P_Konto(@_IdKonto,24) pict "@!"
+   
+   @ m_x+9,m_y+2   SAY "Konto zaduzuje            " GET _IdKonto valid  empty(_IdKonto) .or. P_Konto(@_IdKonto,24) pict "@!"
+   
    if (_idvd=="95" .and. IsVindija())
-     @ m_x+9,m_y+40 SAY "Sifra veze otpisa" GET _IdPartner  valid empty(_idPartner) .or.P_Firma(@_IdPartner,24) pict "@!"
+       
+       @ m_x+9,m_y+40 SAY "Sifra veze otpisa:" GET _IdPartner  valid empty(_idPartner) .or.P_Firma(@_IdPartner,24) pict "@!"
+   
    elseif gMagacin=="1"
-     @ m_x+9,m_y+40 SAY "Partner zaduzuje" GET _IdPartner  valid empty(_idPartner) .or.P_Firma(@_IdPartner,24) pict "@!"
+       @ m_x+9,m_y+40 SAY "Partner zaduzuje:" GET _IdPartner  valid empty(_idPartner) .or.P_Firma(@_IdPartner,24) pict "@!"
+   
+   else
+      if _idvd == "96"
+          @ m_x+9,m_y+40 SAY "Partner zaduzuje:" GET _IdPartner  valid empty(_idPartner) .or.P_Firma(@_IdPartner,24) pict "@!"
+      endif
    endif
+ 
  else
   _idkonto:=""
  endif
+
 else
  @  m_x+6,m_y+2   SAY "Dokument Broj: "; ?? _BrFaktP
  @  m_x+6,col()+2 SAY "Datum: "; ?? _DatFaktP

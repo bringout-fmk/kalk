@@ -367,14 +367,19 @@ do while .t.
 	cTxt:=""
      endif
      
-     cIdPartner:=space(6)
+     // uzmi i partnera za prebaciti
+     cIdPartner := field->idpartner
      
      private cBeze:=" "
 
      if cTipKalk $ "10"
+       
+       cIdPartner:=space(6)
        @ m_x+14,m_y+2 SAY "Sifra partnera:"  GET cIdpartner pict "@!" valid P_Firma(@cIdPartner)
        @ m_x+15,m_y+2 SAY "<ENTER> - prenos" GET cBeze
+       
        read
+     
      endif
 
      select PRIPR

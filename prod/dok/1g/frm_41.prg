@@ -177,7 +177,8 @@ endif
 
 SayPorezi(18)
 
-private cRCRP:="C"
+private cRCRP := gRCRP
+
 @ m_x+19,m_y+2 SAY "POPUST (C-CIJENA,P-%)" GET cRCRP VALID cRCRP$"CP" PICT "@!"
 @ m_x+19,m_y+50 GET _Rabatv picture picdem  VALID RabProcToC()
 

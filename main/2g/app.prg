@@ -258,6 +258,7 @@ public gPDVMagNab:="N"
 if IsPDV()
 	gPDVMagNab:="D"
 endif
+public gRCRP := "C"
 public gTS:="Preduzece"
 public gPotpis:="N"
 public g10Porez:="N"
@@ -404,6 +405,7 @@ Rpar("p6",@gFPicCDem)
 Rpar("p7",@gFPicDem)
 Rpar("p8",@gFPicKol)
 RPar("po",@gPotpis)
+RPar("rc",@gRCRP)
 Rpar("rt",@gRokTr)
 
 Rpar("rx",@gRobaTrosk)

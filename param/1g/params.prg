@@ -150,7 +150,11 @@ Box(,22,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 	
 	@ m_x + nX,m_y+2 SAY "Pri ulaznoj kalkulaciji pomoc sa C.sa PDV (D/N)" GET  gMPCPomoc pict "@!" valid gMPCPomoc $ "DN"
 
-	nX += 2
+	nX += 1
+
+	@ m_x + nX, m_y + 2 SAY "Varijanta popusta na dokumentima, default P-%, C-cijena" GET gRCRP
+
+	nX += 1
 	
   	@ m_x + nX,m_y+2 SAY "80 - var.rek.po tarifama ( 1 -samo ukupno / 2 -prod.1,prod.2,ukupno)" GET  g80VRT pict "9" valid g80VRT $ "12"
   	
@@ -179,6 +183,7 @@ BoxC()
   WPar("mP",gMPCPomoc)
   WPar("fK",gKolicFakt)
   WPar("rx",gRobaTrosk)
+  Wpar("rc",gRCRP )
   WPar("R1",gRobaTr1Tip)
   WPar("R2",gRobaTr2Tip)
   WPar("R3",gRobaTr3Tip)

@@ -414,7 +414,7 @@ do while .t.
        select tarifa; hseek roba->idtarifa
 
        select xfakt
-       if alltrim(podbr)=="."  .or. idroba="U"
+       if alltrim(podbr)=="."  .or. roba->tip $ "UY"
           skip
           loop
        endif

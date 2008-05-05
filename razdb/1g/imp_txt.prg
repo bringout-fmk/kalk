@@ -344,6 +344,7 @@ AADD(aDbf,{"porez", "N", 14, 5})
 AADD(aDbf,{"rabatp", "N", 14, 5})
 AADD(aDbf,{"datval", "D", 8, 0})
 AADD(aDbf,{"obrkol", "N", 14, 5})
+AADD(aDbf,{"idpj", "C", 3, 0})
 AADD(aDbf,{"dtype", "C", 3, 0})
 
 return
@@ -433,6 +434,8 @@ AADD(aRule, {"VAL(SUBSTR(cVar, 118, 14))"})
 AADD(aRule, {"CTOD(SUBSTR(cVar, 133, 10))"})
 // obracunska kolicina
 AADD(aRule, {"VAL(SUBSTR(cVar, 144, 16))"})
+// poslovna jedinica "kod"
+AADD(aRule, {"SUBSTR(cVar, 161, 3)"})
 
 return
 *}
@@ -596,8 +599,6 @@ endif
 // broj linija fajla
 nBrLin:=BrLinFajla(cTxtFile)
 nStart:=0
-
-altd()
 
 // prodji kroz svaku liniju i insertuj zapise u temp.dbf
 for i:=1 to nBrLin
@@ -1037,14 +1038,21 @@ do case
 endcase
 
 return cRet
-*}
 
-/*! \fn GetVPr(cProd)
- *  \brief Vrati konto za prodajno mjesto Vindijine prodavnice
- *  \param cProd - prodajno mjesto C(3), npr "200"
- */
-static function GetVPr(cProd)
-*{
+
+
+// ---------------------------------------------------------------
+// Vrati konto za prodajno mjesto Vindijine prodavnice
+//    cProd - prodajno mjesto C(3), npr "200"
+//    cPoslovnica - poslovnica sarajevo ili tuzla ili ....
+// cita iz fmk.ini/kumpath
+//  [Vindija]
+//  VPR200_050=13200
+//  VPR201_050=13201
+//  itd....
+// ---------------------------------------------------------------
+static function GetVPr( cProd, cPoslovnica )
+
 if cProd == "XXX"
 	return "XXXXX"
 endif
@@ -1053,36 +1061,41 @@ if cProd == "" .or. cProd == nil
 	return "XXXXX"
 endif
 
-cRet := IzFmkIni("VINDIJA", "VPR"+cProd, "xxxx", KUMPATH)
+if cPoslovnica == "" .or. cPoslovnica == nil
+	return "XXXXX"
+endif
+
+cRet := IzFmkIni("VINDIJA", "VPR" + cProd + "_" + cPoslovnica, "xxxx", KUMPATH)
 
 if cRet == "" .or. cRet == nil
 	cRet := "XXXXX"
 endif
 
 return cRet
-*}
 
 
-/*! \fn GetTdKonto(cTipDok, cTip)
- *  \brief Vrati konto za odredjeni tipdokumenta
- *  \param cTipDok - tip dokumenta
- *  \param cTip - "Z" zaduzuje, "R" - razduzuje
- */
-static function GetTdKonto(cTipDok, cTip)
-*{
+// -----------------------------------------------------------
+// Vraca konto za odredjeni tipdokumenta
+// cTipDok - tip dokumenta
+// cTip - "Z" zaduzuje, "R" - razduzuje
+// cPoslovnica -poslovnica vindije sarajevo, tuzla ili ...
+// -----------------------------------------------------------
+static function GetTdKonto(cTipDok, cTip, cPoslovnica)
 
-cRet := IzFmkIni("VINDIJA", "TD" + cTipDok + cTip, "xxxx", KUMPATH)
+cRet := IzFmkIni("VINDIJA", "TD" + cTipDok + cTip + cPoslovnica, ;
+		"xxxx", KUMPATH)
 
 // primjer:
-// TD14Z=1310
-// TD14R=1200
+// TD14Z050=1310 // posl.sarajevo
+// TD14R050=1200
+// TD14R042=1201 // posl.tuzla npr...
 
 if cRet == "" .or. cRet == nil
 	cRet := "XXXXX"
 endif
 
 return cRet
-*}
+
 
 
 
@@ -1139,6 +1152,7 @@ local cBrojKalk
 local cTipDok
 local cIdKonto
 local cIdKonto2
+local cIdPJ
 
 O_PRIPR
 O_DOKS
@@ -1171,11 +1185,10 @@ aPom := {}
 
 do while !EOF()
 
-	altd()
-
 	cFakt := ALLTRIM(temp->brdok)
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	cPm := temp->idpm
+	cIdPJ := temp->idpj
 	
 	// ako je ukljucena opcija preskakanja postojecih faktura
 	if lFSkip
@@ -1252,9 +1265,10 @@ do while !EOF()
 	// konta:
 	// =====================
 	// zaduzuje
-	replace idkonto with GetKtKalk(cTDok, temp->idpm, "Z")
+	replace idkonto with GetKtKalk(cTDok, temp->idpm, "Z", cIdPJ)
 	// razduzuje
-	replace idkonto2 with GetKtKalk(cTDok, temp->idpm, "R")
+	replace idkonto2 with GetKtKalk(cTDok, temp->idpm, "R", cIdPJ)
+	
 	replace idzaduz2 with ""
 	
 	// spec.za tip dok 11
@@ -1317,25 +1331,26 @@ return 1
  *  \param cTipDok - tip dokumenta
  *  \param cPm - prodajno mjesto
  *  \param cTip - tip "Z" zad. i "R" razd.
+ *  \param cPoslovnica - poslovnica tuzla ili sarajevo
  */
-static function GetKtKalk(cTipDok, cPm, cTip)
-*{
+ 
+static function GetKtKalk(cTipDok, cPm, cTip, cPoslovnica)
 
 do case
 	case cTipDok == "14"
-		cRet := GetTDKonto(cTipDok, cTip)
+		cRet := GetTDKonto(cTipDok, cTip, cPoslovnica)
 	case cTipDok == "11"
 		if cTip == "R"
-			cRet := GetTDKonto(cTipDok, cTip)
+			cRet := GetTDKonto(cTipDok, cTip, cPoslovnica)
 		else
-			cRet := GetVPr(cPm)
+			cRet := GetVPr(cPm, cPoslovnica)
 		endif
 	case cTipDok == "41"
-		cRet := GetTDKonto(cTipDok, cTip)
+		cRet := GetTDKonto(cTipDok, cTip, cPoslovnica)
 	case cTipDok == "95"
-		cRet := GetTDKonto(cTipDok, cTip)
+		cRet := GetTDKonto(cTipDok, cTip, cPoslovnica)
 	case cTipDok == "KO"
-		cRet := GetTDKonto(cTipDok, cTip)
+		cRet := GetTDKonto(cTipDok, cTip, cPoslovnica)
 
 endcase
 

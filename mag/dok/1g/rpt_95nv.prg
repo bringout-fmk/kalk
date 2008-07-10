@@ -82,6 +82,10 @@ if !empty(cIdZaduz2)
 	? PADL("Rad.nalog:", 14), cIdZaduz2
 endif
 ?
+if is_uobrada()
+	select pripr
+	? "Odobrenje:", odobr_no
+endif
 
 select PRIPR
 m:="--- ----------- --------------------------- ---------- ----------- -----------"
@@ -135,6 +139,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow(),pcol()+1   SAY NC                          PICTURE PicCDEM
     @ prow(),pcol()+1 SAY nU4  pict picdem
 
+    if is_uobrada()
+    	@ prow()+1, 5 SAY "JCI br: " + PADR(jci_no,10) + " EX3 br: " + PADR(ex_no,10)
+    endif
     skip
   enddo
 

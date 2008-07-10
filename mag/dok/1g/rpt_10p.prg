@@ -32,7 +32,13 @@ P_COND2
 select PARTN
 HSEEK cIdPartner
 
-?  "DOBAVLJAC:",cIdPartner,"-",naz,SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
+?  "DOBAVLJAC:",cIdPartner,"-",PADR(naz,25),SPACE(5),"DOKUMENT Broj:",cBrFaktP,"Datum:",dDatFaktP
+
+select PRIPR
+
+if is_uobrada()
+	? "Odobrenje: ", odobr_no
+endif
 
 select KONTO
 HSEEK cIdKonto
@@ -120,6 +126,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	if roba->(fieldpos("KATBR"))<>0
        		?? " KATBR:", roba->katbr
     	endif
+	if is_uobrada()
+		?? " JCI broj:", jci_no
+	endif
     	IF lPoNarudzbi
       		IspisPoNar()
     	ENDIF

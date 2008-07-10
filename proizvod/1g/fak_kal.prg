@@ -36,6 +36,8 @@ local cIdFirma:=gFirma
 local cIdTipDok:="10;11;12;      "
 local cBrDok:=space(8)
 local cBrKalk:=space(8)
+local cRobaUsl:=SPACE(100)
+local cRobaIncl:="I"
 
 o_tables()
 
@@ -55,6 +57,7 @@ if gBrojac=="D"
    cbrkalk:=brdok
  endif
 endif
+
 Box(,15,60)
 
 if gBrojac=="D"
@@ -79,11 +82,19 @@ do while .t.
   @ m_x+7,m_Y+2 SAY "Dokumenti tipa iz fakt:" GET cidtipdok
   @ m_x+8,m_y+2 SAY "period od" GET dDAtFOd
   @ m_x+8,col()+2 SAY "do" GET dDAtFDo
+  
+  @ m_x+10,m_y+2 SAY "Uslov za robu:" GET cRobaUsl PICT "@S40"
+  @ m_x+11,m_y+2 SAY "Navedeni uslov [U]kljuciti / [I]skljuciti" GET cRobaIncl VALID cRobaIncl$"UI" PICT "@!"
+  
   read
-  if lastkey()==K_ESC; exit; endif
+  
+  if lastkey()==K_ESC
+  	exit
+  endif
 
   select xfakt
   seek cFaktFirma
+  
   IF !ProvjeriSif("!eof() .and. '"+cFaktFirma+"'==IdFirma","IDROBA",F_ROBA,"idtipdok $ '"+cIdTipdok+"' .and. dDatFOd<=datdok .and. dDatFDo>=datdok")
     MsgBeep("U ovom dokumentu nalaze se sifre koje ne postoje u tekucem sifrarniku!#Prenos nije izvrsen!")
     LOOP
@@ -93,7 +104,8 @@ do while .t.
   
   do while !eof() .and. cFaktFirma==IdFirma
 
-    if idtipdok $ cIdTipdok .and. dDatFOd<=datdok .and. dDatFDo>=datdok // pripada odabranom intervalu
+    if idtipdok $ cIdTipdok .and. dDatFOd<=datdok .and. dDatFDo>=datdok 
+    	// pripada odabranom intervalu
 
        cFBrDok := xfakt->brdok
 
@@ -130,7 +142,29 @@ do while .t.
        select ROBA
        hseek xfakt->idroba
        
-       if roba->tip="P"  // radi se o proizvodu
+       // provjeri prije svega uslov za robu...
+       if !EMPTY( cRobaUsl )
+       
+		cTmp := Parsiraj( cRobaUsl, "idroba" )
+       
+       		if &cTmp
+			if cRobaIncl == "I"
+				select xfakt
+				skip
+				loop
+			endif
+		else
+    			if cRobaIncl == "U"
+       				select xfakt
+       				skip
+       				loop
+			endif
+		endif
+       
+       endif
+       
+       if roba->tip="P"  
+       	  // radi se o proizvodu
 
           select sast
           hseek  xfakt->idroba

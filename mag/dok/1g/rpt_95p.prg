@@ -50,6 +50,11 @@ elseif cidvd=="95"
 endif
 ?
 
+select pripr
+
+if is_uobrada()
+	? "Odobrenje:", PADR(odobr_no,10)
+endif
 
 if cIdVd $ "95#96#97"
 	cPom:= "Razduzuje:"
@@ -65,6 +70,7 @@ select konto
 hseek cKto1
 
 
+?
 ? PADL(cPom, 14), cKto1 + "- " + konto->naz
 
 if !empty(cKto2)

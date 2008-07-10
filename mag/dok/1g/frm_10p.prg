@@ -22,7 +22,12 @@ if nRbr == 1  .or. !fNovi .or. gMagacin=="1"
 	@  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj:" get _BrFaktP
  	
 	@  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
- 	_DatKurs:=_DatFaktP
+ 	
+	if is_uobrada()
+		@ m_x+8,m_y+2 SAY "Odobrenje broj:" GET _odobr_no PICT "@S10"
+	endif
+	
+	_DatKurs:=_DatFaktP
  	@ m_x+10,m_y+2   SAY "Magacinski Konto zaduzuje" GET _IdKonto valid  P_Konto(@_IdKonto,24) pict "@!"
  	if gNW<>"X"
   		@ m_x+10,m_y+42  SAY "Zaduzuje: "   GET _IdZaduz  pict "@!" valid empty(_idZaduz) .or. P_Firma(@_IdZaduz,24)
@@ -40,6 +45,12 @@ else
 	?? _BrFaktP
  	@ m_x+7,col()+2 SAY "Datum: "
 	?? _DatFaktP
+	
+	if is_uobrada()
+		@ m_x + 8, m_y+2 SAY "Odobrenje:"
+		?? PADR(_odobr_no, 10)
+	endif
+	
 	@ m_x+10,m_y+2 SAY "Magacinski Konto zaduzuje "
 	?? _IdKonto
  	if gNW<>"X"
@@ -82,6 +93,10 @@ select PRIPR
 
 @ m_x+13+IF(lPoNarudzbi,1,0),m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
 
+
+if is_uobrada()
+	@ m_x+13,col()+1 SAY "JCI br:" GET _jci_no PICT "@S10" 
+endif
 
 if IsDomZdr()
 	@ m_x+14+IF(lPoNarudzbi,1,0),m_y+2 SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
@@ -359,6 +374,11 @@ if nRbr==1  .or. !fNovi
  @  m_x+7,m_y+2   SAY "Faktura dobavljaca - Broj:" get _BrFaktP
  @  m_x+7,col()+2 SAY "Datum:" get _DatFaktP
  _DatKurs:=_DatFaktP
+ 
+ if is_uobrada()
+ 	@ m_x+8, m_y+2 SAY "Odobrenje:" GET _odobr_no PICT "@S10"
+ endif
+ 
  @ m_x+10,m_y+2   SAY "Magacinski Konto zaduzuje" GET _IdKonto valid  P_Konto(@_IdKonto,24) pict "@!"
  if gNW<>"X"
   @ m_x+10,m_y+42  SAY "Zaduzuje: "   GET _IdZaduz  pict "@!" valid empty(_idZaduz) .or. P_Firma(@_IdZaduz,24)
@@ -405,6 +425,10 @@ endif
 select PRIPR
 if _tmarza<>"%"  // procente ne diraj
  _Marza:=0
+endif
+
+if is_uobrada()
+	@ m_x+13,col()+1 SAY "JCI br:" GET _jci_no PICT "@S10" 
 endif
 
 IF gVarEv=="1"

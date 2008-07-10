@@ -21,9 +21,14 @@ if nRbr==1 .and. fnovi
   _DatFaktP:=_datdok
 endif
 if nRbr==1 .or. !fnovi .or. gMagacin=="1"
- @  m_x+6,m_y+2   SAY "Dokument Broj:" get _BrFaktP
- @  m_x+6,col()+2 SAY "Datum:" get _DatFaktP   ;
+ @  m_x+5,m_y+2   SAY "Dokument Broj:" get _BrFaktP
+ @  m_x+5,col()+1 SAY "Datum:" get _DatFaktP   ;
     valid {|| _DatKurs:=_DatFaktP,.t.}
+ 
+ if is_uobrada()
+ 	@ m_x+5, col()+1 SAY "Odobrenje:" GET _odobr_no PICT "@S10"
+ endif
+ 
  _IdZaduz:=""
  @ m_x+8,m_y+2 SAY "Magacinski konto razduzuje"  GET _IdKonto2 ;
             valid empty(_IdKonto2) .or. P_Konto(@_IdKonto2,24)
@@ -85,6 +90,11 @@ endif
  
  if IsDomZdr()
 	@ m_x+12+IF(lPoNarudzbi,1,0),m_y+2 SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
+ endif
+
+ if is_uobrada()
+ 	@ m_x+12,m_y+2 SAY "JCI br: " GET _jci_no PICT "@S10"
+ 	@ m_x+12,col()+2 SAY "EX3 br: " GET _ex_no PICT "@S10"
  endif
 
  read; ESC_RETURN K_ESC

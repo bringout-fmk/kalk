@@ -1017,12 +1017,12 @@ do case
 		
 	// diskont vindija
 	// FAKT 11 -> KALK 41
-	case (cFaktTD == "11" .and. cPm == "200")
+	case (cFaktTD == "11" .and. cPm >= "200")
 		cRet := "41"
 		
 	// zaduzenje prodavnica
 	// FAKT 13 -> KALK 11
-	case (cFaktTD == "11" .and. cPm <> "200")
+	case (cFaktTD == "11" .and. cPm < "200")
 		cRet := "11"
 		
 	// kalo, rastur - otpis

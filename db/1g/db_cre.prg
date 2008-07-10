@@ -1,13 +1,5 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- *
- */
- 
 function dummy()
 *{
 return 

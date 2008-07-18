@@ -1,39 +1,9 @@
 #include "kalk.ch"
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/razdb/1g/tops.prg,v $
- * $Author: sasa $ 
- * $Revision: 1.4 $
- * $Log: tops.prg,v $
- * Revision 1.4  2003/07/07 12:17:07  sasa
- * Prikaz infa poslije generisanja katops
- *
- * Revision 1.3  2003/06/09 14:51:45  sasa
- * uvedena nova opcija generacije tops dokumenta na osnovu azuriranih kalk dokumenata
- *
- * Revision 1.2  2002/06/24 09:19:02  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/razdb/1g/tops.prg
- *  \brief Generacija TOPS dokumenata na osnovu KALK dokumenta (formiranje KATOPS datoteke)
- */
-
-
-/*! \fn GenTops()
- *  \brief Generacija TOPS dokumenata na osnovu KALK dokumenta (formiranje KATOPS datoteke)
- */
-
-*{
+// ----------------------------------------------------------
+// generacija tops dokumenata na osnovu kalk dokumenata
+// ----------------------------------------------------------
 function GenTops()
-*{
 LOCAL nExpr:=0, nExpr2:=0, cPom:=""
 local fBKempty:=.f.
 
@@ -590,5 +560,4 @@ usex (cTopsDBF)   NEW   alias katops
 MsgC()
 
 return
-*}
   

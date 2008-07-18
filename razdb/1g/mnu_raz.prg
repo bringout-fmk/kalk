@@ -1,24 +1,7 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/kalk/razdb/1g/mnu_raz.prg
- *  \brief Centralni meni opcija za prenos podataka KALK<->ostali moduli
- */
-
-
-/*! \fn ModRazmjena()
- *  \brief Centralni meni opcija za prenos podataka KALK<->ostali moduli
- */
-
 function ModRazmjena()
-*{
 private Opc:={}
 private opcexe:={}
 AADD(opc,"1. generisi FIN,FAKT dokumente (kontiraj)      ")
@@ -29,16 +12,18 @@ AADD(opc,"3. iz TOPS generisi KALK dokumente")
 AADD(opcexe, {|| r_tops_kalk()})
 AADD(opc,"4. sifrarnik KALK prebaci u TOPS")
 AADD(opcexe, {|| SifKalkTOPS()} )
-AADD(opc,"5. iz KALK generisi TOPS dokumente")
+AADD(opc,"5. sifrarnik TOPS prebaci u KALK")
+AADD(opcexe, {|| RobaFromTops()} )
+AADD(opc,"6. iz KALK generisi TOPS dokumente")
 AADD(opcexe, {|| Mnu_GenKaTOPS()} )
 
 if IsPlanika()
-	AADD(opc,"6. TOPS, skeniranje dokumenata u procesu")
+	AADD(opc,"7. TOPS, skeniranje dokumenata u procesu")
 	AADD(opcexe, {|| scan_dok_u_procesu() })
 endif
 
 if IsVindija()
-	AADD(opc,"6. import txt")
+	AADD(opc,"7. import txt")
 	AADD(opcexe, {|| MnuImpTxt()} )
 endif
 

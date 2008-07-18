@@ -392,3 +392,89 @@ else
    	return "X"
 endif
 
+
+
+// ---------------------------------------------
+// uzmi sifrarnik robe iz tops-a
+// ---------------------------------------------
+function RobaFromTops()
+local GetList := {}
+local cTopsSif := PADR("c:\tops\sif1\",100)
+local cPrenos := "N"
+local cPrepisi := "N"
+local cTopsRoba
+
+Box(, 5, 70)
+	@ m_x + 1, m_y + 2 SAY "**** prenos sifrarnika iz tops-a"
+	@ m_x + 3, m_y + 2 SAY "lokacija sifrarnika tops-a" GET cTopsSif PICT "@S30" VALID !EMPTY(cTopsSif)
+ 	@ m_x + 4, m_y + 2 SAY "prepisi istu robu iz tops-a (D/N)?" GET cPrepisi VALID cPrepisi $ "DN" PICT "@!"
+ 	@ m_x + 5, m_y + 2 SAY "izvrsiti prenos (D/N)?" GET cPrenos VALID cPrenos $ "DN" PICT "@!"
+	
+	read
+BoxC()
+
+if cPrenos == "N"
+	return
+endif
+
+// otvori tabelu roba.tops
+
+O_ROBA
+
+AddBS(cTopsSif)
+
+select 245
+use (cTopsSif + "ROBA.DBF") alias TROBA
+select troba
+
+set order to tag "1"
+
+go top
+
+nCnt := 0
+
+do while !EOF()
+
+	cTopsRoba := field->id
+	
+	select roba
+	hseek cTopsRoba
+
+	if !Found() .and. roba->id <> cTopsRoba
+		
+		append blank
+		replace field->id with troba->id
+	
+	endif	
+	
+	if Found() .and. roba->id == cTopsRoba .and. cPrepisi == "N"
+		
+		select troba
+		skip
+		loop
+
+	endif
+	
+	replace field->id with troba->id
+	replace field->naz with troba->naz
+	replace field->mpc with troba->cijena
+	replace field->idtarifa with troba->idtarifa
+	replace field->barkod with troba->barkod
+	replace field->jmj with troba->jmj
+	
+	++ nCnt
+
+	select troba
+	skip
+enddo
+
+if nCnt > 0
+	msgbeep("Dodato " + ALLTRIM(STR(nCnt)) + " sifri !")
+endif
+
+select troba
+use
+
+return
+
+

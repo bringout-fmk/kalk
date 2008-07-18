@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 static cij_decimala:=3
 static izn_decimala:=2

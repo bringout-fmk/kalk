@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 // konverzija valute
 static __k_val

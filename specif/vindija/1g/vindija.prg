@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 
 /*! \file fmk/kalk/specif/vindija/1g/vindija.prg

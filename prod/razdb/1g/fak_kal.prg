@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 // ----------------------------------------------------------
 // meni opcije prenos FAKT->KALK prodavnica

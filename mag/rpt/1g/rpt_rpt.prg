@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 
 // Izvjestaj "rekapitulacija prometa u magacinu po tarifama"

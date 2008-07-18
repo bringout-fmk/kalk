@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 // stampanje dokumenata .t. or .f.
 static __stampaj

@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 // stampa liste dokumenata koji se nalaze u pripremi
 function StPripr()

@@ -1,4 +1,4 @@
-#include "..\..\kalk.ch"
+#include "kalk.ch"
 /*
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 

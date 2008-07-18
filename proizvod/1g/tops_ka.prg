@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 // prenos tops->kalk 96 po normativima
 function tops_nor_96()

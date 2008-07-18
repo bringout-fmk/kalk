@@ -1,4 +1,4 @@
-#include "\dev\fmk\kalk\kalk.ch"
+#include "kalk.ch"
 
 // rekapitulacija finansijskog stanja po magacinima
 function RFLLM()

@@ -417,14 +417,14 @@ if cPrenos == "N"
 	return
 endif
 
+cTopsSif := ALLTRIM(cTopsSif)
+
 // otvori tabelu roba.tops
 
 O_ROBA
 
-AddBS(cTopsSif)
-
 select 245
-use (cTopsSif + "ROBA.DBF") alias TROBA
+use (cTopsSif + "ROBA") alias TROBA
 select troba
 
 set order to tag "1"
@@ -443,11 +443,9 @@ do while !EOF()
 	if !Found() .and. roba->id <> cTopsRoba
 		
 		append blank
-		replace field->id with troba->id
+		replace field->id with troba->id	
 	
-	endif	
-	
-	if Found() .and. roba->id == cTopsRoba .and. cPrepisi == "N"
+	elseif Found() .and. roba->id == cTopsRoba .and. cPrepisi == "N"
 		
 		select troba
 		skip
@@ -457,7 +455,8 @@ do while !EOF()
 	
 	replace field->id with troba->id
 	replace field->naz with troba->naz
-	replace field->mpc with troba->cijena
+	replace field->mpc with troba->cijena1
+	replace field->mpc2 with troba->cijena2
 	replace field->idtarifa with troba->idtarifa
 	replace field->barkod with troba->barkod
 	replace field->jmj with troba->jmj

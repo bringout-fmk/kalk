@@ -1,12 +1,6 @@
 #include "kalk.ch"
 
 
-
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
  
 /*! \file fmk/kalk/db/1g/ut.prg
  *  \brief KALK utilities
@@ -171,7 +165,7 @@ function DatPosljK()
 *{
 select kalk
 set order to 3
-seek _idfirma+_mkonto+_idroba+"X"
+seek _idfirma+_mkonto+_idroba+chr(254)
 skip -1
 if _idfirma+_idkonto+_idroba==idfirma+mkonto+idroba .and. _datdok<datdok
    Beep(2)
@@ -199,7 +193,7 @@ if _idroba="T"
    _ERROR:="1"
  endif
 else
- seek _idfirma+_idkonto+_idroba+"X"
+ seek _idfirma+_idkonto+_idroba+chr(254)
  skip -1
  if _idfirma+_idkonto+_idroba==idfirma+pkonto+idroba .and. _datdok<datdok
    Beep(2)

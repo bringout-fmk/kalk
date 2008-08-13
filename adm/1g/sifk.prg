@@ -1,20 +1,6 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/adm/1g/sifk.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: sifk.prg,v $
- * Revision 1.2  2002/06/18 14:02:38  mirsad
- * dokumentovanje (priprema za doxy)
- *
- *
- */
-
 /*! \file fmk/kalk/adm/1g/sifk.prg
  *  \brief Popunjavanje SIFK-karakteristika na osnovu azuriranih dokumenata
  */

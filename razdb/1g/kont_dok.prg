@@ -2,11 +2,6 @@
 
 static dDatMax
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
  
 
 /*! \file fmk/kalk/razdb/1g/kont_dok.prg
@@ -164,7 +159,7 @@ endif
 
 if lAFin .or. lAFin2
 	select fnalog
-	seek finmat->idfirma+cidvn+"X"
+	seek finmat->idfirma+cidvn+chr(254)
 	skip -1
 	if idvn<>cidvn
 		// cBrnalF:="0"
@@ -179,7 +174,7 @@ endif
 
 if lAMat .or. lAMat2
 	select mnalog
-	seek finmat->idfirma+cidvn+"X"
+	seek finmat->idfirma+cidvn+chr(254)
 	skip -1
 	if idvn<>cidvn
 		cBrnalM:="0000"

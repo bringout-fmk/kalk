@@ -163,7 +163,7 @@ if lAFin .or. lAFin2
 	skip -1
 	if idvn<>cidvn
 		// cBrnalF:="0"
-		cBrnalF:="0000"
+		cBrnalF:="00000000"
 	else
 		cBrNalF:=brnal
 	endif
@@ -177,7 +177,7 @@ if lAMat .or. lAMat2
 	seek finmat->idfirma+cidvn+chr(254)
 	skip -1
 	if idvn<>cidvn
-		cBrnalM:="0000"
+		cBrnalM:="00000000"
 	else
 		cBrNalM:=brnal
 	endif

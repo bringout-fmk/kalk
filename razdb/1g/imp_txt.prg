@@ -41,7 +41,7 @@ return
 // ----------------------------------
 // podesenja importa
 // ----------------------------------
-function aimp_setup()
+static function aimp_setup()
 local nX
 local GetList:={}
 
@@ -155,7 +155,7 @@ return
 /*! \fn GetImpFilter()
  *  \brief Vraca filter za naziv dokumenta u zavisnosti sta je odabrano VP ili MP
  */
-function GetImpFilter()
+static function GetImpFilter()
 *{
 cVPMP := "V"
 // pozovi box za izbor
@@ -202,7 +202,7 @@ return
 /*! \fn ImpTxtPartn()
  *  \brief Import sifrarnika partnera
  */
-function ImpTxtPartn()
+static function ImpTxtPartn()
 *{
 private cExpPath
 private cImpFile
@@ -265,7 +265,7 @@ return
 // ------------------------------------------
 // import sifrarnika robe
 // ------------------------------------------
-function ImpTxtRoba()
+static function ImpTxtRoba()
 private cExpPath
 private cImpFile
 
@@ -524,7 +524,7 @@ return
  *  \param cFilter - filter naziva dokumenta
  *  \param cPath - putanja do exportovanih dokumenata
  */
-function GetFList(cFilter, cPath, cImpFile)
+static function GetFList(cFilter, cPath, cImpFile)
 *{
 
 OpcF:={}
@@ -581,7 +581,7 @@ return 1
  *  \param cTxtFile - txt fajl za import
  */
  */
-function Txt2TTbl(aDbf, aRules, cTxtFile)
+static function Txt2TTbl(aDbf, aRules, cTxtFile)
 *{
 // prvo kreiraj tabelu temp
 close all
@@ -649,7 +649,7 @@ return
  *  \brief Provjerava da li je fajl prazan
  *  \param cTxtFile - txt fajl
  */
-static function CheckFile(cTxtFile)
+function CheckFile(cTxtFile)
 *{
 nBrLin:=BrLinFajla(cTxtFile)
 return nBrLin
@@ -716,7 +716,7 @@ return
 /*! \fn CheckBrFakt()
  *  \brief Provjeri da li postoji broj fakture u azuriranim dokumentima
  */
-function CheckBrFakt(aFakt)
+static function CheckBrFakt(aFakt)
 *{
 
 aPomFakt := FaktExist()
@@ -757,7 +757,7 @@ return 1
 /*! \fn CheckDok()
  *  \brief Provjera da li postoje sve sifre u sifrarnicima za dokumente
  */
-function CheckDok()
+static function CheckDok()
 *{
 
 aPomPart := ParExist()
@@ -801,7 +801,7 @@ return .t.
 /*! \fn CheckPartn()
  *  \Provjerava i daje listu nepostojecih partnera pri importu liste partnera
  */
-function CheckPartn()
+static function CheckPartn()
 
 
 aPomPart := ParExist(.t.)
@@ -832,7 +832,7 @@ return LEN(aPomPart)
 // -------------------------------------------------------------------------- 
 // Provjerava i daje listu promjena na robi
 // -------------------------------------------------------------------------- 
-function CheckRoba()
+static function CheckRoba()
 
 aPomRoba := SDobExist( .t. )
 
@@ -894,7 +894,7 @@ return LEN(aPomRoba)
 // --------------------------------------------------------
 // provjerava da li postoji roba po sifri dobavljaca
 // --------------------------------------------------------
-function SDobExist()
+static function SDobExist()
 O_ROBA
 select temp
 go top
@@ -930,7 +930,7 @@ return aRet
 /*! \fn ParExist()
  *  \brief Provjera da li postoje sifre partnera u sifraniku FMK
  */
-function ParExist(lPartNaz)
+static function ParExist(lPartNaz)
 *{
 O_PARTN
 select temp
@@ -964,7 +964,7 @@ return aRet
  *  \brief Provjera da li postoje sifre artikla u sifraniku FMK
  *  \param cId - id sifre
  */
-function ArtExist()
+static function ArtExist()
 *{
 O_ROBA
 select temp
@@ -1102,7 +1102,7 @@ return cRet
 /*! \fn FaktExist()
  *  \brief vraca matricu sa parovima faktura -> pojavljuje se u azur.kalk
  */
-function FaktExist()
+static function FaktExist()
 *{
 O_DOKS
 
@@ -1146,7 +1146,7 @@ return aRet
  *  \param lFSkip preskaci postojece fakture
  *  \param lNegative - prvo prebaci negativne fakture
  */
-function TTbl2Kalk(aFExist, lFSkip, lNegative)
+static function TTbl2Kalk(aFExist, lFSkip, lNegative)
 *{
 local cBrojKalk
 local cTipDok
@@ -1362,7 +1362,7 @@ return cRet
  *  \brief kopira podatke iz pomocne tabele u tabelu PARTN
  *  \param lEditOld - ispraviti stare zapise
  */
-function TTbl2Partn(lEditOld)
+static function TTbl2Partn(lEditOld)
 *{
 
 O_PARTN
@@ -1439,7 +1439,7 @@ return 1
 // -----------------------------------------
 // napuni iz tmp tabele u robu
 // -----------------------------------------
-function TTbl2Roba()
+static function TTbl2Roba()
 
 O_ROBA
 O_SIFK
@@ -1741,7 +1741,7 @@ return
  *  \brief Obrada jednog dokumenta
  *  \param cIdVd - id vrsta dokumenta
  */
-function ObradiDokument(cIdVd, lAsPokreni, lStampaj)
+static function ObradiDokument(cIdVd, lAsPokreni, lStampaj)
 *{
 
 // 1. pokreni asistenta
@@ -1818,7 +1818,7 @@ return
  *  \brief Provjeri da li je priprema prazna
  *  \param cIdVd - id vrsta dokumenta
  */
-function ChkKPripr(cIdVd, nRes)
+static function ChkKPripr(cIdVd, nRes)
 // provjeri da li je priprema prazna, ako je prazna vrati 0
 select pripr
 go top
@@ -1928,7 +1928,7 @@ return 2
 /*! \fn FillDobSifra()
  *  \brief Popunjavanje polja sifradob prema kljucu
  */
-function FillDobSifra()
+static function FillDobSifra()
 *{
 if !SigmaSif("FILLDOB")
 	MsgBeep("Nemate ovlastenja za ovu opciju!!!")

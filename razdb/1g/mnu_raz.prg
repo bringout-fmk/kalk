@@ -27,6 +27,9 @@ if IsVindija()
 	AADD(opcexe, {|| MnuImpTxt()} )
 endif
 
+AADD(opc,"8. import csv fajl ")
+AADD(opcexe, {|| MnuImpCSV()} )
+
 AADD(opc,"-----------------------------------")
 AADD(opcexe, nil )
 

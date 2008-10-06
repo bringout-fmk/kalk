@@ -649,13 +649,30 @@ enddo
 
 BoxC()
 
+nTArea := SELECT()
+
+if Logirati(goModul:oDataBase:cName,"DOK","GENERACIJA")
+	
+	select pripr
+	go top
+	cOpis := pripr->idfirma + "-" + ;
+		pripr->idvd + "-" + ;
+		pripr->brdok
+
+	EventLog(nUser,goModul:oDataBase:cName,"DOK","GENERACIJA",;
+	nil,nil,nil,nil,;
+	cOpis,"","",pripr->datdok,date(),;
+	"","Opcija korekcije nabanih cijena")
+endif
+select (nTArea)
+
 if lGenerisao
 	MsgBeep("Generisana nivelacija u pripremi - obradite je!")
 endif
 
 CLOSERET
 return
-*}
+
 
 
 

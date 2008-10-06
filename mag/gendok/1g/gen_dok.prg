@@ -1,17 +1,7 @@
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-/*! \fn GenMag()
- *  \brief Generisanje magacinskih dokumenata
- */
 
 function GenMag()
-*{
 private Opc:={}
 private opcexe:={}
 AADD(opc,"1. pocetno stanje                                ")
@@ -28,7 +18,6 @@ AADD(opcexe, {|| GetPstPreknj()})
 private Izbor:=1
 Menu_SC("mmg")
 return
-*}
 
 // menij sa inventurama
 function MnuMInv()
@@ -541,9 +530,27 @@ enddo
 
 enddo
 
+nTArea := SELECT()
+
+if Logirati(goModul:oDataBase:cName,"DOK","GENERACIJA")
+	
+	select pripr
+	go top
+	cOpis := pripr->idfirma + "-" + ;
+		pripr->idvd + "-" + ;
+		pripr->brdok
+
+	EventLog(nUser,goModul:oDataBase:cName,"DOK","GENERACIJA",;
+	nil,nil,nil,nil,;
+	cOpis,"","",pripr->datdok,date(),;
+	"","Opcija korekcije prodajnih cijena")
+endif
+
+select (nTArea)
+
 CLOSERET
 return
-*}
+
 
 
 

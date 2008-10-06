@@ -338,9 +338,14 @@ do while !eof()
      		replace sifra with SifraKorisn
   	endif
   
-	if Logirati(goModul:oDataBase:cName,"DOK","UNOSDOK")
-		EventLog(nUser,goModul:oDataBase:cName,"DOK","UNOSDOK",nil,nil,nil,nil,"","",cIdFirma+"-"+cIdVd+"-"+cBrDok,pripr->datdok,Date(),"","Azuriranje dokumenta")
+	if Logirati(goModul:oDataBase:cName,"DOK","AZUR")
+		
+		cOpis := cIDFirma + "-" + cIdVd + "-" + ALLTRIM(cBrDok)
+
+		EventLog(nUser,goModul:oDataBase:cName,"DOK","AZUR",nil,nil,nil,nil,cOpis, "", "", pripr->datdok, Date(),"","Azuriranje dokumenta")
+	
 	endif
+
 	#ifdef SR
   		O_LOGK
   		go bottom
@@ -556,7 +561,10 @@ O_PRIPR9
 O_PRIPR
 do while !eof()
 
-cIdFirma:=idfirma; cidvd:=idvd; cbrdok:=brdok
+cIdFirma:=idfirma
+cIdvd:=idvd
+cBrdok:=brdok
+
 do while !eof() .and. cidfirma==idfirma .and. cidvd==idvd .and. cbrdok==brdok
  skip
 enddo
@@ -577,10 +585,25 @@ select  pripr; go top
 select PRIPR9
 append from PRIPR
 
+select pripr
+go top
+
+if Logirati(goModul:oDataBase:cName, "DOK", "SMECE")
+	cOpis := cIdFirma + "-" + ;
+		cIdvd + "-" + ;
+		cBrdok
+
+	EventLog(nUser, goModul:oDataBase:cName,"DOK","SMECE", ;
+	nil,nil,nil,nil,;
+	cOpis, "", "", ;
+	pripr->datdok, DATE(), ;
+	"", "prebacivanje dokumenta u smece")
+endif
+
 select PRIPR; zap
 
 closeret
-*}
+
 
 
 /*! \fn Povrat()
@@ -749,8 +772,11 @@ if gEraseKum
    		dbdelete2()
    		go nRec
 	enddo
-	if Logirati(goModul:oDataBase:cName,"DOK","POVRATDOK")
-		EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRATDOK",nil,nil,nil,nil,"","",idFirma+"-"+idVd+"-"+cBrDok,Date(),Date(),"","KALK - Povrat dokumenta u pripremu")
+
+	if Logirati(goModul:oDataBase:cName,"DOK","POVRAT")
+		
+		cOpis := idfirma + "-" + idvd + "-" + ALLTRIM(brdok)
+		EventLog(nUser, goModul:oDataBase:cName,"DOK","POVRAT",nil,nil,nil,nil,cOpis,"","",datdok,Date(),"","KALK - Povrat dokumenta u pripremu")
 	endif
 
 	// vrati i dokument iz DOKSRC

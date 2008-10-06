@@ -271,10 +271,37 @@ do case
 		return DE_REFRESH
 	case Ch==K_CTRL_T
      		if Pitanje(,"Zelite izbrisati ovu stavku ?","D")=="D"
-      			delete
-      			if Logirati(goModul:oDataBase:cName,"DOK","BRISIDOK")
-      				EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje stavke iz pripreme")
-      			endif
+      			
+			cStavka := pripr->rbr
+			cArtikal := pripr->idroba
+			nKolicina := pripr->kolicina
+			nNc := pripr->nc
+			nVpc := pripr->vpc
+
+			delete
+
+      			if Logirati(goModul:oDataBase:cName,"DOK","BRISANJE")
+      				
+				cOpis := pripr->idfirma + "-" + ;
+					pripr->idvd + "-" + ;
+					pripr->brdok
+
+				EventLog(nUser,goModul:oDataBase:cName,;
+					"DOK","BRISANJE",;
+					nKolicina,;
+					nNc,;
+					nVpc,;
+					nil,;
+					cOpis,;
+					"artikal: " + cArtikal,;
+					"",;
+					pripr->datdok,;
+					Date(),;
+					"",;
+					"Brisanje stavke " + cStavka + " iz pripreme")
+      			
+			endif
+
       			return DE_REFRESH
      		endif
      		return DE_CONT
@@ -292,14 +319,28 @@ do case
       		return DE_REFRESH
 	case Ch==K_CTRL_F9
       		if Pitanje(,"Zelite Izbrisati cijelu pripremu ??","N")=="D"
+			
+			cOpis := pripr->idfirma + "-" + ;
+				pripr->idvd + "-" + ;
+				pripr->brdok 
+
 	 		if Logirati(goModul:oDataBase:cName,"DOK","BRISIDOK")
-      				EventLog(nUser,goModul:oDataBase:cName,"DOK","BRISIDOK",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvd+"-"+pripr->brdok,pripr->datdok,Date(),"","Brisanje kompletne pripreme")
+      				EventLog(nUser,goModul:oDataBase:cName,;
+				"DOK","BRISIDOK",;
+				nil,nil,nil,nil,;
+				cOpis,"","", ;
+				pripr->datdok,;
+				Date(),;
+				"",;
+				"Brisanje kompletne pripreme")
       	 		endif
- 	 		zapp()
+ 	 		
+			zapp()
          		select p_doksrc
 			zapp()
 			select pripr
 			return DE_REFRESH
+
       		endif
       		return DE_CONT
 	case Ch==K_ALT_F10 .or. lAutoAsist

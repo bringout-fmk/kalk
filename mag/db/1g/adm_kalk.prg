@@ -127,6 +127,24 @@ enddo
 
 enddo
 
+nTArea := SELECT()
+
+if Logirati(goModul:oDataBase:cName,"DOK","GENERACIJA")
+	
+	select pripr
+	go top
+	cOpis := pripr->idfirma + "-" + ;
+		pripr->idvd + "-" + ;
+		pripr->brdok
+
+	EventLog(nUser,goModul:oDataBase:cName,"DOK","GENERACIJA",;
+	nil,nil,nil,nil,;
+	cOpis,"","",pripr->datdok,date(),;
+	"","Opcija korekcije nabanih cijena varijanta 2")
+endif
+
+select (nTArea)
+
 CLOSERET
 return
 *}

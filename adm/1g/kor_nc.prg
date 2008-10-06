@@ -1,47 +1,30 @@
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/adm/1g/kor_nc.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.2 $
- * $Log: kor_nc.prg,v $
- * Revision 1.2  2002/06/18 14:02:38  mirsad
- * dokumentovanje (priprema za doxy)
- *
- *
- */
-
-/*! \file fmk/kalk/adm/1g/kor_nc.prg
- *  \brief Korekcija gresaka na karticama artikala
- */
-
-
-/*! \fn KorekNC()
- *  \brief Korekcija nabavne cijene na magacinskim karticama
- */
 
 function KorekNC()
-*{
- LOCAL dDok:=date(), nPom:=0, cPom2
- PRIVATE cMagac:="1310   "
+local dDok:=date()
+local nPom:=0
+local cPom2
+private cMagac:="1310   "
  
- IF !SigmaSif("SIGMAPRN")
-   return
- endif
+if !SigmaSif("SIGMAPRN")
+	return
+endif
  
- O_KONTO
- IF !VarEdit({ {"Magacinski konto","cMagac","P_Konto(@cMagac)",,} }, 12,5,16,74,;
+O_KONTO
+if !VarEdit({ {"Magacinski konto","cMagac","P_Konto(@cMagac)",,} }, 12,5,16,74,;
                'DEFINISANJE MAGACINA NA KOME CE BITI IZVRSENE PROMJENE',;
                "B1")
-   CLOSERET
- ENDIF
- O_PRIPR
- O_KALK
- GO TOP
- DO WHILE !EOF()
+	closeret
+endif
+
+O_PRIPR
+O_KALK
+go top
+
+nCount := 0
+
+DO WHILE !EOF()
    IF (nc==0.and.!idvd$"11#12".or.fcj==0.and.idvd$"11#12").and.mkonto==cMagac
      Scatter()
      SELECT PRIPR
@@ -59,7 +42,10 @@ function KorekNC()
          _datfaktp:=dDok
               _rbr:=TraziRbr(KALK->(idfirma+idvd)+cPom2+"XXX")
          _kolicina:=-_kolicina
-          APPEND BLANK
+          
+	  ++ nCount
+	  
+	  APPEND BLANK
           Gather()
           Scatter()
               _rbr:=TraziRbr(KALK->(idfirma+idvd)+cPom2+"XXX")
@@ -80,6 +66,25 @@ function KorekNC()
    SELECT KALK
    SKIP 1
  ENDDO
+
+nTArea := SELECT()
+
+if Logirati(goModul:oDataBase:cName,"DOK","GENERACIJA")
+	
+	select pripr
+	go top
+	cOpis := pripr->idfirma + "-" + ;
+		pripr->idvd + "-" + ;
+		pripr->brdok
+
+	EventLog(nUser,goModul:oDataBase:cName,"DOK","GENERACIJA",;
+	nCount,nil,nil,nil,;
+	cOpis,"","",pripr->datdok,date(),;
+	"","Opcija korekcije nabanih cijena")
+endif
+
+select (nTArea)
+
 CLOSERET
 *}
 

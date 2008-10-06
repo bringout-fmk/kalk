@@ -601,7 +601,11 @@ do while !eof()
 			SINT->(flock()) .and. ;
 			NALOG->(flock())  )
     			
-			nTime := 150
+			if gAzurFinTO == nil
+				nTime := 150
+			else
+				nTime := gAzurFinTO
+			endif
 
 			Box(, 1, 40)
 

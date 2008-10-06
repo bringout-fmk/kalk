@@ -335,6 +335,10 @@ public gRobaTr5Tip:="%"
 
 // dokument. koverzija valute
 public gDokKVal := "N"
+// time out kod azuriranja dokumenta
+public gAzurTimeout := 150
+// time out kod azuriranja fin dokumenta
+public gAzurFinTO := 150
 
 public lPoNarudzbi
 
@@ -433,6 +437,9 @@ RPar("fK",@gKolicFakt)
 RPar("pt",@gPromTar)
 RPar("f1",@gFunKon1)
 RPar("f2",@gFunKon2)
+
+RPar("aK",@gAzurTimeout)
+RPar("aF",@gAzurFinTO)
 
 cOdradjeno:="D"
 if file(EXEPATH+'scshell.ini')

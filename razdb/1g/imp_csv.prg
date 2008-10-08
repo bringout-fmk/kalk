@@ -200,7 +200,7 @@ return cRet
 // ------------------------------------------------
 static function MnuObrDok()
 
-if Pitanje(,"Obraditi automatski dokument iz pripreme (D/N)?", "D") == "D"
+if Pitanje(,"Obraditi automatski dokument iz pripreme (D/N)?", "N") == "D"
 	ObradiDokument( nil, nil, __stampaj )
 else
 	MsgBeep("Dokument nije obradjen!#Obradu uradite iz pripreme!")
@@ -365,8 +365,6 @@ aFirstRow := csvrow2arr( cFirstRow, cDelimiter )
 
 // setuj glavne stavke dokumenta
 cBrDok := aFirstRow[1]
-cBrDok := SUBSTR( cBrDok, 4, LEN( cBrDok ) )
-
 dDatDok := CTOD( aFirstRow[3] )
 dDatIsp := CTOD( aFirstRow[4] )
 dDatVal := CTOD( aFirstRow[5] )
@@ -708,6 +706,7 @@ local cIdKonto
 local cIdKonto2
 
 O_PRIPR
+O_KALK
 O_DOKS
 O_ROBA
 
@@ -721,7 +720,7 @@ nUvecaj:=1
 // osnovni podaci ove kalkulacije
 cFakt := ALLTRIM(temp->brdok)
 cTDok := GetKTipDok( ALLTRIM(temp->idtipdok) )
-cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
+cBrojKalk := SljBrKalk( cTDok, gFirma )
 
 do while !EOF()
 

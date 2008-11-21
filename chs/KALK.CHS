@@ -1,6 +1,9 @@
 *TRFP
 A IDTARIFA C 6 0
 
+*PARTN
+A IDREFER C 10 0
+
 *FINMAT
 A   GKOL    N   15  3
 A   GKOL2   N   15  3

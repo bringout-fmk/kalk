@@ -23,6 +23,8 @@ endif
 
 AADD(opc, "1. import csv racun                 ")
 AADD(opcexe, {|| ImpCsvDok()})
+AADD(opc, "2. import csv - ostalo ")
+AADD(opcexe, {|| ImpCsvOst()})
 AADD(opc, "6. podesenja importa ")
 AADD(opcexe, {|| aimp_setup()})
 
@@ -124,6 +126,45 @@ __partn := cPart
 
 return 1
 
+// -----------------------------------------------------
+// import CSV fajla - ostalo, partneri npr...
+// -----------------------------------------------------
+function ImpCSVOst()
+private cExpPath
+private cImpFile
+
+// setuj varijablu putanje exportovanih fajlova
+GetExpPath(@cExpPath)
+
+// daj mi filter za CSV fajlove
+cFFilt := GetImpFilter()
+
+// daj mi pregled fajlova za import, te setuj varijablu cImpFile
+if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+	return
+endif
+
+// provjeri da li je fajl za import prazan
+if CheckFile(cImpFile)==0
+	MsgBeep("Odabrani fajl je prazan!#!!! Prekidam operaciju !!!")
+	return
+endif
+
+private aDbf:={}
+private aFaktEx
+
+// setuj polja temp tabele u matricu aDbf
+SetTblOST(@aDbf)
+
+// prebaci iz txt => temp tbl
+Txt2TOst(aDbf, cImpFile)
+
+// importuj podatke u partnere
+ImportOst()
+
+TxtErase(cImpFile, .t.)
+
+return
 
 
 // --------------------------------------
@@ -210,6 +251,15 @@ endif
 return
 
 
+// -------------------------------------------------------
+// Setuj matricu sa poljima tabele dokumenata OSTALO
+// -------------------------------------------------------
+static function SetTblOST(aDbf)
+
+AADD(aDbf,{"idpartner", "C", 6, 0})
+AADD(aDbf,{"idrefer",   "C", 10, 0})
+
+return
 
 // -------------------------------------------------------
 // Setuj matricu sa poljima tabele dokumenata RACUN
@@ -303,6 +353,121 @@ else
 endif
 return 1
   
+
+// --------------------------------------------------------
+// Kreiranje temp tabele, te prenos zapisa iz text fajla 
+// "cTextFile" u tabelu 
+//  - param aDbf - struktura tabele
+//  - param cTxtFile - txt fajl za import
+// --------------------------------------------------------
+function Txt2TOst(aDbf, cTxtFile)
+local cDelimiter := ";"
+
+// prvo kreiraj tabelu temp
+close all
+
+CreTemp(aDbf, .f.)
+O_TEMP
+
+if !File(PRIVPATH + SLASH + "TEMP.DBF")
+	MsgBeep("Ne mogu kreirati fajl TEMP.DBF!")
+	return
+endif
+
+// zatim iscitaj fajl i ubaci podatke u tabelu
+
+// broj linija fajla
+nBrLin:=BrLinFajla(cTxtFile)
+nStart:=0
+
+// prodji kroz svaku liniju i insertuj zapise u temp.dbf
+for i:=1 to nBrLin
+	
+	altd()
+
+	aFMat := SljedLin(cTxtFile, nStart)
+      	
+	nStart:=aFMat[2]
+	
+	// uzmi u cText liniju fajla
+	cVar:=aFMat[1]
+
+	if EMPTY(cVar)
+		loop
+	endif
+
+	aRow := csvrow2arr( cVar, cDelimiter ) 
+	
+	// selektuj temp tabelu
+	select temp
+	// dodaj novi zapis
+	append blank
+
+	// struktura podataka u csv-u je
+	// [1] - redni broj
+	// [2] - broj narudzbe
+	
+	// pa uzimamo samo sta nam treba
+	cTmp := ALLTRIM( aRow[1] )
+
+	if LEN(cTmp) = 4
+		cTmp := "10" + cTmp
+	elseif LEN(cTmp) = 5
+		cTmp := "1" + cTmp
+	endif
+
+	replace idpartner with cTmp
+	replace idrefer with ALLTRIM( aRow[2] )
+next
+
+select temp
+
+MsgBeep("Import txt => temp - OK")
+
+return
+
+
+
+// -------------------------------------------
+// importuj podatke ostalo
+// -------------------------------------------
+static function importost()
+local nTarea := SELECT()
+local cPartId 
+local cRefId
+local nCnt := 0
+
+O_PARTN
+
+select temp
+go top
+
+do while !EOF()
+	
+	cPartId := field->idpartner
+	cRefId := field->idrefer
+
+	select partn
+	go top
+	seek cPartId
+
+	if FOUND() .and. ALLTRIM( partn->idrefer ) <> ALLTRIM( cRefId )
+		++ nCnt
+		replace idrefer with cRefId
+	endif
+	
+	select temp
+
+	skip
+enddo
+
+if nCnt > 0
+	msgbeep("zamjenjeno " + ALLTRIM(STR(nCnt)) + " stavki...")
+endif
+
+select (nTarea)
+return
+
 
 // --------------------------------------------------------
 // Kreiranje temp tabele, te prenos zapisa iz text fajla 
@@ -487,7 +652,13 @@ for i := 1 to LEN( cRow )
 	
 	cTmp := SUBSTR( cRow, nStart, 1 )
 
-	if cTmp == cDelimiter
+	// ako je cTmp = ";" ili je iscurio niz - kraj stringa
+	if cTmp == cDelimiter .or. i == LEN(cRow)
+		
+		// ako je iscurio - dodaj i zadnji karakter u word
+		if i == LEN(cRow)
+			cWord += cTmp
+		endif
 
 		// dodaj u matricu 
 		AADD( aArr, cWord )
@@ -507,8 +678,12 @@ return aArr
 // ----------------------------------------------------------------
 // Kreira tabelu PRIVPATH\TEMP.DBF prema definiciji polja iz aDbf
 // ----------------------------------------------------------------
-static function CreTemp(aDbf)
+static function CreTemp( aDbf, lIndex )
 cTmpTbl := PRIVPATH + "TEMP"
+
+if lIndex == nil
+	lIndex := .t.
+endif
 
 if File(cTmpTbl + ".DBF") .and. FErase(cTmpTbl + ".DBF") == -1
 	MsgBeep("Ne mogu izbrisati TEMP.DBF!")
@@ -521,7 +696,9 @@ endif
 
 DbCreate2(cTmpTbl, aDbf)
 
-create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
+if lIndex 
+	create_index("1","idfirma+idtipdok+brdok+rbr", cTmpTbl)
+endif
 
 return
 

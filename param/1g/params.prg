@@ -162,6 +162,8 @@ Box(,22,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 	
 	@ m_x + nX,m_y+2 SAY "Kolicina za nivelaciju iz FAKT-a " GET  gKolicFakt valid gKolicFakt $ "DN"  pict "@!"
   	
+	@ m_x + nX,col()+1 SAY "Auto ravnoteza naloga (FIN):" GET gAutoRavn VALID gAutoRavn $ "DN" PICT "@!"
+	
 	read
 
 BoxC()
@@ -184,6 +186,7 @@ BoxC()
   WPar("fK",gKolicFakt)
   WPar("rx",gRobaTrosk)
   Wpar("rc",gRCRP )
+  WPar("ar",gAutoRavn)
   WPar("R1",gRobaTr1Tip)
   WPar("R2",gRobaTr2Tip)
   WPar("R3",gRobaTr3Tip)

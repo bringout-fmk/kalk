@@ -275,6 +275,7 @@ public gAFin:="D"
 public gAMat:="0"
 public gAFakt:="D"
 public gVodiKalo:="N"
+public gAutoRavn:="N"
 O_PARAMS
 private cSection:="K",cHistory:=" "; aHistory:={}
 
@@ -411,7 +412,7 @@ Rpar("p8",@gFPicKol)
 RPar("po",@gPotpis)
 RPar("rc",@gRCRP)
 Rpar("rt",@gRokTr)
-
+Rpar("ar",@gAutoRavn)
 Rpar("rx",@gRobaTrosk)
 Rpar("R1",@gRobaTr1Tip)
 Rpar("R2",@gRobaTr2Tip)

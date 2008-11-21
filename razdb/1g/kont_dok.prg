@@ -1090,9 +1090,13 @@ endif
 EOF CRET
 
 if fStara
+	
 	// - info o izabranom dokumentu -
-  	Box("#DOKUMENT "+cIdFirma+"-"+cIdVd+"-"+cBrDok,7,77)
+  	Box("#DOKUMENT "+cIdFirma+"-"+cIdVd+"-"+cBrDok,8,77)
    	cDalje:="D"
+	
+	cAutoRav := gAutoRavn
+
    	SELECT PARTN
 	HSEEK PRIPR->IDPARTNER
    	SELECT KONTO
@@ -1109,8 +1113,10 @@ if fStara
    	@ m_x+4, col()+1 SAY MKONTO+"-"+PADR(cPom,49)       COLOR "N/W"
    	@ m_x+5, m_y+2 SAY "KONTO PRODAVNICE->"             COLOR "W+/B"
    	@ m_x+5, col()+1 SAY PKONTO+"-"+PADR(KONTO->naz,49) COLOR "N/W"
-   	@ m_x+7, m_y+2 SAY "Zelite li kontirati dokument? (D/N)" GET cDalje VALID cDalje$"DN" PICT "@!"
-   	READ
+   	@ m_x+7, m_y+2 SAY "Automatski uravnotezi dokument? (D/N)" GET cAutoRav VALID cAutoRav$"DN" PICT "@!"
+   	@ m_x+8, m_y+2 SAY "Zelite li kontirati dokument? (D/N)" GET cDalje VALID cDalje$"DN" PICT "@!"
+   	
+	READ
   	BoxC()
   	IF LASTKEY()==K_ESC .or. cDalje<>"D"
 		if lViseKalk
@@ -1497,6 +1503,11 @@ else
 	endif
 
 	Kontnal(.f., nil, lViseKalk)
+	
+	// automatska ravnoteza naloga
+	if cAutoRav == "D"
+		KZbira( .t. )
+	endif
 
 	// ne vrti se ukrug u ovoj do wile petlji
 	if lViseKalk

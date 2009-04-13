@@ -20,6 +20,42 @@ endif
 return
 *}
 
+// -----------------------------------------------------
+// prikaz dodatnih informacija za dokument
+// -----------------------------------------------------
+function show_more_info( cPartner, dDatum, cFaktura, cMU_I )
+local cRet := ""
+local cMIPart := ""
+local cTip := ""
+
+if !EMPTY( cPartner )
+	
+	// naziv partnera sa dokumenta ...
+	cMIPart := ALLTRIM( Ocitaj( F_PARTN, cPartner, "NAZ" ) )
+
+	if cMU_I == "1"
+		cTip := "dob.:"
+	else
+		cTip := "kup.:"
+	endif
+
+	cRet := DTOC( dDatum )
+	cRet += ", "
+	cRet += "br.dok: "
+	cRet += ALLTRIM( cFaktura )
+	cRet += ", "
+	cRet += cTip 
+	cRet += " " 
+	cRet += cPartner 
+	cRet += " ("
+	cRet += cMIPart
+	cRet += ")"
+	
+endif
+
+return cRet
+
+
 
 /*! \fn PrikaziDobavljaca(cIdRoba, nRazmak, lNeIspisujDob)
  *  \brief Funkcija vraca dobavljaca cIdRobe na osnovu polja roba->dob

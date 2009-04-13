@@ -31,6 +31,7 @@ local aNabavke:={}
 
 local lExpDbf := .f.
 local cExpDbf := "N"
+local cMoreInfo := "N"
 
 // ulaz, izlaz parovno
 local nTUlazP
@@ -43,6 +44,10 @@ local cLine
 local cTxt1
 local cTxt2
 local cTxt3
+local cMIPart := ""
+local cMINumber := ""
+local dMIDate := CTOD("")
+local cMI_type := ""
 
 cPicDem := gPicDem
 cPicCDem := gPicCDem
@@ -193,6 +198,8 @@ Box(,20+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		endif
 		
 		@ m_x + 20, m_y + 2 SAY "Export izvjestaja u dbf?" GET cExpDbf VALID cExpDbf $ "DN" PICT "@!"
+		
+		@ m_x + 20, col() + 1 SAY "Pr.dodatnih informacija ?" GET cMoreInfo VALID cMoreInfo $ "DN" PICT "@!"
 		
 		read
 		ESC_BCR
@@ -405,6 +412,8 @@ nTRabat:=0
 nCol1:=50
 nCol0:=50
 
+
+
 private nRbr:=0
 
 do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
@@ -423,6 +432,10 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 	nNVU:=0
 	nNVI:=0
 	nRabat:=0
+
+	cMIFakt := ""
+	cMINumber := ""
+	dMIDate := CTOD("")
 
 	select roba
 	hseek cIdRoba
@@ -513,21 +526,25 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 		loop
 	endif
 
-cIdkonto:=mkonto
-if cMink=="O"; cNula:="D"; endif
-// ako zelim oznaciti sve kriticne zalihe onda mi trebaju i artikli
-// sa stanjem 0 !!
+	cIdkonto:=mkonto
+	
+	if cMink=="O"
+		cNula:="D"
+	endif
+	
+	// ako zelim oznaciti sve kriticne zalihe onda mi trebaju i artikli
+	// sa stanjem 0 !!
 
-aNabavke:={}
+	aNabavke:={}
 
-do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cIdRoba==idFirma+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba,cIdFirma+cIdKonto+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cIdRoba==idFirma+mkonto+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba) .and. IspitajPrekid()
+	do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cIdRoba==idFirma+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba,cIdFirma+cIdKonto+IF(lPoNarudzbi.and.cPKN=="D",cIdNar,"")+cIdRoba==idFirma+mkonto+IF(lPoNarudzbi.and.cPKN=="D",IdNar,"")+idroba) .and. IspitajPrekid()
 
-	if roba->tip $ "TU"
+	 if roba->tip $ "TU"
   		skip
 		loop
-  	endif
+  	 endif
   
-  	if mu_i=="1"
+  	 if mu_i=="1"
     		if !(idvd $ "12#22#94")
      			nKolicina:=field->kolicina-field->gkolicina-field->gkolicin2
      			nUlaz+=nKolicina
@@ -592,20 +609,26 @@ do while !eof() .and. iif(fSint.and.lSabKon,cIdFirma+IF(lPoNarudzbi.and.cPKN=="D
     		KreDetNC(aNabavke)
   	endif
 
-  	skip
-enddo
+ 	 // more info, set variables
+	 cMIPart := field->idpartner
+	 dMIDate := field->datfaktp
+	 cMINumber := field->brfaktp
+         cMI_type := field->mu_i
 
-if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagSNab()), round(nNVU-nNVI,4)<>0, round(nVPVU-nVPVI,4)<>0))) .or. (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
+  	 skip
+	enddo
+
+	if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagSNab()), round(nNVU-nNVI,4)<>0, round(nVPVU-nVPVI,4)<>0))) .or. (cMink=="D" .and. nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0)
 	
-	if cMink=="O" .and. nMink==0 .and. round(nUlaz-nIzlaz,4)==0
+	 if cMink=="O" .and. nMink==0 .and. round(nUlaz-nIzlaz,4)==0
   		loop
-	endif
-	if cMink=="O" .and.  nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0
+	 endif
+	 if cMink=="O" .and.  nMink<>0 .and. (nUlaz-nIzlaz-nMink)<0
    		B_ON
-	endif
+	 endif
 
-	aNaz:=Sjecistr(roba->naz,20)
-	NovaStrana(bZagl)
+	 aNaz:=Sjecistr(roba->naz,20)
+	 NovaStrana(bZagl)
 	
 	// rbr, idroba, naziv...
 	
@@ -836,6 +859,11 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	nTNV+=(nNVU-nNVI)
 	nTRabat+=nRabat
 
+	// prikaz dodatnih informacija na lager listi
+	if cMoreInfo == "D"
+		? SPACE(6) + show_more_info( cMIPart, dMIDate, cMINumber, cMI_type )
+	endif
+	
 	if lExpDbf == .t. .and. ROUND(nUlaz-nIzlaz, 4) <> 0
 	
 		fill_exp_tbl( 0, roba->id, roba->naz, roba->idtarifa, cJmj, ;
@@ -847,7 +875,7 @@ if (cMink<>"D" .and. (cNula=="D" .or. IIF(IsPDV() .and. (IsMagPNab() .or. IsMagS
 	
 endif
 
-if (IsPlanika() .and. cPrikazDob=="D")
+if IsPlanika() .and. cPrikazDob=="D"
 	? PrikaziDobavljaca(cIdRoba, 6)
 endif
 

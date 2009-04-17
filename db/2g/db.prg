@@ -157,6 +157,9 @@ if FILE(KUMPATH+"KALKS.DBF")
 endif
 Skloni(KUMPATH,"DOKS.DBF",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"DOKS2.DBF",cSezona,finverse,fda,fnul)
+if is_doksrc()
+	Skloni(KUMPATH,"DOKSRC.DBF",cSezona,finverse,fda,fnul)
+endif
 
 
 fnul:=.f.
@@ -168,9 +171,6 @@ Skloni(KUMPATH,"ZAGLI.DBF",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"FMK.INI",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"OBJEKTI.DBF",cSezona,finverse,fda,fnul)
 Skloni(KUMPATH,"K1.DBF",cSezona,finverse,fda,fnul)
-if is_doksrc()
-	Skloni(KUMPATH,"DOKSRC.DBF",cSezona,finverse,fda,fnul)
-endif
 
 fnul:=.f.
 Skloni(SIFPATH,"TARIFA.DBF",cSezona,finverse,fda,fnul)

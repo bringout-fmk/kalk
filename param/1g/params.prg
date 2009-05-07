@@ -78,7 +78,7 @@ function SetVarijante()
 local nX := 1
 private  GetList:={}
 
-Box(,22,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
+Box(,23,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
 	
 	@ m_x + nX, m_y+2 SAY "14 -Varijanta poreza na RUC u VP 1/2 (1-naprijed,2-nazad)"  get gVarVP  valid gVarVP $ "12"
   	
@@ -164,6 +164,10 @@ Box(,22,76,.f.,"Varijante obrade i prikaza pojedinih dokumenata")
   	
 	@ m_x + nX,col()+1 SAY "Auto ravnoteza naloga (FIN):" GET gAutoRavn VALID gAutoRavn $ "DN" PICT "@!"
 	
+	nX += 1
+
+	@ m_x + nX,m_y+2 SAY "Automatsko azuriranje cijena u sifrarnik (D/N)" GET gAutoCjen VALID gAutoCjen $ "DN" PICT "@!"
+	
 	read
 
 BoxC()
@@ -187,6 +191,7 @@ BoxC()
   WPar("rx",gRobaTrosk)
   Wpar("rc",gRCRP )
   WPar("ar",gAutoRavn)
+  WPar("ac",gAutoCjen)
   WPar("R1",gRobaTr1Tip)
   WPar("R2",gRobaTr2Tip)
   WPar("R3",gRobaTr3Tip)

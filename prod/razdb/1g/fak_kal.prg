@@ -59,6 +59,9 @@ cIdKonto2 := PADR("1310", 7)
 cIdZaduz2 := SPACE(6)
 cIdZaduz := SPACE(6)
 
+cSabirati := "D"
+cCjenSif := "N"
+
 if gBrojac=="D"
 
  	select kalk
@@ -93,7 +96,11 @@ do while .t.
   
   	@ m_x+6, m_y + 2 SAY "Fakture tipa 11 u periodu od" GET dFaktOd
   	@ m_x+6, col()+1 SAY "do" GET dFaktDo
-  
+ 
+	@ m_x+7, m_y + 2 SAY "Uzimati MPC iz sifrarnika (D/N) ?" GET cCjenSif VALID cCjenSif $ "DN" PICT "@!"
+	
+	@ m_x+8, m_y + 2 SAY "Sabirati iste artikle (D/N) ?" GET cSabirati VALID cSabirati $ "DN" PICT "@!"
+
   	read
   
   	if lastkey()==K_ESC
@@ -147,7 +154,8 @@ do while .t.
        		
 		seek cIdFirma + "11" + cIdRoba
 		
-		if !FOUND() .and. field->idroba <> cIdRoba
+		if ( cSabirati == "N" ) .or. ;
+			( !FOUND() .and. field->idroba <> cIdRoba )
 			
 			APPEND BLANK
        		       		
@@ -171,7 +179,12 @@ do while .t.
                		replace mpc with xfakt->porez
                		replace tmarza2 with "A"
                		replace tprevoz with "A"
-               		replace mpcsapp with UzmiMpcSif()
+			
+			if cCjenSif == "D"
+               			replace mpcsapp with UzmiMpcSif()
+			else
+				replace mpcsapp with xfakt->cijena
+			endif
 		
 		endif
 		
@@ -191,7 +204,7 @@ do while .t.
 
 	select xfakt
      
-     	@ m_x+8,m_y+2 SAY "Dokument je prenesen !!"
+     	@ m_x+10,m_y+2 SAY "Dokument je prenesen !!"
      	
 	if gBrojac=="D"
       		cBrKalk := UBrojDok(val(left(cBrKalk,5))+1,5,right(cBrKalk,3))
@@ -208,12 +221,6 @@ Boxc()
 closeret
 
 return
-
-
-
-
-
-
 
 
 

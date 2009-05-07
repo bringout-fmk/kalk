@@ -433,6 +433,9 @@ if lUpit
 	endif
 else
 	lAzuriraj := .t.
+	if gAutoCjen == "N"
+		lAzuriraj := .f.
+	endif
 endif
 
 if lAzuriraj

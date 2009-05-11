@@ -426,7 +426,7 @@ if lIsteCijene
 endif
 
 if lUpit
-	if Pitanje(,"Staviti " + cMpc + " u sifrarnik ?", "D") == "D"
+	if gAutoCjen == "D" .and. Pitanje(,"Staviti " + cMpc + " u sifrarnik ?", "D") == "D"
 		lAzuriraj := .t.
 	else
 		lAzuriraj := .f.

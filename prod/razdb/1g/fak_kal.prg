@@ -150,12 +150,17 @@ do while .t.
 		cPKonto := cIdKonto
 		
 		select PRIPR
-		set order to tag "4"
-       		
-		seek cIdFirma + "11" + cIdRoba
-		
-		if ( cSabirati == "N" ) .or. ;
-			( !FOUND() .and. field->idroba <> cIdRoba )
+
+		if cSabirati == "D"
+			set order to tag "4"
+			seek cIdFirma + "11" + cIdRoba 
+       		else
+			set order to tag "5"
+			seek cIdFirma + "11" + cIdRoba + ;
+				STR(xfakt->cijena, 12, 2)
+		endif
+
+		if !FOUND()
 			
 			APPEND BLANK
        		       		

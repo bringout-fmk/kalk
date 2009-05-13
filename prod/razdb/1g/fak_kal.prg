@@ -59,7 +59,7 @@ cIdKonto2 := PADR("1310", 7)
 cIdZaduz2 := SPACE(6)
 cIdZaduz := SPACE(6)
 
-cSabirati := "D"
+cSabirati := gAutoCjen
 cCjenSif := "N"
 
 if gBrojac=="D"

@@ -158,6 +158,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow(),pcol()+1 SAY nPor1                PICTURE PiccDEM
     @ prow(),pcol()+1 SAY MPCSAPP              PICTURE PicCDEM
 
+    // red 2 ......
     @ prow()+1,4 SAY IdTarifa+roba->tip
     IF g11bezNC == "D"
       @ prow(),nCol0-1    SAY  ""
@@ -172,7 +173,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
       @ prow(),  pcol()+1 SAY  nc*kolicina      picture picdem
       @ prow(),  pcol()+1 SAY  nMarza*kolicina      picture picdem
     ENDIF
-    @ prow(),  pcol()+1 SAY  nMarza2*kolicina      picture picdem
+    @ prow(), nMPos:=pcol()+1 SAY  nMarza2*kolicina      picture picdem
     IF lPrikPRUC
       @ prow(),pcol()+1 SAY nU4c                PICTURE PicCDEM
     ENDIF
@@ -192,6 +193,11 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     else
    	@ prow(),  pcol()+1 SAY  nPor1             picture piccdem
     	@ prow(),  pcol()+1 SAY  nU7               picture piccdem
+    endif
+    
+    // red 3 .....
+    if round(nc,5) <> 0
+    	@ prow()+1,nMPos SAY (nMarza2/nc)*100  picture picproc
     endif
 
     skip

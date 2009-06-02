@@ -134,7 +134,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     if !IsPDV() .or. gPDVMagNab == "N"
     	@ prow(),pcol()+1 SAY nMarza              PICTURE PicCDEM
     endif
+    
     @ prow(),pcol()+1 SAY nMarza2              PICTURE PicCDEM
+    
     IF lPrikPRUC
       @ prow(),pcol()+1 SAY aPorezi[POR_PRUCMP] PICTURE PicProc
     ENDIF
@@ -144,6 +146,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     @ prow(),pcol()+1 SAY nPor1                PICTURE PiccDEM
     @ prow(),pcol()+1 SAY MPCSAPP              PICTURE PicCDEM
 
+    // drugi red ....
     @ prow()+1,nCol0    SAY  fcj*kolicina      picture picdem
     IF !lPrikPRUC
       @ prow(),  pcol()+1 SAY  prevoz*kolicina      picture picdem
@@ -152,7 +155,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     if !IsPDV() .or. gPDVMagNab == "N"
     	@ prow(),  pcol()+1 SAY  nmarza*kolicina      picture picdem
     endif
-    @ prow(),  pcol()+1 SAY  nmarza2*kolicina      picture picdem
+    @ prow(),  nMPos:=pcol()+1 SAY  nmarza2*kolicina      picture picdem
     IF lPrikPRUC
       @ prow(),pcol()+1 SAY nU4c                PICTURE PicCDEM
     ENDIF
@@ -169,7 +172,13 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 	@ prow(), pcol()+1 SAY nU6 picture piccdem
 	@ prow(), pcol()+1 SAY nU7 picture piccdem
     endif
-    
+  
+    // treci red .....
+    if round(nc, 5) <> 0
+    	@ prow()+1,nMPos SAY (nMarza2/nc)*100  picture picproc
+    endif
+   
+
     skip 1
 
 enddo

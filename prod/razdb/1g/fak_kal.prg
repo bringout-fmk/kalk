@@ -207,6 +207,15 @@ do while .t.
 	set order to tag "1"
 	go top
 
+	// brisi stavke koje su kolicina = 0
+	do while !EOF()
+		if field->kolicina = 0
+			delete
+		endif
+		skip
+	enddo
+	go top
+
 	select xfakt
      
      	@ m_x+10,m_y+2 SAY "Dokument je prenesen !!"

@@ -11,6 +11,7 @@ static qqKonto
 static qqRoba
 static cUslov1
 static cUslov2
+static cObjUsl
 static cUslovRoba
 static cK9
 static cNObjekat
@@ -118,6 +119,7 @@ nRbr:=0
 nRecno:=0
 fFilovo:=.f.
 do while !eof()
+	
 	cG1:=rekap1->g1
 	select pobjekti    
 	// inicijalizuj polja
@@ -171,7 +173,7 @@ do while !eof()
 		@ prow(),nColR  SAY PADR(aStrRoba[1], ROBAN_LEN)
 		nCol1:=PCOL()
 
-		PrintZal(cG1, cIdTarifa, cIdRoba)
+		PrintZal(cG1, cIdTarifa, cIdRoba, cObjUsl )
 		
 		// drugi red  prodaja  u mjesecu  k1
 		nK1:=0
@@ -182,7 +184,7 @@ do while !eof()
 			endif
 			@ prow(),nCol1 SAY ""
 			if (cPrikProd=="D")
-				PrintProd(cG1, cIdTarifa, cIdRoba)
+				PrintProd(cG1, cIdTarifa, cIdRoba, cObjUsl )
 			endif
 		endif
 		
@@ -247,10 +249,15 @@ static function SetLinSpo()
 local nObjekata
 
 cLinija:=REPLICATE("-",4)+" "+REPLICATE("-",10)+" "+REPLICATE("-",ROBAN_LEN)
+
 select pobjekti
 go top
 nObjekata:=0
 do while !eof()
+	if field->id <> "99" .and. !EMPTY(cObjUsl) .and. !( &cObjUsl )
+		skip
+		loop
+	endif
 	cLinija:=cLinija+" "+REPLICATE("-",KOLICINA_LEN)
 	++nObjekata
 	skip
@@ -280,8 +287,16 @@ go bottom
 ?? " "+PADC(ALLTRIM(objekti->naz), KOLICINA_LEN)
 go top
 do while (!EOF() .and. objekti->id<"99")
+	
+	if !EMPTY(cObjUsl) .and. !( &cObjUsl )
+		skip
+		loop
+	endif
+
 	?? " "+PADC(ALLTRIM(objekti->naz), KOLICINA_LEN)
+	
 	skip
+
 enddo
 
 // drugi red zaglavlja
@@ -290,6 +305,12 @@ enddo
 select pobjekti
 go top
 do while (!EOF() .and. field->id<"99")
+	
+	if !EMPTY(cObjUsl) .and. !( &cObjUsl )
+		skip
+		loop
+	endif
+
 	?? " "+padc("zal/pr", KOLICINA_LEN)
 	skip
 enddo
@@ -301,6 +322,7 @@ return nil
 static function GetVars(cNObjekat)
 cUslov1:=""
 cUslov2:=""
+cObjUsl:=""
 cUslovR:=""
 dDatOd:=DATE()
 dDatDo:=DATE()
@@ -345,6 +367,7 @@ do while .t.
 	endif
 	cUslov1:=Parsiraj(qqKonto,"PKonto")
 	cUslov2:=Parsiraj(qqKonto,"MKonto")
+	cObjUsl:=Parsiraj(qqKonto,"IDOBJ")
 	cUslovRoba:=Parsiraj(qqRoba,"IdRoba")
 	
 	if (cUslov1<>nil .and. cUslovRoba<>nil)
@@ -372,8 +395,11 @@ return 1
 static function SetGaZagSpo()
 return
 
-static function PrintZal(cG1, cIdTarifa, cIdRoba)
-*{
+
+// ---------------------------------------------
+// printanje stavki reporta po kontima
+// ---------------------------------------------
+static function PrintZal(cG1, cIdTarifa, cIdRoba, cDUslov )
 local nK2
 
 // prvi red zalihe
@@ -388,6 +414,7 @@ do while (!eof() .and. field->id<"99")
 	 select pobjekti
 	 skip
 enddo
+
 // ispis kolone "SVI"
 @ prow(),pcol()+1 SAY nK2 pict cPicKol
 
@@ -395,6 +422,14 @@ enddo
 select pobjekti    
 go top
 do while (!EOF() .and. pobjekti->id<"99")
+	 
+	 select pobjekti
+
+	 if !EMPTY(cDUslov) .and. !( &cDUslov )
+		skip
+		loop
+	 endif
+	 
 	 SELECT rekap1
 	 HSEEK cG1+cIdTarifa+cIdRoba+pobjekti->idobj
 	 if k4pp<>0
@@ -422,7 +457,7 @@ endif
 
 return
 
-static function PrintProd(cG1, cIdTarifa, cIdRoba)
+static function PrintProd(cG1, cIdTarifa, cIdRoba, cDUslov )
 local nK1
 
 select pobjekti    
@@ -445,6 +480,13 @@ go top
 lIzaProc:=.t.
 i:=0
 do while (!eof() .and. pobjekti->id<"99")
+	
+	select pobjekti
+	if !EMPTY(cDUslov) .and. !( &cDUslov )
+		skip
+		loop
+	endif
+	
 	select rekap1
 	hseek cG1+cIdTarifa+cIdRoba+pobjekti->idobj
 	if k4pp<>0
@@ -500,4 +542,5 @@ do while (!eof()  .and. field->id<"99")
 	++i
 	skip
 enddo
+
 

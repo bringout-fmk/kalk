@@ -105,6 +105,8 @@ private aHistory:={}
 select 99
 use
 
+altd()
+
 OEdit()
 
 private gVarijanta:="2"
@@ -176,14 +178,14 @@ O_DOKS
 O_PRIPR
 O_DOKSRC
 O_P_DOKSRC
+O_SIFK
+O_SIFV
+O_ROBA
 O_KALK
 O_KONTO
 O_PARTN
 O_TDOK
 O_VALUTE
-O_SIFK
-O_SIFV
-O_ROBA
 O_TARIFA 
 O_KONCIJ
 

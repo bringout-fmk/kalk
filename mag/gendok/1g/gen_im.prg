@@ -3,7 +3,7 @@
 
 // generisanje dokumenta tipa IM
 function IM()
-*{
+
 lOsvjezi := .f.
 O_PRIPR
 GO TOP
@@ -19,12 +19,17 @@ O_SIFK
 O_SIFV
 O_ROBA
 
+cSrSort := "N"
+
 IF lOsvjezi
- 	cIdFirma:=gFirma
+ 	
+	cIdFirma:=gFirma
  	cIdKonto:=pripr->idKonto
  	dDatDok:=pripr->datDok
+
 ELSE
-	Box(,6,70)
+
+	Box(,7,70)
  	cIdFirma:=gFirma
  	cIdKonto:=padr("1310",gDuzKonto)
  	dDatDok:=date()
@@ -37,7 +42,9 @@ ELSE
  	@ m_x+4,m_Y+2 SAY "(prazno-sve):" GET cArtikli 
  	@ m_x+5,m_Y+2 SAY "(Grupacija broj mjesta) :" GET cPosition
  	@ m_x+6,m_Y+2 SAY "Cijene (1-VPC, 2-NC) :" GET cCijenaTIP VALID cCijenaTIP$"12"
- 	read
+ 	@ m_x+7,m_y+2 SAY "sortirati po sifri dobavljaca :" GET cSRSort ;
+		VALID cSRSort $ "DN" PICT "@!"
+	read
  	ESC_BCR
  	BoxC()
 ENDIF
@@ -54,6 +61,7 @@ ENDIF
 nRbr:=0
 set order to 3
 
+
 MsgO("Generacija dokumenta IM - "+cBrdok)
 
 select koncij
@@ -63,12 +71,14 @@ SELECT kalk
 hseek cIdFirma+cIdKonto
 
 do while !EOF() .and. cIdFirma+cIdKonto==field->idfirma+field->mkonto
+	
 	cIdRoba:=field->idRoba
-	altd()
+	
 	if !EMPTY(cArtikli) .and. AT(SubSTR(cIdRoba, 1, VAL(cPosition)), ALLTRIM(cArtikli))==0
 		skip 
 		loop
 	endif
+	
 	nUlaz:=0
 	nIzlaz:=0
 	nVPVU:=0
@@ -76,47 +86,89 @@ do while !EOF() .and. cIdFirma+cIdKonto==field->idfirma+field->mkonto
 	nNVU:=0
 	nNVI:=0
 	nRabat:=0
+	
 	do while !EOF() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba
-	  	if dDatdok<field->datdok
+	  	
+		if dDatdok<field->datdok
 	      		skip
 	      		loop
 	  	endif
+		
 		RowVpvRabat(@nVpvU, @nVpvI, @nRabat)
+		
 		if cCijenaTIP=="2"
 			RowNC(@nNVU, @nNVI)
 		endif
+		
 		RowKolicina(@nUlaz, @nIzlaz)
-	  	skip
+	  	
+		skip
 	enddo
 
 	if (ROUND(nUlaz-nIzlaz,4)<>0) .or. (ROUND(nVpvU-nVpvI,4)<>0)
+		
 		SELECT roba
 		HSEEK cIdroba
+		
 		SELECT pripr
+
 		if lOsvjezi
 			// trazi unutar dokumenta
-			AzurPostojece(cIdFirma, cIdKonto, cBrDok, dDatDok, @nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI)
+			AzurPostojece(cIdFirma, cIdKonto, cBrDok, dDatDok, @nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI )
 		else
 			// dodaj, formira se novi dokument
-			DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, @nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI)
+			DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, @nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI )
 			
 		endif
 		select kalk
 	
 	elseif lOsvjezi
+		
 		// prije je ova stavka bila <>0 , sada je 0 pa je treba izbrisati
 		select PRIPR
 		SET ORDER TO TAG "3"
 		GO TOP
 		SEEK cIdFirma+"IM"+cBrDok+cIdRoba
+		
 		if FOUND()
 			DELETE
 		endif
+		
 		SELECT KALK
+	
 	endif
 
 enddo
+
+
+if cSRSort == "D"
+
+	msgo("sortiram po SIFRADOB ...")
+	
+	select pripr
+
+	SET RELATION TO idroba INTO ROBA
+	
+	index on idFirma + idvd + brdok + roba->sifradob to "SDOB"
+	go top
+
+	nRbr := 0
+
+	do while !EOF()
+		scatter()
+		_rbr := RedniBroj( ++nRbr )
+		gather()
+		skip
+	enddo
+	
+	msgc()
+
+	set relation to
+
+endif
+
 MsgC()
+
 closeret
 
 return
@@ -243,10 +295,18 @@ return
 *}
 
 
-function AzurPostojece(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI)
-*{
+function AzurPostojece(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNvU, nNvI, cSrSort )
 
-SET ORDER TO TAG "3"
+if cSrSort == nil
+	cSrSort := "N"
+endif
+
+if cSrSort == "D"
+	set order to "SDOB"
+else
+	SET ORDER TO TAG "3"
+endif
+
 GO TOP
 SEEK cIdFirma+"IM"+cBrDok+cIdRoba
 
@@ -294,8 +354,12 @@ return
 *}
 
 
-static function DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNcU, nNcI, lKolNula)
-*{			
+static function DodajImStavku(cIdFirma, cIdKonto, cBrDok, dDatDok, nRbr, cIdRoba, nUlaz, nIzlaz, nVpvU, nVpvI, nNcU, nNcI, lKolNula, cSrSort )
+
+if cSrSort == nil
+	cSrSort := "N"
+endif
+
 if lKolNula == nil
 	lKolNula := .f.
 endif

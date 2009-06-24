@@ -11,6 +11,7 @@ static __txt3
 // tabele potrebne za report
 // ---------------------------------
 static function _o_tables()
+
 O_SIFK
 O_SIFV
 O_ROBA
@@ -118,6 +119,7 @@ private cErr:="N"
 private cNCSif:="N"
 private cMink:="N"
 private cSredCij:="N"
+private cSRSort := "N"
 private cPKN := "N"
 private cFaBrDok := space(40)
 
@@ -127,7 +129,7 @@ endif
 
 cArtikalNaz:=SPACE(30)
 
-Box(,20+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
+Box(,21+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 	
 	do while .t.
  		if gNW $ "DX"
@@ -201,6 +203,7 @@ Box(,20+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		
 		@ m_x + 20, col() + 1 SAY "Pr.dodatnih informacija ?" GET cMoreInfo VALID cMoreInfo $ "DN" PICT "@!"
 		
+		@ m_x + 21, m_y + 2 SAY "Sort izvjestaja po SIFRADOB" GET cSRSort VALID cSRSort $ "DN" PICT "@!"
 		read
 		ESC_BCR
  
@@ -323,7 +326,7 @@ if fSint .and. lSabKon
   	if lPoNarudzbi .and. cPKN=="D"
     		set order to tag "6N"
   	else
-    		set order to 6
+    		set order to tag "6"
     		//"6","idFirma+IdTarifa+idroba",KUMPATH+"KALK"
   	endif
   	hseek cIdFirma
@@ -331,9 +334,16 @@ else
 	if lPoNarudzbi .and. cPKN=="D"
     		set order to tag "3N"
   	else
-    		set order to 3
+    		set order to tag "3"
   	endif
   	hseek cIdFirma+cIdKonto
+endif
+
+if cSRSort == "D"
+	SET RELATION TO idroba INTO ROBA
+	index on idFirma + mkonto + roba->sifradob + dtos(datdok) + ;
+		podbr + MU_I + IdVD to "SDOB"
+  	hseek cIdFirma + cIdKonto
 endif
 
 select koncij
@@ -411,8 +421,6 @@ nNBCij := 0
 nTRabat:=0
 nCol1:=50
 nCol0:=50
-
-
 
 private nRbr:=0
 
@@ -959,6 +967,13 @@ endif
 gPicDem := cPicDem
 gPicCDem := cPicCDem
 gPicKol := cPicKol
+
+if cSRSort == "D"
+	// ukini relation
+	set relation to
+	// vrati se na stari indeks
+	set order to tag "3"
+endif
 
 closeret
 return

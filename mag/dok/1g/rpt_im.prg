@@ -1,42 +1,9 @@
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/dok/1g/rpt_im.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.5 $
- * $Log: rpt_im.prg,v $
- * Revision 1.5  2004/01/19 13:13:55  sasavranic
- * Pri generaciji IM magacina, pita za cijene VPC ili NC
- *
- * Revision 1.4  2004/01/09 08:49:09  sasavranic
- * Na stampi invent.magacina prikaz VPC ili ne
- *
- * Revision 1.3  2002/06/26 17:53:45  ernad
- *
- *
- * ciscenje, inventura magacina
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
-
-/*! \file fmk/kalk/mag/dok/1g/rpt_im.prg
- *  \brief Stampa kalkulacije tipa IM
- */
-
-
-/*! \fn StKalkIM()
- *  \brief Stampa kalkulacije tipa IM
- */
-
+// ------------------------------------------------
+// stampa kalkulacije tipa "IM"
+// ------------------------------------------------
 function StKalkIM()
-*{
 local nCol1:=0
 local nCol2:=0
 local nPom:=0
@@ -101,6 +68,7 @@ nTotKol:=0
 nTotGKol:=0
 
 private cIdd:=idPartner+brFaktP+idKonto+idKonto2
+
 do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVd
 
     KTroskovi()
@@ -186,6 +154,6 @@ endif
 
 ? m
 
+
 return
-*}
 

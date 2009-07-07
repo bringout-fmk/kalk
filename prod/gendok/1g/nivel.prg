@@ -272,7 +272,54 @@ do while !eof()
 enddo
  
 return
-*}
+
+
+// prebaci iz zanivel2 u zanivel
+function zaniv2_zaniv()
+
+if !SigmaSif("NIVEL")
+	MsgBeep("Ne cackaj!")
+	return
+endif
+
+MsgBeep("Ova opcija ce kopirati postojece vrijednosti polja N.CIJENA 2#u polje N.CIJENA 1!")
+
+if Pitanje(,"Kopirati vrijednosti","N") == "N"
+	return
+endif
+
+if !USED(F_ROBA)
+	O_ROBA
+endif
+
+select roba
+set order to tag "ID"
+go top
+
+Box(,3, 70)
+do while !EOF()
+
+	if ROUND(field->zaniv2, 4) == 0
+		skip
+		loop
+	endif
+	
+	@ 1+m_x, 2+m_y SAY "ID roba: " + field->id
+	
+	replace zanivel with zaniv2
+	
+	@ 2+m_x, 2+m_y SAY "Update cijena " + ALLTRIM(STR(field->zanivel)) 	
+	skip
+enddo
+
+BoxC()
+
+MsgBeep("Zavrseno kopiranje !")
+
+return
+
+
+
 
 
 // setuj mpc iz polja zanivel nakon nivelacije

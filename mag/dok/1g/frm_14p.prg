@@ -90,9 +90,6 @@ endif
 DatPosljK()
 DuplRoba()
 
-altd()
-
-
 if fNovi
 	select roba
   	_VPC:=KoncijVPC()

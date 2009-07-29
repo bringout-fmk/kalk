@@ -3,12 +3,10 @@
 // stampanje dokumenata .t. or .f.
 static __stampaj
 
-
-/*! \fn MnuImpTxt()
- *  \brief Menij opcije import txt
- */
+// ---------------------------------------------
+// glavni meni importa
+// ---------------------------------------------
 function MnuImpTxt()
-*{
 private izbor:=1
 private opc:={}
 private opcexe:={}
@@ -31,11 +29,13 @@ AADD(opc, "5. nastavak obrade dokumenata ... ")
 AADD(opcexe, {|| RestoreObrada()})
 AADD(opc, "6. podesenja importa ")
 AADD(opcexe, {|| aimp_setup()})
+AADD(opc, "7. kreiraj pomocnu tabelu stanja")
+AADD(opcexe, {|| gen_cache()})
 
 Menu_SC("itx")
 
 return
-*}
+
 
 
 // ----------------------------------
@@ -1232,19 +1232,6 @@ do while !EOF()
 	go top
 	seek cTmpArt
 	
-	// ovo ne kontam ali eto !!!!
-	if cTDok == "14"
-        	select doks2
-		hseek gFirma + cTDok + cBrojKalk
-        	if !Found()
-           		append blank
-           		replace idvd with "14" // izlazna faktura
-                   	replace brdok with cBrojKalk
-                   	replace idfirma with gfirma
-        	endif
-        	replace DatVal with temp->datval
-	endif
-
 	// dodaj zapis u pripr
 	select pript
 	append blank

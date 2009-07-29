@@ -778,7 +778,7 @@ return .t.
  */
 
 function KalkNab(cidfirma,cidroba,cidkonto,nkolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
-*{
+
 local npom,fproso
 local nIzlNV
 local nIzlKol
@@ -786,6 +786,14 @@ local nUlNV
 local nUlKol
 local nSkiniKol
 local nKolNeto
+
+if lAutoObr == .t.
+	// uzmi stanje iz cache tabele
+	knab_cache( cIdKonto, cIdroba, nUlKol, nIzlKol, nKolicina, ;
+		nUlNv, nIzlNv, nNc )
+	select pripr
+	return
+endif
 
 nKolicina:=0
 select kalk
@@ -911,7 +919,7 @@ endif
 nKolicina:=round(nKolicina,4)
 select pripr
 return
-*}
+
 
 
 function IsMagPNab()

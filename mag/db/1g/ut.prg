@@ -32,6 +32,15 @@ local nUlKol
 local nSkiniKol
 
 nKolicina:=0
+
+if lAutoObr == .t.
+	// uzmi stanje iz cache tabele
+	knab_cache( cIdKonto, cIdroba, nUlKol, nIzlKol, nKolicina, ;
+		nUlNv, nIzlNv, nNc )
+	select pripr
+	return
+endif
+
 select kalk
 select kalk
 set order to 4  //idFirma+pkonto+idroba+pu_i+IdVD
@@ -787,6 +796,8 @@ local nUlKol
 local nSkiniKol
 local nKolNeto
 
+nKolicina:=0
+
 if lAutoObr == .t.
 	// uzmi stanje iz cache tabele
 	knab_cache( cIdKonto, cIdroba, nUlKol, nIzlKol, nKolicina, ;
@@ -795,7 +806,6 @@ if lAutoObr == .t.
 	return
 endif
 
-nKolicina:=0
 select kalk
 set order to 3
 seek cidfirma+cidkonto+cidroba+"X"

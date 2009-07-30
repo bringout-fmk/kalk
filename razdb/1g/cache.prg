@@ -47,6 +47,14 @@ function knab_cache( cC_Kto, cC_Roba, nC_Ulaz, nC_Izlaz, ;
 
 local nTArea := SELECT()
 
+
+if !if_cache() .or. gCache == "N"
+	return 0
+endif
+
+cC_Kto := PADR(cC_Kto, 7)
+cC_Roba := PADR(cC_Roba, 10)
+
 nC_ulaz := 0
 nC_izlaz := 0
 nC_stanje := 0
@@ -57,10 +65,13 @@ nC_nv := 0
 O_CACHE
 select cache
 set order to tag "1"
+go top
+
+altd()
 
 seek cC_Kto + cC_Roba
 
-if FOUND()
+if FOUND() .and. ( cC_kto == field->idkonto .and. cC_roba == field->idroba )
 	nC_Ulaz := field->ulaz
 	nC_Izlaz := field->izlaz
 	nC_Stanje := field->stanje
@@ -71,27 +82,48 @@ endif
 
 select (nTArea)
 
-return
+return 1
 
 
 // ---------------------------------------------------
 // lista konta
 // ---------------------------------------------------
-static function _g_kto( cMList, cPList )
+static function _g_kto( cMList, cPList, dDatGen )
 local GetList:={}
+local nTArea := SELECT()
 
-cMList := PADR("1310;13101;", 200)
-cPList := PADR("1320;", 200)
+O_PARAMS
+private cSection := "Q"
+private cHistory := " "
+private aHistory:={}
 
-Box(,2,60)
+cMList := PADR("1310;13101;", 250)
+cPList := PADR("1320;", 250)
+dDatGen := DATE()
+
+RPar("mk", @cMList)
+RPar("pk", @cPList)
+
+cMList := PADR( cMList, 250 )
+cPList := PADR( cPList, 250 )
+
+Box(,3,60)
 	@ m_x + 1, m_y + 2 SAY "Mag. konta:" GET cMList PICT "@S40"
 	@ m_x + 2, m_y + 2 SAY "Pro. konta:" GET cPList PICT "@S40"
+	@ m_x + 3, m_y + 2 SAY "Datum do:" GET dDatGen
 	read
 BoxC()
 
 if LastKey() == K_ESC
+	select (nTArea)
 	return 0
 endif
+
+WPar("mk", cMList)
+WPar("pk", cPList)
+WPar("dg", dDatGen)
+
+select (nTArea)
 
 return 1
 
@@ -112,10 +144,11 @@ local cIdFirma := gFirma
 local cIdRoba
 local cMKtoLst
 local cPKtoLst
+local dDatGen
 local GetList:={}
 local i
 
-if _g_kto( @cMKtoLst, @cPKtoLst ) == 0
+if _g_kto( @cMKtoLst, @cPKtoLst, @dDatGen ) == 0
 	return
 endif
 
@@ -137,17 +170,23 @@ for i := 1 to LEN( aKto )
 
   cIdKonto := PADR( aKto[i], 7 )
 
+  if EMPTY(cIdKonto)
+  	loop
+  endif
+
   @ m_x + 1, m_y + 2 SAY "mag. konto: " + cIdKonto
 
   select kalk
+  // mkonto
   set order to tag "3"
   go top
 
   seek cIdFirma + cIdKonto
 
-  do while !EOF() .and. cIdFirma == idfirma ;
-	.and. cIdKonto == mkonto 
+  do while !EOF() .and. cIdFirma == field->idfirma ;
+	.and. cIdKonto == field->mkonto 
 	
+
 	cIdRoba := field->idroba
 
  	nKolicina := 0
@@ -159,9 +198,15 @@ for i := 1 to LEN( aKto )
  	nUlKol:=0  
   	// ulazna kolicina
 
-	@ m_x + 1, col() + 1 SAY cIdRoba
+	@ m_x + 1, m_y + 20 SAY cIdRoba
 
 	do while !EOF() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba 
+
+		// provjeri datum
+		if field->datdok > dDatGen
+			skip
+			loop
+		endif
 
   		if field->mu_i == "1" .or. field->mu_i == "5"
     		  
@@ -200,18 +245,22 @@ for i := 1 to LEN( aKto )
 
 	nKolicina := round( nKolicina, 4 )
 	
-	// upisi u cache
-	select cache
-	append blank
+	if nKolicina <> 0
+	 
+	 // upisi u cache
+	 select cache
+	 append blank
 
-	replace idkonto with cIdKonto
-	replace idroba with cIdRoba
-	replace ulaz with nUlKol
-	replace izlaz with nIzlkol
-	replace stanje with nKolicina
-	replace nvu with nUlNv
-	replace nvi with nIzlNv
-	replace nv with nSnc
+	 replace idkonto with cIdKonto
+	 replace idroba with cIdRoba
+	 replace ulaz with nUlKol
+	 replace izlaz with nIzlkol
+	 replace stanje with nKolicina
+	 replace nvu with nUlNv
+	 replace nvi with nIzlNv
+	 replace nv with nSnc
+        
+	endif
 
 	select kalk
 
@@ -229,17 +278,23 @@ for i := 1 to LEN( aKto )
 
   cIdKonto := PADR( aKto[i], 7 )
 
+  if EMPTY(cIdKonto)
+  	loop
+  endif
+
   @ m_x + 1, m_y + 2 SAY "prod.konto: " + cIdKonto
 
   select kalk
-  set order to tag "3"
+  // pkonto
+  set order to tag "4"
   go top
 
   seek cIdFirma + cIdKonto
 
-  do while !EOF() .and. cIdFirma == idfirma ;
-	.and. cIdKonto == mkonto 
+  do while !EOF() .and. cIdFirma == field->idfirma ;
+	.and. cIdKonto == field->pkonto 
 	
+
 	cIdRoba := field->idroba
 
  	nKolicina := 0
@@ -251,9 +306,15 @@ for i := 1 to LEN( aKto )
  	nUlKol:=0  
   	// ulazna kolicina
 
-	@ m_x + 1, col() + 1 SAY cIdRoba
+	@ m_x + 1, m_y + 20 SAY cIdRoba
 
-	do while !EOF() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba 
+	do while !EOF() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+pkonto+idroba 
+
+	  // provjeri datum
+	  if field->datdok > dDatGen
+		skip
+		loop
+	  endif
 
 	  if field->pu_i == "1" .or. field->pu_i == "5"
     	    if ( field->pu_i == "1" .and. field->kolicina > 0 ) ;
@@ -283,18 +344,22 @@ for i := 1 to LEN( aKto )
 
 	nKolicina := round( nKolicina, 4 )
 	
-	// upisi u cache
-	select cache
-	append blank
+	if nKolicina <> 0
+	
+	 // upisi u cache
+	 select cache
+	 append blank
 
-	replace idkonto with cIdKonto
-	replace idroba with cIdRoba
-	replace ulaz with nUlKol
-	replace izlaz with nIzlkol
-	replace stanje with nKolicina
-	replace nvu with nUlNv
-	replace nvi with nIzlNv
-	replace nv with nSnc
+	 replace idkonto with cIdKonto
+	 replace idroba with cIdRoba
+	 replace ulaz with nUlKol
+	 replace izlaz with nIzlkol
+	 replace stanje with nKolicina
+	 replace nvu with nUlNv
+	 replace nvi with nIzlNv
+	 replace nv with nSnc
+	
+	endif
 
 	select kalk
 

@@ -35,10 +35,11 @@ nKolicina:=0
 
 if lAutoObr == .t.
 	// uzmi stanje iz cache tabele
-	knab_cache( cIdKonto, cIdroba, nUlKol, nIzlKol, nKolicina, ;
-		nUlNv, nIzlNv, nNc )
-	select pripr
-	return
+	if knab_cache( cIdKonto, cIdroba, @nUlKol, @nIzlKol, @nKolicina, ;
+		@nUlNv, @nIzlNv, @nNc ) == 1
+		select pripr
+		return
+	endif
 endif
 
 select kalk
@@ -786,7 +787,7 @@ return .t.
  *  \brief Racuna nabavnu cijenu i stanje robe u magacinu
  */
 
-function KalkNab(cidfirma,cidroba,cidkonto,nkolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
+function KalkNab(cidfirma,cidroba,cidkonto,nKolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
 
 local npom,fproso
 local nIzlNV
@@ -798,12 +799,15 @@ local nKolNeto
 
 nKolicina:=0
 
+altd()
+
 if lAutoObr == .t.
 	// uzmi stanje iz cache tabele
-	knab_cache( cIdKonto, cIdroba, nUlKol, nIzlKol, nKolicina, ;
-		nUlNv, nIzlNv, nNc )
-	select pripr
-	return
+	if knab_cache( cIdKonto, cIdroba, @nUlKol, @nIzlKol, @nKolicina, ;
+		@nUlNv, @nIzlNv, @nSNC ) == 1
+		select pripr
+		return
+	endif
 endif
 
 select kalk

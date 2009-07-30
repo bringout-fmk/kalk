@@ -343,6 +343,10 @@ public gAzurTimeout := 150
 // time out kod azuriranja fin dokumenta
 public gAzurFinTO := 150
 
+// auto obrada iz cache tabele
+public gCache := "N"
+
+
 public lPoNarudzbi
 
 // KALK: auto import
@@ -444,6 +448,7 @@ RPar("f2",@gFunKon2)
 
 RPar("aK",@gAzurTimeout)
 RPar("aF",@gAzurFinTO)
+RPar("aQ",@gCache)
 
 cOdradjeno:="D"
 if file(EXEPATH+'scshell.ini')

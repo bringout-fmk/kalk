@@ -1231,7 +1231,26 @@ do while !EOF()
 	cTmpArt := ALLTRIM(temp->idroba)
 	go top
 	seek cTmpArt
+
+	// ovo dodaje datum valute itd...
+	// bitno kod kontiranja kalk->fin
+	// radi datuma valute
+	if cTDok == "14"
+
+		select doks2
+		hseek gFirma + cTDok + cBrojKalk
+		
+		if !FOUND()
+			append blank
+			replace idvd with "14"
+			replace brdok with cBrojKalk
+			replace idfirma with gFirma
+		endif
+
+		replace DatVal with temp->datval
 	
+	endif
+
 	// dodaj zapis u pripr
 	select pript
 	append blank

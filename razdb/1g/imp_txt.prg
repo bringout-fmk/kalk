@@ -31,6 +31,8 @@ AADD(opc, "6. podesenja importa ")
 AADD(opcexe, {|| aimp_setup()})
 AADD(opc, "7. kreiraj pomocnu tabelu stanja")
 AADD(opcexe, {|| gen_cache()})
+AADD(opc, "8. pregled pomocne tabele stanja")
+AADD(opcexe, {|| brow_cache()})
 
 Menu_SC("itx")
 

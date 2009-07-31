@@ -371,5 +371,77 @@ BoxC()
 
 return
 
+// ----------------------------------------
+// browsanje tabele cache
+// ----------------------------------------
+function brow_cache()
+private ImeKol
+private Kol
+
+O_CACHE
+set order to tag "1"
+
+ImeKol:={{ "Konto", {|| IdKonto }, "IdKonto" } ,;
+          { "Roba", {|| IdRoba }, "IdRoba" } ,;
+          { "Stanje", {|| Stanje }, "Stanje" } ,;
+          { "NC", {|| NV }, "Nab.cijena" }}
+
+Kol:={}
+
+for i:=1 to LEN(ImeKol)
+	AADD(Kol,i)
+next
+
+Box(,20,77)
+@ m_x+17,m_y+2 SAY "<F2>  ispravka                     "
+@ m_x+18,m_y+2 SAY " "
+@ m_x+19,m_y+2 SAY " "
+@ m_x+20,m_y+2 SAY " "
+
+ObjDbedit("CACHE",20,77,{|| key_handler()},"","pregled cache tabele", , , , ,4)
+
+BoxC()
+
+return
+
+
+// ---------------------------------------
+// handler key event
+// ---------------------------------------
+static function key_handler()
+
+do case
+	case ch == K_F2
+		if edit_item() == 1
+			return DE_REFRESH
+		else
+			return DE_CONT
+		endif
+endcase
+
+return DE_CONT
+
+
+// -------------------------------------
+// korekcija stavke
+// -------------------------------------
+static function edit_item()
+local GetList := {}
+
+Scatter()
+
+Box(,1,50)
+	@ m_x + 1, m_y + 2 SAY "NC:" GET _nv 
+	read
+BoxC()
+
+if LastKey() == K_ESC
+	return 0
+endif
+
+Gather()
+
+return 1
+
 
 

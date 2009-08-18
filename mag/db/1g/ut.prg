@@ -683,7 +683,7 @@ return .t.
 
 function V_KolMag()
 
-if _nc<0 .and. !(_idvd $ "11#12#13#22") .or.  _fcj<0 .and. _idvd $ "11#12#13#22"
+if (_nc < 0) .and. !(_idvd $ "11#12#13#22") .or.  _fcj<0 .and. _idvd $ "11#12#13#22"
 
  Msg("Nabavna cijena manja od 0 ??")
  _ERROR:="1"
@@ -781,7 +781,7 @@ return .t.
 //  Racuna nabavnu cijenu i stanje robe u magacinu
 
 
-function KalkNab(cIdFirma, cIdRoba, cIdKonto, nKolicina, nKolZN, nNC, nSNC, dDatNab, dRokTr)
+function KalkNab(cIdFirma, cIdRoba, cIdKonto, nKolicina, nKolZN, nNC, nSNc, dDatNab, dRokTr)
 
 local nPom
 local fProso

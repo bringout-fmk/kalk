@@ -6,13 +6,14 @@
  */
 
 function Get1_95()
-*{
 pIzgSt:=.f.   // izgenerisane stavke jos ne postoje
+
 
 set key K_ALT_K to KM2()
 if nRbr==1 .and. fnovi
   _DatFaktP:=_datdok
 endif
+
 if nRbr==1 .or. !fnovi .or. gMagacin=="1"
  @  m_x+5,m_y+2   SAY "Dokument Broj:" get _BrFaktP
  @  m_x+5,col()+1 SAY "Datum:" get _DatFaktP   ;
@@ -112,27 +113,37 @@ IF gVarEv=="1"
 
  _GKolicina:=0
  if fNovi
+   
    select ROBA; HSEEK _IdRoba
    if koncij->naz=="P2"
      _VPC:=PLC
    else
      _VPC:=KoncijVPC()
    endif
+   
    _NC:=NC
  endif
 
  if gCijene="2" .and. fNovi
    /////// utvrdjivanje fakticke VPC
-    faktVPC(@_VPC,_idfirma+_idkonto2+_idroba)
+    faktVPC(@_VPC, _idfirma + _idkonto2 + _idroba)
     select pripr
  endif
 
+
  //////// kalkulacija nabavne cijene
  //////// nKolZN:=kolicina koja je na stanju a porijeklo je od zadnje nabavke
- nKolS:=0;nKolZN:=0;nc1:=nc2:=0; dDatNab:=ctod("")
+ nKolS:=0
+ nKolZN:=0
+ nc1:=nc2:=0
+ dDatNab:=ctod("")
+
  lGenStavke:=.f.
+ 
  if _TBankTr<>"X" 
+ 
    if !empty(gMetodaNC)  .and. !(roba->tip $ "UT")
+
      IF glEkonomat
 
        aNabavke:={}
@@ -145,12 +156,14 @@ IF gVarEv=="1"
      ELSE
 
        MsgO("Racunam stanje na skladistu")
-       KalkNab(_idfirma, _idroba, _idkonto2, @nKolS, @nKolZN, @nc1, @nc2, @dDatNab, @_RokTr)
+        KalkNab(_idfirma, _idroba, _idkonto2, @nKolS, @nKolZN, @nc1, @nc2, @dDatNab, @_RokTr)
        MsgC()
 
-       @ m_x+13,m_y+30   SAY "Ukupno na stanju "; @ m_x+12,col()+2 SAY nkols pict pickol
+       @ m_x+12,m_y+30   SAY "Ukupno na stanju "; @ m_x+12,col()+2 SAY nKols pict pickol
+       @ m_x+13,m_y+30   SAY "Srednja nc "; @ m_x+13, col()+2 SAY nc2 pict pickol
 
      ENDIF
+
    endif
 
    if !glEkonomat
@@ -159,7 +172,13 @@ IF gVarEv=="1"
 
      if ROUND(_NC, 8)==0 .and. !(roba->tip $ "UT")
 
-       if gMetodaNC $ "13"; _nc:=nc1; elseif gMetodaNC=="2"; _nc:=nc2; endif
+       if gMetodaNC $ "13"
+            // prva ili zadnja
+            _nc := nc1 
+       elseif gMetodaNC == "2"
+            // srednja
+            _nc := nc2
+       endif
 
        if gMetodaNc == "2"
          if _kolicina > 0

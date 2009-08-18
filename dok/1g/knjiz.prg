@@ -1024,7 +1024,9 @@ elseif _idvd=="24"
 	endif
 elseif _idvd $ "95#96#97"
    	return GET1_95()
+
 elseif _idvd $  "94#16"    // storno fakture, storno otpreme, doprema
+
    	return GET1_94()
 elseif _idvd == "82"
    	return GET1_82()

@@ -131,16 +131,17 @@ IF gVarEv=="1"
  //////// nKolZN:=kolicina koja je na stanju a porijeklo je od zadnje nabavke
  nKolS:=0;nKolZN:=0;nc1:=nc2:=0; dDatNab:=ctod("")
  lGenStavke:=.f.
- if _TBankTr<>"X" .or. lPoNarudzbi   // ako je X onda su stavke vec izgenerisane
-   aNabavke:={}
-   if ( !empty(gMetodaNC) .or. lPoNarudzbi ) .and. !(roba->tip $ "UT")
+ if _TBankTr<>"X" 
+   if !empty(gMetodaNC)  .and. !(roba->tip $ "UT")
      IF glEkonomat
+
        aNabavke:={}
        IF !fNovi
          AADD( aNabavke , {0,_nc,_kolicina} )
        ENDIF
-       KalkNab2(_idfirma,_idroba,_idkonto2,aNabavke)
+       KalkNab2(_idfirma, _idroba, _idkonto2, aNabavke)
        IF LEN(aNabavke)>1; lGenStavke:=.t.; ENDIF
+
      ELSE
 
        MsgO("Racunam stanje na skladistu")

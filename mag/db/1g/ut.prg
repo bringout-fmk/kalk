@@ -1,19 +1,12 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
-
-
 /*! \file fmk/kalk/mag/db/1g/ut.prg
  *  \brief Razne funkcije vezane za magacin
  */
 
 
-/*! \fn KalkNabP(cidfirma,cidroba,cidkonto,nkolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
+/*! \fn KalkNabP(cIdFirma,cIdRoba,cIdKonto,nKolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
  *  \brief 
  *  \param nNC - zadnja nabavna cijena
  *  \param nSNC - srednja nabavna cijena
@@ -45,7 +38,7 @@ endif
 select kalk
 select kalk
 set order to 4  //idFirma+pkonto+idroba+pu_i+IdVD
-seek cidfirma+cidkonto+cidroba+chr(254)
+seek cIdFirma+cIdKonto+cIdRoba+chr(254)
 skip -1
 if cIdfirma+cIdkonto+cIdroba==idfirma+pkonto+idroba .and. _datdok<datdok
   Beep(2)
@@ -69,6 +62,7 @@ nUlKol:=0
 
 //  ovo je prvi prolaz
 hseek cIdFirma+cIdKonto+cIdRoba
+
 do while !eof() .and. cIdFirma+cIdKonto+cIdroba==idFirma+pkonto+idroba .and. _datdok>=datdok
 
   if pu_i=="1" .or. pu_i=="5"
@@ -92,12 +86,12 @@ enddo //  ovo je prvi prolaz
 
 
 
-//gMetodaNC=="3"  // prva nabavka  se prva skida sa stanja
-if gmetodanc=="3"
-  hseek cidfirma+cidkonto+cidroba
+// prva nabavka  se prva skida sa stanja
+if gMetodaNc=="3"
+  hseek cIdFirma+cIdKonto+cIdRoba
   nSkiniKol:=nIzlKol+_Kolicina // skini sa stanja ukupnu izlaznu kolicinu+tekucu kolicinu
   nNabVr:=0  // stanje nabavne vrijednosti
-  do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba .and. _datdok>=datdok
+  do while !eof() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+pkonto+idroba .and. _datdok>=datdok
 
     if pu_i=="1" .or. pu_i=="5"
       if (pu_i=="1" .and. kolicina>0) .or. (pu_i=="5" .and. kolicina<0)
@@ -138,13 +132,15 @@ if gmetodanc=="3"
   endif
 endif
 
-//gMetodaNC=="1"  // zadnja nabavka se prva skida sa stanja
-if gmetodanc=="1"
-  seek cidfirma+cidkonto+cidroba+chr(254)
+// metoda zadnje nabavne cijene: zadnja nabavka se prva skida sa stanja
+
+if gMetodaNc == "1"
+
+  seek cIdFirma+cIdKonto+cIdRoba+chr(254)
   nSkiniKol:=nIzlKol+_Kolicina // skini sa stanja ukupnu izlaznu kolicinu+tekucu kolicinu
   nNabVr:=0  // stanje nabavne vrijednosti
   skip -1
-  do while !bof() .and. cidfirma+cidkonto+cidroba==idFirma+pkonto+idroba
+  do while !bof() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+pkonto+idroba
 
     if _datdok<=datdok // preskaci novije datume
       skip -1
@@ -191,7 +187,7 @@ endif
 if round(nKolicina, 5)==0
  nSNC:=0
 else
- nSNC:=(nUlNV-nIzlNV)/nkolicina
+ nSNC:=(nUlNV-nIzlNV)/nKolicina
 endif
 
 nKolicina:=round(nKolicina,4)
@@ -378,23 +374,23 @@ return
 
 
 
-/*! \fn PratiKMag(cidfirma,cidkonto,cidroba)
+/*! \fn PratiKMag(cIdFirma,cIdKonto,cIdRoba)
  *  \brief Prati karticu magacina
  */
  
-function PratiKMag(cidfirma,cidkonto,cidroba)
+function PratiKMag(cIdFirma,cIdKonto,cIdRoba)
 *{
 local nPom
 select kalk ; set order to 3
-hseek cidfirma+cidkonto+cidroba
+hseek cIdFirma+cIdKonto+cIdRoba
 //"KALKi3","idFirma+mkonto+idroba+dtos(datdok)+PODBR+MU_I+IdVD",KUMPATH+"KALK")
 
 nVPV:=0
 nKolicina:=0
-do while !eof() .and.  cidfirma+cidkonto+cidroba==idfirma+idkonto+idroba
+do while !eof() .and.  cIdFirma+cIdKonto+cIdRoba==idfirma+idkonto+idroba
 
    dDatDok:=datdok
-   do while !eof() .and.  cidfirma+cidkonto+cidroba==idfirma+idkonto+idroba ;
+   do while !eof() .and.  cIdFirma+cIdKonto+cIdRoba==idfirma+idkonto+idroba ;
                    .and. datdok==dDatDok
 
 
@@ -676,10 +672,7 @@ return .t.
 *}
 
 
-
-/*! \fn V_KolMag()
- *  \brief Kontrola stanja robe u magacinu
- */
+// Validacija u prilikom knjizenja (knjiz.prg) - VALID funkcija u get-u
 
 // Koristi sljedece privatne varijable:
 // nKols   
@@ -691,26 +684,29 @@ return .t.
 // Ukupno na stanju samo XX robe !!
 
 function V_KolMag()
-*{
 if _nc<0 .and. !(_idvd $ "11#12#13#22") .or.;
+
   _fcj<0 .and. _idvd $ "11#12#13#22"
  Msg("Nabavna cijena manja od 0 ??")
  _ERROR:="1"
+
 endif
 
+// usluge
 if roba->tip $ "UTY"; return .t. ; endif
-if empty(gMetodaNC) .or. _TBankTR=="X"   // .or. lPoNarudzbi  
+
+if empty(gMetodaNC) .or. _TBankTR=="X"
 	return .t.
 endif  // bez ograde
 
-if nKolS<_Kolicina
- Beep(4);clear typeahead
- Msg("Ukupno na stanju je samo"+str(nKolS,10,4)+" robe !!",6)
+if nKolS < _Kolicina
+ Beep(4)
+ clear typeahead
+ Msg("Ukupno na stanju je samo" + str(nKolS, 10, 4) + " robe !!", 6)
  _ERROR:="1"
 endif
 
 return .t.
-*}
 
 
 
@@ -778,18 +774,19 @@ return .t.
 
 
 
-/*! \fn KalkNab(cidfirma,cidroba,cidkonto,nkolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
- *  \param nNC - zadnja nabavna cijena
- *  \param nSNC - srednja nabavna cijena
- *  \param nKolZN - kolicina koja je na stanju od zadnje nabavke
- *  \param dDatNab - datum nabavke
- *  \param dRokTr - rok trajanja
- *  \brief Racuna nabavnu cijenu i stanje robe u magacinu
- */
+// KalkNab(cIdFirma,cIdRoba,cIdKonto,nKolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
+// param nNC - zadnja nabavna cijena
+// param nSNC - srednja nabavna cijena
+// param nKolZN - kolicina koja je na stanju od zadnje nabavke
+// param dDatNab - datum nabavke
+// param dRokTr - rok trajanja
+//  Racuna nabavnu cijenu i stanje robe u magacinu
 
-function KalkNab(cidfirma,cidroba,cidkonto,nKolicina,nKolZN,nNC,nSNC,dDatNab,dRokTr)
 
-local npom,fproso
+function KalkNab(cIdFirma, cIdRoba, cIdKonto, nKolicina, nKolZN, nNC, nSNC, dDatNab, dRokTr)
+
+local nPom
+local fProso
 local nIzlNV
 local nIzlKol
 local nUlNV
@@ -798,8 +795,6 @@ local nSkiniKol
 local nKolNeto
 
 nKolicina:=0
-
-altd()
 
 if lAutoObr == .t.
 	// uzmi stanje iz cache tabele
@@ -811,56 +806,65 @@ if lAutoObr == .t.
 endif
 
 select kalk
-set order to 3
-seek cidfirma+cidkonto+cidroba+"X"
+
+set order to TAG "3"
+seek cIdFirma + cIdKonto + cIdRoba+"X"
+
 skip -1
-if cidfirma+cidkonto+cidroba==idfirma+mkonto+idroba .and. _datdok<datdok
+if ((cIdFirma+cIdKonto+cIdRoba) == (idfirma+mkonto+idroba)) .and. _datdok<datdok
   Beep(2)
-  Msg("Postoji dokument "+idfirma+"-"+idvd+"-"+brdok+" na datum: "+dtoc(datdok),4)
+  Msg("Postoji dokument " + idfirma + "-" + idvd + "-" + brdok + " na datum: " + dtoc(datdok), 4)
   _ERROR:="1"
 endif
 
 nLen:=1
 
-nKolicina:=0
-nIzlNV:=0   // ukupna izlazna nabavna vrijednost
-nUlNV:=0
-nIzlKol:=0  // ukupna izlazna kolicina
-nUlKol:=0  // ulazna kolicina
+nKolicina := 0
+nIzlNV := 0   // ukupna izlazna nabavna vrijednost
+nUlNV := 0
+nIzlKol := 0  // ukupna izlazna kolicina
+nUlKol := 0  // ulazna kolicina
+
 //  ovo je prvi prolaz
-hseek cidfirma+cidkonto+cidroba
-do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+mkonto+idroba .and. _datdok>=datdok
+//  u njemu se proracunava totali za jednu karticu
+hseek cIdFirma+cIdKonto+cIdRoba
+do while !eof() .and. ((cIdFirma+cIdKonto+cIdRoba)==(idFirma+mkonto+idroba)) .and. _datdok>=datdok
 
   if mu_i=="1" .or. mu_i=="5"
-    if idvd=="10"
-      nKolNeto:=abs(kolicina-gkolicina-gkolicin2)
+
+    if IdVd=="10"
+      // kod 10-ki je originalno predvidjeno gubitak kolicine (kalo i rastur)
+      // mislim da ovo niko i ne koristi, ali eto neka stoji
+      nKolNeto := ABS(kolicina-gKolicina-gKolicin2)
     else
-      nKolNeto:=abs(kolicina)
+      nKolNeto := ABS(kolicina)
     endif
 
-    if (mu_i=="1" .and. kolicina>0) .or. (mu_i=="5" .and. kolicina<0)
-         nKolicina+=nKolNeto    // rad metode prve i zadnje nc moramo
-         nUlKol   +=nKolNeto    // sve sto udje u magacin strpati pod
-//         nUlNV    +=abs(nKolNeto*nc)      // ulaznom kolicinom
-         nUlNV    += (nKolNeto*nc)      // ulaznom kolicinom
+    if (mu_i=="1" .and.  kolicina>0) .or. (mu_i=="5" .and. kolicina<0)
+         // ulazi plus, storno izlaza
+         nKolicina += nKolNeto
+         nUlKol    += nKolNeto
+         nUlNV     += (nKolNeto * nc)      // ulaznom kolicinom
     else
-         nKolicina-=nKolNeto
-         nIzlKol  +=nKolNeto
-//         nIzlNV   +=abs(nKolNeto*nc)
-         nIzlNV   += (nKolNeto*nc)
+         nKolicina -= nKolNeto
+         nIzlKol   += nKolNeto
+         nIzlNV    += (nKolNeto * nc)
     endif
+
   endif
   skip
 
-enddo //  ovo je prvi prolaz
+enddo 
+//  ovo je bio prvi prolaz
 
 
+// koliko znam i ovo niko ne koristi svi koriste srednju nabavnu
 //gMetodaNC=="3"  // prva nabavka  se prva skida sa stanja
-if gmetodanc=="3"
-  hseek cidfirma+cidkonto+cidroba
+if gMetodaNc=="3"
+  hseek cIdFirma+cIdKonto+cIdRoba
   nSkiniKol:=nIzlKol+_Kolicina // skini sa stanja ukupnu izlaznu kolicinu+tekucu kolicinu
   nNabVr:=0  // stanje nabavne vrijednosti
-  do while !eof() .and. cidfirma+cidkonto+cidroba==idFirma+mkonto+idroba .and. _datdok>=datdok
+  do while !eof() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba .and. _datdok>=datdok
 
     if mu_i=="1" .or. mu_i=="5"
       if (mu_i=="1" .and. kolicina>0) .or. (mu_i=="5" .and. kolicina<0) // ulaz
@@ -887,13 +891,14 @@ if gmetodanc=="3"
   endif
 endif
 
-//gMetodaNC=="1"  // zadnja nabavka se prva skida sa stanja
-if gmetodanc=="1"
-  seek cidfirma+cidkonto+cidroba+chr(254)
+// koliko znam i ovo niko ne koristi svi koriste srednju nabavnu
+// gMetodaNC=="1"  // zadnja nabavka se prva skida sa stanja
+if gMetodaNc=="1"
+  seek cIdFirma+cIdKonto+cIdRoba+chr(254)
   nSkiniKol:=nIzlKol+_Kolicina // skini sa stanja ukupnu izlaznu kolicinu+tekucu kolicinu
   nNabVr:=0  // stanje nabavne vrijednosti
   skip -1
-  do while !bof() .and. cidfirma+cidkonto+cidroba==idFirma+mkonto+idroba
+  do while !bof() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba
 
     if _datdok<=datdok // preskaci novije datume
       skip -1; loop
@@ -909,7 +914,6 @@ if gmetodanc=="1"
              nSkinikol:=0
              dDatNab:=datdok
              nKolZN:=nSkiniKol
-//             dRoktr:=
              exit // uzeta je potrebna nabavka, izadji iz do while
            endif
       endif
@@ -924,14 +928,18 @@ if gmetodanc=="1"
   endif
 endif
 
-if round(nkolicina,5)==0
+
+// finish
+if round(nKolicina, 5) == 0
  nSNC:=0
 else
- nSNC:=(nUlNV-nIzlNV)/nkolicina
+ // srednja nabavna cijena
+ nSNC:=(nUlNV-nIzlNV) / nKolicina
 endif
 
-nKolicina:=round(nKolicina,4)
+nKolicina := round(nKolicina, 4)
 select pripr
+
 return
 
 

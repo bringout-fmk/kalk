@@ -1,17 +1,11 @@
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
-
 /*! \fn Get1_14PDV()
  *  \brief Prva strana maske za unos dokumenta tipa 14
  */
 
 function Get1_14PDV()
-*{
+
 pIzgSt:=.f.   // izgenerisane stavke jos ne postoje
 
 set key K_ALT_K to KM2()
@@ -121,51 +115,27 @@ nc2:=0
 dDatNab:=ctod("")
 lGenStavke:=.f.
 
-if _TBankTr<>"X" .or. lPoNarudzbi   // ako je X onda su stavke vec izgenerisane
-	if !empty(gMetodaNC) .or. lPoNarudzbi
-   		if lPoNarudzbi
-     			aNabavke:={}
-     			IF !fNovi
-       				AADD( aNabavke , {0,_nc,_kolicina,_idnar,_brojnar} )
-     			ENDIF
-     			KalkNab3m(_idfirma,_idroba,_idkonto2,aNabavke,@nKolS)
-     			IF LEN(aNabavke)>1; lGenStavke:=.t.; ENDIF
-     			IF LEN(aNabavke)>0
-       				// - teku†a -
-       				i:=LEN(aNabavke)
-       				_nc := aNabavke[i,2]
-       				_kolicina := aNabavke[i,3]
-       				_idnar    := aNabavke[i,4]
-       				_brojnar  := aNabavke[i,5]
-       				// ----------
-     			ENDIF
-     			@ m_x+12+IF(lPoNarudzbi,1,0),m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol when .f.
-     			@ row(),col()+2 SAY IspisPoNar(,,.t.)
-   		else
-     			MsgO("Racunam stanje na skladistu")
-     			KalkNab(_idfirma,_idroba,_idkonto2,@nKolS,@nKolZN,@nc1,@nc2,@dDatNab,@_RokTr)
-     			MsgC()
-     			@ m_x+12+IF(lPoNarudzbi,1,0),m_y+30   SAY "Ukupno na stanju "
-			@ m_x+12+IF(lPoNarudzbi,1,0),col()+2 SAY nkols pict pickol
-   		endif
+if _TBankTr<>"X"   // ako je X onda su stavke vec izgenerisane
+	if !empty(gMetodaNC) 
+     		MsgO("Racunam stanje na skladistu")
+     			KalkNab(_idfirma, _idroba, _idkonto2, @nKolS, @nKolZN, @nc1, @nc2, @dDatNab, @_RokTr)
+     		MsgC()
+     		@ m_x+ 12, m_y+30   SAY "Ukupno na stanju "
+		@ m_x+ 12, col()+2 SAY nKols pict pickol
  	endif
- 	IF !lPoNarudzbi
-   		if dDatNab>_DatDok
+   	if dDatNab>_DatDok
 			Beep(1)
 			Msg("Datum nabavke je "+dtoc(dDatNab),4)
+	endif
+   	if _kolicina >= 0
+    		if gMetodaNC $ "13"
+			_nc:=nc1
+		elseif gMetodaNC=="2"
+			_nc:=nc2
 		endif
-   		if _kolicina>=0
-    			if gMetodaNC $ "13"
-				_nc:=nc1
-			elseif gMetodaNC=="2"
-				_nc:=nc2
-			endif
-   		endif
- 	ENDIF
+   	endif
 endif
 select PRIPR
-
-altd()
 
 
 @ m_x+13+IF(lPoNarudzbi,1,0),m_y+2    SAY "NAB.CJ   "  GET _NC  picture PicDEM      valid V_KolMag()
@@ -211,61 +181,19 @@ read
 
 nStrana:=2
 
-if roba->tip="X"
+if roba->tip == "X"
 	_marza:=_vpc-_mpcsapp/(1+_PORVT)*_PORVT-_nc
 else
  	_mpcsapp:=0
  	_marza:=_vpc/(1+_PORVT)-_nc
 endif
 
-IF lPoNarudzbi
-	_MKonto:=_Idkonto2
-	_MU_I:="5"     // izlaz iz magacina
-  	_PKonto:=""
-	_PU_I:=""
-  	if _idvd == "KO"
-  		_MU_I:="4" // ne utice na stanje
-  	endif
-  	IF lGenStavke
-    		pIzgSt:=.t.
-    		// viçe od jedne stavke
-    		FOR i:=1 TO LEN(aNabavke)-1
-      		// generiçi sve izuzev posljednje
-      			APPEND BLANK
-      			_error    := IF(_error<>"1","0",_error)
-      			_rbr      := RedniBroj(nRBr)
-      			_nc       := aNabavke[i,2]
-      			_kolicina := aNabavke[i,3]
-      			_idnar    := aNabavke[i,4]
-      			_brojnar  := aNabavke[i,5]
-      			// _vpc      := _nc
-      			Gather()
-      			++nRBr
-    		NEXT
-    		// posljednja je teku†a
-    		_nc       := aNabavke[i,2]
-    		_kolicina := aNabavke[i,3]
-    		_idnar    := aNabavke[i,4]
-    		_brojnar  := aNabavke[i,5]
-    		// _vpc      := _nc
-  	ELSE
-    		// jedna ili nijedna
-    		IF LEN(aNabavke)>0
-      			// jedna
-      			_nc       := aNabavke[1,2]
-      			_kolicina := aNabavke[1,3]
-      			_idnar    := aNabavke[1,4]
-      			_brojnar  := aNabavke[1,5]
-      			// _vpc      := _nc
-    		ELSE
-      		// nije izabrana koliŸina -> kao da je prekinut unos tipkom Esc
-      			RETURN (K_ESC)
-    		ENDIF
-  	ENDIF
-ENDIF
 
-_MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
+// izlaz iz magacina
+_MKonto := _Idkonto2
+_MU_I:="5"     
 _PKonto:=""; _PU_I:=""
+
 if _idvd == "KO"
 	_MU_I:="4" // ne utice na stanje
 endif
@@ -304,7 +232,6 @@ endif
 
 set key K_ALT_K to
 return lastkey()
-*}
 
 
 
@@ -313,7 +240,7 @@ return lastkey()
  *  \brief Prikaz PDV pri unosu 14-ke
  */
 
-function pPDV14(fret)
+function pPDV14(fRet)
 *{
 devpos(m_x+16+IF(lPoNarudzbi,1,0),m_y+41)
 if roba->tip $ "VKX"

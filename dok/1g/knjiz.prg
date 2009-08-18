@@ -1,14 +1,6 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
-
-
 /*! \file fmk/kalk/dok/1g/knjiz.prg
  *  \brief Unos i ispravka dokumenata
  */

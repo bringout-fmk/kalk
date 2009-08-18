@@ -67,8 +67,6 @@ select cache
 set order to tag "1"
 go top
 
-altd()
-
 seek cC_Kto + cC_Roba
 
 if FOUND() .and. ( cC_kto == field->idkonto .and. cC_roba == field->idroba )

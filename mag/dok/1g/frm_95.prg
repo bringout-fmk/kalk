@@ -170,7 +170,7 @@ IF gVarEv=="1"
 
      if dDatNab>_DatDok; Beep(1); Msg("Datum nabavke je "+dtoc(dDatNab),4); endif
 
-     if ROUND(_NC, 8)==0 .and. !(roba->tip $ "UT")
+     if !(roba->tip $ "UT")
 
        if gMetodaNC $ "13"
             // prva ili zadnja

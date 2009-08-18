@@ -684,9 +684,9 @@ return .t.
 // Ukupno na stanju samo XX robe !!
 
 function V_KolMag()
-if _nc<0 .and. !(_idvd $ "11#12#13#22") .or.;
 
-  _fcj<0 .and. _idvd $ "11#12#13#22"
+if _nc<0 .and. !(_idvd $ "11#12#13#22") .or.  _fcj<0 .and. _idvd $ "11#12#13#22"
+
  Msg("Nabavna cijena manja od 0 ??")
  _ERROR:="1"
 

@@ -125,20 +125,22 @@ if _TBankTr<>"X"   // ako je X onda su stavke vec izgenerisane
  	endif
    	if dDatNab>_DatDok
 			Beep(1)
-			Msg("Datum nabavke je "+dtoc(dDatNab),4)
+			Msg("Datum nabavke je "+dtoc(dDatNab), 4)
 	endif
-   	if _kolicina >= 0
+        // Vindija trazi da se uvijek nudi srednja nabavna cijena
+        // kada malo razmislim najbolje da se ona uvijek nudi
+   	//if _kolicina >= 0
     		if gMetodaNC $ "13"
-			_nc:=nc1
+			_nc := nc1
 		elseif gMetodaNC=="2"
-			_nc:=nc2
+			_nc := nc2
 		endif
-   	endif
+   	//endif
 endif
 select PRIPR
 
 
-@ m_x+13+IF(lPoNarudzbi,1,0),m_y+2    SAY "NAB.CJ   "  GET _NC  picture PicDEM      valid V_KolMag()
+@ m_x + 13, m_y+2    SAY "NAB.CJ   "  GET _NC  picture PicDEM      valid V_KolMag()
 
 private _vpcsappp:=0
 

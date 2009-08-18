@@ -1,15 +1,8 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
 /*! \fn Get1_95()
- *  \brief Prva strana maske za unos dokumenata tipa 95,96,97
+ *  \brief Prva strana maske za unos dokumenata tipa 95, 96, 97
  */
 
 function Get1_95()
@@ -89,7 +82,7 @@ endif
  endif
  
  if IsDomZdr()
-	@ m_x+12+IF(lPoNarudzbi,1,0),m_y+2 SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
+	@ m_x + 12, m_y + 2 SAY "Tip sredstva (prazno-svi) " GET _Tip PICT "@!"
  endif
 
  if is_uobrada()
@@ -106,15 +99,13 @@ endif
  DatPosljK()
  DuplRoba()
 
- select koncij; seek trim(_idkonto2)
- select TARIFA; hseek _IdTarifa  // postavi TARIFA na pravu poziciju
+ select koncij
+ seek trim(_idkonto2)
+ select TARIFA
+ hseek _IdTarifa  // postavi TARIFA na pravu poziciju
  select PRIPR  // napuni tarifu
 
- IF !glEkonomat
-   IF !lPoNarudzbi
-     @ m_x+13,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina<>0
-   ENDIF
- ENDIF
+ @ m_x+13,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol valid _Kolicina <> 0
 
  
 IF gVarEv=="1"
@@ -143,25 +134,7 @@ IF gVarEv=="1"
  if _TBankTr<>"X" .or. lPoNarudzbi   // ako je X onda su stavke vec izgenerisane
    aNabavke:={}
    if ( !empty(gMetodaNC) .or. lPoNarudzbi ) .and. !(roba->tip $ "UT")
-     IF lPoNarudzbi
-       aNabavke:={}
-       IF !fNovi
-         AADD( aNabavke , {0,_nc,_kolicina,_idnar,_brojnar} )
-       ENDIF
-       KalkNab3m(_idfirma,_idroba,_idkonto2,aNabavke)
-       IF LEN(aNabavke)>1; lGenStavke:=.t.; ENDIF
-       IF LEN(aNabavke)>0
-         // - teku†a -
-         i:=LEN(aNabavke)
-         _nc       := aNabavke[i,2]
-         _kolicina := aNabavke[i,3]
-         _idnar    := aNabavke[i,4]
-         _brojnar  := aNabavke[i,5]
-         // ----------
-       ENDIF
-       @ m_x+13,m_y+2   SAY "Kolicina " GET _Kolicina PICTURE PicKol when .f.
-       @ row(),col()+2 SAY IspisPoNar(,,.t.)
-     ELSEIF glEkonomat
+     IF glEkonomat
        aNabavke:={}
        IF !fNovi
          AADD( aNabavke , {0,_nc,_kolicina} )
@@ -169,25 +142,37 @@ IF gVarEv=="1"
        KalkNab2(_idfirma,_idroba,_idkonto2,aNabavke)
        IF LEN(aNabavke)>1; lGenStavke:=.t.; ENDIF
      ELSE
+
        MsgO("Racunam stanje na skladistu")
-       KalkNab(_idfirma,_idroba,_idkonto2,@nKolS,@nKolZN,@nc1,@nc2,@dDatNab,@_RokTr)
+       KalkNab(_idfirma, _idroba, _idkonto2, @nKolS, @nKolZN, @nc1, @nc2, @dDatNab, @_RokTr)
        MsgC()
+
        @ m_x+13,m_y+30   SAY "Ukupno na stanju "; @ m_x+12,col()+2 SAY nkols pict pickol
+
      ENDIF
    endif
-   if !glEkonomat .and. !lPoNarudzbi
+
+   if !glEkonomat
+
      if dDatNab>_DatDok; Beep(1); Msg("Datum nabavke je "+dtoc(dDatNab),4); endif
-     if _kolicina>=0 .OR. ROUND(_NC,8)==0 .and. !(roba->tip $ "UT")
-                         //round _nc,3 bilo ???
+
+     if ROUND(_NC, 8)==0 .and. !(roba->tip $ "UT")
+
        if gMetodaNC $ "13"; _nc:=nc1; elseif gMetodaNC=="2"; _nc:=nc2; endif
-       if gmetodanc == "2"
-         select roba
-         replace nc with _nc
-         select pripr // nafiluj sifrarnik robe sa nc sirovina, robe
+
+       if gMetodaNc == "2"
+         if _kolicina > 0
+          select roba
+          replace nc with _nc
+          select pripr // nafiluj sifrarnik robe sa nc sirovina, robe
+         endif
        endif
+
      endif
    endif
+
  endif
+
  select PRIPR
  if !glEkonomat
    @ m_x+14,m_y+2  SAY "NAB.CJ   "  GET _NC  picture gPicNC  valid V_KolMag()
@@ -229,46 +214,7 @@ ELSE    // ako je gVarEv=="2" tj. bez cijena
   read
 ENDIF
 
-IF lPoNarudzbi
-  _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
-  _PKonto:=""; _PU_I:=""
-  IF lGenStavke
-    pIzgSt:=.t.
-    // viçe od jedne stavke
-    FOR i:=1 TO LEN(aNabavke)-1
-      // generiçi sve izuzev posljednje
-      APPEND BLANK
-      _error    := IF(_error<>"1","0",_error)
-      _rbr      := RedniBroj(nRBr)
-      _nc       := aNabavke[i,2]
-      _kolicina := aNabavke[i,3]
-      _idnar    := aNabavke[i,4]
-      _brojnar  := aNabavke[i,5]
-      // _vpc      := _nc
-      Gather()
-      ++nRBr
-    NEXT
-    // posljednja je teku†a
-    _nc       := aNabavke[i,2]
-    _kolicina := aNabavke[i,3]
-    _idnar    := aNabavke[i,4]
-    _brojnar  := aNabavke[i,5]
-    // _vpc      := _nc
-  ELSE
-    // jedna ili nijedna
-    IF LEN(aNabavke)>0
-      // jedna
-      _nc       := aNabavke[1,2]
-      _kolicina := aNabavke[1,3]
-      _idnar    := aNabavke[1,4]
-      _brojnar  := aNabavke[1,5]
-      // _vpc      := _nc
-    ELSE
-      // nije izabrana koliŸina -> kao da je prekinut unos tipkom Esc
-      RETURN (K_ESC)
-    ENDIF
-  ENDIF
-ELSEIF glEkonomat
+IF glEkonomat
   _Marza:=0; _TMarza:="A"
   if !IsPDV()
   	_mpcsapp:=0
@@ -310,6 +256,7 @@ ENDIF
 if !IsPDV()
 	_mpcsapp:=0
 endif
+
 nStrana:=2
 _marza:=_vpc-_nc
 _MKonto:=_Idkonto2;_MU_I:="5"     // izlaz iz magacina
@@ -356,7 +303,6 @@ endif
 
 set key K_ALT_K to
 return lastkey()
-*}
 
 
 
@@ -365,8 +311,9 @@ return lastkey()
  */
 
 function StKalk95()
-*{
-local nCol1:=nCol2:=0,npom:=0,nLijevo:=8
+
+local nCol1:=nCol2:=0
+local nPom:=0, nLijevo:=8
 
 Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
 
@@ -595,11 +542,9 @@ if cidvd $ "95#96" .and. !empty(cidkonto)
  ? space(nLijevo+10),"Ako zelite izvrsiti zaduzenje na ",cidkonto, "obradite odgovarajuci dokument tipa 16"
 endif
 return
-*}
 
 
 function RadNalOK()
-*{
 local nArr
 local lOK
 local nLenBrDok
@@ -619,5 +564,4 @@ if !found()
 endif
 SELECT (nArr)
 return lOK
-*}
 

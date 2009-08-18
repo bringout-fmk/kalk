@@ -794,7 +794,14 @@ local nUlKol
 local nSkiniKol
 local nKolNeto
 
-nKolicina:=0
+
+// posljednje pozitivno stanje
+local nKol_poz := 0
+local nUVr_poz, nIVr_poz
+local nUKol_poz, nIKol_poz
+
+
+nKolicina := 0
 
 if lAutoObr == .t.
 	// uzmi stanje iz cache tabele
@@ -825,6 +832,7 @@ nUlNV := 0
 nIzlKol := 0  // ukupna izlazna kolicina
 nUlKol := 0  // ulazna kolicina
 
+
 //  ovo je prvi prolaz
 //  u njemu se proracunava totali za jednu karticu
 hseek cIdFirma+cIdKonto+cIdRoba
@@ -841,15 +849,32 @@ do while !eof() .and. ((cIdFirma+cIdKonto+cIdRoba)==(idFirma+mkonto+idroba)) .an
     endif
 
     if (mu_i=="1" .and.  kolicina>0) .or. (mu_i=="5" .and. kolicina<0)
+
          // ulazi plus, storno izlaza
          nKolicina += nKolNeto
          nUlKol    += nKolNeto
-         nUlNV     += (nKolNeto * nc)      // ulaznom kolicinom
+         nUlNV     += (nKolNeto * nc)
+
     else
+
          nKolicina -= nKolNeto
+
          nIzlKol   += nKolNeto
          nIzlNV    += (nKolNeto * nc)
+
     endif
+
+    // ako je stanje pozitivno zapamti ga
+    if round(nKolicina, 8) > 0
+        nKol_poz := nKolicina
+
+        nUKol_poz := nUlKol
+        nIKol_poz := nIzlKol
+
+        nUVr_poz := nUlNv
+        nIVr_poz := nIzlNv
+    endif
+
 
   endif
   skip
@@ -884,8 +909,8 @@ if gMetodaNc=="3"
     skip
   enddo //  ovo je drugi prolaz , metoda "3"
 
-  if _kolicina<>0
-    nNC:=(nNabVr-nIzlNV)/_kolicina   // nabavna cijena po metodi prve
+  if _kolicina <> 0
+    nNC:=(nNabVr-nIzlNV) /_kolicina   
   else
     nNC:=0
   endif
@@ -929,14 +954,16 @@ if gMetodaNc=="1"
 endif
 
 
-// finish
-if round(nKolicina, 5) == 0
- nSNC:=0
+
+// utvrdi srednju nabavnu cijenu na osnovu posljednjeg pozitivnog stanja
+if round(nKol_poz, 8) == 0
+ nSNc:=0
 else
  // srednja nabavna cijena
- nSNC:=(nUlNV-nIzlNV) / nKolicina
+ nSNc:=(nUVr_poz - nIVr_poz) / nKol_poz
 endif
 
+// daj posljednje stanje kakvo i jeste 
 nKolicina := round(nKolicina, 4)
 select pripr
 

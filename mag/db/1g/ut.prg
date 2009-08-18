@@ -103,7 +103,6 @@ if gMetodaNc=="3"
              nSkinikol:=0
              dDatNab:=datdok
              nKolZN:=nSkiniKol
-//             dRoktr:=
              exit // uzeta je potrebna nabavka, izadji iz do while
            endif
        endif
@@ -346,7 +345,6 @@ set order to 3 //idFirma+mkonto+idroba+dtos(datdok)
 seek cseek+"X"
 skip -1
 
-altd()
 
 do while !bof() .and. idfirma+mkonto+idroba==cseek
 

@@ -146,6 +146,13 @@ local dDatGen
 local GetList:={}
 local i
 
+// posljednje pozitivno stanje
+local nKol_poz := 0
+local nUVr_poz, nIVr_poz
+local nUKol_poz, nIKol_poz
+
+
+
 if _g_kto( @cMKtoLst, @cPKtoLst, @dDatGen ) == 0
 	return
 endif
@@ -196,9 +203,10 @@ for i := 1 to LEN( aKto )
  	nUlKol:=0  
   	// ulazna kolicina
 
+	nKol_poz := 0
 	@ m_x + 1, m_y + 20 SAY cIdRoba
 
-	do while !EOF() .and. cIdFirma+cIdKonto+cIdRoba==idFirma+mkonto+idroba 
+	do while !EOF() .and. ((cIdFirma+cIdKonto+cIdRoba) == (idFirma+mkonto+idroba)) 
 
 		// provjeri datum
 		if field->datdok > dDatGen
@@ -228,6 +236,19 @@ for i := 1 to LEN( aKto )
          		nIzlNV += ( nKolNeto * field->nc )
 
     		  endif
+
+		    // ako je stanje pozitivno zapamti ga
+    		    if round(nKolicina, 8) > 0
+        		nKol_poz := nKolicina
+
+        		nUKol_poz := nUlKol
+        		nIKol_poz := nIzlKol
+
+        		nUVr_poz := nUlNv
+        		nIVr_poz := nIzlNv
+    		    endif
+
+
   		
 		endif
   		
@@ -235,14 +256,18 @@ for i := 1 to LEN( aKto )
 	
 	enddo 
 
-	if round( nKolicina, 5 ) == 0
- 		nSNC := 0
+ 
+        // utvrdi srednju nabavnu cijenu na osnovu posljednjeg pozitivnog stanja
+	if round(nKol_poz, 8) == 0
+ 		nSNc:=0
 	else
- 		nSNC := ( nUlNV - nIzlNV ) / nKolicina
+ 		// srednja nabavna cijena
+ 		nSNc:=(nUVr_poz - nIVr_poz) / nKol_poz
 	endif
 
 	nKolicina := round( nKolicina, 4 )
-	
+
+/*	
 	if nKolicina <> 0
 	 
 	 // upisi u cache
@@ -259,6 +284,31 @@ for i := 1 to LEN( aKto )
 	 replace nv with nSnc
         
 	endif
+*/
+
+	// gornji kod od vsasa koji sam komentarisao ima odredjene nelogicnosti
+        // on koristi "nv" za srednju nabavnu cijenu
+        // kako sve ove informacije u cache tabeli sluze za proracun 
+        // nabavne cijene ja cu dole popuniti informacije nadjene kod posljednje pozitivnog
+        // stanja kartice 
+        
+	if round(nKol_poz, 8) <> 0
+	 
+	 // upisi u cache
+	 select cache
+	 append blank
+
+	 replace idkonto with cIdKonto
+	 replace idroba with cIdRoba
+	 replace ulaz with nUKol_poz
+	 replace izlaz with nIKol_poz
+	 replace stanje with nKol_poz
+	 replace nvu with nUVr_poz
+	 replace nvi with nIVr_poz
+	 replace nv with nSnc
+        
+	endif
+
 
 	select kalk
 

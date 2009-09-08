@@ -586,7 +586,7 @@ else
 endif
 
 if nVal==0  .or. ABS(round(nVal-nNovaVrijednost, 2)) > 0 .or. lUvijek 
-   if Pitanje( ,"Staviti Cijenu ("+cPom+")"+" u sifrarnik ?","D")=="D"
+   if gAutoCjen == "D" .and. Pitanje( ,"Staviti Cijenu ("+cPom+")"+" u sifrarnik ?","D")=="D"
      select roba
      replace &cPom with nNovaVrijednost
      select pripr

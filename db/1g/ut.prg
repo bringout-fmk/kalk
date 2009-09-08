@@ -1610,9 +1610,54 @@ select (nTArea)
 return nNaStanju
 
 
+// ------------------------------------------
+// konvertovanje sifre dobavljaca
+// ------------------------------------------
+function c_sifradob()
+local nCount := 0
+local cSDob
+local nNo := 5
+local cPredzn := "0"
 
+if Pitanje(,"Izvrsiti konverziju ?", "N") == "N"
+	return
+endif
 
+if !SigmaSif("SIFDOB")
+	msgbeep("Ne cackaj !!!")
+	return
+endif
 
+Box(,3,50)
+	@ m_x + 1, m_y + 2 SAY "velicina sifre" GET nNo PICT "9"
+	@ m_x + 2, m_y + 2 SAY "prefiks" GET cPredzn 
+	read
+BoxC()
 
+O_ROBA
+set order to tag "ID"
+go top
+
+do while !EOF()
+	
+	// sifra dobavljaca
+	cSDob := ALLTRIM( field->sifradob )
+ 
+ 	if !EMPTY( cSDob )
+		cNDob := PADL( cSDob, nNo, cPredzn )
+ 		// ubaci novu sifru sa nulama
+		replace sifradob with PADL( cNDob, 8 )
+		++ nCount 
+	endif
+	
+	skip
+
+enddo
+
+if nCount > 0
+	msgbeep("Konvertovano: " + ALLTRIM(STR(nCount)) + " zapisa !")
+endif
+
+return
 
 

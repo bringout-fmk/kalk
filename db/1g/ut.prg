@@ -1646,7 +1646,7 @@ do while !EOF()
  	if !EMPTY( cSDob )
 		cNDob := PADL( cSDob, nNo, cPredzn )
  		// ubaci novu sifru sa nulama
-		replace sifradob with PADL( cNDob, 8 )
+		replace sifradob with PADR( cNDob, 8 )
 		++ nCount 
 	endif
 	

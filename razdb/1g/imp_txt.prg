@@ -975,7 +975,9 @@ go top
 aRet:={}
 
 do while !EOF()
-	cTmpRoba := ALLTRIM(temp->idroba)
+
+	// dodaj prefiks "0" ako je manje od 5
+	cTmpRoba := PADL( ALLTRIM(temp->idroba), 5, "0" )
 	
 	select roba
 	set order to tag "ID_VSD"
@@ -1230,7 +1232,7 @@ do while !EOF()
 	// pronadji robu
 	select roba
 	set order to tag "ID_VSD"
-	cTmpArt := ALLTRIM(temp->idroba)
+	cTmpArt := PADL( ALLTRIM(temp->idroba), 5, "0" )
 	go top
 	seek cTmpArt
 

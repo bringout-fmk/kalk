@@ -1107,7 +1107,9 @@ return cRet
  *  \brief vraca matricu sa parovima faktura -> pojavljuje se u azur.kalk
  */
 static function FaktExist()
-*{
+local cBrFakt
+local cTDok
+
 O_DOKS
 
 select temp
@@ -1119,6 +1121,7 @@ cDok := "XXXXXX"
 do while !EOF()
 
 	cBrFakt := ALLTRIM(temp->brdok)
+	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	
 	if cBrFakt == cDok
 		skip
@@ -1130,9 +1133,18 @@ do while !EOF()
 	go top
 	seek cBrFakt
 	
-	if Found()
-		AADD(aRet, {cBrFakt, doks->idfirma + "-" + doks->idvd + "-" + ALLTRIM(doks->brdok)})
-	endif
+	do while !EOF() .and. field->brfakt == cBrFakt
+		// provjeri po tipu dokumenta
+		if field->idvd == cTDok
+			AADD(aRet, {cTDok + "-" + cBrFakt, ;
+				doks->idfirma + "-" + ;
+				doks->idvd + "-" + ;
+				ALLTRIM(doks->brdok)})
+		endif
+		
+		skip
+	
+	enddo
 	
 	select temp
 	skip

@@ -1131,20 +1131,21 @@ do while !EOF()
 	select doks
 	set order to tag "V_BRF"
 	go top
-	seek cBrFakt
+	seek cBrFakt + cTDok
 	
-	do while !EOF() .and. field->brfakt == cBrFakt
-		// provjeri po tipu dokumenta
-		if field->idvd == cTDok
-			AADD(aRet, {cTDok + "-" + cBrFakt, ;
-				doks->idfirma + "-" + ;
-				doks->idvd + "-" + ;
-				ALLTRIM(doks->brdok)})
-		endif
-		
-		skip
+	//do while !EOF() .and. field->brfaktp == cBrFakt ;
+	//	.and. field->idvd == cTDok 
 	
-	enddo
+	if FOUND()	
+		AADD(aRet, {cBrFakt, ;
+			doks->idfirma + "-" + ;
+			doks->idvd + "-" + ;
+			ALLTRIM(doks->brdok)})
+	
+	endif
+	
+	//	skip
+	//enddo
 	
 	select temp
 	skip

@@ -1131,10 +1131,7 @@ do while !EOF()
 	select doks
 	set order to tag "V_BRF"
 	go top
-	seek cBrFakt + cTDok
-	
-	//do while !EOF() .and. field->brfaktp == cBrFakt ;
-	//	.and. field->idvd == cTDok 
+	seek PADR(cBrFakt, 10) + cTDok
 	
 	if FOUND()	
 		AADD(aRet, {cBrFakt, ;
@@ -1144,9 +1141,6 @@ do while !EOF()
 	
 	endif
 	
-	//	skip
-	//enddo
-	
 	select temp
 	skip
 	
@@ -1154,7 +1148,6 @@ do while !EOF()
 enddo
 
 return aRet
-*}
 
 
 /*! \fn TTbl2Kalk(aFExist, lFSkip)

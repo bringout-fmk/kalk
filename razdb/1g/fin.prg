@@ -959,7 +959,11 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 	private dug2:=0
 	private Pot:=0
 	private Pot2:=0
-	
+
+	if lAuto == .t.
+		msgo("Korak 1...")
+	endif
+
  	do while  !eof() .and. (IdFirma+IdVn+BrNal==cIdFirma+cIdVn+cBrNal)
    		
 		if D_P == "1"
@@ -975,6 +979,10 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
  	
 	SKIP -1
  	
+	if lAuto == .t.
+		msgc()
+	endif
+
 	Scatter()
 
  	cPic:="999 999 999 999.99"
@@ -1008,7 +1016,11 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 		endif
 		
    		if cDN == "D"
-     			
+     	
+			if lAuto == .t.
+				msgo("Korak 2...")
+			endif
+
 			_Opis:="GRESKA ZAOKRUZ."
      			_BrDok:=""
      			_D_P:="2"
@@ -1049,6 +1061,10 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 				Gather()
 				
      			endif
+
+			if lAuto == .t.
+				msgc()
+			endif
    		endif
  	endif
 BoxC()

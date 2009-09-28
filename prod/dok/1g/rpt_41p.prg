@@ -102,6 +102,8 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	nTot8+=  (nU8:= (MPcSaPP-RabatV)*Kolicina )
     	nTot9+=  (nU9:= RabatV*Kolicina )
 
+	// 1. red
+
     	@ prow()+1,0 SAY  Rbr PICTURE "999"
     	@ prow(),4 SAY  ""
     	?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
@@ -113,6 +115,8 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
 
     	nCol0:=pcol()
 
+	// 2. red
+
     	@ prow(),nCol0 SAY ""
     	IF IDVD<>'47'
      		IF ROBA->tip="U"
@@ -120,7 +124,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
      		ELSE
        			@ prow(),pcol()+1 SAY NC                   PICTURE PicCDEM
      		ENDIF
-     		@ prow(),pcol()+1 SAY nMarza2              PICTURE PicCDEM
+     		@ prow(),nMPos := pcol()+1 SAY nMarza2              PICTURE PicCDEM
     	ENDIF
    	@ prow(),pcol()+1 SAY MPC                  PICTURE PicCDEM
     	nCol1:=pcol()+1
@@ -130,6 +134,8 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
      		@ prow(),pcol()+1 SAY RabatV               PICTURE PicCDEM
     	endif
     	@ prow(),pcol()+1 SAY MPCSAPP              PICTURE PicCDEM
+
+	// 3. red
 
     	@ prow()+1,4 SAY idTarifa
     	@ prow(), nCol0 SAY ""
@@ -150,7 +156,12 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     	endif
     	@ prow(),pcol()+1 SAY  mpcsapp*kolicina   picture picdem
 
-    	skip 1
+	// 4. red
+
+	if cIdVd <> '47'
+    		@ prow()+1,nMPos SAY (nMarza2/nc)*100  picture picproc
+    	endif
+	skip 1
 
 enddo
 

@@ -89,6 +89,9 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVd==IdVd
 
       nTot4+=  (nU4:=(nPor1+nPor2)*Kolicina)
       nTot5+=  (nU5:= MPcSaPP*Kolicina )
+      
+      // 1. red
+
       @ prow()+1,0 SAY  Rbr PICTURE "999"
       @ prow(),4 SAY  ""
       ?? trim(LEFT(ROBA->naz,40)),"(",ROBA->jmj,")"
@@ -106,10 +109,13 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVd==IdVd
       @ prow(),pcol()+1 SAY nPor1*Kolicina                PICTURE PicDEM
       @ prow(),pcol()+1 SAY MPCSAPP                       PICTURE PicCDEM
       @ prow(),pcol()+1 SAY MPCSAPP+FCJ                   PICTURE PicCDEM
+      
+      // 2. red
+
       @ prow()+1,nC1 SAY PrPPUMP()                        PICTURE PicProc
       @ prow(),pcol()+1 SAY nPor2                         PICTURE PicDEM
       @ prow(),pcol()+1 SAY nPor2*Kolicina                PICTURE PicDEM
-      @ prow(),pcol()+1 SAY space(len(PicCDEM))
+      @ prow(),pcol()+1 SAY (MPCSAPP/FCJ)*100  picture picproc
       @ prow(),pcol()+1 SAY space(len(PicCDEM))
 
     skip

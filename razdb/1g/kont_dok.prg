@@ -985,7 +985,7 @@ return
 
 function RekapK()
 *{
-parameters fStara, cIdFirma, cIdVd, cBrDok
+parameters fStara, cIdFirma, cIdVd, cBrDok, lAuto
 
 local fprvi
 local n1:=n2:=n3:=n4:=n5:=n6:=n7:=n8:=n9:=na:=nb:=0
@@ -998,10 +998,16 @@ local lViseKalk := .f.
 private aPorezi
 aPorezi:={}
 
+altd()
+
 dummy()
 
 if pcount()==0
 	fstara:=.f.
+endif
+
+if lAuto == nil
+	lAuto := .f.
 endif
 
 lVoSaTa := .f.
@@ -1089,7 +1095,7 @@ endif
 
 EOF CRET
 
-if fStara
+if fStara .and. lAuto == .f.
 	
 	// - info o izabranom dokumentu -
   	Box("#DOKUMENT "+cIdFirma+"-"+cIdVd+"-"+cBrDok,8,77)
@@ -1490,7 +1496,7 @@ if cIdVd=="24"
 	END PRINT
 endif
 
-if !fStara
+if !fStara .or. lAuto == .t.
 	exit
 else
 

@@ -33,8 +33,11 @@ AADD(opcexe, {|| MnuImpCSV()} )
 AADD(opc,"-----------------------------------")
 AADD(opcexe, nil )
 
-AADD(opc,"V. kontiraj dokumente za period")
+AADD(opc,"A. kontiraj dokumente za period")
 AADD(opcexe, {|| KontVise()} )
+
+AADD(opc,"B. kontiraj automatski kalkulacije za period")
+AADD(opcexe, {|| kont_v_kalk()} )
 
 private Izbor:=1
 Menu_SC("rmod")

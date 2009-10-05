@@ -8,10 +8,13 @@
 function kont_v_kalk()
 local dD_f := DATE()-30
 local dD_t := DATE()
-local cId_td := PADR("14;", 100)
+local cId_td := PADR( "14;", 100 )
+local cId_mkto := PADR( "", 100 )
+local cId_pkto := PADR( "", 100 )
+local cChBrNal := "N"
 
 // uslovi...
-Box( , 2, 65 )
+Box( , 5, 65 )
 	
 	@ m_x + 1, m_y + 2 SAY "Datum od:" GET dD_f
 	@ m_x + 1, col() + 1 SAY "do:" GET dD_t
@@ -19,6 +22,13 @@ Box( , 2, 65 )
 	@ m_x + 2, m_y + 2 SAY "tipovi dok. (prazno-svi):" GET cId_td ;
 		PICT "@S20"
 	
+	@ m_x + 3, m_y + 2 SAY "mag.konta (prazno-sva):" GET cId_mkto ;
+		PICT "@S20"
+	@ m_x + 4, m_y + 2 SAY " pr.konta (prazno-sva):" GET cId_pkto ;
+		PICT "@S20"
+
+	@ m_x + 5, m_y + 2 SAY "koriguj broj naloga (D/N)" GET cChBrNal ;
+		PICT "@!" VALID cChBrNal $ "DN"
 	read
 BoxC()
 
@@ -26,27 +36,28 @@ if LastKey() == K_ESC
 	return
 endif
 
-_kont_doks( dD_f, dD_t, cId_td )
+_kont_doks( dD_f, dD_t, cId_td, cId_mkto, cId_pkto, cChBrNal )
 
 return
 
 // -----------------------------------------------------
 // kontiraj dokumente po uslovima
 // -----------------------------------------------------
-static function _kont_doks( dD_f, dD_t, cId_td )
+static function _kont_doks( dD_f, dD_t, cId_td, cId_mkto, ;
+	cId_pkto, cChBrNal )
 local nCount := 0
 local nTNRec
+local cNalog := ""
 
 // prvo u doks-u nadji dokumente i prema njima onda idi
 O_DOKS
 
 cId_td := ALLTRIM( cId_td )
+cId_kto := ALLTRIM( cId_kto )
 
 select doks
 go top
 
-
-altd()
 
 do while !EOF()
 
@@ -63,6 +74,26 @@ do while !EOF()
 			loop
 		endif
 	endif
+	
+	// provjeri magacinska konta
+	if !EMPTY( cId_mkto ) 
+		if field->mkonto $ cId_mkto
+			// idi dalje...
+		else
+			skip
+			loop
+		endif
+	endif
+	
+	// provjeri prodavnicka konta
+	if !EMPTY( cId_pkto ) 
+		if field->pkonto $ cId_pkto
+			// idi dalje...
+		else
+			skip
+			loop
+		endif
+	endif
 
 	nTNRec := RECNO()
 	cD_firma := field->idfirma
@@ -71,8 +102,13 @@ do while !EOF()
 
 	// napuni FINMAT
 	RekapK( .t., cD_firma, cD_tipd, cD_brdok, .t. )
+	
+	// uzmi drugi broj naloga
+	_br_nal( cChBrNal, cD_brdok, @cNalog )
+
 	// kontiraj
-	KontNal( .t., .t., .f. )
+	KontNal( .t., .t., .f., cNalog )
+
 	// azuriraj nalog
 	p_fin( .t. )
 
@@ -88,6 +124,24 @@ if nCount > 0
 	msgbeep( "Kontirao " + ALLTRIM(STR(nCount)) + " dokumenata !" )
 endif
 
+return
+
+
+
+// --------------------------------------------------------
+// uskladi broj naloga sa brojem kalkulacije
+// --------------------------------------------------------
+static function _br_nal( cChange, cBrKalk, cNalog )
+
+if cChange == "N"
+	return
+endif
+
+if ( "/" $ cBrKalk )
+	// samo ako ima ovaj znak
+	cNalog := PADL( ALLTRIM( cBrKalk ), 8, "0" )
+endif
 
 return
+
 

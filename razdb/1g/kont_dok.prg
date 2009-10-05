@@ -3,18 +3,16 @@
 static dDatMax
 
  
-
-/*! \file fmk/kalk/razdb/1g/kont_dok.prg
- *  \brief Operacije kontiranja dokumenata na osnovu shema kontiranja
- */
-
-
-/*! \fn KontNal(fAuto)
- *  \param fAuto - .t. automatski se odrjedjuje broj naloga koji se formira, .f. getuje se broj formiranog naloga - default vrijednost
- *  \brief Kontiranje dokumenta tj. formiranje FIN i/ili MAT naloga
- */
-
-function KontNal(fAuto, lAGen, lViseKalk)
+// -----------------------------------------------------------------------
+// kontiranje naloga 
+//
+// fAuto - .t. automatski se odrjedjuje broj naloga koji se formira, 
+//         .f. getuje se broj formiranog naloga - default vrijednost
+// lAGen - automatsko generisanje
+// lViseKalk - vise kalkulacija
+// cNalog - broj naloga koji ce se uzeti, ako je EMPTY() ne uzima se !
+// -----------------------------------------------------------------------
+function KontNal(fAuto, lAGen, lViseKalk, cNalog )
 local cIdFirma
 local cIdVd
 local cBrDok
@@ -158,18 +156,30 @@ if KONCIJ->(FIELDPOS("FN14"))<>0 .and. !EMPTY(KONCIJ->FN14) .and. FINMAT->IDVD==
 endif
 
 if lAFin .or. lAFin2
-	select fnalog
-	seek finmat->idfirma+cidvn+chr(254)
-	skip -1
-	if idvn<>cidvn
-		// cBrnalF:="0"
-		cBrnalF:="00000000"
+	if EMPTY( cNalog ) 
+		select fnalog
+		seek finmat->idfirma+cidvn+chr(254)
+		skip -1
+		if ( idvn <> cidvn )
+			cBrnalF:="00000000"
+		else
+			do while !BOF()
+				if !__val_nalog( field->brnal )
+					skip -1
+					loop
+				else
+					exit
+				endif
+			enddo
+			cBrNalF:=brnal
+		endif
+		cBrNalF := NovaSifra( cBrNalF )
+		select fnalog
+		use
 	else
-		cBrNalF:=brnal
+		// ako je zadat broj naloga taj i uzmi...
+		cBrNalF := cNalog
 	endif
-	cBrNalF:=NovaSifra(cBrNalF)
-	select fnalog
-	use
 endif
 
 if lAMat .or. lAMat2
@@ -670,6 +680,36 @@ if !lViseKalk
 endif
 
 return
+
+
+
+// --------------------------------
+// validacija broja naloga
+// --------------------------------
+static function __val_nalog( cNalog )
+local lRet := .t.
+local cTmp
+local cChar
+local i
+
+cTmp := RIGHT( cNalog, 4 )
+
+// vidi jesu li sve brojevi
+for i := 1 to LEN( cTmp )
+	
+	cChar := SUBSTR( cTmp, i, 1 )
+	
+	if cChar $ "0123456789"
+		loop
+	else
+		lRet := .f.
+		exit
+	endif
+
+next
+
+return lRet
+
 
 
 /*! \fn Konto(nBroj,cDef,cTekst)

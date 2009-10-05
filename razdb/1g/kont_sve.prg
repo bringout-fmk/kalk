@@ -78,7 +78,7 @@ do while !EOF()
 	
 	// provjeri magacinska konta
 	if !EMPTY( cId_mkto ) 
-		if field->mkonto $ cId_mkto
+		if ALLTRIM(field->mkonto) $ cId_mkto
 			// idi dalje...
 		else
 			skip
@@ -88,7 +88,7 @@ do while !EOF()
 	
 	// provjeri prodavnicka konta
 	if !EMPTY( cId_pkto ) 
-		if field->pkonto $ cId_pkto
+		if ALLTRIM(field->pkonto) $ cId_pkto
 			// idi dalje...
 		else
 			skip

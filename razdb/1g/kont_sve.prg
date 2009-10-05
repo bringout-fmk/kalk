@@ -53,7 +53,8 @@ local cNalog := ""
 O_DOKS
 
 cId_td := ALLTRIM( cId_td )
-cId_kto := ALLTRIM( cId_kto )
+cId_mkto := ALLTRIM( cId_mkto )
+cId_pkto := ALLTRIM( cId_pkto )
 
 select doks
 go top

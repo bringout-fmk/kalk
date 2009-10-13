@@ -6,15 +6,12 @@ function P_Fin( lAuto )
 private gDatNal:="N"
 private gRavnot:="D"
 private cDatVal:="D"
-private gnLOst:=0
 
 if (lAuto == nil)
 	lAuto := .f.
 endif
 
 if gafin=="D"
-	
-	altd()
 	
 	// kontrola zbira - uravnotezenje
  	KZbira( lAuto )
@@ -571,8 +568,6 @@ select PSUBAN
 set order to 1
 go top
 
-altd()
-
 do while !eof()
 
 	// prodji kroz PSUBAN i vidi da li je nalog zatvoren
@@ -642,7 +637,7 @@ do while !eof()
   			endif
 		endif
 
-  		@ m_x+3,m_y+2 SAY "NALOZI         "
+		@ m_x+3,m_y+2 SAY "NALOZI         "
   		select  NALOG
   		seek cNal
   		if found()
@@ -678,18 +673,23 @@ do while !eof()
   		enddo
 
   		@ m_x+3,m_y+2 SAY "SUBANALITIKA   "
-  		select PSUBAN
+  		
+		select PSUBAN
 		seek cNal
-  		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
+  		
+		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
 
-    			Scatter()
-    			if _d_p=="1"
+    		    Scatter()
+    	
+    		    if gnLOst >= 0
+	                
+			if _d_p=="1"
 				nSaldo := _IznosBHD
-			else
-				nSaldo := -_IznosBHD
-			endif
+		    	else
+		 		nSaldo := -_IznosBHD
+		    	endif
 
-    			SELECT SUBAN
+			SELECT SUBAN
 			set order to 3
     			SEEK _IdFirma+_IdKonto+_IdPartner+_BrDok
 
@@ -711,12 +711,15 @@ do while !eof()
       				enddo
       				_OtvSt:="9"
     			endif
+		    
+		    endif
 
-    			append ncnl
-			Gather2()
+    		    append ncnl
+		    Gather2()
 
-    			select PSUBAN
-			skip
+    		    select PSUBAN
+		    skip
+		
 		enddo
   
 		@ m_x+3,m_y+2 SAY "ANALITIKA       "
@@ -756,6 +759,7 @@ enddo
 
 select PRIPR
 __dbpack()
+
 select PSUBAN
 zap
 select PANAL
@@ -960,9 +964,6 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 	private Pot:=0
 	private Pot2:=0
 
-	if lAuto == .t.
-		msgo("Korak 1...")
-	endif
 
  	do while  !eof() .and. (IdFirma+IdVn+BrNal==cIdFirma+cIdVn+cBrNal)
    		
@@ -979,10 +980,6 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
  	
 	SKIP -1
  	
-	if lAuto == .t.
-		msgc()
-	endif
-
 	Scatter()
 
  	cPic:="999 999 999 999.99"
@@ -1017,10 +1014,6 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 		
    		if cDN == "D"
      	
-			if lAuto == .t.
-				msgo("Korak 2...")
-			endif
-
 			_Opis:="GRESKA ZAOKRUZ."
      			_BrDok:=""
      			_D_P:="2"
@@ -1061,10 +1054,6 @@ Box("kzb",12,70,.f.,"Kontrola zbira FIN naloga")
 				Gather()
 				
      			endif
-
-			if lAuto == .t.
-				msgc()
-			endif
    		endif
  	endif
 BoxC()

@@ -213,7 +213,7 @@ function SetRazno()
 *{
 private  GetList:={}
 
- Box(,12,75,.f.,"RAZNO")
+Box(,13,75,.f.,"RAZNO")
  @ m_x+1,m_y+2 SAY "Brojac kalkulacija D/N         " GET gBrojac pict "@!" valid gbrojac $ "DN"
  @ m_x+2,m_y+2 SAY "Potpis na kraju naloga D/N     " GET gPotpis valid gPotpis $ "DN"
  @ m_x+3,m_Y+2 SAY "Rok trajanja D/N               " GET gRokTr pict "@!" valid gRokTr $ "DN"
@@ -223,15 +223,16 @@ private  GetList:={}
  @ m_x+7,m_y+2 SAY "Zabraniti promjenu tarife u dokumentima? (D/N)" GET gPromTar VALID gPromTar $ "DN" PICT "@!"
  @ m_x+8,m_y+2 SAY "F-ja za odredjivanje dzokera F1 u kontiranju" GET gFunKon1 PICT "@S28"
  @ m_x+9,m_y+2 SAY "F-ja za odredjivanje dzokera F2 u kontiranju" GET gFunKon2 PICT "@S28"
- @ m_x+10,m_y+2 SAY "Timeout kod azuriranja dokumenta (sec.)" GET gAzurTimeout PICT "99999"
- @ m_x+11,m_y+2 SAY "Timeout kod azuriranja fin.naloga (sec.)" GET gAzurFinTO PICT "99999"
- @ m_x+12,m_y+2 SAY "Auto obrada dokumenata iz cache tabele (D/N)" GET gCache VALID gCache $ "DN" PICT "@!"
+ @ m_x+10,m_y+2 SAY "Limit za otvorene stavke" GET gnLOst PICT "99999"
+ @ m_x+11,m_y+2 SAY "Timeout kod azuriranja dokumenta (sec.)" GET gAzurTimeout PICT "99999"
+ @ m_x+12,m_y+2 SAY "Timeout kod azuriranja fin.naloga (sec.)" GET gAzurFinTO PICT "99999"
+ @ m_x+13,m_y+2 SAY "Auto obrada dokumenata iz cache tabele (D/N)" GET gCache VALID gCache $ "DN" PICT "@!"
 	
 
- read
- BoxC()
+read
+BoxC()
 
- if lastkey()<>K_ESC
+if lastkey()<>K_ESC
   Wpar("br",gBrojac)
   Wpar("rt",gRokTr)
   WPar("po",gPotpis)
@@ -244,10 +245,11 @@ private  GetList:={}
   WPar("aK",gAzurTimeout)
   WPar("aK",gAzurTimeout)
   WPar("aQ",gCache)
- endif
+  WPar("aY",gnLOst)
+endif
 
 return .t.
-*}
+
 
 
 

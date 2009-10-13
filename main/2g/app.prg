@@ -345,7 +345,8 @@ public gAzurFinTO := 150
 
 // auto obrada iz cache tabele
 public gCache := "N"
-
+// limit za otvorene stavke
+public gnLOst := -99
 
 public lPoNarudzbi
 
@@ -449,6 +450,7 @@ RPar("f2",@gFunKon2)
 RPar("aK",@gAzurTimeout)
 RPar("aF",@gAzurFinTO)
 RPar("aQ",@gCache)
+RPar("aY",@gnLOst)
 
 cOdradjeno:="D"
 if file(EXEPATH+'scshell.ini')

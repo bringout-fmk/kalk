@@ -521,6 +521,7 @@ return
 // Azuriranje fin naloga
 // ------------------------------------------
 static function Azur(lAuto)
+local nLOst := gnLOst
 
 FO_PRIPR
 FO_SUBAN
@@ -535,6 +536,10 @@ FO_PNALOG
 
 if (lAuto == nil)
 	lAuto := .f.
+endif
+
+if ( gnLOst < 0 )
+	nLOst := 0
 endif
 
 fAzur:=.t.
@@ -680,7 +685,7 @@ do while !eof()
 		do while !eof() .and. cNal==IdFirma+IdVn+BrNal
 
     		    Scatter()
-    	
+
     		    if gnLOst >= 0
 	                
 			if _d_p=="1"
@@ -703,7 +708,7 @@ do while !eof()
        				skip
     			enddo
 
-    			if ABS( nSaldo ) <= gnLOSt
+    			if ABS( nSaldo ) <= nLOst
       				go nRec
       				do while  !eof() .and. (_IdFirma+_IdKonto+_IdPartner+_BrDok)== (IdFirma+IdKonto+IdPartner+BrDok)
         				_field->OtvSt:="9"
@@ -713,7 +718,8 @@ do while !eof()
     			endif
 		    
 		    endif
-
+			
+		    select suban
     		    append ncnl
 		    Gather2()
 

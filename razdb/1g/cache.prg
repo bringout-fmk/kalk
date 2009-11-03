@@ -161,7 +161,7 @@ cre_cache()
 
 O_CACHE
 select cache
-zapp()
+zap
 
 O_CACHE
 O_KALK

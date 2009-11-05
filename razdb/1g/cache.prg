@@ -162,6 +162,7 @@ cre_cache()
 O_CACHE
 select cache
 zap
+__dbpack()
 
 O_CACHE
 O_KALK

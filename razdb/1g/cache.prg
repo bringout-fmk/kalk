@@ -238,8 +238,8 @@ for i := 1 to LEN( aKto )
 
     		  endif
 
-		    // ako je stanje pozitivno zapamti ga
-    		    if round(nKolicina, 8) > 0
+		  // ako je stanje pozitivno zapamti ga
+    		  if round(nKolicina, 8) > 0
         		nKol_poz := nKolicina
 
         		nUKol_poz := nUlKol
@@ -247,16 +247,13 @@ for i := 1 to LEN( aKto )
 
         		nUVr_poz := nUlNv
         		nIVr_poz := nIzlNv
-    		    endif
-
-
+    		  endif
   		
 		endif
   		
 		skip
 	
 	enddo 
-
  
         // utvrdi srednju nabavnu cijenu na osnovu posljednjeg pozitivnog stanja
 	if round(nKol_poz, 8) == 0
@@ -267,31 +264,6 @@ for i := 1 to LEN( aKto )
 	endif
 
 	nKolicina := round( nKolicina, 4 )
-
-/*	
-	if nKolicina <> 0
-	 
-	 // upisi u cache
-	 select cache
-	 append blank
-
-	 replace idkonto with cIdKonto
-	 replace idroba with cIdRoba
-	 replace ulaz with nUlKol
-	 replace izlaz with nIzlkol
-	 replace stanje with nKolicina
-	 replace nvu with nUlNv
-	 replace nvi with nIzlNv
-	 replace nv with nSnc
-        
-	endif
-*/
-
-	// gornji kod od vsasa koji sam komentarisao ima odredjene nelogicnosti
-        // on koristi "nv" za srednju nabavnu cijenu
-        // kako sve ove informacije u cache tabeli sluze za proracun 
-        // nabavne cijene ja cu dole popuniti informacije nadjene kod posljednje pozitivnog
-        // stanja kartice 
         
 	if round(nKol_poz, 8) <> 0
 	 

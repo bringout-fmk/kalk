@@ -874,7 +874,8 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 	
 	if lExpDbf == .t. .and. ROUND(nUlaz-nIzlaz, 4) <> 0
 	
-		fill_exp_tbl( 0, roba->id, roba->naz, roba->idtarifa, cJmj, ;
+		fill_exp_tbl( 0, roba->id, roba->sifradob, ;
+				roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
 				nNVU, nNVI, ( nNVU - nNVI ), ;
 				(nNVU - nNVI)/(nUlaz - nIzlaz) )
@@ -986,6 +987,7 @@ static function g_exp_fields( )
 aDbf := {}
 
 AADD( aDbf, { "IDROBA", "C", 10, 0 })
+AADD( aDbf, { "SIFRADOB", "C", 10, 0 })
 AADD( aDbf, { "NAZIV", "C", 40, 0 })
 AADD( aDbf, { "TARIFA", "C", 6, 0 })
 AADD( aDbf, { "JMJ", "C", 3, 0 })
@@ -1003,8 +1005,8 @@ return aDbf
 // ------------------------------------------------------------
 // filovanje tabele exporta
 // ------------------------------------------------------------
-static function fill_exp_tbl( nVar, cIdRoba, cNazRoba, cTarifa, cJmj, ;
-		nUlaz, nIzlaz, nSaldo, nNVDug, nNVPot, nNV, nNC )
+static function fill_exp_tbl( nVar, cIdRoba, cSifDob, cNazRoba, cTarifa, ;
+		cJmj, nUlaz, nIzlaz, nSaldo, nNVDug, nNVPot, nNV, nNC )
 
 local nTArea := SELECT()
 
@@ -1017,6 +1019,7 @@ O_R_EXP
 append blank
 
 replace field->idroba with cIdRoba
+replace field->sifradob with cSifDob
 replace field->naziv with cNazRoba
 replace field->tarifa with cTarifa
 replace field->jmj with cJmj

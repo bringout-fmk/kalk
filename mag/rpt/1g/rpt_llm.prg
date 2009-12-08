@@ -119,7 +119,6 @@ private cErr:="N"
 private cNCSif:="N"
 private cMink:="N"
 private cSredCij:="N"
-private cSRSort := "N"
 private cPKN := "N"
 private cFaBrDok := space(40)
 
@@ -203,7 +202,6 @@ Box(,21+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		
 		@ m_x + 20, col() + 1 SAY "Pr.dodatnih informacija ?" GET cMoreInfo VALID cMoreInfo $ "DN" PICT "@!"
 		
-		@ m_x + 21, m_y + 2 SAY "Sort izvjestaja po SIFRADOB" GET cSRSort VALID cSRSort $ "DN" PICT "@!"
 		read
 		ESC_BCR
  
@@ -337,13 +335,6 @@ else
     		set order to tag "3"
   	endif
   	hseek cIdFirma+cIdKonto
-endif
-
-if cSRSort == "D"
-	SET RELATION TO idroba INTO ROBA
-	index on idFirma + mkonto + roba->sifradob + dtos(datdok) + ;
-		podbr + MU_I + IdVD to "SDOB"
-  	hseek cIdFirma + cIdKonto
 endif
 
 select koncij
@@ -873,8 +864,14 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 	endif
 	
 	if lExpDbf == .t. .and. ROUND(nUlaz-nIzlaz, 4) <> 0
-	
-		fill_exp_tbl( 0, roba->id, roba->sifradob, ;
+
+		cTmp := ""
+		
+		if roba->(FIELDPOS("SIFRADOB")) <> 0
+			cTmp := roba->sifradob
+		endif
+
+		fill_exp_tbl( 0, roba->id, cTmp, ;
 				roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
 				nNVU, nNVI, ( nNVU - nNVI ), ;
@@ -969,12 +966,6 @@ gPicDem := cPicDem
 gPicCDem := cPicCDem
 gPicKol := cPicKol
 
-if cSRSort == "D"
-	// ukini relation
-	set relation to
-	// vrati se na stari indeks
-	set order to tag "3"
-endif
 
 closeret
 return

@@ -210,11 +210,11 @@ return nil
  */
 
 function SetRazno()
-*{
 private  GetList:={}
 
 Box(,13,75,.f.,"RAZNO")
  @ m_x+1,m_y+2 SAY "Brojac kalkulacija D/N         " GET gBrojac pict "@!" valid gbrojac $ "DN"
+ @ m_x+1,col()+2 SAY "duzina brojaca:" GET gLenBrKalk pict "9" VALID gLenBrKalk > 0 .and. gLenBrKalk < 10
  @ m_x+2,m_y+2 SAY "Potpis na kraju naloga D/N     " GET gPotpis valid gPotpis $ "DN"
  @ m_x+3,m_Y+2 SAY "Rok trajanja D/N               " GET gRokTr pict "@!" valid gRokTr $ "DN"
  @ m_x+4,m_y+2 SAY "Novi korisnicki interfejs D/N/X" GET gNW valid gNW $ "DNX" pict "@!"
@@ -246,6 +246,7 @@ if lastkey()<>K_ESC
   WPar("aK",gAzurTimeout)
   WPar("aQ",gCache)
   WPar("aY",gnLOst)
+  WPar("bK",gLenBrKalk)
 endif
 
 return .t.

@@ -277,6 +277,7 @@ public gAFakt:="D"
 public gVodiKalo:="N"
 public gAutoRavn:="N"
 public gAutoCjen:="D"
+public gLenBrKalk:=5
 
 O_PARAMS
 private cSection:="K",cHistory:=" "; aHistory:={}
@@ -451,6 +452,7 @@ RPar("aK",@gAzurTimeout)
 RPar("aF",@gAzurFinTO)
 RPar("aQ",@gCache)
 RPar("aY",@gnLOst)
+RPar("bK",@gLenBrKalk)
 
 cOdradjeno:="D"
 if file(EXEPATH+'scshell.ini')

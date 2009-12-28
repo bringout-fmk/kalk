@@ -475,38 +475,6 @@ closeret
 return
 
 
-// ------------------------------------------------
-// ------------------------------------------------
-function SljBrKalk(cTipKalk, cIdFirma, cSufiks)
-*{
-local cBrKalk:=space(8)
-if cSufiks==nil
-	cSufiks:=SPACE(3)
-endif
-if gBrojac=="D"
-	if glBrojacPoKontima
-		select doks
-		set order to tag "1S"
-		seek cIdFirma+cTipKalk+cSufiks+"X"
-	else
-		select kalk
-		set order to 1
-		seek cIdFirma+cTipKalk+"X"
-	endif
-	skip -1
-	if cTipKalk<>field->idVD .or. glBrojacPoKontima .and. right(field->brDok,3)<>cSufiks
-		cBrKalk:=SPACE(5)+cSufiks
-	else
-		cBrKalk:=field->brDok
-	endif
-	if cTipKalk=="16" .and. glEvidOtpis
-		cBrKalk:=STRTRAN(cBrKalk,"-X","  ")
-	endif
-	cBrKalk:=UBrojDok(val(left(cBrKalk,5))+1,5,right(cBrKalk,3))
-endif
-return cBrKalk
-*}
-
 function SufBrKalk(cIdKonto)
 *{
 local nArr:=SELECT()
@@ -518,45 +486,6 @@ if found()
 endif
 select (nArr)
 return cSufiks
-*}
-
-// --------------------------------------------------
-// --------------------------------------------------
-function GetNextKalkDoc(cIdFirma, cIdTipDok, nUvecaj)
-*{
-if nUvecaj == nil
-	nUvecaj := 1
-endif
-lIdiDalje:=.f.
-//select kalk
-select doks
-set order to 1
-
-seek cIdFirma + cIdTipDok + "X"
-// vrati se na zadnji zapis
-skip -1
-
-
-do while .t.
-	for i:=1 to LEN(ALLTRIM(field->brDok)) 
-		if !IsNumeric(SubStr(ALLTRIM(field->brDok),i,1))
-			lIdiDalje:=.f.
-			skip -1
-			loop
-		else
-			lIdiDalje:=.t.
-		endif
-	next
-	if lIdiDalje:=.t.
-		cResult:=field->brDok
-		exit
-	endif
-	
-enddo
-
-cResult:=UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, 5, RIGHT(cResult,3))
-
-return cResult
 *}
 
 // --------------------------

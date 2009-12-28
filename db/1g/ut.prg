@@ -212,7 +212,6 @@ return
  */
 
 function SljBroj(cidfirma,cIdvD,nMjesta)
-*{
 private cReturn:="0"
 select kalk
 seek cidfirma+cidvd+"ä"
@@ -222,11 +221,102 @@ if idvd<>cidvd
 else
      cReturn:=brdok
 endif
-return cReturn:=UBrojDok(val(left(cReturn,5))+1,5,right(cReturn))
+
+if ALLTRIM(cReturn) >= "99999"
+	cReturn := PADR( novasifra( ALLTRIM(cReturn) ), 5 )
+else
+	cReturn := UBrojDok( VAL( LEFT(cReturn, 5) ) + 1, ;
+		5, RIGHT(cReturn) )
+endif
+
+return cReturn
+
+
+
+// ------------------------------------------------
+// ------------------------------------------------
+function SljBrKalk(cTipKalk, cIdFirma, cSufiks)
+*{
+local cBrKalk:=space(8)
+if cSufiks==nil
+	cSufiks:=SPACE(3)
+endif
+if gBrojac=="D"
+	if glBrojacPoKontima
+		select doks
+		set order to tag "1S"
+		seek cIdFirma+cTipKalk+cSufiks+"X"
+	else
+		select kalk
+		set order to 1
+		seek cIdFirma+cTipKalk+"X"
+	endif
+	skip -1
+	
+	if cTipKalk<>field->idVD .or. glBrojacPoKontima .and. right(field->brDok,3)<>cSufiks
+		cBrKalk:=SPACE(gLenBrKalk)+cSufiks
+	else
+		cBrKalk:=field->brDok
+	endif
+	
+	if cTipKalk=="16" .and. glEvidOtpis
+		cBrKalk:=STRTRAN(cBrKalk,"-X","  ")
+	endif
+	
+	if ALLTRIM( cBrKalk ) >= "99999"
+		cBrKalk := PADR( novasifra( ALLTRIM(cBrKalk) ), 5 ) + cSufiks
+	else
+		cBrKalk:=UBrojDok(val(left(cBrKalk,5))+1, ;
+			5,right(cBrKalk,3))
+	endif
+endif
+return cBrKalk
 *}
 
 
+// --------------------------------------------------
+// --------------------------------------------------
+function GetNextKalkDoc(cIdFirma, cIdTipDok, nUvecaj)
+*{
+if nUvecaj == nil
+	nUvecaj := 1
+endif
+lIdiDalje:=.f.
+//select kalk
+select doks
+set order to 1
 
+seek cIdFirma + cIdTipDok + "X"
+// vrati se na zadnji zapis
+skip -1
+
+
+do while .t.
+	for i:=1 to LEN(ALLTRIM(field->brDok)) 
+		if !IsNumeric(SubStr(ALLTRIM(field->brDok),i,1))
+			lIdiDalje:=.f.
+			skip -1
+			loop
+		else
+			lIdiDalje:=.t.
+		endif
+	next
+	if lIdiDalje:=.t.
+		cResult:=field->brDok
+		exit
+	endif
+	
+enddo
+
+if ALLTRIM( cResult ) >= "99999"
+	cResult := PADR( novasifra( ALLTRIM(cResult) ), 5 ) + RIGHT(cResult,3)
+else
+	cResult := UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, ;
+		5, RIGHT(cResult,3))
+endif
+
+return cResult
+*}
 
 
 /*! \fn MMarza2()

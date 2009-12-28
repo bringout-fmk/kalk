@@ -308,15 +308,18 @@ do while .t.
 	
 enddo
 
-if ALLTRIM( cResult ) >= "99999"
-	cResult := PADR( novasifra( ALLTRIM(cResult) ), 5 ) + RIGHT(cResult,3)
-else
-	cResult := UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, ;
-		5, RIGHT(cResult,3))
-endif
+//if ALLTRIM( cResult ) >= "99999"
+	for xx:=1 to nUvecaj
+	   cResult := PADR( novasifra( ALLTRIM(cResult) ), 5 ) + ;
+		RIGHT(cResult,3)
+	next
+//else
+//	cResult := UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, ;
+//		5, RIGHT(cResult,3))
+//endif
 
 return cResult
-*}
+
 
 
 /*! \fn MMarza2()

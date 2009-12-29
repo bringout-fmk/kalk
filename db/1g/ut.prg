@@ -264,59 +264,63 @@ if gBrojac=="D"
 	endif
 	
 	if ALLTRIM( cBrKalk ) >= "99999"
-		cBrKalk := PADR( novasifra( ALLTRIM(cBrKalk) ), 5 ) + cSufiks
+		cBrKalk := PADR( novasifra( ALLTRIM(cBrKalk) ), 5 ) + ;
+			right( cBrKalk, 3 )
 	else
-		cBrKalk:=UBrojDok(val(left(cBrKalk,5))+1, ;
-			5,right(cBrKalk,3))
+		cBrKalk:=UBrojDok(val(left(cBrKalk,5)) + 1, ;
+			5, right(cBrKalk,3) )
 	endif
 endif
 return cBrKalk
-*}
 
 
-// --------------------------------------------------
-// --------------------------------------------------
+
+
+// --------------------------------------------------------
+// uvecava broj kalkulacije sa stepenom uvecanja nUvecaj
+// --------------------------------------------------------
 function GetNextKalkDoc(cIdFirma, cIdTipDok, nUvecaj)
-*{
+local xx
+local i
+local lIdiDalje
+
 if nUvecaj == nil
 	nUvecaj := 1
 endif
-lIdiDalje:=.f.
-//select kalk
+
+lIdiDalje := .f.
+
 select doks
 set order to 1
 
-seek cIdFirma + cIdTipDok + "X"
+seek cIdFirma + cIdTipDok + "XXX"
 // vrati se na zadnji zapis
 skip -1
 
-
 do while .t.
-	for i:=1 to LEN(ALLTRIM(field->brDok)) 
+	for i := 2 to LEN(ALLTRIM(field->brDok)) 
 		if !IsNumeric(SubStr(ALLTRIM(field->brDok),i,1))
-			lIdiDalje:=.f.
+			lIdiDalje := .f.
 			skip -1
 			loop
 		else
-			lIdiDalje:=.t.
+			lIdiDalje := .t.
 		endif
 	next
-	if lIdiDalje:=.t.
-		cResult:=field->brDok
+
+	if lIdiDalje := .t.
+		cResult := field->brDok
 		exit
 	endif
 	
 enddo
 
-//if ALLTRIM( cResult ) >= "99999"
-	for xx:=1 to nUvecaj
-	   cResult := PADR( novasifra( ALLTRIM(cResult) ), 5 ) + ;
-		RIGHT(cResult,3)
-	next
-//else
-//	cResult := UBrojDok(VAL(LEFT(cResult,5)) + nUvecaj, ;
-//		5, RIGHT(cResult,3))
-//endif
+xx := 1
+
+for xx := 1 to nUvecaj
+	cResult := PADR( novasifra( ALLTRIM(cResult) ), 5 ) + ;
+		RIGHT( cResult, 3 )
+next
 
 return cResult
 

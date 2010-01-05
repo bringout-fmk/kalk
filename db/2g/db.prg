@@ -136,6 +136,9 @@ Skloni(PRIVPATH,"FINMAT.DBF",cSezona,finverse,fda,fnul)
 Skloni(PRIVPATH,"PARAMS.DBF",cSezona,finverse,fda,fnul)
 Skloni(PRIVPATH,"PRIPR2.DBF",cSezona,finverse,fda,fnul)
 Skloni(PRIVPATH,"PRIPR9.DBF",cSezona,finverse,fda,fnul)
+if is_doksrc()
+	Skloni(PRIVPATH,"P_DOKSRC.DBF",cSezona,finverse,fda,fnul)
+endif
 Skloni(PRIVPATH,"FMK.INI",cSezona,finverse,fda,fnul)
 
 if fRS

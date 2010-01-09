@@ -31,23 +31,31 @@ return
 // -------------------------------------------------------
 // prenos po normativima za period
 // -------------------------------------------------------
-function PrenosNo()
-local cIdFirma:=gFirma
-local cIdTipDok:="10;11;12;      "
-local cBrDok:=space(8)
-local cBrKalk:=space(8)
-local cRobaUsl:=SPACE(100)
-local cRobaIncl:="I"
+function PrenosNo( dD_from, dD_to, cIdKonto2, cIdTipDok, dDatKalk, cRobaUsl, ;
+	cRobaIncl, cSezona )
 
+local lTest := .f.
+local cBrDok := SPACE(8)
+local cBrKalk := SPACE(8)
+local cIdFirma := gFirma
+local cIdKonto:=padr("",7)
+local cIdZaduz2:=space(6)
+
+if pcount() == 0
+	cIdTipDok:="10;11;12;      "
+	cRobaUsl:=SPACE(100)
+	cRobaIncl:="I"
+	dDatKalk := date()
+	cIdKonto2 := padr("1310",7)
+	cSezona := ""
+else
+	lTest := .t.
+endif
+
+o_tbl_roba( lTest, cSezona )
 o_tables()
 
-dDatKalk:=date()
-cIdKonto:=padr("",7)
-cIdKonto2:=padr("1310",7)
-cIdZaduz2:=space(6)
-
-cBrkalk:=space(8)
-if gBrojac=="D"
+if gBrojac=="D" .and. lTest == .f.
  select kalk
  select kalk; set order to 1;seek cidfirma+"96X"
  skip -1
@@ -58,15 +66,22 @@ if gBrojac=="D"
  endif
 endif
 
+if lTest == .t.
+	cBrKalk := "99999"
+endif
+
 Box(,15,60)
 
-if gBrojac=="D"
- cbrkalk:=UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
+if gBrojac=="D" .and. lTest == .f.
+ 	cbrkalk := UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
 endif
 
 do while .t.
 
   nRBr:=0
+  
+  if lTest == .f.
+  
   @ m_x+1,m_y+2   SAY "Broj kalkulacije 96 -" GET cBrKalk pict "@!"
   @ m_x+1,col()+2 SAY "Datum:" GET dDatKalk
   @ m_x+3,m_y+2   SAY "Konto razduzuje:" GET cIdKonto2 pict "@!" valid P_Konto(@cIdKonto2)
@@ -90,6 +105,14 @@ do while .t.
   
   if lastkey()==K_ESC
   	exit
+  endif
+
+  endif
+
+  if lTest == .t.
+  	dDatFOd := dD_from
+	dDatFDo := dD_to
+	cFaktFirma := "10"
   endif
 
   select xfakt
@@ -206,23 +229,31 @@ do while .t.
     skip
   enddo
   
-  if LEN(aNotIncl) > 0
-  	rpt_not_incl( aNotIncl )
-  endif
+  if lTest == .f.
 
-  @ m_x+10,m_y+2 SAY "Dokumenti su preneseni !!"
+    if LEN(aNotIncl) > 0
+  	rpt_not_incl( aNotIncl )
+    endif
+
+    @ m_x+10,m_y+2 SAY "Dokumenti su preneseni !!"
   
-  if gBrojac=="D"
+    if gBrojac=="D"
    	cbrkalk:=UBrojDok(val(left(cbrkalk,5))+1,5,right(cBrKalk,3))
-  endif
+    endif
   
-  inkey(4)
-  @ m_x+8,m_y+2 SAY space(30)
+    inkey(4)
+    @ m_x+8,m_y+2 SAY space(30)
+
+  else
+  	exit
+  endif
 
 
 enddo
 Boxc()
-closeret
+if lTest == .f.
+	closeret
+endif
 return
 
 // ---------------------------------------------
@@ -269,12 +300,47 @@ static function o_tables()
 O_PRIPR
 O_KALK
 O_DOKS
-O_ROBA
 O_KONTO
 O_PARTN
 O_TARIFA
-O_SAST
 XO_FAKT
+
+
+return
+
+
+// -------------------------------------------
+// otvaranje roba - sast
+// -------------------------------------------
+static function o_tbl_roba( lTest, cSezSif )
+local cSifPath
+
+if lTest == .t.
+	close all
+	
+	cSifPath := PADR( SIFPATH , 14 )
+	// "c:\sigma\sif1\"
+
+	if !EMPTY( cSezSif ) .and. cSezSif <> "RADP"
+		cSifPath += cSezSif + SLASH
+	endif
+
+	select (F_ROBA)
+	use
+	select (F_ROBA)
+	use ( cSifPath + "ROBA" ) alias "ROBA"
+	set order to tag "ID"
+
+	select (F_SAST)
+	use
+	select (F_SAST)
+	use ( cSifPath + "SAST" ) alias "SAST"
+	set order to tag "ID"
+
+else
+	O_ROBA
+	O_SAST
+endif
 
 return
 

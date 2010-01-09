@@ -1,29 +1,84 @@
 #include "kalk.ch"
 
+
+
 // prenos tops->kalk 96 po normativima
-function tops_nor_96()
-*{
-local cIdFirma:=gFirma
-local cIdTipDok:=PADR("42;",20)
-local cBrDok:=SPACE(8)
-local cBrKalk:=SPACE(8)
-local cIdZaduz2:=SPACE(6)
-local cIdkonto2:=PADR("1310",7)
-local cIdKonto:=PADR("",7)
-local dDatKalk:=DATE()
+function tops_nor_96( cIdFirma, cIdTipDok, cIdZaduz2, cIdKonto2, cIdKonto, ;
+	dDatKalk, dD_from, dD_to, cArtfilter, cTopsKonto, cSezSif )
+
+local lTest := .f.
 local cTSifPath
-local cTKumPath
+local cTKumPath 
+local cBrDok := SPACE(8)
+local cBrKalk := SPACE(8)
+
+if pcount() == 0
+	cIdFirma:=gFirma
+	cIdTipDok:=PADR("42;",20)
+	cIdZaduz2:=SPACE(6)
+	cIdkonto2:=PADR("1310",7)
+	cIdKonto:=PADR("",7)
+	dDatKalk:=DATE()
+else
+	lTest := .t.
+endif
 
 O_PRIPR
 O_KONCIJ
 O_KALK
-O_ROBA
 O_KONTO
 O_PARTN
 O_TARIFA
-O_SAST
 
-if gBrojac=="D"
+// uzmi iz koncija sve potrebne varijable
+select koncij
+set order to tag "ID"
+hseek cTopsKonto
+		
+if !Found()
+	MsgBeep("Ne postoji definisan prod.konto u KONCIJ-u")
+	return
+endif
+		
+cTKumPath:=TRIM(field->kumtops)
+cIdPos:=field->idprodmjes
+
+if lTest == .t.
+	
+	close all
+	
+	cSifPath := PADR( SIFPATH , 14 )
+	// "c:\sigma\sif1\"
+
+	if !EMPTY( cSezSif ) .and. cSezSif <> "RADP"
+		cSifPath += cSezSif + SLASH
+	endif
+
+	select (F_ROBA)
+	use
+	select (F_ROBA)
+	use ( cSifPath + "ROBA" ) alias "ROBA"
+	set order to tag "ID"
+
+	select (F_SAST)
+	use
+	select (F_SAST)
+	use ( cSifPath + "SAST" ) alias "SAST"
+	set order to tag "ID"
+	
+else
+	O_ROBA
+	O_SAST
+endif
+
+O_PRIPR
+O_KONCIJ
+O_KALK
+O_KONTO
+O_PARTN
+O_TARIFA
+
+if lTest == .f. .and. gBrojac=="D"
 	select kalk
  	set order to 1
 	seek cIdFirma + "96X"
@@ -34,6 +89,12 @@ if gBrojac=="D"
    		cBrKalk:=brdok
  	endif
 endif
+
+if lTest == .t.
+	cBrKalk := "99999"
+endif
+
+if lTest == .f.
 
 Box(,10,60)
 	if gBrojac=="D"
@@ -62,21 +123,16 @@ BoxC()
 if LastKey()==K_ESC
 	return
 endif
-	
+
+endif
+
+if lTest
+  	dDatPOd := dD_from
+  	dDatPDo := dD_to
+endif
+
 nRBr:=0
 
-// uzmi iz koncija sve potrebne varijable
-select koncij
-set order to tag "ID"
-hseek cTopsKonto
-		
-if !Found()
-	MsgBeep("Ne postoji definisan prod.konto u KONCIJ-u")
-	return
-endif
-		
-cTKumPath:=TRIM(field->kumtops)
-cIdPos:=field->idprodmjes
 
 // provjeri prodajno mjesto, mora biti popunjeno
 if EMPTY(cIdPos)
@@ -175,11 +231,14 @@ enddo
 
 BoxC()
 
-if nCnt > 0
+if nCnt > 0 .and. lTest == .f.
 	MsgBeep("Razmjena podatka izvrsena, dokument izgenerisan u pripremi!#Obradite ga!")
 endif
 
-closeret
+if lTest == .f.
+	closeret
+endif
+
 return
-*}
+
 

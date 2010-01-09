@@ -30,15 +30,38 @@ if is_uobrada()
 	AADD(Opc,"R. unutrasnja obrada - pregled ulaza i izlaza")
 	AADD(opcexe, {|| r_uobrada() })
 endif
+
+AADD(Opc,"K. kontrolni izvjestaji")
+AADD(opcexe, {|| m_ctrl_rpt() })
+
+
 AADD(Opc,"S. pregledi za vise objekata")
 AADD(opcexe, {|| MRekMag() })
 AADD(Opc,"T. lista trebovanja po sastavnicama")
 AADD(opcexe, {|| g_sast_list() })
 AADD(Opc,"U. specifikacija izlaza po sastavnicama")
 AADD(opcexe, {|| rpt_prspec() })
+
+
 private Izbor:=1
 Menu_SC("imag")
 CLOSERET
+return
+
+
+// ----------------------------------------------------
+// kontrolni izvjestaji
+// ----------------------------------------------------
+function m_ctrl_rpt()
+private Opc:={}
+private opcexe:={}
+
+AADD(Opc,"1. kontrola sastavnica               ")
+AADD(opcexe,{|| r_ct_sast()})
+
+private Izbor:=1
+Menu_SC("ctrl")
+
 return
 
 

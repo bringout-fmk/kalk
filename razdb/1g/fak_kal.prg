@@ -76,12 +76,21 @@ return aMemo
  *  \param clFor - "for" uslov za obuhvatanje slogova tekuce baze
  */
 
-function ProvjeriSif(clDok,cImePoljaID,nOblSif,clFor)
+function ProvjeriSif(clDok,cImePoljaID,nOblSif,clFor,lTest)
 *{
 LOCAL lVrati:=.t., nArr:=SELECT(), nRec:=RECNO(), lStartPrint:=.f., cPom3:=""
 LOCAL nR:=0
-IF clFor==NIL; clFor:=".t."; ENDIF
+
+if lTest == nil
+	lTest := .f.
+endif
+
+IF clFor == NIL
+	clFor:=".t."
+ENDIF
+
 PRIVATE cPom := clDok, cPom2 := cImePoljaID, cPom4:=clFor
+
 DO WHILE &cPom
   IF &cPom4
     SELECT (nOblSif)
@@ -91,13 +100,28 @@ DO WHILE &cPom
                         // ovo je kada se ide 1.  1.1 1.2
       ++nR
       lVrati:=.f.
-      IF !lStartPrint
+      if lTest == .f.
+       IF !lStartPrint
         lStartPrint:=.t.
         StartPrint()
         ? "NEPOSTOJECE SIFRE:"
         ? "------------------"
-      ENDIF
-      ? STR(nR)+") SIFRA '"+cPom3+"'"
+       ENDIF
+       ? STR(nR)+") SIFRA '"+cPom3+"'"
+      else
+
+      	nTArea := SELECT()
+	select roba
+	go top
+	seek xfakt->idroba
+	if !FOUND()
+	  append blank
+	  replace id with xfakt->idroba
+	  replace naz with "!!! KONTROLOM UTVRDJENO"
+	endif
+	select (nTArea)
+
+      endif
     ENDIF
   ENDIF
   SELECT (nArr)

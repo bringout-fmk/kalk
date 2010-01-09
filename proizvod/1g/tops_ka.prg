@@ -30,18 +30,6 @@ O_KONTO
 O_PARTN
 O_TARIFA
 
-// uzmi iz koncija sve potrebne varijable
-select koncij
-set order to tag "ID"
-hseek cTopsKonto
-		
-if !Found()
-	MsgBeep("Ne postoji definisan prod.konto u KONCIJ-u")
-	return
-endif
-		
-cTKumPath:=TRIM(field->kumtops)
-cIdPos:=field->idprodmjes
 
 if lTest == .t.
 	
@@ -125,6 +113,19 @@ if LastKey()==K_ESC
 endif
 
 endif
+
+// uzmi iz koncija sve potrebne varijable
+select koncij
+set order to tag "ID"
+hseek cTopsKonto
+		
+if !Found()
+	MsgBeep("Ne postoji definisan prod.konto u KONCIJ-u")
+	return
+endif
+		
+cTKumPath:=TRIM(field->kumtops)
+cIdPos:=field->idprodmjes
 
 if lTest
   	dDatPOd := dD_from

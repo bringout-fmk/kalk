@@ -112,7 +112,7 @@ dD_from := CTOD( "01.01.09")
 dD_to := CTOD( "31.12.09")
 cIdFirma := gFirma
 cIdKonto := PADR("1010;", 150)
-cArtfilter := PADR("1;",100)
+cArtfilter := PADR("2;3;",100)
 cProdKto := PADR( "1320", 7 )
 cSezona := "RADP"
 
@@ -206,35 +206,57 @@ for i := 1 to LEN( aKto )
 			loop
 		endif
 
-  		if field->mu_i == "1" .or. field->mu_i == "5"
-    		  
-		  if idvd == "10"
-      			nKolNeto := abs(kolicina-gkolicina-gkolicin2)
-    		  else
-      			nKolNeto := abs(kolicina)
-    		  endif
+	 	if roba->tip $ "TU"
+  			skip
+			loop
+  	 	endif
+  
+  	 	if mu_i == "1"
+    			if !(idvd $ "12#22#94")
+     				nKolicina := field->kolicina - field->gkolicina - field->gkolicin2
+    	 			nUlKol += nKolicina
+     				//SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
+     				nUlNv += round( field->nc*(field->kolicina-field->gkolicina-field->gkolicin2) , gZaokr)
+   			else
+     				nKolicina := -field->kolicina
+     				nIzlKol += nKolicina
+     			
+				//SumirajKolicinu(0, nKolicina, @nTUlazP, @nTIzlazP)
+     			
+     				nIzlNV -= round( field->nc*field->kolicina , gZaokr)
+    			endif
 
-    		  if ( field->mu_i == "1" .and. field->kolicina > 0 ) ;
-		  	.or. ( field->mu_i == "5" .and. field->kolicina < 0 )
-         		
-			nKolicina += nKolNeto    
-         		nUlKol += nKolNeto    
-         		nUlNV += ( nKolNeto * field->nc )      
-    		  
-		  else
-         		
-			nKolicina -= nKolNeto
-         		nIzlKol += nKolNeto
-         		nIzlNV += ( nKolNeto * field->nc )
+  		elseif mu_i=="5"
 
-    		  endif
+    			nKolicina := field->kolicina
+    			nIzlKol += nKolicina
+    		
+			//SumirajKolicinu(0, nKolicina, @nTUlazP, @nTIzlazP)
 
-		endif
-  		
-		skip
-	
-	enddo 
- 
+    			nIzlNV += ROUND(field->nc*field->kolicina, gZaokr)
+
+  		elseif mu_i=="8"
+     			nKolicina := -field->kolicina
+     			nIzlKol += nKolicina
+     			//SumirajKolicinu(0, nKolicina , @nTUlazP, @nTIzlazP)
+     		
+			nIzlNV += ROUND(field->nc*(-kolicina), gZaokr)
+   			nKolicina:=-field->kolicina
+     		
+			nUlKol += nKolicina
+     			//SumirajKolicinu(nKolicina, 0, @nTUlazP, @nTIzlazP)
+     		
+		
+			nUlKol +=round(-nc*(field->kolicina-gkolicina-gkolicin2) , gZaokr)
+  		endif
+
+	select kalk
+	skip
+
+	enddo
+
+	nKolicina := ( nUlKol - nIzlKol )
+
 	if round( nKolicina, 8 ) == 0
  		nSNc := 0
 	else
@@ -246,25 +268,25 @@ for i := 1 to LEN( aKto )
         
 	if round( nKolicina, 8 ) <> 0
 	 
-	 // upisi u r_exp
-	 select r_export
-	 append blank
+		 // upisi u r_exp
+	 	 select r_export
+	 	 append blank
 
-	 replace idkonto with cIdkonto
-	 replace idroba with cIdRoba
-	 replace tp_ul with nUlKol
-	 replace tp_iz with nIzlKol
-	 replace tp_st with ( nUlKol - nIzlKol )
-	 replace tp_nvu with nUlNV
-	 replace tp_nvi with nIzlNV
-	 replace tp_nvs with ( nUlNV - nIzlNv )
-	 replace tp_snc with nSnc
+	 	 replace idkonto with cIdkonto
+	 	 replace idroba with cIdRoba
+	 	 replace tp_ul with nUlKol
+	 	 replace tp_iz with nIzlKol
+	 	 replace tp_st with ( nUlKol - nIzlKol )
+	 	 replace tp_nvu with nUlNV
+	 	 replace tp_nvi with nIzlNV
+	 	 replace tp_nvs with ( nUlNV - nIzlNv )
+	 	 replace tp_snc with nSnc
         
 	endif
 
 	select kalk
-
-  enddo
+		
+  	enddo
 
 next
 
@@ -349,6 +371,7 @@ do while !EOF()
 
 	if !FOUND()
 		append blank
+		replace field->idroba with cIdRoba
 	endif
 
 	replace field->np_iz with ( field->np_iz + pripr->kolicina )

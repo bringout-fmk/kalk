@@ -20,81 +20,128 @@ local dD_from
 local dD_to
 local cProdKto
 local cArtfilter
-local cSezona 
+local cSezona
+local cSirovina
+local nVar := 1
 
 private nRslt := 0
 private lAsistRadi := .t.
 
+O_ROBA
+O_SIFK
+O_SIFV
+
 // uslovi izvjestaja
 if g_vars( @dD_from, @dD_to, @cIdFirma, @cIdKonto, @cProdKto, ;
-	@cArtfilter, @cSezona ) == 0
+	@cArtfilter, @cSezona, @cSirovina ) == 0
 	return
 endif
 
 // kreiraj pomocnu tabelu
-cre_r_tbl()
 
+if !EMPTY( cSirovina )
+	nVar := 2
+endif
+
+cre_r_tbl( nVar )
+
+O_PARTN
 O_KALK
 O_DOKS
 O_ROBA
 O_KONTO
 
-// daj kalk tekuci promet
-_g_kalk_tp( cIdFirma, cIdKonto, dD_from, dD_to )
+if nVar == 1
+	
+	// daj kalk tekuci promet
+	_g_kalk_tp( cIdFirma, cIdKonto, dD_from, dD_to )
+
+endif
 
 // razduzi FAKT promet po sastavnicama
-_g_fakt_pr( cIdKonto, dD_From, dD_to, cSezona )
+_g_fakt_pr( cIdKonto, dD_From, dD_to, cSezona, nVar, cSirovina )
 
-// razduzi POS promet po sastavnicama
-_g_pos_pr( cIdFirma, cIdKonto, dD_From, dD_to, cProdKto, cArtFilter, cSezona )
+if nVar == 1
+	// razduzi POS promet po sastavnicama
+	_g_pos_pr( cIdFirma, cIdKonto, dD_From, dD_to, cProdKto, ;
+		cArtFilter, cSezona, nVar, cSirovina )
+endif
 
 close all
 O_ROBA
-o_rxp()
+
+o_rxp( nVar )
 
 // stampaj izvjestaj
-pr_report()
+if nVar == 1
+	pr_report()
+else
+	pr_rpt2()
+endif
 
 return
 
 // -----------------------------------------------------
 // kreiranje tabele r_exp
 // -----------------------------------------------------
-static function cre_r_tbl()
+static function cre_r_tbl( nVar )
 local aDbf := {}
 
-AADD(aDbf,{ "IDROBA", "C", 10, 0 })
-AADD(aDbf,{ "IDKONTO", "C", 7, 0 })
-AADD(aDbf,{ "TP_UL", "N", 15, 5 })
-AADD(aDbf,{ "TP_IZ", "N", 15, 5 })
-AADD(aDbf,{ "TP_ST", "N", 15, 5 })
-AADD(aDbf,{ "TP_NVU", "N", 15, 5 })
-AADD(aDbf,{ "TP_NVI", "N", 15, 5 })
-AADD(aDbf,{ "TP_NVS", "N", 15, 5 })
-AADD(aDbf,{ "TP_SNC", "N", 15, 5 })
+if nVar == 1
 
-// novo stanje
-AADD(aDbf,{ "NP_UL", "N", 15, 5 })
-AADD(aDbf,{ "NP_IZ", "N", 15, 5 })
-AADD(aDbf,{ "NP_ST", "N", 15, 5 })
-AADD(aDbf,{ "NP_NVU", "N", 15, 5 })
-AADD(aDbf,{ "NP_NVI", "N", 15, 5 })
-AADD(aDbf,{ "NP_NVS", "N", 15, 5 })
+  AADD(aDbf,{ "IDROBA", "C", 10, 0 })
+  AADD(aDbf,{ "IDKONTO", "C", 7, 0 })
+  AADD(aDbf,{ "TP_UL", "N", 15, 5 })
+  AADD(aDbf,{ "TP_IZ", "N", 15, 5 })
+  AADD(aDbf,{ "TP_ST", "N", 15, 5 })
+  AADD(aDbf,{ "TP_NVU", "N", 15, 5 })
+  AADD(aDbf,{ "TP_NVI", "N", 15, 5 })
+  AADD(aDbf,{ "TP_NVS", "N", 15, 5 })
+  AADD(aDbf,{ "TP_SNC", "N", 15, 5 })
 
+  // novo stanje
+  AADD(aDbf,{ "NP_UL", "N", 15, 5 })
+  AADD(aDbf,{ "NP_IZ", "N", 15, 5 })
+  AADD(aDbf,{ "NP_ST", "N", 15, 5 })
+  AADD(aDbf,{ "NP_NVU", "N", 15, 5 })
+  AADD(aDbf,{ "NP_NVI", "N", 15, 5 })
+  AADD(aDbf,{ "NP_NVS", "N", 15, 5 })
+
+else
+
+  AADD(aDbf,{ "IDSAST", "C", 10, 0 })
+  AADD(aDbf,{ "IDROBA", "C", 10, 0 })
+  AADD(aDbf,{ "R_NAZ", "C", 200, 0 })
+  AADD(aDbf,{ "BRDOK", "C", 20, 0 })
+  AADD(aDbf,{ "RBR", "C", 4, 0 })
+  AADD(aDbf,{ "IDPARTNER", "C", 6, 0 })
+  AADD(aDbf,{ "P_NAZ", "C", 50, 0 })
+  AADD(aDbf,{ "KOLICINA", "N", 15, 5 })
+  AADD(aDbf,{ "KOL_SAST", "N", 15, 5 })
+
+
+endif
 
 t_exp_create( aDbf )
 
-o_rxp()
+o_rxp( nVar )
 
 return
 
 // ---------------------------------------
 // open r_export
 // ---------------------------------------
-static function o_rxp()
+static function o_rxp( nVar )
+
 O_R_EXP
-index on idroba tag "1"
-index on idkonto+idroba tag "2"
+
+if nVar == 1
+	index on idroba tag "1"
+	index on idkonto+idroba tag "2"
+else
+	index on brdok + rbr tag "1"
+endif
+
 return
 
 
@@ -104,7 +151,7 @@ return
 // uslovi reporta
 // --------------------------------------------------------------
 static function g_vars( dD_from, dD_to, cIdFirma, cIdKonto, cProdKto, ;
-	cArtfilter, cSezona )
+	cArtfilter, cSezona, cSirovina )
 local nX := 1
 local nRet := 1
 
@@ -115,6 +162,7 @@ cIdKonto := PADR("1010;", 150)
 cArtfilter := PADR("2;3;",100)
 cProdKto := PADR( "1320", 7 )
 cSezona := "RADP"
+cSirovina := SPACE(10)
 
 Box(,8, 65 )
 
@@ -125,6 +173,11 @@ Box(,8, 65 )
 
 	@ m_x + nX, m_y + 2 SAY "Firma:" GET cIdFirma 
 	@ m_x + nX, col() + 3 SAY "sast.iz sezone" GET cSezona
+
+	++ nX
+
+	@ m_x + nX, m_y + 2 SAY "gledaj sirovinu:" GET cSirovina ;
+		VALID EMPTY(cSirovina) .or. P_ROBA(@cSirovina)
 
 	++ nX
 
@@ -298,7 +351,8 @@ return
 // -------------------------------------------------------------
 // uzmi promet fakt-a za godinu dana... po sastavnicama
 // -------------------------------------------------------------
-static function _g_fakt_pr( cIdKonto, dD_From, dD_to, cSezona )
+static function _g_fakt_pr( cIdKonto, dD_From, dD_to, cSezona, ;
+	nVar, cSirovina )
 local nTArea := SELECT()
 local cIdTipDok := PADR("10;11;12;", 20)
 local cKto := STRTRAN( cIdKonto, ";", "" )
@@ -311,14 +365,11 @@ msgo("generisem pomocnu datoteku razduzenja FAKT....")
 
 // prenesi fakt->kalk
 prenosNo( dD_from, dD_to, cKto, cIdTipDok, dD_to, cRobaUsl, ;
-	cRobaIncl, cSezona )
-
-//kunos(.t.)
-//oedit()
+	cRobaIncl, cSezona, cSirovina )
 
 msgc()
 
-_pr_2_exp()
+_pr_2_exp( nVar )
 
 return
 
@@ -327,7 +378,7 @@ return
 // uzmi promet pos-a po sastavnicama za godinu
 // ------------------------------------------------------------
 static function _g_pos_pr( cIdFirma, cIdKonto, dD_From, dD_to, ;
-	cProdKto, cArtFilter, cSezona )
+	cProdKto, cArtFilter, cSezona, nVar, cSirovina )
 
 local nTArea := SELECT()
 local cIdTipDok := PADR("42;", 20)
@@ -338,22 +389,35 @@ cKto := PADR( ALLTRIM( cKto ), 7 )
 msgo("generisem pomocnu datoteku razduzenja TOPS....")
 // pokreni opciju tops po normativima
 tops_nor_96( cIdFirma, "42;", "", cKto, "", ;
-	dD_to, dD_from, dD_to, cArtfilter, cProdKto, cSezona )
-
-//kunos(.t.)
-//oedit()
+	dD_to, dD_from, dD_to, cArtfilter, cProdKto, cSezona, cSirovina )
 
 msgc()
 
-_pr_2_exp()
+_pr_2_exp( nVar )
 
 select (nTArea)
 return
 
 
-static function _pr_2_exp()
+static function _pr_2_exp( nVar )
 
-o_rxp()
+if nVar == 2
+	
+	select pripr
+	zap
+	
+	// sredi robu i partnere
+	select r_export
+	go top
+	do while !EOF()
+		replace field->r_naz with r_naz( field->idroba )
+		replace field->p_naz with p_naz( field->idpartner )
+		skip
+	enddo
+	return
+endif
+
+o_rxp( nVar )
 select r_export
 set order to tag "1"
 
@@ -398,6 +462,65 @@ zap
 return
 
 
+// -----------------------------------------------
+// stampanje izvjestaja
+// -----------------------------------------------
+static function pr_rpt2()
+local nRbr := 0
+local cLine
+local nCol := 2
+local nT_kol := 0
+local nT_k2 := 0
+
+cLine := g_line( 2 )
+
+START PRINT CRET
+?
+
+r_zagl( cLine, 2 )
+
+select r_export
+set order to tag "1"
+go top
+
+do while !EOF()
+	
+	? PADL( ALLTRIM( STR( ++nRbr )), 4 ) + ")"
+
+	@ prow(), pcol()+1 SAY PADR( field->brdok, 20 )
+	
+	@ prow(), pcol()+1 SAY PADR( ALLTRIM( field->idroba ) + ;
+		" - " + ALLTRIM(field->r_naz) , 50 )
+	
+	@ prow(), pcol()+1 SAY field->rbr
+	
+	@ prow(), pcol()+1 SAY PADR( "(" + ALLTRIM( field->idpartner ) + ;
+		") " + ALLTRIM( field->p_naz ), 50 )
+	
+	@ prow(), nCol := pcol()+1 SAY STR( field->kolicina, 12, 2 )
+	
+	@ prow(), pcol()+1 SAY STR( field->kol_sast, 12, 2 )
+	
+	nT_kol += field->kolicina
+	nT_k2 += field->kol_sast
+	
+	skip
+enddo
+
+? cLine
+
+? "UKUPNO:"
+
+@ prow(), nCol SAY STR( nT_kol, 12, 2 )
+@ prow(), pcol() + 1 SAY STR( nT_k2, 12, 2 )
+
+? cLine
+
+FF
+END PRINT
+
+return
+
 
 // -----------------------------------------------
 // stampanje izvjestaja
@@ -419,12 +542,12 @@ local nNp_nvi := 0
 local nNp_nvs := 0
 local nCol := 2
 
-cLine := g_line()
+cLine := g_line( 1 )
 
 START PRINT CRET
 ?
 
-r_zagl( cLine )
+r_zagl( cLine, 1 )
 
 select r_export
 set order to tag "1"
@@ -510,8 +633,10 @@ return
 
 // ---------------------------------------------
 // ---------------------------------------------
-static function r_zagl( cLine )
+static function r_zagl( cLine, nVar )
 local cTxt := ""
+
+if nVar == 1
 
 cTxt += PADR( "rbr", 5)
 cTxt += SPACE(1)
@@ -539,7 +664,25 @@ cTxt += PADR( "+/-", 12 )
 ? "   - (+/-) pokazatelj greske"
 ?
 
-P_COND
+else
+
+cTxt += PADR("rbr", 5 )
+cTxt += SPACE(1)
+cTxt += PADR( "broj dok.", 20)
+cTxt += SPACE(1)
+cTxt += PADR( "roba", 50)
+cTxt += SPACE(1)
+cTxt += PADR("st.", 4 )
+cTxt += SPACE(1)
+cTxt += PADR( "partner", 50 )
+cTxt += SPACE(1)
+cTxt += PADR( "kol.roba", 12 )
+cTxt += SPACE(1)
+cTxt += PADR( "kol.sast", 12 )
+
+endif
+
+P_COND2
 
 ? cLine
 ? cTxt
@@ -551,31 +694,68 @@ return
 // ----------------------------------------
 // vraca liniju
 // ----------------------------------------
-static function g_line()
+static function g_line( nVar )
 local cTxt := ""
 
-cTxt += REPLICATE( "-", 5)
-cTxt += SPACE(1)
-cTxt += REPLICATE("-", 30 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
-cTxt += SPACE(1)
-cTxt += REPLICATE( "-", 12 )
+if nVar == 1
+
+  cTxt += REPLICATE( "-", 5)
+  cTxt += SPACE(1)
+  cTxt += REPLICATE("-", 30 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1) 
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 ) 
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+
+else
+
+  cTxt += REPLICATE( "-", 5)
+  cTxt += SPACE(1)
+  cTxt += REPLICATE("-", 20 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE("-", 50 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 4 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 50 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+  cTxt += SPACE(1)
+  cTxt += REPLICATE( "-", 12 )
+
+endif
 
 return cTxt
 
+
+// -----------------------------------------
+// roba naziv - vraca
+// -----------------------------------------
+static function p_naz( id )
+local nTArea := SELECT()
+local cRet := "nepostojeca sifra"
+select partn
+go top
+seek id
+
+if FOUND()
+	cRet := ALLTRIM( field->naz )
+endif
+
+select (nTArea)
+return cRet
 
 
 
@@ -584,12 +764,14 @@ return cTxt
 // -----------------------------------------
 static function r_naz( id )
 local nTArea := SELECT()
-local cRet := ""
+local cRet := "nepostojeca sifra"
 select roba
 go top
 seek id
 
-cRet := ALLTRIM( field->naz )
+if FOUND()
+	cRet := ALLTRIM( field->naz )
+endif
 
 select (nTArea)
 return cRet

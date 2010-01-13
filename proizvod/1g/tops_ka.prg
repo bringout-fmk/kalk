@@ -4,7 +4,7 @@
 
 // prenos tops->kalk 96 po normativima
 function tops_nor_96( cIdFirma, cIdTipDok, cIdZaduz2, cIdKonto2, cIdKonto, ;
-	dDatKalk, dD_from, dD_to, cArtfilter, cTopsKonto, cSezSif )
+	dDatKalk, dD_from, dD_to, cArtfilter, cTopsKonto, cSezSif, cSirovina )
 
 local lTest := .f.
 local cTSifPath
@@ -19,6 +19,7 @@ if pcount() == 0
 	cIdkonto2:=PADR("1310",7)
 	cIdKonto:=PADR("",7)
 	dDatKalk:=DATE()
+	cSirovina := ""
 else
 	lTest := .t.
 endif
@@ -84,7 +85,7 @@ endif
 
 if lTest == .f.
 
-Box(,10,60)
+  Box(,10,60)
 	if gBrojac=="D"
 		cBrKalk:=UBrojDok(VAL(LEFT(cBrKalk,5))+1,5,right(cBrKalk,3))
 	endif
@@ -106,11 +107,11 @@ Box(,10,60)
 	@ m_x+9,m_Y+2  SAY "Vrsta dokumenta kase     :" GET cIdTipDok
   	@ m_x+10,m_Y+2 SAY "Sifre artikala pocinju sa:" GET cArtFilter
   	read
-BoxC()
+  BoxC()
 
-if LastKey()==K_ESC
+  if LastKey()==K_ESC
 	return
-endif
+  endif
 
 endif
 

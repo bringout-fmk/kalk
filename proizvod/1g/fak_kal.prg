@@ -32,7 +32,7 @@ return
 // prenos po normativima za period
 // -------------------------------------------------------
 function PrenosNo( dD_from, dD_to, cIdKonto2, cIdTipDok, dDatKalk, cRobaUsl, ;
-	cRobaIncl, cSezona )
+	cRobaIncl, cSezona, cSirovina )
 
 local lTest := .f.
 local cBrDok := SPACE(8)
@@ -48,12 +48,17 @@ if pcount() == 0
 	dDatKalk := date()
 	cIdKonto2 := padr("1310",7)
 	cSezona := ""
+	cSirovina := ""
 else
 	lTest := .t.
 endif
 
+
 o_tbl_roba( lTest, cSezona )
 o_tables()
+if !EMPTY( cSirovina )
+	O_R_EXP
+endif
 
 if gBrojac=="D" .and. lTest == .f.
  select kalk
@@ -151,7 +156,6 @@ do while .t.
 		
 		select doks
 		
-		
 		nScan := ASCAN(aNotIncl, {|xVar| xVar[1] == cTmp })
 		
 		if nScan == 0
@@ -188,19 +192,35 @@ do while .t.
        
        endif
        
-       if roba->tip="P"  
-       	  // radi se o proizvodu
+       if roba->tip = "P"  
+       	  
+	  // radi se o proizvodu
 
           select sast
           hseek  xfakt->idroba
-          do while !eof() .and. id==xFakt->idroba // setaj kroz sast
-            select roba; hseek sast->id2
-            select pripr
-            locate for idroba==sast->id2
-            if found()
+          
+	  do while !eof() .and. id==xFakt->idroba // setaj kroz sast
+            
+	    if !EMPTY( cSirovina )
+	    	if cSirovina <> sast->id2
+			skip
+			loop
+		endif
+	    endif
+	    
+	    select roba
+	    hseek sast->id2
+            
+	    select pripr
+	    locate for idroba==sast->id2
+            
+	    if found()
+
               replace kolicina with kolicina + xfakt->kolicina*sast->kolicina
-            else
-              select pripr
+            
+	    else
+              
+	      select pripr
               append blank
               replace idfirma with cIdFirma,;
                       rbr     with str(++nRbr,3),;
@@ -220,10 +240,34 @@ do while .t.
                        vpc with xfakt->cijena,;
                        rabatv with xfakt->rabat,;
                        mpc with xfakt->porez
-            endif
-            select sast
+            
+	 
+	    endif
+            
+	    if !EMPTY( cSirovina )
+	
+		   altd()
+		   select r_export
+		   append blank
+			   
+		   replace field->idsast with cSirovina
+		   replace field->idroba with xfakt->idroba
+		   replace field->r_naz with ""
+		   replace field->idpartner with xfakt->idpartner
+		   replace field->rbr with xfakt->rbr
+		   replace field->brdok with xfakt->idtipdok + ;
+			   	"-" + xfakt->brdok
+		   replace field->kolicina with xfakt->kolicina
+		   replace field->kol_sast with ;
+			   	xfakt->kolicina * sast->kolicina
+
+	
+	    endif
+
+	    select sast
             skip
-          enddo
+          
+	  enddo
 
        endif // roba->tip == "P"
     endif  // $ cidtipdok

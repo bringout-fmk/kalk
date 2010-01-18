@@ -402,13 +402,15 @@ local GetList := {}
 local cTopsSif := PADR("c:\tops\sif1\",100)
 local cPrenos := "N"
 local cPrepisi := "N"
+local cSinCjen := "D"
 local cTopsRoba
 
-Box(, 5, 70)
+Box(, 7, 70)
 	@ m_x + 1, m_y + 2 SAY "**** prenos sifrarnika iz tops-a"
 	@ m_x + 3, m_y + 2 SAY "lokacija sifrarnika tops-a" GET cTopsSif PICT "@S30" VALID !EMPTY(cTopsSif)
  	@ m_x + 4, m_y + 2 SAY "prepisi istu robu iz tops-a (D/N)?" GET cPrepisi VALID cPrepisi $ "DN" PICT "@!"
- 	@ m_x + 5, m_y + 2 SAY "izvrsiti prenos (D/N)?" GET cPrenos VALID cPrenos $ "DN" PICT "@!"
+ 	@ m_x + 5, m_y + 2 SAY "samo sinhroniziraj cijene (D/N)?" GET cSinCjen VALID cSinCjen $ "DN" PICT "@!"
+	@ m_x + 7, m_y + 2 SAY "izvrsiti prenos (D/N)?" GET cPrenos VALID cPrenos $ "DN" PICT "@!"
 	
 	read
 BoxC()
@@ -440,27 +442,42 @@ do while !EOF()
 	select roba
 	hseek cTopsRoba
 
-	if !Found() .and. roba->id <> cTopsRoba
+	if cSinCjen == "N"
+	  if !Found() .and. roba->id <> cTopsRoba
 		
 		append blank
 		replace field->id with troba->id	
 	
-	elseif Found() .and. roba->id == cTopsRoba .and. cPrepisi == "N"
+	  elseif Found() .and. roba->id == cTopsRoba .and. ;
+		cPrepisi == "N"
 		
 		select troba
 		skip
 		loop
 
+	  endif
 	endif
 	
-	replace field->id with troba->id
-	replace field->naz with troba->naz
-	replace field->mpc with troba->cijena1
-	replace field->mpc2 with troba->cijena2
-	replace field->idtarifa with troba->idtarifa
-	replace field->barkod with troba->barkod
-	replace field->jmj with troba->jmj
+	// sinhronizacija cijena - samo
+	if cSinCjen == "D"
+	 
+	  if FOUND()
+	    replace field->mpc with troba->cijena1
+	    replace field->mpc2 with troba->cijena2
+	  endif
+	 
+	else
+
+	  replace field->id with troba->id
+	  replace field->naz with troba->naz
+	  replace field->mpc with troba->cijena1
+	  replace field->mpc2 with troba->cijena2
+	  replace field->idtarifa with troba->idtarifa
+	  replace field->barkod with troba->barkod
+	  replace field->jmj with troba->jmj
 	
+	endif
+
 	++ nCnt
 
 	select troba
@@ -468,7 +485,7 @@ do while !EOF()
 enddo
 
 if nCnt > 0
-	msgbeep("Dodato " + ALLTRIM(STR(nCnt)) + " sifri !")
+	msgbeep("Izmjenjeno " + ALLTRIM(STR(nCnt)) + " sifri !")
 endif
 
 select troba

@@ -22,6 +22,7 @@ local cProdKto
 local cArtfilter
 local cSezona
 local cSirovina
+local cTDokList
 local nVar := 1
 
 private nRslt := 0
@@ -33,7 +34,7 @@ O_SIFV
 
 // uslovi izvjestaja
 if g_vars( @dD_from, @dD_to, @cIdFirma, @cIdKonto, @cProdKto, ;
-	@cArtfilter, @cSezona, @cSirovina ) == 0
+	@cArtfilter, @cTDokList, @cSezona, @cSirovina ) == 0
 	return
 endif
 
@@ -46,6 +47,7 @@ endif
 cre_r_tbl( nVar )
 
 O_PARTN
+O_PRIPR
 O_KALK
 O_DOKS
 O_ROBA
@@ -56,10 +58,17 @@ if nVar == 1
 	// daj kalk tekuci promet
 	_g_kalk_tp( cIdFirma, cIdKonto, dD_from, dD_to )
 
+	msgo("uzimam iz pripreme stanje i dodajem ga u export")
+	
+	// uzmi iz pripreme ako postoji nesto generisano
+	_pr_2_exp( nVar )
+	
+	msgc()
+
 endif
 
 // razduzi FAKT promet po sastavnicama
-_g_fakt_pr( cIdKonto, dD_From, dD_to, cSezona, nVar, cSirovina )
+_g_fakt_pr( cIdKonto, dD_From, dD_to, cTDokList, cSezona, nVar, cSirovina )
 
 if nVar == 1
 	// razduzi POS promet po sastavnicama
@@ -151,7 +160,7 @@ return
 // uslovi reporta
 // --------------------------------------------------------------
 static function g_vars( dD_from, dD_to, cIdFirma, cIdKonto, cProdKto, ;
-	cArtfilter, cSezona, cSirovina )
+	cArtfilter, cTDokList, cSezona, cSirovina )
 local nX := 1
 local nRet := 1
 
@@ -159,12 +168,13 @@ dD_from := CTOD( "01.01.09")
 dD_to := CTOD( "31.12.09")
 cIdFirma := gFirma
 cIdKonto := PADR("1010;", 150)
+cTDokList := PADR("10;11;12;", 20)
 cArtfilter := PADR("2;3;",100)
 cProdKto := PADR( "1320", 7 )
 cSezona := "RADP"
 cSirovina := SPACE(10)
 
-Box(,8, 65 )
+Box(,10, 65 )
 
 	@ m_x + nX, m_y + 2 SAY "Datum od" GET dD_from
 	@ m_x + nX, col()+1 SAY "do" GET dD_to
@@ -183,6 +193,12 @@ Box(,8, 65 )
 
 	@ m_x + nX, m_y + 2 SAY "Mag. konta:" GET cIdKonto PICT "@S40"
 	
+	++ nX
+	++ nX
+
+	@ m_x + nX, m_y + 2 SAY "(fakt) lista dokumenata:" GET cTDokList ;
+		PICT "@S20"
+
 	++ nX
 	++ nX
 
@@ -351,10 +367,9 @@ return
 // -------------------------------------------------------------
 // uzmi promet fakt-a za godinu dana... po sastavnicama
 // -------------------------------------------------------------
-static function _g_fakt_pr( cIdKonto, dD_From, dD_to, cSezona, ;
+static function _g_fakt_pr( cIdKonto, dD_From, dD_to, cTDokList, cSezona, ;
 	nVar, cSirovina )
 local nTArea := SELECT()
-local cIdTipDok := PADR("10;11;12;", 20)
 local cKto := STRTRAN( cIdKonto, ";", "" )
 local cRobaUsl := ""
 local cRobaIncl := "I"
@@ -364,7 +379,7 @@ cKto := PADR( ALLTRIM( cKto ), 7 )
 msgo("generisem pomocnu datoteku razduzenja FAKT....")
 
 // prenesi fakt->kalk
-prenosNo( dD_from, dD_to, cKto, cIdTipDok, dD_to, cRobaUsl, ;
+prenosNo( dD_from, dD_to, cKto, cTDokList, dD_to, cRobaUsl, ;
 	cRobaIncl, cSezona, cSirovina )
 
 msgc()
@@ -399,6 +414,7 @@ select (nTArea)
 return
 
 
+
 static function _pr_2_exp( nVar )
 
 if nVar == 2
@@ -421,7 +437,6 @@ o_rxp( nVar )
 select r_export
 set order to tag "1"
 
-msgo("filujem tabelu izvjestaja sa TOPS podacima...")
 // dobit ces punu pripremu
 select pripr
 go top

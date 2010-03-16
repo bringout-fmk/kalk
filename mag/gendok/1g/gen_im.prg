@@ -3,6 +3,7 @@
 
 // generisanje dokumenta tipa IM
 function IM()
+local cNule := "N"
 
 lOsvjezi := .f.
 O_PRIPR
@@ -36,6 +37,7 @@ ELSE
 	cArtikli:=SPACE(30)
 	cPosition:="2"
 	cCijenaTIP:="1"
+	cNule := "D"
  	@ m_x+1,m_Y+2 SAY "Magacin:" GET  cIdKonto valid P_Konto(@cIdKonto)
  	@ m_x+2,m_Y+2 SAY "Datum:  " GET  dDatDok
  	@ m_x+3,m_Y+2 SAY "Uslov po grupaciji robe" 
@@ -44,6 +46,8 @@ ELSE
  	@ m_x+6,m_Y+2 SAY "Cijene (1-VPC, 2-NC) :" GET cCijenaTIP VALID cCijenaTIP$"12"
  	@ m_x+7,m_y+2 SAY "sortirati po sifri dobavljaca :" GET cSRSort ;
 		VALID cSRSort $ "DN" PICT "@!"
+	@ m_x+8,m_y+2 SAY "generisati stavke sa stanjem 0 (D/N)" GET cNule ;
+		PICT "@!" VALID cNule $ "DN"
 	read
  	ESC_BCR
  	BoxC()
@@ -105,7 +109,8 @@ do while !EOF() .and. cIdFirma+cIdKonto==field->idfirma+field->mkonto
 		skip
 	enddo
 
-	if (ROUND(nUlaz-nIzlaz,4)<>0) .or. (ROUND(nVpvU-nVpvI,4)<>0)
+	if cNule == "D" .or. ;
+		((ROUND(nUlaz-nIzlaz,4)<>0) .or. (ROUND(nVpvU-nVpvI,4)<>0))
 		
 		SELECT roba
 		HSEEK cIdroba

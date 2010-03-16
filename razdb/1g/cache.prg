@@ -15,6 +15,8 @@ AADD( aFld, { "stanje", "N", 18, 8 } )
 AADD( aFld, { "nvu", "N", 18, 8 } )
 AADD( aFld, { "nvi", "N", 18, 8 } )
 AADD( aFld, { "nv", "N", 18, 8 } )
+AADD( aFld, { "z_nv", "N", 18, 8 } )
+AADD( aFld, { "odst", "N", 18, 8 } )
 
 if !if_cache()
 	DBCreate2( cTbl, aFld )
@@ -46,7 +48,7 @@ function knab_cache( cC_Kto, cC_Roba, nC_Ulaz, nC_Izlaz, ;
 	nC_Stanje, nC_NVU, nC_NVI, nC_NV )
 
 local nTArea := SELECT()
-
+local nZC_nv := 0
 
 if !if_cache() .or. gCache == "N"
 	return 0
@@ -76,6 +78,15 @@ if FOUND() .and. ( cC_kto == field->idkonto .and. cC_roba == field->idroba )
 	nC_NVU := field->nvu
 	nC_NVI := field->nvi
 	nC_Nv := field->nv
+	nZC_nv := field->z_nv
+endif
+
+if gNC_ctrl > 0
+	if ( ( nC_Nv / nZC_nv ) * 100 ) > gNC_ctrl
+		// radi se o kontrolnoj tacki
+		a_nc_ctrl(@aNC_ctrl, field->idroba, field->stanje, ;
+			field->nv, field->z_nv )
+	endif
 endif
 
 select (nTArea)
@@ -150,8 +161,8 @@ local i
 local nKol_poz := 0
 local nUVr_poz, nIVr_poz
 local nUKol_poz, nIKol_poz
-
-
+local nZadnjaNC := 0
+local nOdstup := 0
 
 if _g_kto( @cMKtoLst, @cPKtoLst, @dDatGen ) == 0
 	return
@@ -205,6 +216,9 @@ for i := 1 to LEN( aKto )
   	// ulazna kolicina
 
 	nKol_poz := 0
+	nZadnjaNC := 0
+	nOdstup := 0
+
 	@ m_x + 1, m_y + 20 SAY cIdRoba
 
 	do while !EOF() .and. ((cIdFirma+cIdKonto+cIdRoba) == (idFirma+mkonto+idroba)) 
@@ -229,7 +243,12 @@ for i := 1 to LEN( aKto )
 			nKolicina += nKolNeto    
          		nUlKol += nKolNeto    
          		nUlNV += ( nKolNeto * field->nc )      
-    		  
+    			
+			// zadnja nabavna cijena ulaza
+			if idvd == "10"
+				nZadnjaNC := field->nc
+			endif
+		  
 		  else
          		
 			nKolicina -= nKolNeto
@@ -279,9 +298,19 @@ for i := 1 to LEN( aKto )
 	 replace nvu with nUVr_poz
 	 replace nvi with nIVr_poz
 	 replace nv with nSnc
-        
+	 replace z_nv with nZadnjaNC
+	 
+	 if nSNC <> 0 .and. nZadnjaNC <> 0
+	 	
+		nTmp := ( ROUND(nSNC, 4) - ROUND(nZadnjaNC,4) )
+		nOdst := ( nTmp / ROUND( nZadnjaNC, 4 ) ) * 100
+		
+		replace odst with ROUND( nOdst, 2 )
+         else
+	 	replace odst with 0
+	 endif
+	
 	endif
-
 
 	select kalk
 
@@ -379,6 +408,7 @@ for i := 1 to LEN( aKto )
 	 replace nvu with nUlNv
 	 replace nvi with nIzlNv
 	 replace nv with nSnc
+	 replace z_nv with 0
 	
 	endif
 
@@ -405,7 +435,9 @@ set order to tag "1"
 ImeKol:={{ "Konto", {|| IdKonto }, "IdKonto" } ,;
           { "Roba", {|| IdRoba }, "IdRoba" } ,;
           { "Stanje", {|| Stanje }, "Stanje" } ,;
-          { "NC", {|| NV }, "Nab.cijena" }}
+          { "NC", {|| NV }, "Nab.cijena" }, ;
+	  { "Z_NC", {|| Z_NV}, "Zadnja NC" }, ;
+	  { "odst", {|| ODST}, "Odstupanje" } }
 
 Kol:={}
 

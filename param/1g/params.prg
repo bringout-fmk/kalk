@@ -212,7 +212,7 @@ return nil
 function SetRazno()
 private  GetList:={}
 
-Box(,13,75,.f.,"RAZNO")
+Box(,14,75,.f.,"RAZNO")
  @ m_x+1,m_y+2 SAY "Brojac kalkulacija D/N         " GET gBrojac pict "@!" valid gbrojac $ "DN"
  @ m_x+1,col()+2 SAY "duzina brojaca:" GET gLenBrKalk pict "9" VALID gLenBrKalk > 0 .and. gLenBrKalk < 10
  @ m_x+2,m_y+2 SAY "Potpis na kraju naloga D/N     " GET gPotpis valid gPotpis $ "DN"
@@ -227,8 +227,11 @@ Box(,13,75,.f.,"RAZNO")
  @ m_x+11,m_y+2 SAY "Timeout kod azuriranja dokumenta (sec.)" GET gAzurTimeout PICT "99999"
  @ m_x+12,m_y+2 SAY "Timeout kod azuriranja fin.naloga (sec.)" GET gAzurFinTO PICT "99999"
  @ m_x+13,m_y+2 SAY "Auto obrada dokumenata iz cache tabele (D/N)" GET gCache VALID gCache $ "DN" PICT "@!"
-	
 
+@ m_x+14,m_y+2 SAY "Kontrola odstupanja NC:" GET gNC_ctrl PICT "999.99"
+@ m_x+14, col() SAY "%" 
+
+	
 read
 BoxC()
 
@@ -243,8 +246,8 @@ if lastkey()<>K_ESC
   WPar("f1",gFunKon1)
   WPar("f2",gFunKon2)
   WPar("aK",gAzurTimeout)
-  WPar("aK",gAzurTimeout)
   WPar("aQ",gCache)
+  WPar("aR",gNC_ctrl)
   WPar("aY",gnLOst)
   WPar("bK",gLenBrKalk)
 endif

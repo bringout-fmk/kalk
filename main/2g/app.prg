@@ -346,6 +346,10 @@ public gAzurFinTO := 150
 
 // auto obrada iz cache tabele
 public gCache := "N"
+// kontrola odstupanja nab.cijene
+public gNC_ctrl := 0
+// matrica koja sluzi u svrhu kontrole NC
+public aNC_ctrl := {}
 // limit za otvorene stavke
 public gnLOst := -99
 
@@ -451,6 +455,7 @@ RPar("f2",@gFunKon2)
 RPar("aK",@gAzurTimeout)
 RPar("aF",@gAzurFinTO)
 RPar("aQ",@gCache)
+RPar("aR",@gNC_ctrl)
 RPar("aY",@gnLOst)
 RPar("bK",@gLenBrKalk)
 

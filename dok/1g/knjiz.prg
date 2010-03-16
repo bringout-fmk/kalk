@@ -451,7 +451,9 @@ return DE_CONT
 
 function NovaStavka()
 *{
-        Box("knjn",21,77,.f.,"Unos novih stavki")
+	// isprazni kontrolnu matricu
+        aNC_ctrl := {}
+	Box("knjn",21,77,.f.,"Unos novih stavki")
         _TMarza:="A"
         // ipak idi na zadnju stavku !
         go bottom

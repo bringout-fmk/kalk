@@ -23,6 +23,7 @@ local nIzlKol
 local nUlNV
 local nUlKol
 local nSkiniKol
+local nZadnjaUNC
 
 nKolicina:=0
 
@@ -59,6 +60,7 @@ nUlNV:=0
 
 // ulazna kolicina
 nUlKol:=0  
+nZadnjaUNC := 0
 
 //  ovo je prvi prolaz
 hseek cIdFirma+cIdKonto+cIdRoba
@@ -70,6 +72,11 @@ do while !eof() .and. cIdFirma+cIdKonto+cIdroba==idFirma+pkonto+idroba .and. _da
       nKolicina += abs(kolicina)       // rad metode prve i zadnje nc moramo
       nUlKol    += abs(kolicina)       // sve sto udje u magacin strpati pod
       nUlNV     += (abs(kolicina)*nc)  // ulaznom kolicinom
+
+      if idvd == "10"
+      	nZadnjaUNC := nc
+      endif
+
     else
       nKolicina -= abs(kolicina)
       nIzlKol   += abs(kolicina)
@@ -83,8 +90,6 @@ do while !eof() .and. cIdFirma+cIdKonto+cIdroba==idFirma+pkonto+idroba .and. _da
   skip
 
 enddo //  ovo je prvi prolaz
-
-
 
 // prva nabavka  se prva skida sa stanja
 if gMetodaNc=="3"
@@ -189,13 +194,30 @@ else
  nSNC:=(nUlNV-nIzlNV)/nKolicina
 endif
 
+// ako se koristi kontrola NC
+if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
+	
+	nTmp := ROUND( nSNC, 4 ) - ROUND( nZadnjaUNC, 4 )
+	nOdst := ( nTmp / ROUND( nZadnjaUNC, 4 )) * 100
+
+	if ABS(nOdst) > gNC_ctrl
+
+		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
+			ALLTRIM(STR(ABS(nOdst))) + " %")
+		
+		a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
+			nSNC, nZadnjaUNC )
+	endif
+endif
+
 nKolicina:=round(nKolicina,4)
 select pripr
 return
-*}
+
+
+
 
 function MarzaVP(cIdVd, lNaprijed)
-*{
 local SKol:=0
 
 
@@ -791,13 +813,13 @@ local nUlNV
 local nUlKol
 local nSkiniKol
 local nKolNeto
+local nZadnjaUNC
 
 
 // posljednje pozitivno stanje
 local nKol_poz := 0
 local nUVr_poz, nIVr_poz
 local nUKol_poz, nIKol_poz
-
 
 nKolicina := 0
 
@@ -817,18 +839,22 @@ seek cIdFirma + cIdKonto + cIdRoba+"X"
 
 skip -1
 if ((cIdFirma+cIdKonto+cIdRoba) == (idfirma+mkonto+idroba)) .and. _datdok<datdok
-  Beep(2)
-  Msg("Postoji dokument " + idfirma + "-" + idvd + "-" + brdok + " na datum: " + dtoc(datdok), 4)
-  _ERROR:="1"
+	Beep(2)
+  	Msg("Postoji dokument " + idfirma + "-" + idvd + "-" + brdok + " na datum: " + dtoc(datdok), 4)
+  	_ERROR:="1"
 endif
 
 nLen:=1
 
 nKolicina := 0
-nIzlNV := 0   // ukupna izlazna nabavna vrijednost
+nIzlNV := 0   
+// ukupna izlazna nabavna vrijednost
 nUlNV := 0
-nIzlKol := 0  // ukupna izlazna kolicina
-nUlKol := 0  // ulazna kolicina
+nIzlKol := 0  
+// ukupna izlazna kolicina
+nUlKol := 0  
+// ulazna kolicina
+nZadnjaUNC := 0
 
 
 //  ovo je prvi prolaz
@@ -852,6 +878,11 @@ do while !eof() .and. ((cIdFirma+cIdKonto+cIdRoba)==(idFirma+mkonto+idroba)) .an
          nKolicina += nKolNeto
          nUlKol    += nKolNeto
          nUlNV     += (nKolNeto * nc)
+
+	 // zapamti uvijek zadnju ulaznu NC
+	 if idvd == "10"
+	 	nZadnjaUNC := nc
+	 endif
 
     else
 
@@ -951,26 +982,163 @@ if gMetodaNc=="1"
   endif
 endif
 
-
-
 // utvrdi srednju nabavnu cijenu na osnovu posljednjeg pozitivnog stanja
 if round(nKol_poz, 8) == 0
- nSNc:=0
+	nSNc:=0
 else
- // srednja nabavna cijena
- nSNc:=(nUVr_poz - nIVr_poz) / nKol_poz
+ 	// srednja nabavna cijena
+ 	nSNc:=(nUVr_poz - nIVr_poz) / nKol_poz
 endif
+
+// ako se koristi kontrola NC
+if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
+	
+	nTmp := ROUND( nSNC, 4 ) - ROUND( nZadnjaUNC, 4 )
+	nOdst := ( nTmp / ROUND( nZadnjaUNC, 4 )) * 100
+
+	if ABS(nOdst) > gNC_ctrl
+
+		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
+			ALLTRIM(STR(ABS(nOdst))) + " %")
+		
+		a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
+			nSNC, nZadnjaUNC )
+	endif
+endif
+
 
 // daj posljednje stanje kakvo i jeste 
 nKolicina := round(nKolicina, 4)
+
 select pripr
 
 return
 
 
+// ---------------------------------------------------------
+// dodaj u matricu robu koja je problematicna
+// ---------------------------------------------------------
+function a_nc_ctrl( aCtrl, cIdRoba, nKol, nSnc, nZadnjaNC )
+local nScan := 0
+local nOdst := 0
+
+if nSNC <> 0 .and. nZadnjaNC <> 0
+	nTmp := ROUND( nSNC, 4 ) - ROUND( nZadnjaNC, 4 )
+	nOdst := ( nTmp / ROUND( nZadnjaNC, 4 )) * 100
+endif
+
+nScan := ASCAN( aCtrl, {|xVal| xVal[1] == cIdRoba } )
+
+if nScan = 0
+	// dodaj novi zapis
+	AADD( aCtrl, { cIdRoba, nKol, nSNC, nZadnjaNC, nOdst } )
+else
+	// ispravi tekuce zapise
+	aCtrl[ nScan, 2 ] := nKol
+	aCtrl[ nScan, 3 ] := nSNC
+	aCtrl[ nScan, 4 ] := nZadnjaNC
+	aCtrl[ nScan, 5 ] := nOdst
+
+endif
+
+return
+
+// ------------------------------------------------
+// popup kod nabavne cijene
+// ------------------------------------------------
+function p_nc_popup( cIdRoba )
+local nScan
+
+nScan := ASCAN( aNC_ctrl, {|xVal| xVal[1] == cIdRoba } )
+
+if nScan <> 0
+	
+	// daj mi odstupanje !
+	nOdstupanje := ROUND( aNC_ctrl[ nScan, 5 ], 2 )
+	msgbeep( "Odstupanje u odnosu na zadnji ulaz je#" + ;
+		ALLTRIM(STR(nOdstupanje)) + " %" )
+
+endif
+
+return
+
+
+// ------------------------------------------------
+// stampanje stanja iz kontrolne tabele
+// ------------------------------------------------
+function p_nc_ctrl( aCtrl )
+local nTArea := SELECT()
+local i
+local cLine := ""
+local cTxt := ""
+local nCnt := 0
+
+if LEN( aCtrl ) = 0
+	return
+endif
+
+START PRINT CRET
+
+?
+? "Kontrola odstupanja nabavne cijene"
+? "- kontrolna tacka = " + ALLTRIM(STR(gNC_ctrl)) + "%"
+? 
+
+cLine += REPLICATE("-", 5)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 10)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+
+cTxt += PADR("r.br", 5)
+cTxt += SPACE(1)
+cTxt += PADR("artikal", 10)
+cTxt += SPACE(1)
+cTxt += PADR("kolicina", 12)
+cTxt += SPACE(1)
+cTxt += PADR("zadnja NC", 12)
+cTxt += SPACE(1)
+cTxt += PADR("nova NC", 12)
+cTxt += SPACE(1)
+cTxt += PADR("odstupanje", 12)
+
+? cLine
+? cTxt
+? cLine
+
+for i:=1 to LEN( aCtrl )
+
+	// rbr
+	? PADL( ALLTRIM( STR( ++nCnt ) ), 4 ) + "."
+	// idroba
+	@ prow(), pcol() + 1 SAY aCtrl[i, 1 ]
+	// kolicina
+	@ prow(), pcol() + 1 SAY aCtrl[i, 2 ]
+	// zadnja nc
+	@ prow(), pcol() + 1 SAY aCtrl[i, 4 ]
+	// nova nc
+	@ prow(), pcol() + 1 SAY aCtrl[i, 3 ]
+	// odstupanje
+	@ prow(), pcol() + 1 SAY aCtrl[i, 5 ] PICT "9999%"
+
+next
+
+FF
+END PRINT
+
+select (nTArea)
+return
+
+
+
 
 function IsMagPNab()
-*{
 
 if (IsPDV() .and. gPDVMagNab == "D") 
 	return .t.

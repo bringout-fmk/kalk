@@ -207,6 +207,17 @@ if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
 		
 		a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
 			nSNC, nZadnjaUNC )
+		
+		if Pitanje(,"Napraviti korekciju NC (D/N)?", "N") == "D"
+			
+			nTmp_n_stanje := ( nKolicina - _kolicina )
+			nTmp_n_nv := ( nTmp_n_stanje * nZadnjaUNC )
+			nTmp_s_nv := ( nKolicina * nSNC )
+			
+			nSNC := ( ( nTmp_s_nv - nTmp_n_nv ) / _kolicina ) 
+
+		endif
+
 	endif
 endif
 
@@ -998,11 +1009,21 @@ if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
 
 	if ABS(nOdst) > gNC_ctrl
 
-		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
+		msgbeep("Odstupanje NC u odnosu na zadnji ulaz je#" + ;
 			ALLTRIM(STR(ABS(nOdst))) + " %")
 		
 		a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
 			nSNC, nZadnjaUNC )
+
+		if Pitanje(,"Napraviti korekciju NC (D/N)?", "N") == "D"
+			
+			nTmp_n_stanje := ( nKolicina - _kolicina )
+			nTmp_n_nv := ( nTmp_n_stanje * nZadnjaUNC )
+			nTmp_s_nv := ( nKolicina * nSNC )
+			
+			nSNC := ( ( nTmp_s_nv - nTmp_n_nv ) / _kolicina ) 
+
+		endif
 	endif
 endif
 

@@ -88,9 +88,10 @@ return
  *  \brief Import dokumenta
  */
 function ImpTxtDok()
-*{
+local cCtrl_art := "N"
 private cExpPath
 private cImpFile
+
 
 CrePripTDbf()
 
@@ -99,6 +100,11 @@ GetExpPath(@cExpPath)
 
 // daj mi filter za import MP ili VP
 cFFilt := GetImpFilter()
+
+if gNC_ctrl > 0 .and. Pitanje(,"Ispusti artikle sa problematicnom nc (D/N)", ;
+	"N" ) == "D"
+	cCtrl_art := "D"
+endif
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
 if GetFList(cFFilt, cExpPath, @cImpFile) == 0
@@ -141,7 +147,7 @@ if Pitanje(,"Prebaciti prvo negatine dokumente (povrate) ?", "D") == "D"
 	lNegative := .t.
 endif
 
-if TTbl2Kalk(aFaktEx, lFtSkip, lNegative) == 0
+if TTbl2Kalk( aFaktEx, lFtSkip, lNegative, cCtrl_art ) == 0
 	MsgBeep("Operacija prekinuta!")
 	return 
 endif
@@ -1155,8 +1161,10 @@ return aRet
  *  \param aFExist matrica sa postojecim fakturama
  *  \param lFSkip preskaci postojece fakture
  *  \param lNegative - prvo prebaci negativne fakture
+ *  \param cCtrl_art - preskoci sporne artikle NC u hendeku ! na osnovu CACHE
+ *         tabele
  */
-static function TTbl2Kalk(aFExist, lFSkip, lNegative)
+static function TTbl2Kalk(aFExist, lFSkip, lNegative, cCtrl_art )
 *{
 local cBrojKalk
 local cTipDok
@@ -1200,6 +1208,40 @@ do while !EOF()
 	cPm := temp->idpm
 	cIdPJ := temp->idpj
 	
+	// pregledaj CACHE, da li treba preskociti ovaj artikal
+	if cCtrl_art == "D"
+
+		cTmp_kto := GetKtKalk( cTDok, temp->idpm, "R", cIdPJ )
+
+		select roba
+		set order to tag "ID_VSD"
+		
+		cTmp_dob := PADL( ALLTRIM(temp->idroba), 5, "0" )
+		
+		go top
+		seek cTmp_dob
+		
+		cTmp_roba := field->id
+
+		O_CACHE
+		select cache
+		go top
+		seek cTmp_kto + cTmp_roba
+		
+		if FOUND() .and. gNC_ctrl > 0 .and. ( field->odst > gNC_ctrl )
+			
+			// ovaj preskacem !
+			// i idem dalje
+			
+			select temp
+			skip
+			loop
+
+		endif
+
+		select temp
+	endif
+
 	// ako je ukljucena opcija preskakanja postojecih faktura
 	if lFSkip
 		// ako postoji ista u matrici
@@ -1241,6 +1283,7 @@ do while !EOF()
 	cTmpArt := PADL( ALLTRIM(temp->idroba), 5, "0" )
 	go top
 	seek cTmpArt
+
 
 	// ovo dodaje datum valute itd...
 	// bitno kod kontiranja kalk->fin

@@ -1165,12 +1165,12 @@ return aRet
  *         tabele
  */
 static function TTbl2Kalk(aFExist, lFSkip, lNegative, cCtrl_art )
-*{
 local cBrojKalk
 local cTipDok
 local cIdKonto
 local cIdKonto2
 local cIdPJ
+local aArr_ctrl := {}
 
 O_PRIPR
 O_DOKS
@@ -1207,7 +1207,7 @@ do while !EOF()
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	cPm := temp->idpm
 	cIdPJ := temp->idpj
-	
+
 	// pregledaj CACHE, da li treba preskociti ovaj artikal
 	if cCtrl_art == "D"
 
@@ -1225,18 +1225,42 @@ do while !EOF()
 
 		O_CACHE
 		select cache
+		set order to tag "1"
 		go top
-		seek cTmp_kto + cTmp_roba
+		seek PADR( cTmp_kto, 7 ) + PADR( cTmp_roba, 10 )
 		
 		if FOUND() .and. gNC_ctrl > 0 .and. ( field->odst > gNC_ctrl )
-			
-			// ovaj preskacem !
-			// i idem dalje
-			
-			select temp
-			skip
-			loop
+			// dodaj sporne u kontrolnu matricu 
 
+			nT_scan := ASCAN( aArr_ctrl, ;
+				{|xVal| xVal[1] + PADR( xVal[2], 10 ) == ;
+					cTDok + PADR( ALLTRIM( cFakt ), 10 ) } )
+			
+			if nT_scan = 0
+				AADD( aArr_ctrl, { cTDok, ;
+					PADR( ALLTRIM(cFakt), 10 ) } )
+			endif
+
+			select temp
+			lFakt_skip := .f.
+
+			// preskoci sve ovo sto je vezano za ovaj dokument
+			do while !EOF()
+				if ALLTRIM( field->brdok ) == cFakt
+					lFakt_skip := .t.
+					skip
+					loop
+				else
+					exit
+				endif
+			enddo
+
+			// vrati se na pocetak gornje petlje
+			if lFakt_skip == .t.
+				select temp
+				loop
+			endif
+			
 		endif
 
 		select temp
@@ -1264,7 +1288,7 @@ do while !EOF()
 		++ nUvecaj
 		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
 		nRbr := 0
-		AADD(aPom, {cTDok, cBrojKalk})
+		AADD(aPom, { cTDok, cBrojKalk, cFakt })
 	else
 		// ako su diskontna zaduzenja razgranici ih putem polja prodajno mjesto
 		if cTDok == "11"
@@ -1272,7 +1296,7 @@ do while !EOF()
 				++ nUvecaj
 				cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
 				nRbr := 0
-				AADD(aPom, {cTDok, cBrojKalk})
+				AADD(aPom, { cTDok, cBrojKalk, cFakt })
 			endif
 		endif
 	endif
@@ -1368,11 +1392,28 @@ if nCnt > 0
 	? "========================================"
 	? "Generisani sljedeci dokumenti:          "
 	? "========================================"
-	? "Tip dok * Broj dokumenta * "
-	? "-------------------------"
+	? "Dokument     * Sporna NC"
+	? "----------------------------------------"
 	
 	for i:=1 to LEN(aPom)
-		? aPom[i, 1] + " - " + aPom[i, 2]
+		
+		cT_tipdok := aPom[i, 1]
+		cT_brdok := aPom[i, 2]
+		cT_brfakt := aPom[i, 3]
+		cT_ctrl := ""
+
+		if cCtrl_art == "D" .and. LEN( aArr_ctrl ) > 0
+		      nT_scan := ASCAN( aArr_ctrl, ;
+				{|xVal| xVal[1] + PADR( xVal[2], 10 ) == ;
+					cT_tipdok + PADR( cT_brfakt, 10 ) } )
+		
+		      if nT_scan <> 0
+			cT_ctrl := " !!! ERROR !!!"
+		      endif
+		endif
+
+		? cT_tipdok + " - " + cT_brdok, cT_ctrl
+
 	next
 	
 	?
@@ -1381,8 +1422,26 @@ if nCnt > 0
 	END PRINT
 endif
 
+if cCtrl_art == "D" .and. LEN( aArr_ctrl ) > 0
+	
+	START PRINT CRET
+	
+	? 
+	? "Ispusteni dokumenti:"
+	? "------------------------------------"
+
+	for xy := 1 to LEN( aArr_ctrl )
+		? aArr_ctrl[xy, 1] + "-" + aArr_ctrl[xy, 2] 
+	next
+	
+	FF
+	END PRINT
+
+endif
+
+
 return 1
-*}
+
 
 
 /*! \fn GetKtKalk(cTipDok, cPm, cTip)

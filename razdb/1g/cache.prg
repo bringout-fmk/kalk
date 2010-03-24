@@ -245,7 +245,7 @@ for i := 1 to LEN( aKto )
          		nUlNV += ( nKolNeto * field->nc )      
     			
 			// zadnja nabavna cijena ulaza
-			if idvd == "10"
+			if idvd $ "10#16#96"
 				nZadnjaNC := field->nc
 			endif
 		  

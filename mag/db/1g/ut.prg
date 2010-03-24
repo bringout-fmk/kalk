@@ -73,7 +73,7 @@ do while !eof() .and. cIdFirma+cIdKonto+cIdroba==idFirma+pkonto+idroba .and. _da
       nUlKol    += abs(kolicina)       // sve sto udje u magacin strpati pod
       nUlNV     += (abs(kolicina)*nc)  // ulaznom kolicinom
 
-      if idvd == "10"
+      if idvd $ "10#16#96"
       	nZadnjaUNC := nc
       endif
 
@@ -891,7 +891,7 @@ do while !eof() .and. ((cIdFirma+cIdKonto+cIdRoba)==(idFirma+mkonto+idroba)) .an
          nUlNV     += (nKolNeto * nc)
 
 	 // zapamti uvijek zadnju ulaznu NC
-	 if idvd == "10"
+	 if idvd $ "10#16#96"
 	 	nZadnjaUNC := nc
 	 endif
 

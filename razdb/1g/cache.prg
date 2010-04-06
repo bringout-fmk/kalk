@@ -81,11 +81,40 @@ if FOUND() .and. ( cC_kto == field->idkonto .and. cC_roba == field->idroba )
 	nZC_nv := field->z_nv
 endif
 
-if gNC_ctrl > 0
-	if ( ( nC_Nv / nZC_nv ) * 100 ) > gNC_ctrl
-		// radi se o kontrolnoj tacki
-		a_nc_ctrl(@aNC_ctrl, field->idroba, field->stanje, ;
-			field->nv, field->z_nv )
+// ako se koristi kontrola NC
+if gNC_ctrl > 0 .and. nC_nv <> 0 .and. nZC_nv <> 0
+	
+	nTmp := ROUND( nC_nv, 4 ) - ROUND( nZC_nv, 4 )
+	nOdst := ( nTmp / ROUND( nZC_nv, 4 )) * 100
+
+	if ABS(nOdst) > gNC_ctrl
+		
+		Beep(4)
+ 		clear typeahead
+
+		msgbeep("Odstupanje NC u odnosu na zadnji ulaz je#" + ;
+			ALLTRIM(STR(ABS(nOdst))) + " %")
+		
+		//a_nc_ctrl( @aNC_ctrl, field->idroba, field->stanje, ;
+		//	field->nv, field->z_nv )
+
+		if Pitanje(,"Napraviti korekciju NC (D/N)?", "N") == "D"
+			
+			nTmp_n_stanje := ( nC_stanje - _kolicina )
+			nTmp_n_nv := ( nTmp_n_stanje * nZC_nv )
+			nTmp_s_nv := ( nC_stanje * nC_nv )
+			
+			nC_nv := ( ( nTmp_s_nv - nTmp_n_nv ) / _kolicina ) 
+
+		endif
+
+		if Pitanje(,"Upisati u CACHE novu NC (D/N)?", "D") == "D"
+			
+			replace field->nv with field->z_nv
+			replace field->odst with 0
+		
+		endif
+
 	endif
 endif
 
@@ -422,6 +451,14 @@ BoxC()
 
 return
 
+// -------------------------------------------------------
+// konvertuje numericko polje u karakterno za prikaz
+// -------------------------------------------------------
+static function s_num( nNum )
+local cNum := STR( nNum, 12, 2 )
+return cNum
+
+
 // ----------------------------------------
 // browsanje tabele cache
 // ----------------------------------------
@@ -432,12 +469,12 @@ private Kol
 O_CACHE
 set order to tag "1"
 
-ImeKol:={{ "Konto", {|| IdKonto }, "IdKonto" } ,;
-          { "Roba", {|| IdRoba }, "IdRoba" } ,;
-          { "Stanje", {|| Stanje }, "Stanje" } ,;
-          { "NC", {|| NV }, "Nab.cijena" }, ;
-	  { "Z_NC", {|| Z_NV}, "Zadnja NC" }, ;
-	  { "odst", {|| ODST}, "Odstupanje" } }
+ImeKol:={{ PADR("Konto",15), {|| PADR( ALLTRIM(IdKonto) + ;
+	"-" + ALLTRIM(IDROBA), 13 ) }, "IdKonto" } ,;
+          { PADR("Stanje", 10 ), {|| s_num( Stanje ) }, "Stanje" } ,;
+          { PADR("NC", 10 ), {|| s_num( NV ) }, "Nab.cijena" }, ;
+	  { PADR("Z_NC", 10 ), {|| s_num( Z_NV ) }, "Zadnja NC" }, ;
+	  { PADR("odst", 10 ), {|| s_num( ODST ) }, "Odstupanje" } }
 
 Kol:={}
 
@@ -447,7 +484,7 @@ next
 
 Box(,20,77)
 @ m_x+17,m_y+2 SAY "<F2>  ispravka                     "
-@ m_x+18,m_y+2 SAY " "
+@ m_x+18,m_y+2 SAY "<F>   filter odstupanja"
 @ m_x+19,m_y+2 SAY " "
 @ m_x+20,m_y+2 SAY " "
 
@@ -462,6 +499,7 @@ return
 // handler key event
 // ---------------------------------------
 static function key_handler()
+local nOdst := 0
 
 do case
 	case ch == K_F2
@@ -470,6 +508,27 @@ do case
 		else
 			return DE_CONT
 		endif
+	case UPPER(CHR(ch)) == "F"
+		
+		cSign := ">="
+
+		// filter
+		Box(,1,22)
+			@ m_x + 1, m_y + 2 SAY "Odstupanje" GET cSign ;
+				PICT "@S2"
+			@ m_x + 1, col() + 1 GET nOdst ;
+				PICT "9999.99"
+			read
+		BoxC()
+
+		if nOdst <> 0
+			private cFilter := "odst " + ALLTRIM(cSign) ;
+				+ cm2str( nOdst )
+			set filter to &cFilter
+			go top
+			return DE_REFRESH
+		endif
+
 endcase
 
 return DE_CONT
@@ -480,11 +539,20 @@ return DE_CONT
 // -------------------------------------
 static function edit_item()
 local GetList := {}
+local nTmp
+local nOdst
+local nL_nv
+local nL_znv
 
 Scatter()
 
-Box(,1,50)
-	@ m_x + 1, m_y + 2 SAY "NC:" GET _nv 
+// uzmi ovo radi daljnjeg analiziranja - postojece stanje
+nL_nv := _nv
+nL_znv := _z_nv
+
+Box(,2,55)
+	@ m_x + 1, m_y + 2 SAY "Srednja NC:" GET _nv
+	@ m_x + 2, m_y + 2 SAY " Zadnja NC:" GET _z_nv
 	read
 BoxC()
 
@@ -493,6 +561,17 @@ if LastKey() == K_ESC
 endif
 
 Gather()
+
+// kalkulisi odstupanje automatski ako su cijene promjenjene
+
+if ( nL_nv <> field->nv ) .or. ( nL_znv <> field->z_nv )
+
+	nTmp := ROUND( field->nv, 4 ) - ROUND( field->z_nv, 4 )
+	nOdst := ( nTmp / ROUND( field->z_nv, 4 )) * 100
+
+	replace field->odst with ROUND( nOdst, 2 )
+
+endif
 
 return 1
 

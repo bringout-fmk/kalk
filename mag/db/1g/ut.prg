@@ -195,18 +195,21 @@ else
 endif
 
 // ako se koristi kontrola NC
-if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
+if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0
 	
 	nTmp := ROUND( nSNC, 4 ) - ROUND( nZadnjaUNC, 4 )
 	nOdst := ( nTmp / ROUND( nZadnjaUNC, 4 )) * 100
 
 	if ABS(nOdst) > gNC_ctrl
+		
+		Beep(4)
+ 		clear typeahead
 
 		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
 			ALLTRIM(STR(ABS(nOdst))) + " %")
 		
-		a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
-			nSNC, nZadnjaUNC )
+		//a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
+		//	nSNC, nZadnjaUNC )
 		
 		if Pitanje(,"Napraviti korekciju NC (D/N)?", "N") == "D"
 			
@@ -826,7 +829,6 @@ local nSkiniKol
 local nKolNeto
 local nZadnjaUNC
 
-
 // posljednje pozitivno stanje
 local nKol_poz := 0
 local nUVr_poz, nIVr_poz
@@ -1002,18 +1004,21 @@ else
 endif
 
 // ako se koristi kontrola NC
-if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
+if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0
 	
 	nTmp := ROUND( nSNC, 4 ) - ROUND( nZadnjaUNC, 4 )
 	nOdst := ( nTmp / ROUND( nZadnjaUNC, 4 )) * 100
 
 	if ABS(nOdst) > gNC_ctrl
+		
+		Beep(4)
+ 		clear typeahead
 
 		msgbeep("Odstupanje NC u odnosu na zadnji ulaz je#" + ;
 			ALLTRIM(STR(ABS(nOdst))) + " %")
 		
-		a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
-			nSNC, nZadnjaUNC )
+		//a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
+		//	nSNC, nZadnjaUNC )
 
 		if Pitanje(,"Napraviti korekciju NC (D/N)?", "N") == "D"
 			
@@ -1026,7 +1031,6 @@ if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0 .and. lAutoObr == .f.
 		endif
 	endif
 endif
-
 
 // daj posljednje stanje kakvo i jeste 
 nKolicina := round(nKolicina, 4)

@@ -1211,6 +1211,8 @@ do while !EOF()
 	// pregledaj CACHE, da li treba preskociti ovaj artikal
 	if cCtrl_art == "D"
 
+		nT_scan := 0
+
 		cTmp_kto := GetKtKalk( cTDok, temp->idpm, "R", cIdPJ )
 
 		select roba
@@ -1239,26 +1241,6 @@ do while !EOF()
 			if nT_scan = 0
 				AADD( aArr_ctrl, { cTDok, ;
 					PADR( ALLTRIM(cFakt), 10 ) } )
-			endif
-
-			select temp
-			lFakt_skip := .f.
-
-			// preskoci sve ovo sto je vezano za ovaj dokument
-			do while !EOF()
-				if ALLTRIM( field->brdok ) == cFakt
-					lFakt_skip := .t.
-					skip
-					loop
-				else
-					exit
-				endif
-			enddo
-
-			// vrati se na pocetak gornje petlje
-			if lFakt_skip == .t.
-				select temp
-				loop
 			endif
 			
 		endif
@@ -1439,6 +1421,29 @@ if cCtrl_art == "D" .and. LEN( aArr_ctrl ) > 0
 
 endif
 
+// pobrisi ispustene dokumente 
+if cCtrl_art == "D" .and. LEN( aArr_ctrl ) > 0
+
+	nT_scan := 0
+	
+	select pript
+	set order to tag "0"
+	go top
+
+	do while !EOF()
+		
+		nT_scan := ASCAN(aArr_ctrl, ;
+			{|xval| xval[1] + PADR( xval[2], 10 ) == ;
+			field->idvd + PADR( field->brfaktp, 10 ) })
+		
+		if nT_scan <> 0
+			delete
+		endif
+
+		skip
+	enddo
+
+endif
 
 return 1
 
@@ -1677,7 +1682,8 @@ return
  *  \brief Obrada importovanih dokumenata
  */
 function ObradiImport(nPocniOd, lAsPokreni, lStampaj)
-*{
+local cN_kalk_dok := ""
+local nUvecaj := 0
 
 O_PRIPR
 O_PRIPT
@@ -1729,6 +1735,8 @@ Box(,10, 70)
 
 do while !EOF()
 
+	altd()
+
 	nPTRec:=RecNo()
 	nPCRec:=nPTRec
 	cBrDok := field->brdok
@@ -1739,6 +1747,11 @@ do while !EOF()
 		skip
 		loop
 	endif
+	
+	// daj novi broj dokumenta kalk
+	nT_area := SELECT()
+	cN_kalk_dok := GetNextKalkDoc(cFirma, cIdVd, 1)
+	select (nT_area)
 	
 	@ 3+m_x, 2+m_y SAY "Prebacujem: " + cFirma + "-" + cIdVd + "-" + cBrDok
 	
@@ -1752,6 +1765,7 @@ do while !EOF()
 		select pript
 		Scatter()
 		select pripr
+		_brdok := cN_kalk_dok
 		Gather()
 		
 		select pript

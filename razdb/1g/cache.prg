@@ -92,9 +92,12 @@ if gNC_ctrl > 0 .and. nC_nv <> 0 .and. nZC_nv <> 0
 		Beep(4)
  		clear typeahead
 
-		msgbeep("Odstupanje NC u odnosu na zadnji ulaz je#" + ;
-			ALLTRIM(STR(ABS(nOdst))) + " %")
-		
+		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
+			ALLTRIM(STR(ABS(nOdst))) + " %" + "#" + ;
+			"artikal: " + ALLTRIM(cC_roba) + " " + ;
+			PADR( roba->naz, 15 ) + " nc:" + ;
+			ALLTRIM(STR( nC_nv, 12, 2 )) )
+	
 		//a_nc_ctrl( @aNC_ctrl, field->idroba, field->stanje, ;
 		//	field->nv, field->z_nv )
 
@@ -500,14 +503,22 @@ return
 // ---------------------------------------
 static function key_handler()
 local nOdst := 0
+local cT_filter := DBFILTER()
 
 do case
 	case ch == K_F2
 		if edit_item() == 1
+
+			if !EMPTY( cT_filter )
+				set filter to &cT_filter
+				go top
+			endif
+
 			return DE_REFRESH
 		else
 			return DE_CONT
 		endif
+	
 	case UPPER(CHR(ch)) == "F"
 		
 		cSign := ">="
@@ -522,10 +533,14 @@ do case
 		BoxC()
 
 		if nOdst <> 0
+			
 			private cFilter := "odst " + ALLTRIM(cSign) ;
 				+ cm2str( nOdst )
 			set filter to &cFilter
 			go top
+
+			cT_filter := DBFILTER()
+
 			return DE_REFRESH
 		endif
 

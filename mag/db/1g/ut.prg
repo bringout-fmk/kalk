@@ -206,7 +206,10 @@ if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0
  		clear typeahead
 
 		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
-			ALLTRIM(STR(ABS(nOdst))) + " %")
+			ALLTRIM(STR(ABS(nOdst))) + " %" + "#" + ;
+			"artikal: " + ALLTRIM(_idroba) + " " + ;
+			PADR( roba->naz, 15 ) + " nc:" + ;
+			ALLTRIM(STR( nSNC, 12, 2 )) )
 		
 		//a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
 		//	nSNC, nZadnjaUNC )
@@ -1014,9 +1017,12 @@ if gNC_ctrl > 0 .and. nSNC <> 0 .and. nZadnjaUNC <> 0
 		Beep(4)
  		clear typeahead
 
-		msgbeep("Odstupanje NC u odnosu na zadnji ulaz je#" + ;
-			ALLTRIM(STR(ABS(nOdst))) + " %")
-		
+		msgbeep("Odstupanje u odnosu na zadnji ulaz je#" + ;
+			ALLTRIM(STR(ABS(nOdst))) + " %" + "#" + ;
+			"artikal: " + ALLTRIM(_idroba) + " " + ;
+			PADR( roba->naz, 15 ) + " nc:" + ;
+			ALLTRIM(STR( nSNC, 12, 2 )) )
+	
 		//a_nc_ctrl( @aNC_ctrl, idroba, nKolicina, ;
 		//	nSNC, nZadnjaUNC )
 

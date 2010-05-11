@@ -314,10 +314,87 @@ enddo
 
 BoxC()
 
+
 MsgBeep("Zavrseno kopiranje !")
 
 return
 
+
+
+// ----------------------------------------------
+// setuj mpc na osnovu postojeceg polja
+// ----------------------------------------------
+function set_mpc_2()
+local cSetCj := "3"
+local cUzCj := "1"
+local nUvecaj := 0
+local nZaok := 2
+
+if !SigmaSif("SETMPC")
+	MsgBeep("Ne cackaj!")
+	return
+endif
+
+box(, 4, 55)
+	
+	@ m_x + 1, m_y + 2 SAY "        Setuj MPC (1,2,3):" GET cSetCj ;
+		VALID cSetCj $ "12345"
+	@ m_x + 2, m_y + 2 SAY "    Na osnovu MPC (1,2,3):" GET cUzCJ ;
+		VALID cUzCj $ "12345"
+	@ m_x + 3, m_y + 2 SAY "                   za (%):" GET nUvecaj ;
+		PICT "999.999"
+	@ m_x + 4, m_y + 2 SAY "  novu cijenu zaokruzi na:" GET nZaok ;
+		PICT "9"
+	read
+boxc()
+
+
+if nUvecaj = 0 .or. Pitanje(,"Setovati cijene","N") == "N"
+	return
+endif
+
+if !USED(F_ROBA)
+	O_ROBA
+endif
+
+if cUzCj == "1"
+	cUField := "MPC"
+else
+	cUField := "MPC" + cUzCj
+endif
+
+if cSetCj == "1"
+	cSField := "MPC"
+else
+	cSField := "MPC" + cSetCj
+endif
+
+select roba
+set order to tag "ID"
+go top
+
+Box(,1, 70)
+
+do while !EOF()
+
+	// ako je uzorak cijena = 0 preskoci
+	if &cUField = 0
+		skip
+		loop
+	endif
+	
+	@ 1 + m_x, 2 + m_y SAY "ID roba: " + field->id
+	
+	replace &cSField with ROUND( &cUField * nUvecaj, nZaok )
+	
+	skip
+enddo
+
+BoxC()
+
+MsgBeep("Zavrseno setovanje cijena!")
+
+return
 
 
 

@@ -44,6 +44,9 @@ if IsPDV()
 	AADD(opcexe, {|| roba_pdv17()})
 endif
 
+AADD(opc, "7. setuj mpc po uzoru na postojecu za % ")
+AADD(opcexe, {|| set_mpc_2()})
+
 private Izbor:=1
 Menu_SC("gdpr")
 

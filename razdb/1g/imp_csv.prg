@@ -140,7 +140,7 @@ GetExpPath(@cExpPath)
 cFFilt := GetImpFilter()
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
-if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+if _gFList(cFFilt, cExpPath, @cImpFile) == 0
 	return
 endif
 
@@ -181,7 +181,7 @@ GetExpPath(@cExpPath)
 cFFilt := GetImpFilter()
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
-if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+if _gFList(cFFilt, cExpPath, @cImpFile) == 0
 	return
 endif
 
@@ -299,60 +299,6 @@ if Empty(cPath) .or. cPath == nil
 endif
 return
 
-
-
-// ------------------------------------------------------
-// Pregled liste exportovanih dokumenata te odabir 
-//   zeljenog fajla za import
-//  - param cFilter - filter naziva dokumenta
-//  - param cPath - putanja do exportovanih dokumenata
-// ------------------------------------------------------
-static function GetFList(cFilter, cPath, cImpFile)
-
-OpcF:={}
-
-// cFilter := "*.csv" 
-aFiles:=DIRECTORY(cPath + cFilter)
-
-// da li postoje fajlovi
-if LEN(aFiles)==0
-	MsgBeep("U direktoriju za prenos nema podataka")
-	return 0
-endif
-
-// sortiraj po datumu
-ASORT(aFiles,,,{|x,y| x[3]>y[3]})
-AEVAL(aFiles,{|elem| AADD(OpcF, PADR(elem[1],15)+" "+dtoc(elem[3]))},1)
-// sortiraj listu po datumu
-ASORT(OpcF,,,{|x,y| RIGHT(x,10)>RIGHT(y,10)})
-
-h:=ARRAY(LEN(OpcF))
-for i:=1 to LEN(h)
-	h[i]:=""
-next
-
-// selekcija fajla
-IzbF:=1
-lRet := .f.
-do while .t. .and. LastKey()!=K_ESC
-	IzbF:=Menu("imp", OpcF, IzbF, .f.)
-	if IzbF == 0
-        	exit
-        else
-        	cImpFile:=Trim(cPath)+Trim(LEFT(OpcF[IzbF],15))
-        	if Pitanje(,"Zelite li izvrsiti import fajla ?","D")=="D"
-        		IzbF:=0
-			lRet:=.t.
-		endif
-        endif
-enddo
-if lRet
-	return 1
-else
-	return 0
-endif
-return 1
-  
 
 // --------------------------------------------------------
 // Kreiranje temp tabele, te prenos zapisa iz text fajla 
@@ -630,49 +576,7 @@ MsgBeep("Import txt => temp - OK")
 
 return
 
-// ----------------------------------------------
-// vraca numerik na osnovu txt polja
-// ----------------------------------------------
-static function _g_num( cVal )
-cVal := STRTRAN( cVal, ",", "." )
-return VAL(cVal)
 
-
-// -----------------------------------------------------
-// puni matricu sa redom csv formatiranog
-// -----------------------------------------------------
-static function csvrow2arr( cRow, cDelimiter )
-local aArr := {}
-local i
-local cTmp := ""
-local cWord := ""
-local nStart := 1
-
-for i := 1 to LEN( cRow )
-	
-	cTmp := SUBSTR( cRow, nStart, 1 )
-
-	// ako je cTmp = ";" ili je iscurio niz - kraj stringa
-	if cTmp == cDelimiter .or. i == LEN(cRow)
-		
-		// ako je iscurio - dodaj i zadnji karakter u word
-		if i == LEN(cRow)
-			cWord += cTmp
-		endif
-
-		// dodaj u matricu 
-		AADD( aArr, cWord )
-		cWord := ""
-	
-	else
-		cWord += cTmp
-	endif
-	
-	++ nStart 
-
-next
-
-return aArr
 
 
 // ----------------------------------------------------------------
@@ -746,7 +650,7 @@ return 1
 static function CheckDok()
 local aPomArt
 
-aPomArt  := ArtExist()
+aPomArt  := TempArtExist()
 
 if (LEN(aPomArt) > 0 )
 	
@@ -775,41 +679,6 @@ if (LEN(aPomArt) > 0 )
 endif
 
 return .t.
-
-
-// -------------------------------------------------------------
-// Provjera da li postoje sifre artikla u sifraniku FMK
-// -------------------------------------------------------------
-static function ArtExist()
-O_ROBA
-select temp
-go top
-
-aRet:={}
-
-do while !EOF()
-
-	cTmpRoba := ALLTRIM(temp->idroba)
-	cNazRoba := ALLTRIM(temp->nazroba)
-	
-	select roba
-	
-	go top
-	seek cTmpRoba
-	
-	// ako nisi nasao dodaj robu u matricu
-	if !Found() 
-		nRes := ASCAN(aRet, {|aVal| aVal[1] == cTmpRoba})
-		if nRes == 0
-			AADD(aRet, {cTmpRoba, cNazRoba})
-		endif
-	endif
-	
-	select temp
-	skip
-enddo
-
-return aRet
 
 
 // ----------------------------------------------------------

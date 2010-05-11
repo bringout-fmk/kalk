@@ -107,7 +107,7 @@ if gNC_ctrl > 0 .and. Pitanje(,"Ispusti artikle sa problematicnom nc (D/N)", ;
 endif
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
-if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+if _gFList(cFFilt, cExpPath, @cImpFile) == 0
 	return
 endif
 
@@ -221,7 +221,7 @@ GetExpPath(@cExpPath)
 cFFilt := "P*.P??"
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
-if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+if _gFList(cFFilt, cExpPath, @cImpFile) == 0
 	return
 endif
 
@@ -283,7 +283,7 @@ GetExpPath( @cExpPath )
 cFFilt := "S*.S??"
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
-if GetFList(cFFilt, cExpPath, @cImpFile) == 0
+if _gFList(cFFilt, cExpPath, @cImpFile) == 0
 	return
 endif
 
@@ -527,61 +527,6 @@ return
 
 
 
-/*! \fn GetFList(cFilter, cPath, cImpFile)
- *  \brief Pregled liste exportovanih dokumenata te odabir zeljenog fajla za import
- *  \param cFilter - filter naziva dokumenta
- *  \param cPath - putanja do exportovanih dokumenata
- */
-static function GetFList(cFilter, cPath, cImpFile)
-*{
-
-OpcF:={}
-
-// cFilter := "R*.R??" ili "P*.P??" ili "S*.S??"
-aFiles:=DIRECTORY(cPath + cFilter)
-
-// da li postoje fajlovi
-if LEN(aFiles)==0
-	MsgBeep("U direktoriju za prenos nema podataka")
-	return 0
-endif
-
-// sortiraj po datumu
-ASORT(aFiles,,,{|x,y| x[3]>y[3]})
-AEVAL(aFiles,{|elem| AADD(OpcF, PADR(elem[1],15)+" "+dtos(elem[3]))},1)
-// sortiraj listu po datumu
-ASORT(OpcF,,,{|x,y| RIGHT(x,10)>RIGHT(y,10)})
-
-h:=ARRAY(LEN(OpcF))
-for i:=1 to LEN(h)
-	h[i]:=""
-next
-
-// selekcija fajla
-IzbF:=1
-lRet := .f.
-do while .t. .and. LastKey()!=K_ESC
-	IzbF:=Menu("imp", OpcF, IzbF, .f.)
-	if IzbF == 0
-        	exit
-        else
-        	cImpFile:=Trim(cPath)+Trim(LEFT(OpcF[IzbF],15))
-        	if Pitanje(,"Zelite li izvrsiti import fajla ?","D")=="D"
-        		IzbF:=0
-			lRet:=.t.
-		endif
-        endif
-enddo
-if lRet
-	return 1
-else
-	return 0
-endif
-return 1
-*}
-
-
-
 /*! \fn Txt2TTbl(aDbf, aRules, cTxtFile)
  *  \brief Kreiranje temp tabele, te prenos zapisa iz text fajla "cTextFile" u tabelu putem aRules pravila 
  *  \param aDbf - struktura tabele
@@ -769,7 +714,7 @@ static function CheckDok()
 *{
 
 aPomPart := ParExist()
-aPomArt  := ArtExist()
+aPomArt  := TempArtExist()
 
 if (LEN(aPomPart) > 0 .or. LEN(aPomArt) > 0)
 	
@@ -939,7 +884,6 @@ return aRet
  *  \brief Provjera da li postoje sifre partnera u sifraniku FMK
  */
 static function ParExist(lPartNaz)
-*{
 O_PARTN
 select temp
 go top
@@ -966,45 +910,7 @@ do while !EOF()
 enddo
 
 return aRet
-*}
 
-/*! \fn ArtExist()
- *  \brief Provjera da li postoje sifre artikla u sifraniku FMK
- *  \param cId - id sifre
- */
-static function ArtExist()
-*{
-O_ROBA
-select temp
-go top
-
-aRet:={}
-
-do while !EOF()
-
-	// dodaj prefiks "0" ako je manje od 5
-	cTmpRoba := PADL( ALLTRIM(temp->idroba), 5, "0" )
-	
-	select roba
-	set order to tag "ID_VSD"
-	
-	go top
-	seek cTmpRoba
-	
-	// ako nisi nasao dodaj robu u matricu
-	if !Found() 
-		nRes := ASCAN(aRet, {|aVal| aVal[1] == cTmpRoba})
-		if nRes == 0
-			AADD(aRet, {cTmpRoba})
-		endif
-	endif
-	
-	select temp
-	skip
-enddo
-
-return aRet
-*}
 
 
 /*! \fn GetKTipDok(cFaktTD)
@@ -1012,7 +918,6 @@ return aRet
  *  \param cFaktTD - fakt tip dokumenta
  */
 static function GetKTipDok(cFaktTD, cPm)
-*{
 cRet:=""
 
 if (cFaktTD == "" .or. cFaktTD == nil)
@@ -1653,29 +1558,6 @@ return 1
 *}
   
 
-/*! \fn TxtErase(cTxtFile, lErase)
- *  \brief Brisanje fajla cTxtFile
- *  \param cTxtFile - fajl za brisanje
- *  \param lErase - .t. ili .f. - brisati ili ne brisati fajl txt nakon importa
- */
-function TxtErase(cTxtFile, lErase)
-*{
-if lErase == nil
-	lErase := .f.
-endif
-
-// postavi pitanje za brisanje fajla
-if lErase .and. Pitanje(,"Pobrisati txt fajl (D/N)?","D")=="N"
-	return
-endif
-
-if FErase(cTxtFile) == -1
-	MsgBeep("Ne mogu izbrisati " + cTxtFile)
-	ShowFError()
-endif
-
-return
-*}
 
 
 /*! \fn ObradiImport()

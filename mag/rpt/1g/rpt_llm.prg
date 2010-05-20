@@ -863,7 +863,9 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 		? SPACE(6) + show_more_info( cMIPart, dMIDate, cMINumber, cMI_type )
 	endif
 	
-	if lExpDbf == .t. .and. ROUND(nUlaz-nIzlaz, 4) <> 0
+	if lExpDbf == .t.
+	   if ( cNula == "N" .and. ROUND(nUlaz-nIzlaz, 4) <> 0 ) ;
+	   	.or. ( cNula == "D" )
 
 		cTmp := ""
 		
@@ -871,12 +873,20 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 			cTmp := roba->sifradob
 		endif
 
-		fill_exp_tbl( 0, roba->id, cTmp, ;
+		if cNula == "D" .and. ROUND( nUlaz-nIzlaz,4) = 0
+		     fill_exp_tbl( 0, roba->id, cTmp, ;
+				roba->naz, roba->idtarifa, cJmj, ;
+				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
+				nNVU, nNVI, ( nNVU - nNVI ), 0 )
+
+		else
+		     fill_exp_tbl( 0, roba->id, cTmp, ;
 				roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
 				nNVU, nNVI, ( nNVU - nNVI ), ;
 				(nNVU - nNVI)/(nUlaz - nIzlaz) )
-		
+		endif
+	    endif
 	endif
 	
 endif

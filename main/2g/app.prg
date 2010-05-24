@@ -278,6 +278,7 @@ public gVodiKalo:="N"
 public gAutoRavn:="N"
 public gAutoCjen:="D"
 public gLenBrKalk:=5
+public gArtCDX:=SPACE(20)
 
 O_PARAMS
 private cSection:="K",cHistory:=" "; aHistory:={}
@@ -458,6 +459,7 @@ RPar("aQ",@gCache)
 RPar("aR",@gNC_ctrl)
 RPar("aY",@gnLOst)
 RPar("bK",@gLenBrKalk)
+RPar("cd",@gArtCDX)
 
 cOdradjeno:="D"
 if file(EXEPATH+'scshell.ini')

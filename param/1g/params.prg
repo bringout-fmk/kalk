@@ -212,7 +212,7 @@ return nil
 function SetRazno()
 private  GetList:={}
 
-Box(,14,75,.f.,"RAZNO")
+Box(,15,75,.f.,"RAZNO")
  @ m_x+1,m_y+2 SAY "Brojac kalkulacija D/N         " GET gBrojac pict "@!" valid gbrojac $ "DN"
  @ m_x+1,col()+2 SAY "duzina brojaca:" GET gLenBrKalk pict "9" VALID gLenBrKalk > 0 .and. gLenBrKalk < 10
  @ m_x+2,m_y+2 SAY "Potpis na kraju naloga D/N     " GET gPotpis valid gPotpis $ "DN"
@@ -231,6 +231,7 @@ Box(,14,75,.f.,"RAZNO")
 @ m_x+14,m_y+2 SAY "Kontrola odstupanja NC:" GET gNC_ctrl PICT "999.99"
 @ m_x+14, col() SAY "%" 
 
+@ m_x+15,m_y+2 SAY "Indeks kod pretrage artikla:" GET gArtCDX PICT "@15"
 	
 read
 BoxC()
@@ -250,6 +251,7 @@ if lastkey()<>K_ESC
   WPar("aR",gNC_ctrl)
   WPar("aY",gnLOst)
   WPar("bK",gLenBrKalk)
+  WPar("cd",gArtCDX)
 endif
 
 return .t.

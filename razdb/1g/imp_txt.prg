@@ -711,10 +711,10 @@ return 1
  *  \brief Provjera da li postoje sve sifre u sifrarnicima za dokumente
  */
 static function CheckDok()
-*{
+local lSifDob := .t.
 
 aPomPart := ParExist()
-aPomArt  := TempArtExist()
+aPomArt  := TempArtExist( lSifDob )
 
 if (LEN(aPomPart) > 0 .or. LEN(aPomArt) > 0)
 	

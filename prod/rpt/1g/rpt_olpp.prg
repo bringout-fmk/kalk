@@ -132,7 +132,8 @@ for ik:=1 to 2
 		
 		// 11. MPC Sa PDV - ukupna
 		@ prow(),pcol()+1 say nMPC2*kolicina pict picdem
-  		
+  	
+
 		if .f. // kolicina==0     // nivelacija:TNAM
 			nU1+=nMpc1
         		nU2+=nMpc2

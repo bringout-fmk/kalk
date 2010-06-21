@@ -1,25 +1,12 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/kalk/prod/dok/1g/rpt_80.prg
- *  \brief Stampa dokumenta tipa 80 - direktno zaduzenje prodavnice
- */
-
-
 /*! \fn StKalk80(fBezNc)
  *  \brief Stampa dokumenta tipa 80 - direktno zaduzenje prodavnice
  *  \param fBezNc -
  */
 
 function StKalk80(fBezNc)
-*{
 local nCol1:=nCol2:=0,npom:=0
 
 Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2
@@ -224,5 +211,8 @@ DokNovaStrana(125, @nStr, 8)
 nRec:=recno()
 RekTarife()
 
+// potpis na dokumentu
+dok_potpis( 90, "L", nil, nil )
+
 return
-*}
+

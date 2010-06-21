@@ -1,17 +1,5 @@
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
- 
-
-/*! \file fmk/kalk/prod/rpt/1g/rpt_81.prg
- *  \brief Stampa kalkulacije 81 - direktno zaduzenje prodavnice
- */
-
 
 /*! \fn StKalk81(fzatops)
  *  \brief Stampa kalkulacije 81 - direktno zaduzenje prodavnice
@@ -19,7 +7,6 @@
  */
 
 function StKalk81(fzatops)
-*{
 local nCol1:=nCol2:=0,npom:=0
 
 Private nPrevoz,nCarDaz,nZavTr,nBankTr,nSpedTr,nMarza,nMarza2,nPRUC,aPorezi
@@ -273,8 +260,13 @@ if !fZaTops
 endif
 
 ? m
+
+// potpis na dokumentu
+dok_potpis( 90, "L", nil, nil )
+
+
 return
-*}
+
 
 
 

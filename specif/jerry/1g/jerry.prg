@@ -488,6 +488,10 @@ nTot5:=nTot6:=nTot7:=0
 RekTarife()
 ? "RUC:";  @ prow(),pcol()+1 SAY nTot6 pict picdem
 ? m
+
+// potpis na dokumentu
+dok_potpis( 90, "L", nil, nil )
+
 return
 
 

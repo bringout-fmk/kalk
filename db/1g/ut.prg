@@ -1758,3 +1758,84 @@ endif
 return
 
 
+// ---------------------------------------
+// brisi dokumente
+// ---------------------------------------
+function del_docs()
+local dD_f
+local dD_t
+local dDate
+
+if ddoc_vars( @dD_f, @dD_t ) = 0
+	return
+endif
+
+if !SigmaSif("KALKDEL")
+	msgbeep("Ne cackaj !")
+	return
+endif
+
+O_DOKS
+O_KALK
+
+msgo("brisem DOKS...")
+select doks
+set order to tag "1"
+go top
+
+do while !EOF()
+
+	dDate := field->datdok
+
+	if ( dDate >= dD_f .and. dDate <= dD_t )
+		delete
+	endif
+
+	skip
+enddo
+msgc()
+
+msgo("brisem KALK...")
+select kalk
+set order to tag "1"
+go top
+
+do while !EOF()
+	
+	dDate := field->datdok
+
+	if ( dDate >= dD_f .and. dDate <= dD_t )
+		delete
+	endif
+
+	skip
+enddo
+msgc()
+
+msgbeep("Podaci zadatog perioda izbrisani !")
+
+return
+
+
+// -----------------------------------------------------
+// uslovi opcije brisanje dokumenata
+// -----------------------------------------------------
+static function ddoc_vars( dDate_f, dDate_t )
+private getlist:={}
+
+dDate_f := DATE()
+dDate_t := DATE()
+
+Box(,1, 60)
+	@ m_x + 1, m_y + 2 SAY "u periodu od:" GET dDate_f
+	@ m_x + 1, col() + 1 SAY "do:" GET dDate_t 
+	read
+BoxC()
+
+if LastKey() == K_ESC
+	return 0
+endif
+
+return 1
+
+

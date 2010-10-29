@@ -43,6 +43,8 @@ AADD(opc,"A. Set pdv cijene mpc/mpc2 u sifrarniku artikala")
 AADD(opcexe, {|| SetPdvCijene()})
 AADD(opc,"B. Pomnozi sa faktorom mpc/mpc2 u sifrarniku artikala")
 AADD(opcexe, {|| SetPomnoziCijene()})
+AADD(opc,"D. Brisi dokumente za period")
+AADD(opcexe, {|| del_docs()})
 
 
 private Izbor:=1

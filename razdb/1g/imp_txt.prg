@@ -62,6 +62,12 @@ Box(, 10, 70)
 	nX += 1
 	
 	@ m_x + nX, m_y + 2 SAY "Automatska ravnoteza naloga na konto: " GET gAImpRKonto 
+	
+	nX += 1
+	
+	@ m_x + nX, m_y + 2 SAY "Provjera broj naloga (minus karaktera):" GET gAImpRight PICT "9"
+
+
 	read	
 BoxC()
 
@@ -75,6 +81,7 @@ if LastKey() <> K_ESC
 
 	WPar("ap", gAImpPrint )
 	WPar("ak", gAImpRKonto )
+	WPar("ar", gAImpRight )
 	
 	select params
 	use
@@ -96,7 +103,7 @@ private cImpFile
 CrePripTDbf()
 
 // setuj varijablu putanje exportovanih fajlova
-GetExpPath(@cExpPath)
+GetExpPath( @cExpPath )
 
 // daj mi filter za import MP ili VP
 cFFilt := GetImpFilter()
@@ -107,7 +114,7 @@ if gNC_ctrl > 0 .and. Pitanje(,"Ispusti artikle sa problematicnom nc (D/N)", ;
 endif
 
 // daj mi pregled fajlova za import, te setuj varijablu cImpFile
-if _gFList(cFFilt, cExpPath, @cImpFile) == 0
+if _gFList( cFFilt, cExpPath, @cImpFile ) == 0
 	return
 endif
 
@@ -135,7 +142,7 @@ if !CheckDok()
 	return
 endif
 
-if CheckBrFakt(@aFaktEx) == 0
+if CheckBrFakt( @aFaktEx ) == 0
 	if Pitanje(,"Preskociti ove dokumente prilikom importa (D/N)?","D")=="D"
 		lFtSkip := .t.
 	endif
@@ -669,10 +676,9 @@ return
 /*! \fn CheckBrFakt()
  *  \brief Provjeri da li postoji broj fakture u azuriranim dokumentima
  */
-static function CheckBrFakt(aFakt)
-*{
+static function CheckBrFakt(aFakt )
 
-aPomFakt := FaktExist()
+aPomFakt := FaktExist( gAImpRight )
 
 if LEN(aPomFakt) > 0
 
@@ -1016,10 +1022,15 @@ return cRet
 
 /*! \fn FaktExist()
  *  \brief vraca matricu sa parovima faktura -> pojavljuje se u azur.kalk
+ *  \param nRight - npr. bez zadnjih nRight brojeva
  */
-static function FaktExist()
+static function FaktExist( nRight )
 local cBrFakt
 local cTDok
+
+if nRight == nil
+	nRight := 0
+endif
 
 O_DOKS
 
@@ -1032,6 +1043,12 @@ cDok := "XXXXXX"
 do while !EOF()
 
 	cBrFakt := ALLTRIM(temp->brdok)
+	cBrOriginal := cBrFakt
+
+	if nRight > 0
+		cBrFakt := PADR( cBrFakt, LEN(cBrFakt) - nRight )
+	endif
+
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	
 	if cBrFakt == cDok
@@ -1040,12 +1057,23 @@ do while !EOF()
 	endif
 	
 	select doks
-	set order to tag "V_BRF"
+
+	if nRight > 0
+		set order to tag "V_BRF2"
+	else
+		set order to tag "V_BRF"
+	endif
+	
 	go top
-	seek PADR(cBrFakt, 10) + cTDok
+
+	if nRight > 0
+		seek cTDok + cBrFakt
+	else
+		seek PADR(cBrFakt, 10) + cTDok
+	endif
 	
 	if FOUND()	
-		AADD(aRet, {cBrFakt, ;
+		AADD(aRet, {cBrOriginal, ;
 			doks->idfirma + "-" + ;
 			doks->idvd + "-" + ;
 			ALLTRIM(doks->brdok)})

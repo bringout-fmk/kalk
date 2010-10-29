@@ -361,6 +361,8 @@ public lPoNarudzbi
 public gAImpPrint := "N"
 // ravnoteza def.konto
 public gAImpRKonto := PADR("1370", 7)
+// kod provjere prebacenih dokumenata odrezi sa desne strane broj karaktera
+public gAImpRight := 0
 
 lPoNarudzbi:=.f.
 
@@ -494,6 +496,7 @@ gDirFakK:=trim(gDirFakK)
 private cSection := "7"
 RPar("ai", @gAImpPrint)
 RPar("ak", @gAImpRKonto)
+RPar("ar", @gAImpRight)
 
 select (F_PARAMS)
 use

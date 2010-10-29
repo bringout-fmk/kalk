@@ -113,6 +113,8 @@ if fNovi
  _TMarza2:="A"
 endif
 
+altd()
+
 if IsPdv()
    if (gCijene=="2" .and. (_MpcSAPP==0 .or. fNovi) )
       FaktMPC(@_MPCSAPP, _idfirma+ _idkonto+ _idroba)

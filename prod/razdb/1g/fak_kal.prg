@@ -431,6 +431,7 @@ cIdKonto:=PADR("1320",7)
 cIdZaduz:=SPACE(6)
 cBrkalk:=space(8)
 cZbirno:="N"
+cNac_rab := "P"
 
 
 if gBrojac=="D"
@@ -459,16 +460,18 @@ Box(,15,60)
   		if gNW<>"X"
    			@ m_x+3,col()+2 SAY "Razduzuje:" GET cIdZaduz  pict "@!"      valid empty(cidzaduz) .or. P_Firma(@cIdZaduz)
   		endif
-        	
  		@ m_x+5,m_y+2 SAY "Napraviti zbirnu kalkulaciju (D/N): " GET cZbirno VALID cZbirno$"DN" PICT "@!"
 		read
 		
 		if cZbirno=="N"
+
   			cFaktFirma:=cIdFirma
-  			@ m_x+6,m_y+2 SAY "Broj fakture: " GET cFaktFirma
+  			
+			@ m_x+6,m_y+2 SAY "Broj fakture: " GET cFaktFirma
   			@ m_x+6,col()+2 SAY "- " + cIdTipDok
   			@ m_x+6,col()+2 SAY "-" GET cBrDok
-  			read
+  			
+			read
   		
 			if (LastKey()==K_ESC)
 				exit
@@ -484,19 +487,24 @@ Box(,15,60)
      				@ m_x+14,m_y+2 SAY space(30)
      				loop
   			else
-     				aMemo:=parsmemo(txt)
-      				if len(aMemo)>=5
+     				
+				aMemo:=parsmemo(txt)
+      				
+				if len(aMemo)>=5
         				@ m_x+10,m_y+2 SAY padr(trim(aMemo[3]),30)
         				@ m_x+11,m_y+2 SAY padr(trim(aMemo[4]),30)
         				@ m_x+12,m_y+2 SAY padr(trim(aMemo[5]),30)
       				else
          				cTxt:=""
       				endif
-      				if (LastKey()==K_ESC)
+      				
+				if (LastKey()==K_ESC)
 					exit
 				endif
+				
 				cIdPartner:=IdPartner
-      				@ m_x+14,m_y+2 SAY "Sifra partnera:" GET cIdpartner pict "@!" valid P_Firma(@cIdPartner)
+      				
+				@ m_x+14,m_y+2 SAY "Sifra partnera:" GET cIdpartner pict "@!" valid P_Firma(@cIdPartner)
       			
 				read
 
@@ -533,14 +541,17 @@ Box(,15,60)
        					select PRIPR
        					
 					private aPorezi:={}
-					Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
-					nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
 					
-					APPEND BLANK
-       					replace idfirma with cIdFirma,rbr with str(++nRbr,3),idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa,	brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cidkonto, idzaduz with cidzaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena,	tmarza2 with "%"
+					Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
+					
+					nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
+       					append blank
+					replace idfirma with cIdFirma,rbr with str(++nRbr,3),idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa,	brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cidkonto, idzaduz with cidzaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena,	tmarza2 with "%"
 
-					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
-						
+					
+					replace rabatv with ;
+					( nMPVBP * xfakt->rabat / (xfakt->kolicina*100) ) * 1.17
+
 					select xfakt
       					skip
      				enddo
@@ -599,7 +610,7 @@ Box(,15,60)
 					replace idfirma with cIdFirma, rbr with str(++nRbr,3), idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa, brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cIdKonto, idzaduz with cIdZaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena, tmarza2 with "%"
 
 
-					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
+					replace rabatv with ( nMPVBP*xfakt->rabat/(xfakt->kolicina*100) ) * 1.17
        					
 					select xfakt
       					skip

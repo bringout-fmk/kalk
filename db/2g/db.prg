@@ -514,6 +514,7 @@ if (nArea==-1 .or. nArea==(F_DOKS))
 	endif
 	
 	CREATE_INDEX("V_BRF","brfaktp+idvd",KUMPATH+"DOKS")
+	CREATE_INDEX("V_BRF2","idvd+brfaktp",KUMPATH+"DOKS")
 endif
 
 

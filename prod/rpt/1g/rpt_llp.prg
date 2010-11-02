@@ -16,6 +16,7 @@ local cKontrolnaTabela
 local cPicKol := gPicKol
 local cPicCDEm := gPicCDem
 local cPicDem := gPicDem
+local cSrKolNula := "0"
 
 gPicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
 gPicDEM:= REPLICATE("9", VAL(gFPicDem)) + gPicDem
@@ -84,7 +85,13 @@ do while .t.
  	@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je MPV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
  	@ m_x+9,m_y+2 SAY "Datum od " GET dDatOd
  	@ m_x+9,col()+2 SAY "do" GET dDatDo
- 	@ m_x+12,m_y+2 SAY "Prikaz robe tipa T/U  (D/N)" GET cTU valid cTU $ "DN" pict "@!"
+	
+	if lPocStanje
+		@ m_x+11,m_y+2 SAY "sredi kol=0, nv<>0 (0/1/2)" GET cSrKolNula ;
+			VALID cSrKolNula $ "012" PICT "@!"
+ 	endif
+
+	@ m_x+12,m_y+2 SAY "Prikaz robe tipa T/U  (D/N)" GET cTU valid cTU $ "DN" pict "@!"
  	@ m_x+12, COL()+2 SAY " generisati kontrolnu tabelu ? " GET cKontrolnaTabela VALID cKontrolnaTabela $ "DN" PICT "@!"
  	@ m_x+13,m_y+2 SAY "Odabir grupacije (prazno-svi) GET" GET cGrupacija pict "@!"
  	@ m_x+14,m_y+2 SAY "Prikaz prethodnog stanja" GET cPredhStanje pict "@!" valid cPredhStanje $ "DN"
@@ -385,23 +392,93 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 		if lPoNarudzbi .and. cPKN=="D"
   			@ prow(),pcol()+1 SAY cIdNar
 		endif
+		
 		nCol0:=pCol()+1
+		
 		if cPredhStanje=="D"
  			@ prow(),pcol()+1 SAY nPKol pict gpickol
 		endif
+		
 		@ prow(),pcol()+1 SAY nUlaz pict gpickol
 		@ prow(),pcol()+1 SAY nIzlaz pict gpickol
 		@ prow(),pcol()+1 SAY nUlaz-nIzlaz+nPkol pict gpickol
+		
 		if lPocStanje
-  			select pripr
-  			if round(nUlaz-nIzlaz,4)<>0
-     				append blank
-     				replace idFirma with cIdfirma, idroba with cIdRoba, idkonto with cIdKonto, datdok with dDatDo+1, idTarifa with Tarifa(cIdKonto, cIdRoba, @aPorezi), datfaktp with dDatDo+1, kolicina with nulaz-nizlaz, idvd with "80", brdok with cBRPST, nc with (nNVU-nNVI+nPNV)/(nulaz-nizlaz+nPKol), mpcsapp with (nMPVU-nMPVI+nPMPV)/(nulaz-nizlaz+nPKol), TMarza2 with "A"
+  			
+			select pripr
+  			
+			if round(nUlaz-nIzlaz,4)<>0 .and. cSrKolNula $ "01"
+     				
+				append blank
+     				
+				replace idFirma with cIdfirma
+				replace idroba with cIdRoba
+				replace idkonto with cIdKonto
+				replace datdok with dDatDo+1
+				replace idTarifa with Tarifa(cIdKonto, cIdRoba, @aPorezi)
+				replace datfaktp with dDatDo+1
+				replace kolicina with nulaz-nizlaz
+				replace idvd with "80"
+				replace brdok with cBRPST
+				replace nc with (nNVU-nNVI+nPNV)/(nulaz-nizlaz+nPKol)
+				replace mpcsapp with (nMPVU-nMPVI+nPMPV)/(nulaz-nizlaz+nPKol)
+				replace TMarza2 with "A"
+				
 				if koncij->NAZ=="N1"
              				replace vpc with nc
      				endif
+			
+			elseif cSrKolNula $ "12" .and. ;
+				round(nUlaz-nIzlaz,4) = 0
+				
+				if ( nMPVU - nMPVI + nPMPV ) <> 0
+					
+					// 1 stavka (minus)
+					append blank
+     				
+					replace idFirma with cIdfirma
+					replace idroba with cIdRoba
+					replace idkonto with cIdKonto
+					replace datdok with dDatDo+1
+					replace idTarifa with Tarifa(cIdKonto, cIdRoba, @aPorezi)
+					replace datfaktp with dDatDo+1
+					replace kolicina with -1
+					replace idvd with "80"
+					replace brdok with cBRPST
+					replace nc with 0
+					replace mpcsapp with 0
+					replace TMarza2 with "A"
+				
+					if koncij->NAZ=="N1"
+             					replace vpc with nc
+     					endif
+					
+					// 2 stavka (plus i razlika mpv)
+					append blank
+     				
+					replace idFirma with cIdfirma
+					replace idroba with cIdRoba
+					replace idkonto with cIdKonto
+					replace datdok with dDatDo+1
+					replace idTarifa with Tarifa(cIdKonto, cIdRoba, @aPorezi)
+					replace datfaktp with dDatDo+1
+					replace kolicina with 1
+					replace idvd with "80"
+					replace brdok with cBRPST
+					replace nc with 0
+					replace mpcsapp with ;
+						(nMPVU-nMPVI+nPMPV)
+					replace TMarza2 with "A"
+				
+					if koncij->NAZ=="N1"
+             					replace vpc with nc
+     					endif
+			
+				endif
+
 			endif
-  			select KALK
+  			
+			select KALK
 		endif
 
 		nCol1:=pcol()+1

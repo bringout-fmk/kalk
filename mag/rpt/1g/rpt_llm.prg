@@ -49,6 +49,7 @@ local cMIPart := ""
 local cMINumber := ""
 local dMIDate := CTOD("")
 local cMI_type := ""
+local cSrKolNula := "N"
 
 cPicDem := gPicDem
 cPicCDem := gPicCDem
@@ -145,7 +146,7 @@ Box(,21+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		@ m_x+6,col()+1 SAY "Br.fakture " GET cFaBrDok  pict "@!S15"
  		@ m_x+7,m_y+2 SAY "Prikaz Nab.vrijednosti D/N" GET cPNab  valid cpnab $ "DN" pict "@!"
  		if (IsPDV() .and. (IsMagPNab() .or. IsMagSNab()))
-			@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je NV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
+			@ m_x+8,m_y+2 SAY "Pr.stavki kojima je NV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
  			@ m_x+9,m_y+2 SAY "Prikaz 'ERR' ako je NV/Kolicina<>NC " GET cErr pict "@!" valid cErr $ "DN"
 		else
 			@ m_x+8,m_y+2 SAY "Prikaz stavki kojima je VPV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
@@ -154,7 +155,14 @@ Box(,21+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 		@ m_x+10,m_y+2 SAY "Datum od " GET dDatOd
  		@ m_x+10,col()+2 SAY "do" GET dDatDo
  		@ m_x+12,m_y+2 SAY "Postaviti srednju NC u sifrarnik" GET cNCSif pict "@!" valid ((cpnab=="D" .and. cncsif=="D") .or. cNCSif=="N")
- 		@ m_x+14,m_y+2 SAY "Prikaz samo kriticnih zaliha (D/N/O) ?" GET cMinK pict "@!" valid cMink$"DNO"
+ 		
+		if fPocStanje
+			@ m_x+13,m_y+2 SAY "Sredi samo stavke kol=0, nv<>0 (0/1/2)" ;
+				GET cSrKolNula VALID cSrKolNula $ "012" ;
+				PICT "@!"
+		endif
+
+		@ m_x+14,m_y+2 SAY "Prikaz samo kriticnih zaliha (D/N/O) ?" GET cMinK pict "@!" valid cMink$"DNO"
  		if IsVindija()
 			cGr:=SPACE(10)
 			cPSPDN := "N"
@@ -269,9 +277,7 @@ if lExpDbf == .t.
 
 endif
 
-
 _o_tables()
-
 
 O_KALKREP
 
@@ -660,6 +666,7 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 	@ prow(),pcol()+1 SAY nKJMJ*(nUlaz-nIzlaz) pict gpickol
 
 	if fPocStanje
+
   		select pripr
   		if glEkonomat
     			FOR i:=LEN(aNabavke) TO 1 STEP -1
@@ -681,21 +688,73 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
        				replace vpc with nc
     			NEXT
   		else
-    			if round(nUlaz-nIzlaz,4)<>0
-       				append blank
-       				replace idfirma with cidfirma, idroba with cIdRoba,;
+    			if round(nUlaz-nIzlaz,4) <> 0 .and. cSrKolNula $ "01"
+       				
+				append blank
+       				
+				replace idfirma with cidfirma, idroba with cIdRoba,;
                			idkonto with cIdKonto,;
                			datdok with dDatDo+1,;
                			idtarifa with roba->idtarifa,;
                			datfaktp with dDatDo+1,;
                			kolicina with nUlaz-nIzlaz,;
-               			idvd with "16", brdok with cBRPST ,;
-               			nc with (nNVU-nNVI)/(nUlaz-nIzlaz),;
-               			vpc with (nVPVU-nVPVI)/(nUlaz-nIzlaz)
+               			idvd with "16", ;
+				brdok with cBRPST
+				
+				replace nc with (nNVU-nNVI)/(nUlaz-nIzlaz)
+				replace vpc with (nVPVU-nVPVI)/(nUlaz-nIzlaz)
+
 				if IsMagPNab()
                				replace vpc with nc
        				endif
-    			endif
+    			
+			elseif cSrKolNula $ "12" .and. round(nUlaz-nIzlaz,4) = 0
+				
+				// kontrolna opcija
+				// kolicina 0, nabavna cijena <> 0
+				if ( nNVU - nNVI ) <> 0
+					
+					// 1 stavka (minus)
+					append blank
+       				
+					replace idfirma with cidfirma
+					replace idroba with cIdRoba
+               				replace idkonto with cIdKonto
+               				replace datdok with dDatDo+1
+               				replace idtarifa with roba->idtarifa
+               				replace datfaktp with dDatDo+1
+               				replace kolicina with -1
+               				replace idvd with "16"
+					replace brdok with cBRPST
+					replace nc with 0
+					replace vpc with 0
+
+					if IsMagPNab()
+               					replace vpc with nc
+       					endif
+    					
+					// 2 stavka (plus i nv)
+					append blank
+       				
+					replace idfirma with cidfirma
+					replace idroba with cIdRoba
+               				replace idkonto with cIdKonto
+               				replace datdok with dDatDo+1
+               				replace idtarifa with roba->idtarifa
+               				replace datfaktp with dDatDo+1
+               				replace kolicina with 1
+               				replace idvd with "16"
+					replace brdok with cBRPST
+					replace nc with (nNVU - nNVI)
+					replace vpc with 0
+
+					if IsMagPNab()
+               					replace vpc with nc
+       					endif
+    			
+				endif
+
+			endif
   		endif
   		select kalk
 	endif
@@ -721,7 +780,7 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 			
 			// provjeri greske sa NC
 			if !(koncij->naz = "P")
-			    if ROUND( nUlaz - nIzlaz, 4 ) <> 0
+			    if ROUND( nUlaz - nIzlaz, 4 ) <> 0 
   	                 	if cErr=="D" .and. round((nNVU-nNVI)/(nUlaz-nIzlaz),4) <> Round(roba->nc,4)
     		             		?? " ERR"
 					fImaGreska := .t.	

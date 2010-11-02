@@ -49,7 +49,7 @@ local cMIPart := ""
 local cMINumber := ""
 local dMIDate := CTOD("")
 local cMI_type := ""
-local cSrKolNula := "N"
+local cSrKolNula := "0"
 
 cPicDem := gPicDem
 cPicCDem := gPicCDem

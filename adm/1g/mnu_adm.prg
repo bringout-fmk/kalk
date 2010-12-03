@@ -45,7 +45,10 @@ AADD(opc,"B. Pomnozi sa faktorom mpc/mpc2 u sifrarniku artikala")
 AADD(opcexe, {|| SetPomnoziCijene()})
 AADD(opc,"D. Brisi dokumente za period")
 AADD(opcexe, {|| del_docs()})
-
+AADD(opc,"T. export kalk baza podataka")
+AADD(opcexe, {|| kalk_export()})
+AADD(opc,"U. spajanje kalk baza podataka iz sezona")
+AADD(opcexe, {|| kalk_join()})
 
 private Izbor:=1
 Menu_SC("admk")

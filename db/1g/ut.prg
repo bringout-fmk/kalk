@@ -1839,3 +1839,292 @@ endif
 return 1
 
 
+// ------------------------------------------
+// spajanje tabele kalk iz sezona
+// ------------------------------------------
+function kalk_join()
+local cSezone := SPACE(150)
+local aSezone := {}
+local cT_sez := goModul:oDataBase:cSezona
+local cR_sez := goModul:oDataBase:cRadimUSezona
+local cT_path
+local i
+local nCnt := 0
+local lSilent := .t.
+local lWriteKParam := .t.
+
+Box(, 5, 60)
+	@ m_x + 1, m_y + 2 SAY "Dodaj podatke iz sezona:" ;
+		GET cSezone ;
+		PICT "@S25"
+
+	read
+BoxC()
+
+if LastKey() == K_ESC
+	return
+endif
+
+if EMPTY( cSezone )
+	return
+endif
+
+if !SigmaSif("KALKJ")
+	msgbeep("Ne cackaj!")
+	return
+endif
+
+// predji u tekucu sezonu i setuj path
+goModul:oDataBase:logAgain( "RADP", lSilent, lWriteKParam )
+
+cT_path := KUMPATH
+
+// vrati se u sezonu u kojoj si bio
+goModul:oDataBase:logAgain( cR_sez, lSilent, lWriteKParam )
+
+
+// generisi matricu sezona
+aSezone := TokToNiz( ALLTRIM(cSezone), ";" )
+
+for i:=1 to LEN( aSezone )
+	
+	if ALLTRIM( aSezone[i] ) <> cR_sez
+	
+		o_p_tbl( cT_path, ALLTRIM( aSezone[i] ), cT_sez )
+	
+		msgo("prebacujem sezonu " + ALLTRIM( aSezone[i]))
+
+		O_KALK
+		O_DOKS
+
+		select kalk_s
+		go top
+		do while !EOF()
+			scatter()
+			select kalk
+			append blank
+			Gather()
+			select kalk_s
+			skip
+		enddo
+	
+		select doks_s
+		go top
+		do while !EOF()
+			scatter()
+			select doks
+			append blank
+			Gather()
+			select doks_s
+			skip
+			++ nCnt
+		enddo
+
+		msgc()
+
+		c_p_tbl()
+
+	endif
+
+next
+
+msgbeep("Ubaceno " + ALLTRIM(STR(nCnt)) + " dokumenata.")
+
+return
+
+
+// ------------------------------------------
+// export podataka kalk tabele
+// ------------------------------------------
+function kalk_export()
+local cSezone := SPACE(150)
+local aSezone := {}
+local i
+local lSilent := .t.
+local lWriteKParam := .t.
+local lInSez
+local cP_path := PRIVPATH
+local cT_sez := goModul:oDataBase:cSezona
+local cG_sez := cT_sez
+local cU_dok := SPACE(100)
+local dD_from := CTOD("")
+local dD_to := CTOD("")
+
+Box(, 5, 60)
+
+	@ m_x + 1, m_y + 2 SAY "export sezone:" ;
+		GET cSezone ;
+		PICT "@S40"
+
+	@ m_x + 3, m_y + 2 SAY "dokumenti (prazno-svi):" ;
+		GET cU_dok ;
+		PICT "@S30"
+
+	@ m_x + 4, m_y + 2 SAY "datum od:" GET dD_from
+	@ m_x + 4, col() + 1 SAY "do:" GET dD_to
+	
+	read
+BoxC()
+
+if LastKey() == K_ESC
+	return
+endif
+
+// kreiraj pomocnu tabelu
+cre_tmp( cP_path )
+
+// generisi matricu sezona
+aSezone := TokToNiz( ALLTRIM(cSezone), ";" )
+
+// prodji kroz sezone i napuni podatke
+for i:=1 to LEN( aSezone )
+	
+	if ALLTRIM( aSezone[i] ) <> cT_sez
+
+		// predji u sezonu
+		goModul:oDataBase:logAgain( ALLTRIM(aSezone[i]), ;
+			lSilent, lWriteKParam )
+		// vrati mi vrijednost o sezoni
+		cG_sez := ALLTRIM( aSezone[i] )
+
+		o_tmp( cP_Path )
+	endif
+
+	msgo("exportujem sezonu " + ALLTRIM(aSezone[i]))
+
+	O_KALK
+	select kalk
+	go top
+
+	do while !EOF() 
+
+		if !EMPTY( cU_dok )
+			if kalk->idvd $ cU_dok
+				// idi dalje...
+			else
+				skip
+				loop
+			endif
+		endif
+		
+		select r_export
+		append blank
+
+		replace field->idfirma with kalk->idfirma
+		replace field->idroba with kalk->idroba
+		replace field->rbr with kalk->rbr
+		replace field->idkonto with kalk->idkonto
+		replace field->idkonto2 with kalk->idkonto2
+		replace field->idvd with kalk->idvd
+		replace field->brdok with kalk->brdok
+		replace field->datdok with kalk->datdok
+		replace field->brfaktp with kalk->brfaktp
+		replace field->datfaktp with kalk->datfaktp
+		replace field->idpartner with kalk->idpartner
+		replace field->kolicina with kalk->kolicina
+		replace field->nc with kalk->nc
+		replace field->fcj with kalk->fcj
+		replace field->vpc with kalk->vpc
+		replace field->rabatv with kalk->rabatv
+		replace field->mpc with kalk->mpc
+		replace field->mpcsapp with kalk->mpcsapp
+		replace field->mkonto with kalk->mkonto
+		replace field->pkonto with kalk->pkonto
+
+		select kalk
+		skip
+	enddo
+
+	msgc()
+
+next
+
+// na kraju se vrati u tekuce radno podrucje
+if cG_sez <> cT_sez
+	goModul:oDataBase:logAgain( cT_sez, lSilent, lWriteKParam )
+	o_tmp( cP_path )
+endif
+
+msgbeep( "Tabela R_EXPORT.DBF napunjena KALK podacima!")
+
+return
+
+
+
+// -------------------------------------------
+// kreiraj pomocnu tabelu
+// -------------------------------------------
+static function cre_tmp( cPath )
+local aFields := {}
+
+AADD( aFields, {"idfirma", "C", 2, 0} )
+AADD( aFields, {"idroba", "C", 10, 0} )
+AADD( aFields, {"rbr", "C", 4, 0} )
+AADD( aFields, {"idkonto", "C", 7, 0} )
+AADD( aFields, {"idkonto2", "C", 7, 0} )
+AADD( aFields, {"idvd", "C", 2, 0} )
+AADD( aFields, {"brdok", "C", 10, 0} )
+AADD( aFields, {"datdok", "D", 8, 0} )
+AADD( aFields, {"brfaktp", "C", 10, 0} )
+AADD( aFields, {"datfaktp", "D", 8, 0} )
+AADD( aFields, {"idpartner", "C", 6, 0} )
+AADD( aFields, {"kolicina", "N", 15, 5} )
+AADD( aFields, {"nc", "N", 15, 5} )
+AADD( aFields, {"fcj", "N", 15, 5} )
+AADD( aFields, {"vpc", "N", 15, 5} )
+AADD( aFields, {"rabatv", "N", 15, 5} )
+AADD( aFields, {"mpc", "N", 15, 5} )
+AADD( aFields, {"mpcsapp", "N", 15, 5} )
+AADD( aFields, {"mkonto", "C", 7, 0} )
+AADD( aFields, {"pkonto", "C", 7, 0} )
+
+t_exp_create( aFields )
+
+o_tmp( cPath )
+
+return
+
+
+// --------------------------------------------
+// otvori pomocnu tabelu
+// --------------------------------------------
+static function o_tmp( cPath )
+
+select (248)
+use ( cPath + "r_export" ) alias "r_export"
+
+return
+
+
+// --------------------------------------------
+// otvori pomocnu tabelu
+// --------------------------------------------
+static function o_p_tbl( cPath, cSezona, cT_sezona )
+
+if cSezona = "RADP" .or. cSezona == cT_sezona
+	cSezona := ""
+endif
+
+if !EMPTY(cSezona)
+	cSezona := cSezona + SLASH
+endif
+
+select (248)
+use ( cPath + cSezona + "KALK" ) alias "kalk_s"
+select (249)
+use ( cPath + cSezona + "DOKS" ) alias "doks_s"
+
+return
+
+// ----------------------------------------------
+// zatvori pomocne sezonske tabele
+// ----------------------------------------------
+static function c_p_tbl()
+select (248)
+use
+select (249)
+use
+return
+
+
+

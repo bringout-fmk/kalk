@@ -331,7 +331,7 @@ do while .t.
   
   @ m_x+6,m_y+2 SAY SPACE(60)
   @ m_x+6,m_y+2 SAY "Broj dokumenta u FAKT: " GET cFaktFirma
-  @ m_x+6,col()+1 SAY "-" GET cIdTipDok VALID cIdTipDok $ "00#01#10#12"
+  @ m_x+6,col()+1 SAY "-" GET cIdTipDok VALID cIdTipDok $ "00#01#10#12#19#16"
   @ m_x+6,col()+1 SAY "-" GET cBrDok
 
   read

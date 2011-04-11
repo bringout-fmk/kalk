@@ -587,5 +587,10 @@ gcSLObrazac:=IzFmkIni("KALK","SLObrazac","1",KUMPATH)
 
 gRobaBlock:={|Ch| RobaBlock(Ch)}
 
+// inicijalizujem ovu varijablu uvijek pri startu
+// ona sluzi za automatsku obradu kalkulacija 
+// vindija - varazdin
+private lAutoObr := .f.
+
 return
-*}
+

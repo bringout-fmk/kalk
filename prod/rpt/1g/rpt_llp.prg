@@ -69,6 +69,21 @@ Box(,18+IF(IsTvin(),1,0),68)
 cGrupacija:=space(4)
 cPredhStanje:="N"
 
+if !lPocStanje
+ // otvori parametre
+ O_PARAMS
+ private cSection:="P"
+ private cHistory:=" "
+ private aHistory:={}
+
+ RPar("l1",@cIdKonto)
+ RPar("l2",@cPNab)
+ RPar("l3",@cNula)
+ RPar("l4",@dDatOd)
+ RPar("l5",@dDatDo)
+
+endif
+
 do while .t.
 	if gNW $ "DX"
    		@ m_x+1,m_y+2 SAY "Firma "
@@ -137,6 +152,22 @@ do while .t.
 	endif
 enddo
 BoxC()
+
+if !lPocStanje
+ 
+ // otvori parametre
+ O_PARAMS
+ private cSection:="P"
+ private cHistory:=" "
+ private aHistory:={}
+
+ WPar("l1",cIdKonto)
+ WPar("l2",cPNab)
+ WPar("l3",cNula)
+ WPar("l4",dDatOd)
+ WPar("l5",dDatDo)
+
+endif
 
 // skeniraj dokumente u procesu za konto
 pl_scan_dok_u_procesu(cIdKonto)

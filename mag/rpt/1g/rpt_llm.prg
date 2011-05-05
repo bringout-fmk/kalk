@@ -91,8 +91,8 @@ if IsVindija()
 	cOpcine:=SPACE(50)
 endif
 
-_o_tables()
-
+_o_tables() 	
+	
 if fPocStanje==NIL
 	fPocStanje:=.f.
 else
@@ -115,6 +115,7 @@ qqidvd:=space(60)
 qqIdPartner:=space(60)
 
 private cPNab:="N"
+private cDoNab:="N"
 private cNula:="N"
 private cErr:="N"
 private cNCSif:="N"
@@ -125,6 +126,23 @@ private cFaBrDok := space(40)
 
 if !Empty(cRNT1)
 	private cRNalBroj:=PADR("", 40)
+endif
+
+if !fPocStanje
+ // otvori parametre
+ O_PARAMS
+ private cSection:="L"
+ private cHistory:=" "
+ private aHistory:={}
+
+ RPar("l1",@cIdKonto)
+ RPar("l2",@cPNab)
+ RPar("l3",@cNula)
+ RPar("l4",@dDatOd)
+ RPar("l5",@dDatDo)
+ RPar("l6",@cMinK)
+ RPar("l7",@cDoNab)
+
 endif
 
 cArtikalNaz:=SPACE(30)
@@ -145,7 +163,9 @@ Box(,21+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
  		@ m_x+6,m_y+2 SAY "Partneri " GET qqIdPartner pict "@!S20"
 		@ m_x+6,col()+1 SAY "Br.fakture " GET cFaBrDok  pict "@!S15"
  		@ m_x+7,m_y+2 SAY "Prikaz Nab.vrijednosti D/N" GET cPNab  valid cpnab $ "DN" pict "@!"
- 		if (IsPDV() .and. (IsMagPNab() .or. IsMagSNab()))
+ 		
+ 		@ m_x+7,col()+1 SAY "Prikaz samo do nab.vr. D/N" GET cDoNab  valid cDoNab $ "DN" pict "@!"
+		if (IsPDV() .and. (IsMagPNab() .or. IsMagSNab()))
 			@ m_x+8,m_y+2 SAY "Pr.stavki kojima je NV 0 D/N" GET cNula  valid cNula $ "DN" pict "@!"
  			@ m_x+9,m_y+2 SAY "Prikaz 'ERR' ako je NV/Kolicina<>NC " GET cErr pict "@!" valid cErr $ "DN"
 		else
@@ -238,6 +258,22 @@ Box(,21+IF(lPoNarudzbi,2,0)+IF(IsTvin(),1,0),60)
 	enddo
 BoxC()
 
+if !fPocStanje
+ // snimi parametre
+ O_PARAMS
+ private cSection:="L"
+ private cHistory:=" "
+ private aHistory:={}
+
+ WPar("l1",cIdKonto)
+ WPar("l2",cPNab)
+ WPar("l3",cNula)
+ WPar("l4",dDatOd)
+ WPar("l5",dDatDo)
+ WPar("l6",cMinK)
+ WPar("l7",cDoNab)
+
+endif
 
 // export u dbf ?
 if cExpDbf == "D"
@@ -770,7 +806,7 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
  			@ prow(),pcol()+1 SAY nNVI pict gpicdem
  			@ prow(),pcol()+1 SAY nNVU-nNVI pict gpicdem
  			
-			if IsPDV() 
+			if IsPDV() .and. cDoNab == "N" 
 			  // PV - samo u pdv rezimu
 			  @ prow(),pcol()+1 SAY nVPVU pict gpicdem
              		  @ prow(),pcol()+1 SAY nRabat pict gpicdem
@@ -891,15 +927,17 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 				@ prow(),pcol()+1 SAY (nNVU-nNVI)/(nUlaz-nIzlaz) pict gpicdem
 				
 			endif
-			// pv.dug - prazno
- 			@ prow(),pcol()+1 SAY space(len(gpicdem))
-			// rabat - prazno
- 			@ prow(),pcol()+1 SAY space(len(gpicdem))
-			// pv.pot - prazno
- 			@ prow(),pcol()+1 SAY space(len(gpicdem))
-			// prikazi PC
-        		if round(nUlaz-nIzlaz,4)<>0
+			if cDoNab == "N"
+			 // pv.dug - prazno
+ 			 @ prow(),pcol()+1 SAY space(len(gpicdem))
+			 // rabat - prazno
+ 			 @ prow(),pcol()+1 SAY space(len(gpicdem))
+			 // pv.pot - prazno
+ 			 @ prow(),pcol()+1 SAY space(len(gpicdem))
+			 // prikazi PC
+        		 if round(nUlaz-nIzlaz,4)<>0
 				@ prow(),pcol()+1 SAY nVPCIzSif pict gpiccdem
+			 endif
 			endif
 		endif
 		
@@ -977,11 +1015,12 @@ nCol1:=pcol()+1
 
 if gVarEv=="1"
 	if IsMagSNab() .or. IsMagPNab()
-		// NV
- 		@ prow(),pcol()+1 SAY ntNVU pict gpicdem
- 		@ prow(),pcol()+1 SAY ntNVI pict gpicdem
- 		@ prow(),pcol()+1 SAY ntNV pict gpicdem
- 	    if IsPDV() 
+	    // NV
+ 	    @ prow(),pcol()+1 SAY ntNVU pict gpicdem
+ 	    @ prow(),pcol()+1 SAY ntNVI pict gpicdem
+ 	    @ prow(),pcol()+1 SAY ntNV pict gpicdem
+ 	    
+	    if IsPDV() .and. cDoNab == "N" 
 	       // PV - samo u pdv rezimu 
 		@ prow(),pcol()+1 SAY ntVPVU pict gpicdem
  		@ prow(),pcol()+1 SAY ntRabat pict gpicdem
@@ -1191,7 +1230,8 @@ if gVarEv <> "2"
 		// NV
 		AADD(aLLM, {nPom, PADC("NV", nPom), PADC("NC", nPom), PADC("6 - 7", nPom) })
 
-		if IsPDV()
+		if cDoNab == "N"
+		  if IsPDV()
 			
 			nPom := LEN( gPicCDem )
 			// pv.dug
@@ -1202,12 +1242,14 @@ if gVarEv <> "2"
 			AADD(aLLM, {nPom, PADC("PV.Pot.", nPom), PADC("", nPom), PADC("10", nPom) })
 			// PV 
 			AADD(aLLM, {nPom, PADC("PV", nPom), PADC("PC", nPom), PADC("8 - 10", nPom) })
-		else
+		  else
 			
 			nPom := LEN( gPicCDem )
 			// PV
 			AADD(aLLM, {nPom, PADC("PV", nPom), PADC("", nPom), PADC("8", nPom) })
 	
+		  endif
+		
 		endif
 		
 	endif

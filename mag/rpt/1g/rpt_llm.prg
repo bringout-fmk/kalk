@@ -974,14 +974,17 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 		     fill_exp_tbl( 0, roba->id, cTmp, ;
 				roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
-				nNVU, nNVI, ( nNVU - nNVI ), 0 )
+				nNVU, nNVI, ( nNVU - nNVI ), 0, ;
+				nVPVU, nVPVI, (nVPVU - nVPVI), 0 )
 
 		else
 		     fill_exp_tbl( 0, roba->id, cTmp, ;
 				roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
 				nNVU, nNVI, ( nNVU - nNVI ), ;
-				(nNVU - nNVI)/(nUlaz - nIzlaz) )
+				(nNVU - nNVI)/(nUlaz - nIzlaz), ;
+				nVPVU, nVPVI, ( nVPVU - nVPVI), ;
+				nVPCIzSif )
 		endif
 	    endif
 	endif
@@ -1097,6 +1100,10 @@ AADD( aDbf, { "NVDUG", "N", 20, 10 })
 AADD( aDbf, { "NVPOT", "N", 20, 10 })
 AADD( aDbf, { "NV", "N", 15, 5 })
 AADD( aDbf, { "NC", "N", 15, 5 })
+AADD( aDbf, { "PVDUG", "N", 20, 10 })
+AADD( aDbf, { "PVPOT", "N", 20, 10 })
+AADD( aDbf, { "PV", "N", 15, 5 })
+AADD( aDbf, { "PC", "N", 15, 5 })
 
 return aDbf
 
@@ -1105,7 +1112,8 @@ return aDbf
 // filovanje tabele exporta
 // ------------------------------------------------------------
 static function fill_exp_tbl( nVar, cIdRoba, cSifDob, cNazRoba, cTarifa, ;
-		cJmj, nUlaz, nIzlaz, nSaldo, nNVDug, nNVPot, nNV, nNC )
+		cJmj, nUlaz, nIzlaz, nSaldo, nNVDug, nNVPot, nNV, nNC, ;
+		nPVDug, nPVPot, nPV, nPC )
 
 local nTArea := SELECT()
 
@@ -1129,6 +1137,19 @@ replace field->nvdug with nNVDug
 replace field->nvpot with nNVPot
 replace field->nv with nNV
 replace field->nc with nNC
+
+if cDoNab == "D"
+	// resetuj varijable
+	nPVDug := 0
+	nPVPot := 0
+	nPV := 0
+	nPC := 0
+endif
+
+replace field->pvdug with nPVDug
+replace field->pvpot with nPVPot
+replace field->pv with nPV
+replace field->pc with nPC
 
 if nVar == 1
 	//

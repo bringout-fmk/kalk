@@ -50,6 +50,8 @@ local cMINumber := ""
 local dMIDate := CTOD("")
 local cMI_type := ""
 local cSrKolNula := "0"
+local dL_ulaz := CTOD("")
+local dL_izlaz := CTOD("")
 
 cPicDem := gPicDem
 cPicCDem := gPicCDem
@@ -477,6 +479,9 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 	cMIFakt := ""
 	cMINumber := ""
 	dMIDate := CTOD("")
+	
+	dL_ulaz := CTOD("")
+	dL_izlaz := CTOD("")
 
 	select roba
 	hseek cIdRoba
@@ -608,6 +613,10 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
      			endif
      			nNVI-=round( nc*kolicina , gZaokr)
     		endif
+
+		// datum zadnjeg ulaza
+		dL_ulaz := field->datdok
+
   	elseif mu_i=="5"
     		nKolicina:=field->kolicina
     		nIzlaz+=nKolicina
@@ -619,7 +628,11 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
     		endif
     		nRabat+=round(  rabatv/100*vpc*kolicina , gZaokr)
     		nNVI+=ROUND(nc*kolicina, gZaokr)
-  	elseif mu_i=="3"    
+  		
+		// datum zadnjeg izlaza
+		dL_izlaz := field->datdok
+
+	elseif mu_i=="3"    
     		// nivelacija
     		//nVPVU+=round( vpc * kolicina , gZaokr)
   	elseif mu_i=="8"
@@ -975,7 +988,8 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 				roba->naz, roba->idtarifa, cJmj, ;
 				nUlaz, nIzlaz, (nUlaz-nIzlaz), ;
 				nNVU, nNVI, ( nNVU - nNVI ), 0, ;
-				nVPVU, nVPVI, (nVPVU - nVPVI), 0 )
+				nVPVU, nVPVI, (nVPVU - nVPVI), 0, ;
+				dL_ulaz, dL_izlaz )
 
 		else
 		     fill_exp_tbl( 0, roba->id, cTmp, ;
@@ -984,7 +998,7 @@ do while !eof() .and. IIF(fSint .and. lSabKon, idfirma, idfirma+mkonto ) = ;
 				nNVU, nNVI, ( nNVU - nNVI ), ;
 				(nNVU - nNVI)/(nUlaz - nIzlaz), ;
 				nVPVU, nVPVI, ( nVPVU - nVPVI), ;
-				nVPCIzSif )
+				nVPCIzSif, dL_ulaz, dL_izlaz )
 		endif
 	    endif
 	endif
@@ -1104,6 +1118,8 @@ AADD( aDbf, { "PVDUG", "N", 20, 10 })
 AADD( aDbf, { "PVPOT", "N", 20, 10 })
 AADD( aDbf, { "PV", "N", 15, 5 })
 AADD( aDbf, { "PC", "N", 15, 5 })
+AADD( aDbf, { "D_ULAZ", "D", 8, 0 })
+AADD( aDbf, { "D_IZLAZ", "D", 8, 0 })
 
 return aDbf
 
@@ -1113,7 +1129,7 @@ return aDbf
 // ------------------------------------------------------------
 static function fill_exp_tbl( nVar, cIdRoba, cSifDob, cNazRoba, cTarifa, ;
 		cJmj, nUlaz, nIzlaz, nSaldo, nNVDug, nNVPot, nNV, nNC, ;
-		nPVDug, nPVPot, nPV, nPC )
+		nPVDug, nPVPot, nPV, nPC, dL_ulaz, dL_izlaz )
 
 local nTArea := SELECT()
 
@@ -1150,6 +1166,9 @@ replace field->pvdug with nPVDug
 replace field->pvpot with nPVPot
 replace field->pv with nPV
 replace field->pc with nPC
+
+replace field->d_ulaz with dL_ulaz
+replace field->d_izlaz with dL_izlaz
 
 if nVar == 1
 	//

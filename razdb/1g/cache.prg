@@ -486,7 +486,7 @@ for i:=1 to LEN(ImeKol)
 next
 
 Box(,20,77)
-@ m_x+17,m_y+2 SAY "<F2>  ispravka                     "
+@ m_x+17,m_y+2 SAY "<c+N> novi zapis   <F2>  ispravka  <c+T> brisi stavku"
 @ m_x+18,m_y+2 SAY "<F>   filter odstupanja"
 @ m_x+19,m_y+2 SAY " "
 @ m_x+20,m_y+2 SAY " "
@@ -517,6 +517,29 @@ do case
 			return DE_REFRESH
 		else
 			return DE_CONT
+		endif
+	
+	case ch == K_CTRL_N
+		
+		// dodaj novu stavku u tabelu
+		if edit_item( .t. ) == 1
+
+			if !EMPTY( cT_filter )
+				set filter to &cT_filter
+				go top
+			endif
+
+			return DE_REFRESH
+		else
+			return DE_CONT
+		endif
+	
+	case ch == K_CTRL_T
+
+		// brisi stavku iz tabele
+		if Pitanje(,"Brisati stavku ?", "N") == "D"
+			delete
+			return DE_REFRESH
 		endif
 	
 	case UPPER(CHR(ch)) == "F"
@@ -552,12 +575,16 @@ return DE_CONT
 // -------------------------------------
 // korekcija stavke
 // -------------------------------------
-static function edit_item()
+static function edit_item( lNew )
 local GetList := {}
 local nTmp
 local nOdst
 local nL_nv
 local nL_znv
+
+if lNew == nil
+	lNew := .f.
+endif
 
 Scatter()
 
@@ -565,9 +592,44 @@ Scatter()
 nL_nv := _nv
 nL_znv := _z_nv
 
-Box(,2,55)
-	@ m_x + 1, m_y + 2 SAY "Srednja NC:" GET _nv
-	@ m_x + 2, m_y + 2 SAY " Zadnja NC:" GET _z_nv
+if lNew 
+	
+	// resetuj varijable
+	_idroba := SPACE( LEN( _idroba ))
+	_ulaz := 0
+	_izlaz := 0
+	_stanje := 0
+	_nvu := 0
+	_nvi := 0
+	_nv := 0
+	_z_nv := 0
+
+	append blank
+endif
+
+Box(,5,60)
+	
+	if lNew
+		
+		@ m_x + 1, m_y + 2 SAY "Id konto:" GET _idkonto
+		@ m_x + 1, col() + 2 SAY "Id roba:" GET _idroba
+		
+		@ m_x + 2, m_y + 2 SAY "ulaz:" GET _ulaz
+		@ m_x + 2, col() + 1 SAY "izlaz:" GET _izlaz
+		@ m_x + 2, col() + 1 SAY "stanje:" GET _stanje
+		
+		@ m_x + 3, m_y + 2 SAY "NV ulaz:" GET _nvu
+		@ m_x + 3, col() + 1 SAY "NV izlaz:" GET _nvi
+
+	endif
+	
+	@ m_x + 4, m_y + 2 SAY "Srednja NC:" GET _nv
+	@ m_x + 4, col() + 2 SAY " Zadnja NC:" GET _z_nv
+
+	if lNew 
+		@ m_x + 5, m_y + 2 SAY "odstupanje:" GET _odst
+	endif
+	
 	read
 BoxC()
 
@@ -576,6 +638,11 @@ if LastKey() == K_ESC
 endif
 
 Gather()
+
+// izadji ako je dodavanje novog zapisa...
+if lNew 
+	return 1
+endif
 
 // kalkulisi odstupanje automatski ako su cijene promjenjene
 

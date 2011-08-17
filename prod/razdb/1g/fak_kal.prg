@@ -1166,6 +1166,7 @@ return
  */
 
 function PrenosMP2()
+local cRazCijena := "D"
 
 private cIdFirma:=gFirma
 private cIdTipDok:="11"
@@ -1183,7 +1184,7 @@ O_TARIFA
 XO_FAKT
 
 dDatKalk:=Date()
-cIdKonto:=PADR("1320",7)
+cIdKonto:=PADR("1330",7)
 cIdZaduz:=SPACE(6)
 cBrkalk:=space(8)
 cZbirno:="D"
@@ -1216,14 +1217,23 @@ Box(,15,60)
    			@ m_x+3,col()+2 SAY "Razduzuje:" GET cIdZaduz  pict "@!"      valid empty(cidzaduz) .or. P_Firma(@cIdZaduz)
   		endif
         	
- 		@ m_x+5,m_y+2 SAY "Napraviti zbirnu kalkulaciju (D/N): " GET cZbirno VALID cZbirno$"DN" PICT "@!"
+ 		@ m_x+5,m_y+2 SAY "Napraviti zbirnu kalkulaciju (D/N): " ;
+			GET cZbirno ;
+			VALID cZbirno $ "DN" ;
+			PICT "@!"
+		
+ 		@ m_x+6,m_y+2 SAY "Razdvoji artikle razlicitih cijena (D/N): " ;
+			GET cRazCijena ;
+			VALID cRazCijena $ "DN" ;
+			PICT "@!"
+		
 		read
 		
 		if cZbirno=="N"
   			cFaktFirma:=cIdFirma
-  			@ m_x+6,m_y+2 SAY "Broj fakture: " GET cFaktFirma
-  			@ m_x+6,col()+2 SAY "- " + cIdTipDok
-  			@ m_x+6,col()+2 SAY "-" GET cBrDok
+  			@ m_x+7,m_y+2 SAY "Broj fakture: " GET cFaktFirma
+  			@ m_x+7,col()+2 SAY "- " + cIdTipDok
+  			@ m_x+7,col()+2 SAY "-" GET cBrDok
   			read
   		
 			if (LastKey()==K_ESC)
@@ -1343,11 +1353,17 @@ Box(,15,60)
        					select PRIPR
        					locate for idroba == xfakt->idroba
 
-					if FOUND() .and. mpcsapp = xfakt->cijena
+					if ( FOUND() ;
+					   .and. mpcsapp = xfakt->cijena ) ;
+					   .or. ( FOUND() ;
+					   .and. mpcsapp <> xfakt->cijena ;
+					   .and. cRazCijena == "N" )
+
 						// samo odradi append kolicine
 						replace kolicina with ;
 							kolicina + ;
 							xfakt->kolicina 
+					
 					else
 					
 					  private aPorezi:={}

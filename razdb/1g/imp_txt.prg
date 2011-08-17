@@ -1645,8 +1645,6 @@ Box(,10, 70)
 
 do while !EOF()
 
-	altd()
-
 	nPTRec:=RecNo()
 	nPCRec:=nPTRec
 	cBrDok := field->brdok

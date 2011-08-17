@@ -409,7 +409,6 @@ return
  */
 
 function PrenosMP()
-*{
 
 private cIdFirma:=gFirma
 private cIdTipDok:="11"
@@ -427,12 +426,11 @@ O_TARIFA
 XO_FAKT
 
 dDatKalk:=Date()
-cIdKonto:=PADR("1320",7)
+cIdKonto:=PADR("1330",7)
 cIdZaduz:=SPACE(6)
 cBrkalk:=space(8)
 cZbirno:="N"
 cNac_rab := "P"
-
 
 if gBrojac=="D"
 	select kalk
@@ -463,9 +461,9 @@ Box(,15,60)
  		@ m_x+5,m_y+2 SAY "Napraviti zbirnu kalkulaciju (D/N): " GET cZbirno VALID cZbirno$"DN" PICT "@!"
 		read
 		
-		if cZbirno=="N"
+		if cZbirno == "N"
 
-  			cFaktFirma:=cIdFirma
+  			cFaktFirma := cIdFirma
   			
 			@ m_x+6,m_y+2 SAY "Broj fakture: " GET cFaktFirma
   			@ m_x+6,col()+2 SAY "- " + cIdTipDok
@@ -558,38 +556,44 @@ Box(,15,60)
 			
   			endif
 		else
-			cFaktFirma:=cIdFirma
-			cIdTipDok:="11"
-			dOdDatFakt:=Date()
-			dDoDatFakt:=Date()
+
+			cFaktFirma := cIdFirma
+			cIdTipDok := "11"
+			dOdDatFakt := Date()
+			dDoDatFakt := Date()
 			
   			@ m_x+7,m_y+2 SAY "ID firma FAKT: " GET cFaktFirma
 			@ m_x+8,m_y+2 SAY "Datum fakture: " 
   			@ m_x+8,col()+2 SAY "od " GET dOdDatFakt
   			@ m_x+8,col()+2 SAY "do " GET dDoDatFakt
-  			read
+  		
+			read
   			
 			if (LastKey()==K_ESC)
 				exit
 			endif
 
 			select xfakt
-			
 			go top
 			
-  			do while !eof() 				
-				if (idfirma==cFaktFirma .and. idtipdok==cIdTipDok .and. datdok>=dOdDatFakt .and. datdok<=dDoDatFakt)
-					cIdPartner:=IdPartner
-      					@ m_x+14,m_y+2 SAY "Sifra partnera:" GET cIdpartner pict "@!" valid P_Firma(@cIdPartner)
+  			do while !eof() 			
+
+				if (idfirma == cFaktFirma .and. ;
+					idtipdok == cIdTipDok .and. ;
+					datdok >= dOdDatFakt .and. ;
+					datdok <= dDoDatFakt)
+
+					cIdPartner := IdPartner
+      					
+					@ m_x+14, m_y+2 SAY "Sifra partnera:" GET cIdpartner pict "@!" valid P_Firma(@cIdPartner)
       			
 					read
 
 					select pripr
-	     				
-					go bottom
+	     				go bottom
      			
-					if brdok==cBrKalk
-						nRbr:=val(Rbr)
+					if brdok == cBrKalk
+						nRbr := val(Rbr)
 					endif
      			
 					select xfakt
@@ -599,18 +603,34 @@ Box(,15,60)
        						LOOP
      					endif
      			
-       					select PRIPR
+       					select pripr
        					
 					private aPorezi:={}
+					
 					Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
+					
 					nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
 					
 					append blank
        			
-					replace idfirma with cIdFirma, rbr with str(++nRbr,3), idvd with "41", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa, brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cIdKonto, idzaduz with cIdZaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena, tmarza2 with "%"
-
-
-					replace rabatv with ( nMPVBP*xfakt->rabat/(xfakt->kolicina*100) ) * 1.17
+					replace idfirma with cIdFirma
+					replace rbr with str(++nRbr,3)
+					replace idvd with "41"
+					replace brdok with cBrKalk
+					replace datdok with dDatKalk
+					replace idpartner with cIdPartner
+					replace idtarifa with ROBA->idtarifa
+					replace brfaktp with xfakt->brdok
+					replace datfaktp with xfakt->datdok
+					replace idkonto with cIdKonto
+					replace idzaduz with cIdZaduz
+					replace datkurs with xfakt->datdok
+					replace kolicina with xfakt->kolicina
+					replace idroba with xfakt->idroba
+					replace mpcsapp with xfakt->cijena
+					replace tmarza2 with "%"
+					replace rabatv with ;
+						( nMPVBP*xfakt->rabat/(xfakt->kolicina*100) ) * 1.17
        					
 					select xfakt
       					skip
@@ -624,22 +644,21 @@ Box(,15,60)
 		
 		@ m_x+10,m_y+2 SAY "Dokument je prenesen !!"
 		@ m_x+11,m_y+2 SAY "Obavezno pokrenuti asistenta <a+F10>!!!"
-     		if gBrojac=="D"
+     		
+		if gBrojac=="D"
       			cBrKalk:=UBrojDok(val(left(cBrKalk,5))+1,5,right(cBrKalk,3))
      		endif
-     		Inkey(4)
-     		@ m_x+10,m_y+2 SAY SPACE(30)
+
+     		Inkey(0)
+     		
+		@ m_x+10,m_y+2 SAY SPACE(30)
 		@ m_x+11,m_y+2 SAY SPACE(40)
+	
 	enddo
 Boxc()
 
 closeret
 return
-
-*}
-
-
-
 
 
 /*! \fn Prenos01_2()
@@ -1140,7 +1159,6 @@ enddo
 Boxc()
 closeret
 return
-*}
 
 
 /*! \fn PrenosMP2()
@@ -1148,7 +1166,6 @@ return
  */
 
 function PrenosMP2()
-*{
 
 private cIdFirma:=gFirma
 private cIdTipDok:="11"
@@ -1279,16 +1296,18 @@ Box(,15,60)
 			
   			endif
 		else
-			cFaktFirma:=cIdFirma
-			cIdTipDok:="11"
-			dOdDatFakt:=Date()
-			dDoDatFakt:=Date()
+		
+			cFaktFirma := cIdFirma
+			cIdTipDok := "11"
+			dOdDatFakt := Date()
+			dDoDatFakt := Date()
 			
   			@ m_x+7,m_y+2 SAY "ID firma FAKT: " GET cFaktFirma
 			@ m_x+8,m_y+2 SAY "Datum fakture: " 
   			@ m_x+8,col()+2 SAY "od " GET dOdDatFakt
   			@ m_x+8,col()+2 SAY "do " GET dDoDatFakt
-  			read
+  			
+			read
   			
 			if (LastKey()==K_ESC)
 				exit
@@ -1299,15 +1318,19 @@ Box(,15,60)
 			go top
 			
   			do while !eof() 				
-				if (idfirma==cFaktFirma .and. idtipdok==cIdTipDok .and. datdok>=dOdDatFakt .and. datdok<=dDoDatFakt)
-					cIdPartner:=""
+				
+				if (idfirma == cFaktFirma .and. ;
+					idtipdok == cIdTipDok .and. ;
+					datdok >= dOdDatFakt .and. ;
+					datdok <= dDoDatFakt)
+					
+					cIdPartner := ""
 
 					select pripr
-	     				
 					go bottom
      			
-					if brdok==cBrKalk
-						nRbr:=val(Rbr)
+					if brdok == cBrKalk
+						nRbr := val(Rbr)
 					endif
      			
 					select xfakt
@@ -1318,15 +1341,42 @@ Box(,15,60)
      					endif
      			
        					select PRIPR
-       					
-					private aPorezi:={}
-					Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
-					nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
-					append blank
+       					locate for idroba == xfakt->idroba
+
+					if FOUND() .and. mpcsapp = xfakt->cijena
+						// samo odradi append kolicine
+						replace kolicina with ;
+							kolicina + ;
+							xfakt->kolicina 
+					else
+					
+					  private aPorezi:={}
+					  Tarifa(cIdKonto,xfakt->idRoba,@aPorezi)
+					  nMPVBP:=MpcBezPor(xfakt->(kolicina*cijena),aPorezi)
+					  append blank
        			
-					replace idfirma with cIdFirma, rbr with str(++nRbr,3), idvd with "42", brdok with cBrKalk, datdok with dDatKalk, idpartner with cIdPartner, idtarifa with ROBA->idtarifa, brfaktp with xfakt->brdok, datfaktp with xfakt->datdok, idkonto with cIdKonto, idzaduz with cIdZaduz, datkurs with xfakt->datdok, kolicina with xfakt->kolicina, idroba with xfakt->idroba, mpcsapp with xfakt->cijena, tmarza2 with "%"
-					replace rabatv with nMPVBP*xfakt->rabat/(xfakt->kolicina*100)
-       					select xfakt
+					  replace idfirma with cIdFirma
+					  replace rbr with str(++nRbr,3)
+					  replace idvd with "42"
+					  replace brdok with cBrKalk
+					  replace datdok with dDatKalk
+					  replace idpartner with cIdPartner
+					  replace idtarifa with ROBA->idtarifa
+					  replace brfaktp with xfakt->brdok
+					  replace datfaktp with xfakt->datdok
+					  replace idkonto with cIdKonto
+					  replace idzaduz with cIdZaduz
+					  replace datkurs with xfakt->datdok
+					  replace kolicina with xfakt->kolicina
+					  replace idroba with xfakt->idroba
+					  replace mpcsapp with xfakt->cijena
+					  replace tmarza2 with "%"
+					  replace rabatv with ;
+					  	nMPVBP * ;
+						xfakt->rabat/(xfakt->kolicina*100)
+       					endif
+
+					select xfakt
       					skip
 					loop
      				else

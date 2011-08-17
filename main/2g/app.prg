@@ -590,7 +590,7 @@ gRobaBlock:={|Ch| RobaBlock(Ch)}
 // inicijalizujem ovu varijablu uvijek pri startu
 // ona sluzi za automatsku obradu kalkulacija 
 // vindija - varazdin
-private lAutoObr := .f.
+public lAutoObr := .f.
 
 return
 

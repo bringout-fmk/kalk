@@ -512,25 +512,29 @@ endif
 
 Box(,3,60)
 
-// odradi magacine...
-aKto := TokToNiz( cM_list, ";" )
-i := 1
+if !EMPTY( cM_list )
+  // odradi magacine...
+  aKto := TokToNiz( cM_list, ";" )
+  i := 1
 
-for i := 1 to LEN( aKto )
+  for i := 1 to LEN( aKto )
 	// magacin je aKto[i]
 	@ m_x + 1, m_y + 2 SAY PADR( "radim magacin: " + aKto[i], 60 )
 	_app_for_kto( aKto[i], nT_kol, nT_ncproc )
-next
+  next
+endif
 
-// odradi prodavnice...
-aKto := TokToNiz( cP_list, ";" )
-i := 1
+if !EMPTY( cP_list )
+  // odradi prodavnice...
+  aKto := TokToNiz( cP_list, ";" )
+  i := 1
 
-for i := 1 to LEN( aKto )
+  for i := 1 to LEN( aKto )
 	// magacin je aKto[i]
 	@ m_x + 1, m_y + 2 SAY PADR( "radim prodavnicu: " + aKto[i], 60 )
 	_app_for_kto( aKto[i], nT_kol, nT_ncproc )
-next
+  next
+endif
 
 BoxC()
 
@@ -545,6 +549,10 @@ static function _app_for_kto( cKto, nKol, nNcProc, lSilent )
 local cRoba 
 local cRobaNaz
 local nVPC
+
+if EMPTY( cKto )
+	return
+endif
 
 cKto := PADR( cKto, 7 )
 

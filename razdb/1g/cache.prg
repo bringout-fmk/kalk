@@ -126,10 +126,12 @@ select (nTArea)
 return 1
 
 
-// ---------------------------------------------------
+// ------------------------------------------------------------
 // lista konta
-// ---------------------------------------------------
-static function _g_kto( cMList, cPList, dDatGen )
+// ------------------------------------------------------------
+static function _g_kto( cMList, cPList, dDatGen, cAppendSif, ;
+	nT_kol, nT_ncproc )
+
 local GetList:={}
 local nTArea := SELECT()
 
@@ -141,18 +143,37 @@ private aHistory:={}
 cMList := PADR("1310;13101;", 250)
 cPList := PADR("1320;", 250)
 dDatGen := DATE()
+cAppendSif := "D"
+nT_kol := 100.00
+nT_ncproc := 17.00
 
 RPar("mk", @cMList)
 RPar("pk", @cPList)
+RPar("as", @cAppendSif)
+RPar("np", @nT_ncproc)
+RPar("nk", @nT_kol)
 
 cMList := PADR( cMList, 250 )
 cPList := PADR( cPList, 250 )
 
-Box(,3,60)
+Box(,6,60)
+
 	@ m_x + 1, m_y + 2 SAY "Mag. konta:" GET cMList PICT "@S40"
 	@ m_x + 2, m_y + 2 SAY "Pro. konta:" GET cPList PICT "@S40"
 	@ m_x + 3, m_y + 2 SAY "Datum do:" GET dDatGen
+	@ m_x + 4, m_y + 2 SAY "Dodaj nepost.stavke iz sifrarnika (D/N):" GET cAppendSif
+	
 	read
+
+	if cAppendSif == "D"
+		
+		@ m_x + 5, m_y + 2 SAY " -         default stanje:" ;
+			GET nT_kol VALID nT_kol > 0 PICT "999999.99"
+		@ m_x + 6, m_y + 2 SAY " - default procenat za nc:" ;
+			GET nT_ncproc PICT "9999999.99"
+		
+		read
+	endif
 BoxC()
 
 if LastKey() == K_ESC
@@ -163,6 +184,9 @@ endif
 WPar("mk", cMList)
 WPar("pk", cPList)
 WPar("dg", dDatGen)
+WPar("as", cAppendSif)
+WPar("np", nT_ncproc)
+WPar("nk", nT_kol)
 
 select (nTArea)
 
@@ -186,6 +210,9 @@ local cIdRoba
 local cMKtoLst
 local cPKtoLst
 local dDatGen
+local cAppFSif
+local nT_kol
+local nT_ncproc
 local GetList:={}
 local i
 
@@ -196,7 +223,8 @@ local nUKol_poz, nIKol_poz
 local nZadnjaNC := 0
 local nOdstup := 0
 
-if _g_kto( @cMKtoLst, @cPKtoLst, @dDatGen ) == 0
+if _g_kto( @cMKtoLst, @cPKtoLst, @dDatGen, @cAppFSif, ;
+	@nT_kol, @nT_ncproc ) == 0
 	return
 endif
 
@@ -452,7 +480,136 @@ next
 
 BoxC()
 
+if cAppFSif == "D"
+	// dodaj stavke iz sifrarnika robe koje ne postoje
+	_app_from_sif( cMKtoLst, cPKtoLst, nT_kol, nT_ncproc )
+endif
+
+
 return
+
+
+// ---------------------------------------------------------------
+// dodaj u cache tabelu stavke iz sifrarnika koje ne postoje
+// u cache
+// ---------------------------------------------------------------
+static function _app_from_sif( cM_list, cP_list, nT_kol, nT_ncproc )
+local nTArea := SELECT()
+local aKto := {}
+local i
+
+private GetList:={}
+
+if nT_kol = nil .or. nT_kol <= 0
+	msgbeep("Default kolicina setovana na 0. Kako je to moguce :)")
+	return
+endif
+
+if nT_ncproc = nil .or. nT_ncproc <= 0
+	msgbeep("Default procenat nc setovan na <= 0. Kako je to moguce :)")
+	return
+endif
+
+Box(,3,60)
+
+// odradi magacine...
+aKto := TokToNiz( cM_list, ";" )
+i := 1
+
+for i := 1 to LEN( aKto )
+	// magacin je aKto[i]
+	@ m_x + 1, m_y + 2 SAY PADR( "radim magacin: " + aKto[i], 60 )
+	_app_for_kto( aKto[i], nT_kol, nT_ncproc )
+next
+
+// odradi prodavnice...
+aKto := TokToNiz( cP_list, ";" )
+i := 1
+
+for i := 1 to LEN( aKto )
+	// magacin je aKto[i]
+	@ m_x + 1, m_y + 2 SAY PADR( "radim prodavnicu: " + aKto[i], 60 )
+	_app_for_kto( aKto[i], nT_kol, nT_ncproc )
+next
+
+BoxC()
+
+select (nTArea)
+return
+
+
+// ------------------------------------------------
+// dodaj u cache tabelu robu za konto
+// ------------------------------------------------
+static function _app_for_kto( cKto, nKol, nNcProc, lSilent )
+local cRoba 
+local cRobaNaz
+local nVPC
+
+cKto := PADR( cKto, 7 )
+
+if nKol = nil
+	nKol := 100
+endif
+
+if nNcProc = nil
+	nNcProc := 17.00
+endif
+
+if lSilent == nil
+	lSilent := .f.
+endif
+
+O_ROBA
+go top
+
+do while !EOF()
+
+	// ako nema sifre dobavljaca, preskoci...
+	if EMPTY( field->sifradob ) .or. field->vpc = 0
+		skip
+		loop
+	endif
+
+	cRoba := field->id
+	cRobaNaz := field->naz
+	nVPC := field->vpc
+
+	// provjeri ima li u cache tabeli
+	select cache
+	set order to tag "1"
+	go top
+	seek cKto + cRoba
+
+	if !FOUND()
+		
+		// nisam nasao upisi u cache
+		
+		if !lSilent
+			@ m_x + 2, m_y + 2 SAY "roba: " + PADR( cRoba, 10 ) ;
+				+ "-" + PADR( cRobaNaz, 40 )
+ 		endif
+
+		append blank
+	 	replace idkonto with cKto
+	 	replace idroba with cRoba
+	 	replace ulaz with nKol
+	 	replace izlaz with 0
+	 	replace stanje with nKol
+	 	replace nv with nVPC / (( nNcProc / 100) + 1)
+	 	replace nvu with nv * nKol
+	 	replace nvi with 0
+	 	replace z_nv with nv
+	 	replace odst with 0
+
+	endif
+
+	select roba
+	skip
+enddo
+
+return
+
 
 // -------------------------------------------------------
 // konvertuje numericko polje u karakterno za prikaz

@@ -12,33 +12,9 @@
 
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/2g/rpt_lag.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.3 $
- * $Log: rpt_lag.prg,v $
- * Revision 1.3  2004/05/05 08:16:52  sasavranic
- * Na izvj.LLP dodao uslov za partnera
- *
- * Revision 1.2  2002/07/08 23:03:54  ernad
- *
- *
- * trgomarket debug dok 80, 81, izvjestaj lager lista magacin po proizv. kriteriju
- *
- * Revision 1.1  2002/07/08 22:20:43  ernad
- *
- *
- * lager lista magacin - proizvoljni sort
- *
- *
- */
 
 
 function TKaLagMNew()
-*{
 local oObj
 
 oObj:=TKaLagM():new()
@@ -83,8 +59,8 @@ CREATE CLASS TKaLagM
 	var cUslPartner
 	var cUslRobaNaz
 	var cUslRoba
-	
-	
+	var cExportDBF
+
 	// row varijable (za IdRoba)
 	var nUlazK
 	var nIzlazK
@@ -103,7 +79,6 @@ CREATE CLASS TKaLagM
 	var nTNvU
 	var nTNvI
 	var nTRabat
-
 	
 	var cSort
 	
@@ -138,12 +113,13 @@ CREATE CLASS TKaLagM
 
 	method calcTotal
 	method printTotal
-	
+
+	method export2Dbf
+
 END CLASS
 #endif
 
 function KaLagM()
-*{
 local cIdRoba
 local cIdTarifa
 local nRec
@@ -163,8 +139,6 @@ do while .t.
 		exit
 	endif
 enddo
-
-
 
 SELECT kalk
 SEEK gFirma+oRpt:cIdKonto
@@ -224,8 +198,12 @@ oRpt:printFooter()
 oRpt:closeDb()
 
 EndPrint()
+
+if oRpt:cExportDBF == "D"
+	oRpt:export2DBF()
+endif
+
 return
-*}
 
 
 method openDb
@@ -340,6 +318,7 @@ USE
 ::cUslPartner:=SPACE(60)
 ::cUslTarifa:=SPACE(60)
 ::cUslIdVd:=SPACE(60)
+::cExportDBF:="N"
 
 Box(nil, 20, 70)
 
@@ -370,6 +349,8 @@ cKto:=::cIdKonto
 
 @ m_x+18, m_y+2 SAY "(N)abavna / (P)rodajna vrijednost " GET ::cNabIliProd PICT "@!" VALID ::cNabIliProd $ "NP"
 @ m_x+19, m_y+2 SAY "Prikazati sve (i kolicina 0) " GET ::cPrikKolNula PICT "@!" VALID ::cPrikKolNula $ "DN"
+@ m_x+20, m_y+2 SAY "Export izvjestaja (D/N)?" GET ::cExportDBF PICT "@!" VALID ::cExportDBF $ "DN"
+
 READ
 
 ::cIdKonto:=cKto
@@ -384,7 +365,7 @@ if (LASTKEY()==K_ESC)
 endif
 
 return 1
-*}
+
 
 
 method creTmpTbl
@@ -416,9 +397,9 @@ CLOSE ALL
 O_RPT_TMP
 SET ORDER TO TAG "idRoba"
 
-altd()
 return
-*}
+
+
 
 method setFiltDb
 local cPom
@@ -670,3 +651,69 @@ endif
 
 ? ::cLinija
 return
+
+
+// export podataka u dbf
+method export2DBF
+local aExpFields
+
+// exportuj report....
+aExpFields := g_exp_fields()
+
+t_exp_create( aExpFields )
+
+// kopiraj sve iz rpt_tmp u r_export
+O_RPT_TMP
+O_R_EXP
+select rpt_tmp
+go top
+
+do while !EOF()
+	
+	select r_export
+	append blank
+	replace field->idroba with rpt_tmp->idroba
+	replace field->robanaz with rpt_tmp->robanaz
+	replace field->idtarifa with rpt_tmp->idtarifa
+	replace field->idpartner with rpt_tmp->idpartner
+	replace field->jmj with rpt_tmp->jmj
+	replace field->ulaz with rpt_tmp->ulazk
+	replace field->izlaz with rpt_tmp->izlazk
+	replace field->stanje with ( field->ulaz - field->izlaz )
+	replace field->i_ulaz with rpt_tmp->ulazf
+	replace field->i_izlaz with rpt_tmp->izlazf
+	replace field->i_stanje with ( field->i_ulaz - field->i_izlaz )
+	replace field->rabat with rpt_tmp->rabatf
+	
+	select rpt_tmp
+	skip
+
+enddo
+
+cLaunch := exp_report()
+
+tbl_export( cLaunch )
+
+return
+
+
+// vrati polja za export tabelu
+static function g_exp_fields()
+local aTbl := {}
+
+AADD(aTbl, { "idRoba",  "C", 10, 0})
+AADD(aTbl, { "RobaNaz", "C", 250, 0})
+AADD(aTbl, { "idTarifa","C", 6, 0})
+AADD(aTbl, { "idPartner","C", 6, 0})
+AADD(aTbl, { "jmj",     "C", 3, 0})
+AADD(aTbl, { "ulaz",   "N", 15, 4})
+AADD(aTbl, { "izlaz",  "N", 15, 4})
+AADD(aTbl, { "stanje",  "N", 15, 4})
+AADD(aTbl, { "i_ulaz",   "N", 16, 4})
+AADD(aTbl, { "i_izlaz",  "N", 16, 4})
+AADD(aTbl, { "i_stanje",  "N", 16, 4})
+AADD(aTbl, { "rabat",  "N", 16, 4})
+
+return aTbl
+
+

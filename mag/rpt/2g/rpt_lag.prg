@@ -656,6 +656,11 @@ return
 // export podataka u dbf
 method export2DBF
 local aExpFields
+local nK_ulaz := 0
+local nK_izlaz := 0
+local nI_ulaz := 0
+local nI_izlaz := 0
+local nI_rabat := 0
 
 // exportuj report....
 aExpFields := g_exp_fields()
@@ -685,10 +690,28 @@ do while !EOF()
 	replace field->i_stanje with ( field->i_ulaz - field->i_izlaz )
 	replace field->rabat with rpt_tmp->rabatf
 	
+	nK_ulaz += field->ulaz
+	nK_izlaz += field->izlaz
+	nI_ulaz += field->i_ulaz
+	nI_izlaz += field->i_izlaz
+	nI_rabat += field->rabat
+
 	select rpt_tmp
 	skip
 
 enddo
+
+// dodaj total u tabelu
+select r_export
+append blank
+replace field->idroba with "UKUPNO"
+replace field->ulaz with nK_ulaz
+replace field->izlaz with nK_izlaz
+replace field->stanje with nK_ulaz - nK_izlaz
+replace field->i_ulaz with nI_ulaz
+replace field->i_izlaz with nI_izlaz
+replace field->i_stanje with nI_ulaz - nI_izlaz
+replace field->rabat with nI_rabat
 
 cLaunch := exp_report()
 

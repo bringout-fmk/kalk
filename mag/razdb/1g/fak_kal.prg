@@ -40,8 +40,9 @@ return
 // --------------------------------------
 // otvori tabele prenosa
 // --------------------------------------
-static function _o_prenos_tbls()
+static function _o_pr_tbls()
 O_KONCIJ
+O_PARAMS
 O_PRIPR
 O_KALK
 O_DOKS
@@ -59,27 +60,40 @@ function PrenOtPeriod()
 local _id_firma := gFirma
 local _fakt_id_firma := gFirma
 local _tip_dok_fakt := PADR( "12;", 150 )
-local _dat_fakt_od, _dat_fakt_do
+local _d_fakt_od, _d_fakt_do
 local _br_kalk_dok := SPACE(8)
 local _tip_kalk := "96"
 local _dat_kalk
-local _id_konto
-local _id_konto_2
+local _id_kt
+local _id_kt_2
 local _sufix, _r_br, _razduzuje
 local _fakt_dobavljac := SPACE(10)
 local _artikli := SPACE(150)
 local _usl_roba
 
-_o_prenos_tbls()
+_o_pr_tbls()
 
 _dat_kalk := DATE()
-_id_konto := PADR( "", 7 )
-_id_konto_2 := PADR( "1010", 7 )
+_id_kt := PADR( "", 7 )
+_id_kt_2 := PADR( "1010", 7 )
 _razduzuje := SPACE(6)
-_dat_fakt_od := DATE()
-_dat_fakt_do := DATE()
+_d_fakt_od := DATE()
+_d_fakt_do := DATE()
 _br_kalk_dok := GetNextKalkDoc( _id_firma, _tip_kalk )
-    
+
+// procitaj parametre
+private cSection:="G"
+private cHistory:=" "
+private aHistory:={}
+select params
+
+RPar("k1",@_id_kt)
+RPar("k2",@_id_kt_2)
+RPar("d1",@_d_fakt_od)
+RPar("d2",@_d_fakt_do)
+RPar("a1",@_artikli)
+RPar("t1",@_tip_dok_fakt)
+
 Box(, 15, 70 )
 
 DO WHILE .t.
@@ -88,8 +102,8 @@ DO WHILE .t.
   
     @ m_x + 1, m_y + 2 SAY "Broj kalkulacije " + _tip_kalk + " -" GET _br_kalk_dok PICT "@!"
     @ m_x + 1, col() + 2 SAY "Datum:" GET _dat_kalk
-    @ m_x + 3, m_y + 2 SAY "Konto zaduzuje :" GET _id_konto PICT "@!" VALID EMPTY( _id_konto ) .OR. P_Konto( @_id_konto )
-    @ m_x + 4, m_y + 2 SAY "Konto razduzuje:" GET _id_konto_2 PICT "@!" VALID EMPTY( _id_konto_2 ) .OR. P_Konto( @_id_konto_2 )
+    @ m_x + 3, m_y + 2 SAY "Konto zaduzuje :" GET _id_kt PICT "@!" VALID EMPTY( _id_kt ) .OR. P_Konto( @_id_kt )
+    @ m_x + 4, m_y + 2 SAY "Konto razduzuje:" GET _id_kt_2 PICT "@!" VALID EMPTY( _id_kt_2 ) .OR. P_Konto( @_id_kt_2 )
 
     if gNW <> "X"
         @ m_x + 4, col() + 2 SAY "Razduzuje:" GET _razduzuje PICT "@!" VALID EMPTY(_razduzuje) .OR. P_Firma( @_razduzuje )
@@ -100,8 +114,8 @@ DO WHILE .t.
     // postavi uslove za period...
     @ m_x + 6, m_y + 2 SAY "FAKT: id firma:" GET _fakt_id_firma
     @ m_x + 7, m_y + 2 SAY "Vrste dokumenata:" GET _tip_dok_fakt PICT "@S30"
-    @ m_x + 8, m_y + 2 SAY "Dokumenti u periodu od" GET _dat_fakt_od 
-    @ m_x + 8, col() + 1 SAY "do" GET _dat_fakt_do
+    @ m_x + 8, m_y + 2 SAY "Dokumenti u periodu od" GET _d_fakt_od 
+    @ m_x + 8, col() + 1 SAY "do" GET _d_fakt_do
 
     // uslov za sifre artikla
     @ m_x + 10, m_y + 2 SAY "Uslov po artiklima:" GET _artikli PICT "@S30"
@@ -112,6 +126,16 @@ DO WHILE .t.
         EXIT
     ENDIF
 
+    // snimi parametre
+    SELECT params 
+    WPar("k1",_id_kt)	
+    WPar("k2",_id_kt_2)
+    WPar("d1",_d_fakt_od)
+    WPar("d2",_d_fakt_do)
+    WPar("a1",_artikli)
+    WPar("t1",_tip_dok_fakt)
+
+    // predji na selekt podataka
     SELECT xfakt
     SET ORDER TO TAG "1"
     SEEK _fakt_id_firma
@@ -125,7 +149,7 @@ DO WHILE .t.
         ENDIF
 
         // provjeri po datumskom uslovu
-        IF field->datdok < _dat_fakt_od .OR. field->datdok > _dat_fakt_do  
+        IF field->datdok < _d_fakt_od .OR. field->datdok > _d_fakt_do  
             SKIP
             LOOP
         ENDIF
@@ -143,7 +167,7 @@ DO WHILE .t.
         ENDIF
 
         SELECT KONCIJ
-        SEEK TRIM( _id_konto )
+        SEEK TRIM( _id_kt )
 
         SELECT xfakt
      
@@ -154,7 +178,7 @@ DO WHILE .t.
         ENDIF
      
         SELECT ROBA
-        hseek fakt->idroba
+        hseek xfakt->idroba
 
         SELECT tarifa
         hseek roba->idtarifa
@@ -170,7 +194,7 @@ DO WHILE .t.
         // dobro, sada imam prave dokumente koje treba da prebacujem,
         // bacimo se na posao...
 
-        SELECT kalk_pripr
+        SELECT pripr
         GO BOTTOM
         // provjeri da li već postoji artikal prenesen, pa ga saberi sa prethodnim
         LOCATE FOR idroba == xfakt->idroba        
@@ -194,8 +218,8 @@ DO WHILE .t.
                idtarifa with ROBA->idtarifa,;
                brfaktp with _fakt_dobavljac,;
                datfaktp with xfakt->datdok,;
-               idkonto   with _id_konto,;
-               idkonto2  with _id_konto_2,;
+               idkonto   with _id_kt,;
+               idkonto2  with _id_kt_2,;
                idzaduz2  with _razduzuje,;
                datkurs with xfakt->datdok,;
                kolicina with xfakt->kolicina,;
@@ -215,13 +239,19 @@ DO WHILE .t.
         SKIP
     
     ENDDO
+    
+    if _r_br > 0
+
+    	@ m_x + 14, m_y + 2 SAY "Dokument je generisan !!"
      
-    @ m_x + 14, m_y + 2 SAY "Dokument je generisan !!"
-     
-    inkey(4)
-     
-    @ m_x + 14, m_y + 2 SAY SPACE(30)
-  
+    	inkey(4)
+	
+    	@ m_x + 14, m_y + 2 SAY SPACE(30)
+	
+	EXIT
+    
+    endif
+
 ENDDO
 
 BoxC()

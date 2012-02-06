@@ -13,58 +13,38 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/kalk/mag/rpt/1g/rpt_fllm.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: rpt_fllm.prg,v $
- * Revision 1.6  2004/05/27 07:09:51  sasavranic
- * Dodao uslov za tip sredstva i na izvjestaj Fin.stanja magacina
- *
- * Revision 1.5  2004/01/09 14:22:36  sasavranic
- * Dorade za dom zdravlja
- *
- * Revision 1.4  2003/07/18 07:24:54  mirsad
- * stavio u f-ju kontrolu stanja za varijantu po narudzbama za izlazne dokumente (14,41,42)
- *
- * Revision 1.3  2003/02/24 02:40:56  mirsad
- * ispravka bug-a na fllm (ispis ukupno odlutao)
- *
- * Revision 1.2  2002/06/20 13:13:03  mirsad
- * dokumentovanje
- *
- *
- */
- 
 
-/*! \file fmk/kalk/mag/rpt/1g/rpt_fllm.prg
- *  \brief Izvjestaj "finansijsko stanje magacina"
- */
+// -----------------------------------
+// otvaranje potrebnih tabela
+// -----------------------------------
+static function _o_tbl()
+O_SIFK
+O_SIFV
+O_TDOK
+O_ROBA
+O_KONCIJ
+O_KONTO
+O_PARTN
+return
 
 
-/*! \fn FLLM()
- *  \brief Izvjestaj "finansijsko stanje magacina"
- */
-
+// ---------------------------------------------
+// finansijska lager lista magacina
+// ---------------------------------------------
 function FLLM()
-*{
+local cTipDok, cDokNaz
+local _t_area, _a_exp
+local _export := .f.
+local _exp_dn := "N"
+local _launch
+local cPartnNaz, cPartnMj, cPartnPtt
+
+_o_tbl()
 
 PicDem:=REPLICATE("9", VAL(gFPicDem)) + gPicDem
 PicCDem:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDem
 
 cIdKonto:=padr("1310",gDuzKonto)
-
-O_SIFK
-O_SIFV
-
-O_ROBA
-O_KONCIJ
-O_KONTO
-O_PARTN
-
 dDatOd:=ctod("")
 dDatDo:=date()
 qqRoba:=qqMKonta:=space(60)
@@ -75,7 +55,7 @@ if IsDomZdr()
 	private cKalkTip:=SPACE(1)
 endif
 
-Box(,10,60)
+Box(,11,60)
 do while .t.
 	if gNW $ "DX"
    		@ m_x+1,m_y+2 SAY "Firma "; ?? gFirma,"-",gNFirma
@@ -102,6 +82,7 @@ do while .t.
  	if IsDomZdr()
  		@ m_x+10,m_y+2 SAY "Prikaz po tipu sredstva " GET cKalkTip PICT "@!"
 	endif
+ 	@ m_x+11,col()+2 SAY "Export izvjestaja (D/N) ?" GET _exp_dn VALID _exp_dn $ "DN" PICT "@!"
 	read
 	ESC_BCR
  	private aUsl2:=Parsiraj(qqTarifa,"IdTarifa")
@@ -121,6 +102,20 @@ do while .t.
 enddo
 BoxC()
 
+// treba li exportovati podatke
+if _exp_dn == "D"
+    _export := .t.
+endif
+
+if _export
+
+    // napravi pomocnu tabelu
+    _cre_tmp_tbl()
+    // otvori ponovo tabele izvjestaja
+    _o_tbl()
+
+endif
+
 cIdFirma:=gFirma
 
 // sinteticki konto
@@ -133,11 +128,9 @@ if cViseKonta=="N"
 	endif
 endif
 
-O_KALK    // ne ide O_KALKREP zbog toga çto polje BRFAKTP ne postoji
-          // u bazi KALKS (var.2), kao ni polja PREVOZ i ostali zavisni
-          // troçkovi nabavke
+O_KALK    
 select kalk
-set order to 5
+set order to tag "5"
 //CREATE_INDEX("KALKi5","idFirma+dtos(datdok)+idvd+brdok+rbr","KALK")
 
 hseek cIdFirma
@@ -177,7 +170,7 @@ endif
 private cLine:=SetRptLineAndText(aFLLM, 0)
 private cText1:=SetRptLineAndText(aFLLM, 1, "*")
 
-start print cret
+START PRINT CRET
 ?
 
 if cPapir=="2"
@@ -224,6 +217,23 @@ do while !eof() .and. cidfirma==idfirma .and.  IspitajPrekid()
 	cIdPartner:=idpartner
 	dDatDok:=datdok
 	cBroj:=idvd+"-"+brdok
+    cTipDok := idvd
+
+    _t_area := SELECT()
+    
+    select tdok
+    hseek cTipDok
+    cDokNaz := field->naz
+
+    select partn
+    hseek cIdPartner
+
+    cPartnNaz := field->naz
+    cPartnPtt := field->ptt
+    cPartnMj := field->mjesto
+
+    select ( _t_area )
+
 	do while !eof() .and. cIdFirma+dtos(dDatDok)+cBroj==idFirma+dtos(datdok)+idvd+"-"+brdok .and.  IspitajPrekid()
 		if cViseKonta=="N" .and. (datdok<dDatOd .or. datdok>dDatDo .or. mkonto<>cidkonto)
   			skip
@@ -315,9 +325,21 @@ do while !eof() .and. cidfirma==idfirma .and.  IspitajPrekid()
 		@ prow(),pcol()+1 SAY nTNVU-nTNVI pict picdem
 		@ prow(),pcol()+1 SAY nVPVU pict picdem
 		@ prow(),pcol()+1 SAY nVPVI pict picdem
-		@ prow(),pcol()+1 SAY nTVPVU-NTVPVI pict picdem
+		@ prow(),pcol()+1 SAY nTVPVU-nTVPVI pict picdem
 		@ prow(),pcol()+1 SAY nRabat pict picdem
 	endif
+
+    // dodaj u r_export
+    if _export 
+
+        _add_to_exp( cBroj, dDatDok, cDokNaz, cIdPartner, ;
+                     cPartnNaz, cPartnMj, cPartnPtt, cBrFaktP, ;
+                     nNVU, nNVI, nTNVU - nTNVI, ;
+                     nVPVU, nVPVI, nTVPVU - nTVPVI, ;
+                     nRabat )
+
+    endif
+
 enddo
 
 ? cLine
@@ -343,17 +365,27 @@ else
 endif
 
 ? cLine
+
+if _export
+    _add_to_exp( "UKUPNO:", CTOD(""), "", "", ;
+                 "", "", "", "", ;
+                 nTNVU, nTNVI, nTNVU - nTNVI, ;
+                 nTVPVU, nTVPVI, nTVPVU - nTVPVI, ;
+                 nTRabat )
+endif
+
 FF
-end print
-#ifdef CAX
-	if gKalks
-		select kalk
-		use
-	endif
-#endif
-closeret
+END PRINT
+
+// pregled izvjestaja nakon generisanja u spreadsheet aplikaciji
+if _export
+    _launch := exp_report()
+    tbl_export( _launch )
+endif
+
+close all
 return
-*}
+
 
 
 /*! \fn ZaglFLLM()
@@ -391,7 +423,68 @@ select kalk
 ? cLine
 
 return
-*}
+
+
+// ----------------------------------------------
+// kreiranje pomocne tabele izvjestaja
+// ----------------------------------------------
+static function _cre_tmp_tbl()
+local _dbf := {}
+
+AADD( _dbf, { "broj"      , "C", 10, 0 } )
+AADD( _dbf, { "datum"     , "D",  8, 0 } )
+AADD( _dbf, { "vr_dok"    , "C", 30, 0 } )
+AADD( _dbf, { "idpartner" , "C",  6, 0 } )
+AADD( _dbf, { "part_naz"  , "C",100, 0 } )
+AADD( _dbf, { "part_mj"   , "C", 50, 0 } )
+AADD( _dbf, { "part_ptt"  , "C", 10, 0 } )
+AADD( _dbf, { "br_fakt"   , "C", 20, 0 } )
+AADD( _dbf, { "nv_dug"    , "N", 15, 2 } )
+AADD( _dbf, { "nv_pot"    , "N", 15, 2 } )
+AADD( _dbf, { "nv_saldo"  , "N", 15, 2 } )
+AADD( _dbf, { "vp_dug"    , "N", 15, 2 } )
+AADD( _dbf, { "vp_pot"    , "N", 15, 2 } )
+AADD( _dbf, { "vp_saldo"  , "N", 15, 2 } )
+AADD( _dbf, { "vp_rabat"  , "N", 15, 2 } )
+
+t_exp_create( _dbf )
+
+return _dbf
+
+
+// ---------------------------------------
+// dodaj podatke u r_export tabelu
+// ---------------------------------------
+static function _add_to_exp( broj_dok, datum_dok, vrsta_dok, id_partner, ;
+                            part_naz, part_mjesto, part_ptt, broj_fakture, ;
+                            n_v_dug, n_v_pot, n_v_saldo, ;
+                            v_p_dug, v_p_pot, v_p_saldo, ;
+                            v_p_rabat )
+
+local _t_area := SELECT()
+
+O_R_EXP
+
+APPEND BLANK
+
+REPLACE field->broj WITH broj_dok
+REPLACE field->datum WITH datum_dok
+REPLACE field->vr_dok WITH vrsta_dok
+REPLACE field->idpartner WITH id_partner
+REPLACE field->part_naz WITH part_naz
+REPLACE field->part_mj WITH part_mjesto
+REPLACE field->part_ptt WITH part_ptt
+REPLACE field->br_fakt WITH broj_fakture
+REPLACE field->nv_dug WITH n_v_dug
+REPLACE field->nv_pot WITH n_v_pot
+REPLACE field->nv_saldo WITH n_v_saldo
+REPLACE field->vp_dug WITH v_p_dug
+REPLACE field->vp_pot WITH v_p_pot
+REPLACE field->vp_saldo WITH v_p_saldo
+REPLACE field->vp_rabat WITH v_p_rabat
+
+select (_t_area)
+return
 
 
 

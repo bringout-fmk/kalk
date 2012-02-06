@@ -311,7 +311,7 @@ do while !eof() .and. cidfirma==idfirma .and.  IspitajPrekid()
 	ntDod6+=nDod6; ntDod7+=nDod7; ntDod8+=nDod8
 
 	if cPapir="2"
-		@ prow(),pcol()+1 SAY cidpartner+" "+Ocitaj(F_PARTN,cidpartner,"naz")+" "+cbrfaktp
+		@ prow(),pcol()+1 SAY cIdPartner + " " + PADR( cPartnNaz, 28) + " " + cBrFaktP
 		@ prow(),pcol()+1 SAY nNVU pict picdem
 		@ prow(),pcol()+1 SAY nDod3 pict picdem
 		@ prow(),pcol()+1 SAY nDod5 pict picdem

@@ -13,27 +13,38 @@
 #include "kalk.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
- 
 
-/*! \file fmk/kalk/razoff/1g/pren_dok.prg
- *  \brief Prenos dokumenata izmedju udaljenih lokacija (diskete, modem)
- */
-
-
-/*! \fn PrenosDiskete()
- *  \brief Osnovni meni opcija za prenos dokumenata izmedju udaljenih lokacija (diskete, modem)
- */
-
+// ----------------------------------------------------------
+// prenos podataka na diskete - udaljena razmjena
+// ovdje imamo mogucnost odabira prenosa
+// stara varijanta AKALK.ARJ
+// nova varijanta sa zip-om za F18
+// ----------------------------------------------------------
 function PrenosDiskete()
-*{
 private Opc:={}
 private opcexe:={}
+
+AADD(opc,"1. razmjena podataka (ver. 1)          ")
+AADD(opcexe, {|| prenos_v1()})
+AADD(opc,"2. razmjena podataka (ver. 2)")
+AADD(opcexe, {|| prenos_v2()})
+
+private Izbor:=1
+
+Menu_SC("disk")
+
+close all
+return
+
+
+
+// ----------------------------------------------------------
+// prenos podataka na diskete - udaljena razmjena
+// ----------------------------------------------------------
+function prenos_v1()
+private Opc:={}
+private opcexe:={}
+
 AADD(opc,"1. prenos dokumenata   =>            ")
 AADD(opcexe, {|| PrDisk()})
 AADD(opc,"2. prijem dokumenata   <= ")
@@ -44,10 +55,11 @@ AADD(opc,"7. prebaci dokument iz druge firme")
 AADD(opcexe, {|| IzKalk2f()})
 
 private Izbor:=1
-Menu_SC("disk")
-closeret
+
+Menu_SC("pr1")
+
+close all
 return
-*}
 
 
 
@@ -56,8 +68,7 @@ return
  *  \brief Prenos podataka na diskete
  */
 
-function PrDisk()
-*{
+static function PrDisk()
 local nRec
 
 PRIVATE cLokPren    := "A:\"
@@ -285,7 +296,7 @@ return
  *  \brief Preuzimanje podataka sa diskete
  */
 
-function PovDisk()
+static function PovDisk()
 *{
 local nRec
 
@@ -445,7 +456,7 @@ return
  *  \brief Podesavanje parametara prenosa i prijema podataka putem disketa
  */
 
-function PPPDisk(lIni)
+static function PPPDisk(lIni)
 *{
  LOCAL GetList:={}
   IF lIni==NIL; lIni:=.f.; ENDIF

@@ -96,12 +96,25 @@ return
 static function _vars_export( dat_od, dat_do, konta, vrste_dok, exp_sif )
 local _ret := .f.
 local _x := 1
+local _t_area := SELECT()
 
 dat_od := DATE() - 30
 dat_do := DATE()
 konta := PADR( "1320;", 200 )
 vrste_dok := PADR( "10;11;", 200 )
 exp_sif := "D"
+
+O_PARAMS
+private cSection := "E"
+private cHistory := " "
+private aHistory := {}
+
+// procitaj parametre
+RPar( "d1", @dat_od )
+RPar( "d2", @dat_do )
+RPar( "k1", @konta )
+RPar( "v1", @vrste_dok )
+RPar( "ex", @exp_sif )
 
 Box(, 9, 70 )
 
@@ -134,10 +147,21 @@ BoxC()
 // snimi parametre
 if LastKey() <> K_ESC
 
-    _ret := .t.
-   
+	_ret := .t.
+ 
+ 	select params
+	WPar( "d1", dat_od )
+	WPar( "d2", dat_do )
+	WPar( "k1", konta )
+	WPar( "v1", vrste_dok )
+	WPar( "ex", exp_sif )
+  
+  	select params
+	use
+
 endif
 
+select ( _t_area )
 return _ret
 
 
@@ -153,6 +177,8 @@ local _dat_od, _dat_do, _konta, _vrste_dok, _export_sif
 local _usl_mkonto, _usl_pkonto
 local _id_partn, _p_konto, _m_konto
 local _id_roba
+local _sifk := __e_dbf_path + "e_sifk"
+local _sifv := __e_dbf_path + "e_sifv"
 
 // uslovi za export ce biti...
 _dat_od := dat_od
@@ -272,8 +298,10 @@ do while !EOF()
             if !FOUND()
                 append blank
                 Gather()
-            endif
-        endif
+            	select roba
+	    	_fill_sifk( "ROBA", _id_roba )
+	    endif
+	endif
 
         // idi dalje...
         select kalk
@@ -292,9 +320,11 @@ do while !EOF()
         if !FOUND()
             append blank
             Gather()
-        endif
-    endif
-
+            select partn
+            _fill_sifk( "PARTN", _id_partn )
+	endif
+     endif
+ 
     // i konta, naravno
 
     // prvo M_KONTO
@@ -385,6 +415,18 @@ copy structure extended to ( PRIVPATH + "struct" )
 use
 create ( use_path + "e_konto") from ( PRIVPATH + "struct")
 
+// tabela sifk
+O_SIFK
+copy structure extended to ( PRIVPATH + "struct" )
+use
+create ( use_path + "e_sifk") from ( PRIVPATH + "struct")
+
+// tabela sifv
+O_SIFV
+copy structure extended to ( PRIVPATH + "struct" )
+use
+create ( use_path + "e_sifv") from ( PRIVPATH + "struct")
+
 
 return
 
@@ -443,6 +485,16 @@ select ( 244 )
 use ( use_path + "e_konto" ) alias "e_konto"
 index on ( id ) tag "ID"
 
+// otvori konto sifk
+select ( 245 )
+use ( use_path + "e_sifk" ) alias "e_sifk"
+index on ( id + sort + naz ) tag "ID"
+
+// otvori konto sifv
+select ( 246 )
+use ( use_path + "e_sifv" ) alias "e_sifv"
+index on ( id + oznaka + idsif + naz ) tag "ID"
+
 return
 
 
@@ -457,6 +509,8 @@ AADD( _a_files, use_path + "e_kalk.dbf" )
 AADD( _a_files, use_path + "e_doks.dbf" )
 AADD( _a_files, use_path + "e_roba.dbf" )
 AADD( _a_files, use_path + "e_roba.fpt" )
+AADD( _a_files, use_path + "e_sifk.dbf" )
+AADD( _a_files, use_path + "e_sifv.dbf" )
 AADD( _a_files, use_path + "e_partn.dbf" )
 AADD( _a_files, use_path + "e_konto.dbf" )
 
@@ -532,17 +586,27 @@ local _error := 0
 local _zip_f
 local _files
 local _screen
+local _7zip := "c:\progra~1\7-zip\7z.exe"
 private _cmd
 
 _files := _file_list( __e_dbf_path )
 _zip_f := zip_name()
 
-_cmd := "zip " + _zip_f + " " + "@" + PRIVPATH + "zip_lst.txt & pause"
+_cmd := _7zip 
+_cmd += " a -tzip " 
+_cmd += _zip_f 
+_cmd += " " 
+_cmd += "@" + PRIVPATH + "zip_lst.txt"
 
+if !FILE( _7zip )
+	MsgBeep("Ne postoji podesen 7-zip !????")
+	return _error
+endif
+
+// pokreni komandu arhiviranja...
 save screen to _screen
-
+clear screen
 run &_cmd
-
 restore screen from _screen
 
 return _error
@@ -583,5 +647,50 @@ set console on
 return 0
 
 
+// --------------------------------------------------
+// popunjava sifrarnike sifk, sifv
+// --------------------------------------------------
+static function _fill_sifk( sifrarnik, id_sif )
+
+PushWa()
+
+select e_sifk
+
+if reccount2() == 0  
+	// karakteristike upisi samo jednom i to sve
+	// za svaki slucaj !
+	select sifk
+	set order to tag "ID"
+	go top
+
+	do while !EOF()
+   		Scatter()
+   		select e_sifk
+		append blank
+   		Gather()
+   		select sifk
+   		skip
+	enddo
+endif 
+
+// uzmi iz sifv sve one kod kojih je ID=ROBA, idsif=2MON0002
+select sifv
+set order to tag "IDIDSIF"
+seek PADR( sifrarnik, 8 ) + id_sif
+
+do while !EOF() .and. field->id = PADR( sifrarnik, 8 ) ;
+	.and. field->idsif = PADR( id_sif, LEN( id_sif ) )
+
+	Scatter()
+ 	select e_sifv
+	append blank
+ 	Gather()
+ 	select sifv
+ 	skip
+enddo
+
+PopWa()
+
+return
 
 

@@ -32,7 +32,7 @@ __e_zip_name := "kalk_exp.zip"
 AADD(opc,"1. => export podataka               ")
 AADD(opcexe, {|| _kalk_export() })
 
-MenuSC( "razmjena", .f. )
+Menu_SC( "razmjena" )
 
 close all
 return
@@ -59,6 +59,8 @@ _exported := __export( _dat_od, _dat_do, _konta, _vrste_dok, _exp_sif )
 
 // zatvori sve tabele prije operacije pakovanja
 close all
+
+altd()
 
 // arhiviraj podatke
 if _exported > 0 
@@ -158,7 +160,14 @@ _dat_do := dat_do
 _konta := konta
 _vrste_dok := vrste_dok
 _export_sif := exp_sif
- 
+
+// ? postoji li direktorij
+_dir := DIRECTORY( __e_dbf_path )
+if LEN( _dir ) == 0
+	//msgbeep("Nepostojeci direktorij: " + __e_dbf_path )
+	//return 0
+endif
+
 // kreiraj tabele exporta
 _cre_exp_tbls( __e_dbf_path )
 
@@ -447,8 +456,11 @@ local _a_files := {}
 AADD( _a_files, use_path + "e_kalk.dbf" )
 AADD( _a_files, use_path + "e_doks.dbf" )
 AADD( _a_files, use_path + "e_roba.dbf" )
+AADD( _a_files, use_path + "e_roba.fpt" )
 AADD( _a_files, use_path + "e_partn.dbf" )
 AADD( _a_files, use_path + "e_konto.dbf" )
+
+_creListFile( _a_files )
 
 return _a_files
 
@@ -471,6 +483,9 @@ for _i := 1 TO LEN( _files )
         // cdx takodjer ?
         _tmp := STRTRAN( _file, ".dbf", ".cdx" )
         FERASE( _tmp )
+        // fpt takodjer ?
+        _tmp := STRTRAN( _file, ".dbf", ".fpt" )
+        FERASE( _tmp )
     endif
 next
 MsgC()
@@ -488,7 +503,6 @@ local _count := 1
 local _exist := .t.
 
 _file := __e_dbf_path + "kalk_e" + PADL( ALLTRIM(STR( _count )), 2, "0" ) + _ext 
-
 if FILE( _file )
     
     // generisi nove nazive fajlova
@@ -515,7 +529,59 @@ return _file
 // ------------------------------------------
 static function _compress()
 local _error := 0
+local _zip_f
+local _files
+local _screen
+private _cmd
+
+_files := _file_list( __e_dbf_path )
+_zip_f := zip_name()
+
+_cmd := "zip " + _zip_f + " " + "@" + PRIVPATH + "zip_lst.txt & pause"
+
+save screen to _screen
+
+run &_cmd
+
+restore screen from _screen
 
 return _error
+
+
+
+// ---------------------------------------------
+// kreiranje list fajla za prenos
+// ---------------------------------------------
+static function _creListFile( a_files )
+local nH, cFileName, i
+
+cFileName := PRIVPATH + "zip_lst.txt"
+
+// Kreiraj file
+if ( nH := fcreate(cFileName)) == -1
+   Beep(4)
+   Msg( "Greska pri kreiranju fajla: " + cFileName + " !", 6 )
+   return -1
+endif
+
+fclose( nH )
+
+// Otvori file za upis
+set printer to (cFileName)
+set printer on
+set console off
+
+for i := 1 to LEN( a_files )
+	? a_files[i]
+next
+   
+// Zatvori file
+set printer to
+set printer off
+set console on
+
+return 0
+
+
 
 

@@ -176,7 +176,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     ENDIF
 
     // ukupna mpv bez poreza
-    @ prow(), pcol()+1 SAY ( field->mpc + field->rabatv ) * field->kolicina )      picture picdem
+    @ prow(), pcol()+1 SAY (( field->mpc + field->rabatv ) * field->kolicina )      picture picdem
 
     // popust i ukupna vrijednost sa popustom
     if IDVD<>"47"
@@ -185,7 +185,7 @@ do while !eof() .and. cIdFirma==IdFirma .and.  cBrDok==BrDok .and. cIdVD==IdVD
     endif
  
     // ukupni pdv stavke
-    @ prow(),nCol1    SAY  nPor1 * field->kolicina    picture piccdem
+    @ prow(),pcol()+1 SAY  nPor1 * field->kolicina    picture piccdem
     
     // ukupna vrijednost maloprodajna sa uracunatim popustom
     @ prow(),pcol()+1 SAY ( ( nPor1 + field->mpc ) * field->kolicina )   picture picdem

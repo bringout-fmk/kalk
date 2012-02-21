@@ -12,24 +12,8 @@
 
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/kalk/prod/dok/1g/frm_all.prg
- *  \brief Funkcije koje se koriste pri unosu svih dokumenata u maloprodaji
- */
-
-
-/*! \fn VRoba(lSay)
- *  \brief Setuje tarifu i poreze na osnovu sifrarnika robe i tarifa
- */
 
 function VRoba(lSay)
-*{
 P_Roba(@_IdRoba)
 
 if lSay==NIL
@@ -271,7 +255,7 @@ return .t.
 *}
 
 
-function W_Mpc_ (cIdVd, lNaprijed, aPorezi)
+function W_Mpc_(cIdVd, lNaprijed, aPorezi)
 
 // formiraj cijenu naprijed
 if lNaprijed
@@ -280,7 +264,7 @@ if lNaprijed
 endif
 
 if cIdVd $ "41#42#47"
-     nMpcSaPDV := _MpcSaPP - _RabatV
+     nMpcSaPDV := _MpcSaPP
 else
      nMpcSaPDV := _MpcSapp
 endif
@@ -289,7 +273,7 @@ endif
 // postoji MPC, idi unazad
 if !lNaprijed .and. _MpcSapp<>0
   _Marza2 := 0
-  _Mpc:=MpcBezPor(nMpcSaPDV, aPorezi, , _Nc)
+  _Mpc:=MpcBezPor(nMpcSaPDV, aPorezi, , _Nc) - _rabatv
 endif
 
 
@@ -318,7 +302,7 @@ endif
 
 if _MpcSapp<>0
   _marza2:=0
-  _Mpc:=MpcBezPor(_MpcSaPP, aPorezi, , _nc)
+  _Mpc:=MpcBezPor( _MpcSaPP, aPorezi, , _nc) - _rabatv
 endif
 
 if fRealizacija
@@ -403,7 +387,7 @@ if fRealizacija==NIL
   fRealizacija:=.f.
 endif
 if fRealizacija
-   nPom:=_mpcsapp - _rabatv
+   nPom:=_mpcsapp
 else
    nPom:=_mpcsapp
 endif
@@ -413,7 +397,7 @@ if fMarza==nil
 endif
 
 if _mpcsapp<>0 .and. empty(fMarza)
-  _mpc:= MpcBezPor (nPom, aPorezi, , _nc)
+  _mpc:= MpcBezPor (nPom, aPorezi, , _nc) - _rabatv
   _marza2:=0
   if fRealizacija
     Marza2R()
@@ -445,14 +429,14 @@ if lShowGets == nil
 endif
 
 if cIdvd $ "41#42"
-  nPom := _MpcSaPP - _RabatV
+  nPom := _MpcSaPP
 else
   nPom:=_mpcsapp
 endif
 
 if _Mpcsapp<>0 .and. !lNaprijed
   
-  _mpc:= MpcBezPor (nPom, aPorezi, , _nc)
+  _mpc:= MpcBezPor (nPom, aPorezi, , _nc) - _rabatv
   _marza2:=0
   
   MarzaMP(cIdVd, lNaprijed, aPorezi)

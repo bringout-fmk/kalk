@@ -12,28 +12,13 @@
 
 #include "kalk.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
 
-/*! \file fmk/kalk/prod/dok/1g/frm_41.prg
- *  \brief Maska za unos dokumenata tipa 41,42,43,47,49
- */
-
-
-/*! \fn Get1_41()
- *  \brief Prva strana maske za unos dokumenata tipa 41,42,43,47,49
- */
 
 //realizacija prodavnice  41-fakture maloprodaje
 //                        42-gotovina
 
 
 function Get1_41()
-*{
 pIzgSt:=.f.   // izgenerisane stavke jos ne postoje
 private aPorezi:={}
 
@@ -189,12 +174,12 @@ endif
      WHEN W_MPC_ (IdVd, .f., @aPorezi) ;
      VALID V_Mpc_ (_IdVd, .f., @aPorezi)
 
-SayPorezi(18)
-
 private cRCRP := gRCRP
 
-@ m_x+19,m_y+2 SAY "POPUST (C-CIJENA,P-%)" GET cRCRP VALID cRCRP$"CP" PICT "@!"
-@ m_x+19,m_y+50 GET _Rabatv picture picdem  VALID RabProcToC()
+@ m_x+18,m_y+2 SAY "POPUST (C-CIJENA,P-%)" GET cRCRP VALID cRCRP$"CP" PICT "@!"
+@ m_x+18,m_y+50 GET _Rabatv PICT picdem  VALID RabProcToC()
+
+SayPorezi(19)
 
 if IsPDV()
 	@ m_x+20,m_y+2 SAY "MPC SA PDV    :"
@@ -215,16 +200,17 @@ nStrana:=2
 
 FillIzgStavke(pIzgSt)
 return lastkey()
-*}
 
 
+// --------------------------------------------
+// racuna procenat rabata
+// --------------------------------------------
 static function RabProcToC()
-*{
 if cRCRP=="P"
-	_rabatv:=_mpcsapp*_rabatv/100
+	_rabatv := _mpc * ( _rabatv / 100 )
 	cRCRP:="C"
 	ShowGets()
 endif
 return .t.
-*}
+
 

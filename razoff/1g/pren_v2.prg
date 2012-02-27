@@ -97,6 +97,7 @@ static function _vars_export( dat_od, dat_do, konta, vrste_dok, exp_sif )
 local _ret := .f.
 local _x := 1
 local _t_area := SELECT()
+local _exp_dir := SPACE(300)
 
 dat_od := DATE() - 30
 dat_do := DATE()
@@ -115,8 +116,13 @@ RPar( "d2", @dat_do )
 RPar( "k1", @konta )
 RPar( "v1", @vrste_dok )
 RPar( "ex", @exp_sif )
+RPar( "ed", @_exp_dir )
 
-Box(, 9, 70 )
+if EMPTY( ALLTRIM( _exp_dir ) )
+	_exp_dir := PADR( __e_dbf_path, 300 )
+endif
+
+Box(, 11, 70 )
 
     @ m_x + _x, m_y + 2 SAY "*** Uslovi exporta dokumenata"
 
@@ -140,7 +146,12 @@ Box(, 9, 70 )
 
     @ m_x + _x, m_y + 2 SAY "Eksportovati sifrarnike (D/N) ?" GET exp_sif PICT "@!" VALID exp_sif $ "DN"
 
-    read
+    ++ _x
+    ++ _x
+
+    @ m_x + _x, m_y + 2 SAY "Export direktorij (prazno-def.)" GET _exp_dir PICT "@S30"
+
+read
 
 BoxC()
 
@@ -150,12 +161,17 @@ if LastKey() <> K_ESC
 	_ret := .t.
  
  	select params
+
 	WPar( "d1", dat_od )
 	WPar( "d2", dat_do )
 	WPar( "k1", konta )
 	WPar( "v1", vrste_dok )
 	WPar( "ex", exp_sif )
+	WPar( "ed", _exp_dir )
   
+	// setuj static varijablu...
+	__e_dbf_path := ALLTRIM( _exp_dir )
+
   	select params
 	use
 

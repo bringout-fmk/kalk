@@ -61,6 +61,9 @@ AADD(opc,"T. export kalk baza podataka")
 AADD(opcexe, {|| kalk_export()})
 AADD(opc,"U. spajanje kalk baza podataka iz sezona")
 AADD(opcexe, {|| kalk_join()})
+AADD(opc,"V. pregled podataka za F18")
+AADD(opcexe, {|| f18_test_data()})
+
 
 private Izbor:=1
 Menu_SC("admk")

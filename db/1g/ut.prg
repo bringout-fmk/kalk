@@ -302,8 +302,9 @@ endif
 
 lIdiDalje := .f.
 
+O_DOKS
 select doks
-set order to 1
+set order to tag "1"
 
 seek cIdFirma + cIdTipDok + "XXX"
 // vrati se na zadnji zapis

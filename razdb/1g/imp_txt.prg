@@ -1116,8 +1116,10 @@ local cIdKonto
 local cIdKonto2
 local cIdPJ
 local aArr_ctrl := {}
+local _id_konto, _id_konto2
 
 O_PRIPR
+O_KONCIJ
 O_DOKS
 O_DOKS2
 O_ROBA
@@ -1255,6 +1257,16 @@ do while !EOF()
 	
 	endif
 
+	// konta zaduzuje i razduzuje !
+	_id_konto := GetKtKalk( cTDok, temp->idpm, "Z", cIdPJ )
+	_id_konto2 := GetKtKalk( cTDok, temp->idpm, "R", cIdPJ )
+
+	// pozicioniraj se na koncij stavku
+	select koncij
+	set order to tag "ID"
+	go top
+	seek _id_konto 
+
 	// dodaj zapis u pripr
 	select pript
 	append blank
@@ -1275,21 +1287,24 @@ do while !EOF()
 	// konta:
 	// =====================
 	// zaduzuje
-	replace idkonto with GetKtKalk(cTDok, temp->idpm, "Z", cIdPJ)
+	replace idkonto with _id_konto
 	// razduzuje
-	replace idkonto2 with GetKtKalk(cTDok, temp->idpm, "R", cIdPJ)
-	
+	replace idkonto2 with _id_konto2 	
 	replace idzaduz2 with ""
 	
 	// spec.za tip dok 11
 	if cTDok $ "11#41"
+
 		replace tmarza2 with "A"
 		replace tprevoz with "A"
+	
 		if cTDok == "11"
-			replace mpcsapp with roba->mpc2
+			// treba uzeti cijenu iz sifrarnika aktuelnu !
+			replace mpcsapp with UzmiMpcSif()
 		else
 			replace mpcsapp with temp->cijena
 		endif
+
 	endif
 	
 	replace datkurs with temp->datdok

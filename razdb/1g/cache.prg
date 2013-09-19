@@ -234,6 +234,7 @@ local nUVr_poz, nIVr_poz
 local nUKol_poz, nIKol_poz
 local nZadnjaNC := 0
 local nOdstup := 0
+local _dok_korek := .f.
 
 if _g_kto( @cMKtoLst, @cPKtoLst, @dDatGen, @cAppFSif, ;
 	@nT_kol, @nT_ncproc ) == 0
@@ -248,6 +249,7 @@ zap
 __dbpack()
 
 O_CACHE
+O_DOKS
 O_KALK
 
 
@@ -301,36 +303,55 @@ for i := 1 to LEN( aKto )
 			loop
 		endif
 
+		select doks
+		set order to tag "1"
+		go top
+		seek kalk->idfirma + kalk->idvd + kalk->brdok
+		select kalk
+
+		if LEFT( doks->brfaktp, 6 ) == "#KOREK"
+			_dok_korek := .t.
+		else
+			_dok_korek := .f.
+		endif
+
   		if field->mu_i == "1" .or. field->mu_i == "5"
     		  
 		  if idvd == "10"
-      			nKolNeto := abs(kolicina-gkolicina-gkolicin2)
+      			nKolNeto := abs( kolicina - gkolicina - gkolicin2 )
     		  else
-      			nKolNeto := abs(kolicina)
+      			nKolNeto := abs( kolicina )
     		  endif
 
-    		  if ( field->mu_i == "1" .and. field->kolicina > 0 ) ;
-		  	.or. ( field->mu_i == "5" .and. field->kolicina < 0 )
-         		
+    		  if ( field->mu_i == "1" .and. field->kolicina > 0 ) .or. ;
+		  	( field->mu_i == "5" .and. field->kolicina < 0 )
+			
 			nKolicina += nKolNeto    
+
          		nUlKol += nKolNeto    
          		nUlNV += ( nKolNeto * field->nc )      
     			
 			// zadnja nabavna cijena ulaza
-			if idvd $ "10#16#96"
+			if idvd $ "10#16#96" .and. !_dok_korek
 				nZadnjaNC := field->nc
 			endif
-		  
+		
 		  else
          		
 			nKolicina -= nKolNeto
-         		nIzlKol += nKolNeto
+
+			nIzlKol += nKolNeto
          		nIzlNV += ( nKolNeto * field->nc )
 
+			if idvd == "16" .and. _dok_korek
+				nZadnjaNC := field->nc
+			endif
+	
     		  endif
 
 		  // ako je stanje pozitivno zapamti ga
-    		  if round(nKolicina, 8) > 0
+    		  if round( nKolicina, 8 ) > 0
+
         		nKol_poz := nKolicina
 
         		nUKol_poz := nUlKol
@@ -338,7 +359,8 @@ for i := 1 to LEN( aKto )
 
         		nUVr_poz := nUlNv
         		nIVr_poz := nIzlNv
-    		  endif
+    		  
+		  endif
   		
 		endif
   		
@@ -347,16 +369,16 @@ for i := 1 to LEN( aKto )
 	enddo 
  
         // utvrdi srednju nabavnu cijenu na osnovu posljednjeg pozitivnog stanja
-	if round(nKol_poz, 8) == 0
- 		nSNc:=0
+	if round( nKol_poz, 8 ) == 0
+ 		nSNc := 0
 	else
  		// srednja nabavna cijena
- 		nSNc:=(nUVr_poz - nIVr_poz) / nKol_poz
+ 		nSNc := ( nUVr_poz - nIVr_poz ) / nKol_poz
 	endif
 
 	nKolicina := round( nKolicina, 4 )
         
-	if round(nKol_poz, 8) <> 0
+	if round( nKol_poz, 8 ) <> 0
 	 
 	 // upisi u cache
 	 select cache
@@ -438,17 +460,35 @@ for i := 1 to LEN( aKto )
 		loop
 	  endif
 
+	  select doks
+	  set order to tag "1"
+	  go top
+	  seek kalk->idfirma + kalk->idvd + kalk->brdok
+	  select kalk
+
+	  if LEFT( doks->brfaktp, 6 ) == "#KOREK"
+	  	_dok_korek := .t.
+	  else
+	  	_dok_korek := .f.
+	  endif
+
 	  if field->pu_i == "1" .or. field->pu_i == "5"
-    	    if ( field->pu_i == "1" .and. field->kolicina > 0 ) ;
+    	    
+	    if ( field->pu_i == "1" .and. field->kolicina > 0 ) ;
 	    	.or. ( field->pu_i == "5" .and. field->kolicina < 0 )
-      		nKolicina += abs(field->kolicina)       
+      		
+		nKolicina += abs(field->kolicina)       
       		nUlKol    += abs(field->kolicina)       
       		nUlNV     += (abs(field->kolicina)*field->nc)  
-    	    else
-      		nKolicina -= abs(field->kolicina)
+    	    
+	    else
+      	
+		nKolicina -= abs(field->kolicina)
       		nIzlKol   += abs(field->kolicina)
       		nIzlNV    += (abs(field->kolicina)*field->nc)
+
     	    endif
+
   	  elseif field->pu_i=="I"
      		nKolicina-=field->gkolicin2
      		nIzlKol+=field->gkolicin2

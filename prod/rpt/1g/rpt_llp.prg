@@ -488,6 +488,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 					replace kolicina with -1
 					replace idvd with "80"
 					replace brdok with cBRPST
+					replace brfaktp with "#KOREK"
 					replace nc with 0
 					replace mpcsapp with 0
 					replace TMarza2 with "A"
@@ -508,6 +509,7 @@ do while !eof() .and. cIdFirma+cIdKonto==idfirma+pkonto .and. IspitajPrekid()
 					replace kolicina with 1
 					replace idvd with "80"
 					replace brdok with cBRPST
+					replace brfaktp with "#KOREK"
 					replace nc with 0
 					replace mpcsapp with ;
 						(nMPVU-nMPVI+nPMPV)

@@ -55,7 +55,7 @@ Box(, 20, 77)
 if IsPlanika()
 	@ m_x + 20 , m_y + 2 SAY "<S> dokument u procesu staviti na stanje "
 else
-	@ m_x + 20 , m_y + 2 SAY ""
+	@ m_x + 20 , m_y + 2 SAY "<I> ispravka na dokumentu"
 endif
 
 set_a_kol(@ImeKol, @Kol)
@@ -133,6 +133,7 @@ endif
 AADD(aImeKol, { "NV",       {|| TRANSFORM(nv, gPicDem)} })
 AADD(aImeKol, { "VPV",      {|| TRANSFORM(vpv,gPicDem)} })
 AADD(aImeKol, { "MPV",      {|| TRANSFORM(mpv,gPicDem)} })
+AADD(aImeKol, { "DOKUMENT", {|| brfaktp } })
 
 for i:=1 to LEN(aImeKol)
 	AADD(aKol, i)
@@ -162,28 +163,23 @@ return cStatus
 static function brow_keyhandler(Ch)
 
 do case
-	case UPPER(CHR(Ch)) == "S"
-		// stavljanje dokumenta na stanje...
-		if IsPlanika() ;
-		   .and. dok_u_procesu(doks->idfirma, doks->idvd, doks->brdok) ;
-		   .and. Pitanje(,"Dokument staviti na stanje", "N") == "D"
+	case UPPER(CHR(Ch)) ==  "I"
+
+		scatter()
 			
-			select kalk
-			set order to tag "1"
-			go top
-			seek doks->(idfirma + idvd + brdok)
-			do while !EOF() .and. kalk->(idfirma + idvd + brdok) == doks->(idfirma + idvd + brdok)
-				Scatter()
-				// setuj MU_I i PU_I
-				_pu_i := get_pu_i(doks->idvd)
-				_mu_i := get_mu_i(doks->idvd)
-				Gather()
-				skip
-			enddo
-			select doks
-			return DE_REFRESH
+		Box(, 3, 65 )
+			@ m_x + 1, m_y + 2 SAY "Ispravke na dokumentu ***"	
+			@ m_x + 3, m_y + 2 SAY "Dokument:" GET _brfaktp
+			read
+		BoxC()
+
+		if LastKey() == K_ESC
+			return DE_CONT
 		endif
-		return DE_CONT
+
+		Gather()
+
+		return DE_REFRESH
 
 	case Ch == K_CTRL_P
 		// stampa dokumenta
@@ -231,7 +227,7 @@ Box(, 10, 65)
 
 	nX := nX + 2
 	
-	@ nX + m_x, 2 + m_y SAY "Partner:" GET cPartner VALID p_firma(@cPartner)
+	@ nX + m_x, 2 + m_y SAY "Partner:" GET cPartner VALID EMPTY(cPartner) .or. p_firma(@cPartner)
 	
 	read
 BoxC()

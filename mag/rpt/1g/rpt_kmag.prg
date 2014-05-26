@@ -26,6 +26,7 @@ local nVPV:=0
 local cLine
 local cTxt1
 local cTxt2
+local cTipDok := SPACE(100)
 private fKNabC:=.f.
 private fVeci:=.f.
 private PicCDEM:=REPLICATE("9", VAL(gFPicCDem)) + gPicCDEM 
@@ -100,8 +101,10 @@ if cIdKonto==NIL
     			@ m_x+ 3,m_y+2 SAY "Artikal" GET cIdRoba  pict "@!" valid empty(cIdRoba) .or. right(trim(cIdRoba),1) $ ";>" .or. P_ROBA(@cIdRoba)
     		endif
 		
+		@ m_x + 4, m_y + 2 SAY "Tipovi dok.:" GET cTipDok PICT "@S20"
+
 		if !EMPTY(cRNT1)
-    			@ m_x+ 4,m_y+2 SAY "Broj radnog naloga:" GET cRNalBroj PICT "@S20"
+    			@ m_x + 4, col() + 1 SAY "Br.rad.nal:" GET cRNalBroj PICT "@S20"
 		endif
 		
     		@ m_x+ 5,m_y+2 SAY "Partner (prazno-svi)"  GET cIdPArtner  valid empty(cIdPartner) .or. P_Firma(@cIdPartner)  pict "@!"
@@ -199,6 +202,10 @@ private cFilt:=".t."
 
 if lPoNarudzbi .and. aUslN<>".t."
 	cFilt+=".and."+aUslN
+endif
+
+if !EMPTY( cTipDok )
+	cFilt+=".and." + Parsiraj( cTipDok, "idvd" )
 endif
 
 if !empty(cIdPartner)

@@ -1154,6 +1154,16 @@ do while !EOF()
 	cTDok := GetKTipDok(ALLTRIM(temp->idtipdok), temp->idpm)
 	cPm := temp->idpm
 	cIdPJ := temp->idpj
+	
+	// konta zaduzuje i razduzuje !
+	_id_konto := GetKtKalk( cTDok, temp->idpm, "Z", cIdPJ )
+	_id_konto2 := GetKtKalk( cTDok, temp->idpm, "R", cIdPJ )
+
+	if cTDok == "14"
+	   cIdKonto := _id_konto2
+	else
+	   cIdKonto := _id_konto
+	endif
 
 	// pregledaj CACHE, da li treba preskociti ovaj artikal
 	if cCtrl_art == "D"
@@ -1215,7 +1225,8 @@ do while !EOF()
 	
 	if cFakt <> cPFakt
 		++ nUvecaj
-		cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
+		//cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
+		cBrojKalk := kalk_novi_broj(gFirma, cTDok, cIdKonto, nUvecaj)
 		nRbr := 0
 		AADD(aPom, { cTDok, cBrojKalk, cFakt })
 	else
@@ -1223,7 +1234,8 @@ do while !EOF()
 		if cTDok == "11"
 			if cPm <> cPPm
 				++ nUvecaj
-				cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
+				//cBrojKalk := GetNextKalkDoc(gFirma, cTDok, nUvecaj)
+		                cBrojKalk := kalk_novi_broj(gFirma, cTDok, cIdKonto, nUvecaj)
 				nRbr := 0
 				AADD(aPom, { cTDok, cBrojKalk, cFakt })
 			endif
@@ -1256,10 +1268,6 @@ do while !EOF()
 		replace DatVal with temp->datval
 	
 	endif
-
-	// konta zaduzuje i razduzuje !
-	_id_konto := GetKtKalk( cTDok, temp->idpm, "Z", cIdPJ )
-	_id_konto2 := GetKtKalk( cTDok, temp->idpm, "R", cIdPJ )
 
 	// pozicioniraj se na koncij stavku
 	select koncij
@@ -2096,16 +2104,16 @@ endif
 return
 *}
 
-FUNCTION kalk_novi_broj( cIdFirma, cIdVd, cIdKonto )
+FUNCTION kalk_novi_broj( cIdFirma, cIdVd, cIdKonto, nUvecaj )
 
    LOCAL cSufiks
    LOCAL nUvecaj := 1
 
    IF glBrojacPoKontima
        cSufiks := SufBrKalk( cIdKonto )
-       cBrKalk := SljBrKalk( cIdVd , cIdFirma, cSufiks )
+       cBrKalk := SljBrKalk( cIdVd , cIdFirma, cSufiks, nUvecaj )
    ELSE
-       cBrKalk := GetNextKalkDoc( cIdFirma, cIdVd, 1 )
+       cBrKalk := GetNextKalkDoc( cIdFirma, cIdVd, nUvecaj )
    ENDIF
 
    RETURN cBrKalk

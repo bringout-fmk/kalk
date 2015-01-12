@@ -247,12 +247,17 @@ return cReturn
 
 // ------------------------------------------------
 // ------------------------------------------------
-function SljBrKalk(cTipKalk, cIdFirma, cSufiks)
+function SljBrKalk(cTipKalk, cIdFirma, cSufiks, nUvecaj )
 *{
 local cBrKalk:=space(8)
 if cSufiks==nil
 	cSufiks:=SPACE(3)
 endif
+
+if nUvecaj == NIL
+  nUvecaj := 1
+endif
+
 if gBrojac=="D"
 	if glBrojacPoKontima
 		select doks
@@ -279,7 +284,7 @@ if gBrojac=="D"
 		cBrKalk := PADR( novasifra( ALLTRIM(cBrKalk) ), 5 ) + ;
 			right( cBrKalk, 3 )
 	else
-		cBrKalk:=UBrojDok(val(left(cBrKalk,5)) + 1, ;
+		cBrKalk:=UBrojDok(val(left(cBrKalk,5)) + nUvecaj, ;
 			5, right(cBrKalk,3) )
 	endif
 endif

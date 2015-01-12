@@ -2107,7 +2107,6 @@ return
 FUNCTION kalk_novi_broj( cIdFirma, cIdVd, cIdKonto, nUvecaj )
 
    LOCAL cSufiks
-   LOCAL nUvecaj := 1
 
    IF glBrojacPoKontima
        cSufiks := SufBrKalk( cIdKonto )

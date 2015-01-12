@@ -1619,6 +1619,8 @@ return 1
  *  \brief Obrada importovanih dokumenata
  */
 function ObradiImport(nPocniOd, lAsPokreni, lStampaj)
+
+local cIdKonto
 local cN_kalk_dok := ""
 local nUvecaj := 0
 
@@ -1683,11 +1685,18 @@ do while !EOF()
 		loop
 	endif
 	
-	// daj novi broj dokumenta kalk
-	nT_area := SELECT()
-	cN_kalk_dok := GetNextKalkDoc(cFirma, cIdVd, 1)
-	select (nT_area)
-	
+       IF cIdVd $ "14"
+           cIdKonto := field->idkonto2
+       ELSE
+           cIdKonto := field->idkonto
+       ENDIF
+
+
+      // daj novi broj dokumenta kalk
+      nT_area := SELECT()
+
+      cN_kalk_dok := kalk_novi_broj( cFirma, cIdVd, cIdKonto )
+
 	@ 3+m_x, 2+m_y SAY "Prebacujem: " + cFirma + "-" + cIdVd + "-" + cBrDok
 	
 	nStCnt := 0
@@ -2087,4 +2096,16 @@ endif
 return
 *}
 
+FUNCTION kalk_novi_broj( cIdFirma, cIdVd, cIdKonto )
 
+   LOCAL cSufiks
+   LOCAL nUvecaj := 1
+
+   IF glBrojacPoKontima
+       cSufiks := SufBrKalk( cIdKonto )
+       cBrKalk := SljBrKalk( cIdVd , cIdFirma, cSufiks )
+   ELSE
+       cBrKalk := GetNextKalkDoc( cIdFirma, cIdVd, 1 )
+   ENDIF
+
+   RETURN cBrKalk

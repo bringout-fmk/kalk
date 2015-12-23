@@ -1707,6 +1707,8 @@ do while !EOF()
 
 	@ 3+m_x, 2+m_y SAY "Prebacujem: " + cFirma + "-" + cIdVd + "-" + cBrDok
 	
+	SELECT (nT_area)
+
 	nStCnt := 0
 	do while !EOF() .and. field->brdok = cBrDok .and. field->idfirma = cFirma .and. field->idvd = cIdVd
 		
